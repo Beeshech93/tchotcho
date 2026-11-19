@@ -1,0 +1,655 @@
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { useState, useEffect } from "react";
+import { ArrowRight, ShieldCheck, Timer, Wallet, TrendingUp, Send, Smartphone, AlertTriangle } from "lucide-react";
+
+import logoAsset from "@/assets/lajan-rapid-logo.png";
+import womanPhoneAsset from "@/assets/woman-phone-navy.png";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { quote, money } from "@/lib/remesa";
+import { useCountries, useRate, useTopupRate, fallbackRate } from "@/hooks/useCorridors";
+import { TOPUP_COUNTRIES, findTopupCountry } from "@/lib/topup-operators";
+import { useI18n } from "@/lib/i18n";
+import { useServicesConfig } from "@/hooks/useServicesConfig";
+import { useBrand } from "@/hooks/useBrand";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { InstallAppCard } from "@/components/InstallAppCard";
+import { AdBanner } from "@/components/AdBanner";
+
+export const Route = createFileRoute("/")({
+  head: () => ({
+    meta: [
+      {
+        title: "Lajan Rapid | Send Money to Haiti from USA, Canada, Mexico, Brazil, Chile & France",
+      },
+      {
+        name: "description",
+        content:
+          "Lajan Rapid makes international money transfers to Haiti simple, fast and secure. Send money to Haiti from the USA, Canada, Mexico, Brazil, Chile and France.",
+      },
+      {
+        name: "keywords",
+        content:
+          "Lajan Rapid, send money to Haiti, Haiti remittance, Haiti money transfer, USA Haiti money transfer, Canada Haiti money transfer, Mexico Haiti remittance, Brazil Haiti transfer, Chile Haiti remittance, France Haiti transfer, MonCash, NatCash",
+      },
+      { name: "robots", content: "index, follow, max-image-preview:large" },
+      {
+        property: "og:title",
+        content:
+          "Lajan Rapid | Send Money to Haiti from USA, Canada, Mexico, Brazil, Chile & France",
+      },
+      {
+        property: "og:description",
+        content:
+          "Lajan Rapid makes international money transfers to Haiti simple, fast and secure. Send money to Haiti from the USA, Canada, Mexico, Brazil, Chile and France.",
+      },
+    ],
+    links: [
+      { rel: "canonical", href: "https://lajanrapid.app/" },
+      { rel: "alternate", hreflang: "en", href: "https://lajanrapid.app/" },
+      { rel: "alternate", hreflang: "es", href: "https://lajanrapid.app/es/" },
+      { rel: "alternate", hreflang: "fr", href: "https://lajanrapid.app/fr/" },
+      { rel: "alternate", hreflang: "ht", href: "https://lajanrapid.app/ht/" },
+      { rel: "alternate", hreflang: "x-default", href: "https://lajanrapid.app/" },
+    ],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "Organization",
+          name: "Lajan Rapid",
+          url: "https://lajanrapid.app/",
+          description:
+            "Lajan Rapid is an international money transfer and remittance service connecting customers with recipients in Haiti.",
+          knowsAbout: [
+            "Money transfers",
+            "Remittances",
+            "Haiti money transfers",
+            "USA to Haiti money transfer",
+            "Canada to Haiti money transfer",
+            "Mexico to Haiti money transfer",
+            "Brazil to Haiti money transfer",
+            "Chile to Haiti money transfer",
+            "France to Haiti money transfer",
+          ],
+        }),
+      },
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "WebSite",
+          name: "Lajan Rapid",
+          url: "https://lajanrapid.app/",
+          // Solo los idiomas que la app realmente soporta (ver src/lib/i18n.tsx).
+          inLanguage: ["en", "es", "fr", "ht"],
+        }),
+      },
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "Service",
+          name: "Lajan Rapid International Money Transfer",
+          provider: {
+            "@type": "Organization",
+            name: "Lajan Rapid",
+            url: "https://lajanrapid.app/",
+          },
+          serviceType: "Money transfer and remittance service",
+          areaServed: ["United States", "Canada", "Mexico", "Brazil", "Chile", "France", "Haiti"],
+          url: "https://lajanrapid.app/",
+        }),
+      },
+    ],
+  }),
+  component: Landing,
+});
+
+export function Landing() {
+  const { t } = useI18n();
+  const { currentBrand, logoSrc, isCustomBrand } = useBrand();
+  const { isEnabled, getMessage } = useServicesConfig();
+  const transfersEnabled = isEnabled("transfers");
+  const topupsEnabled = isEnabled("topups");
+
+  const [activeTab, setActiveTab] = useState("envios");
+  const effectiveTab = activeTab;
+
+  useEffect(() => {
+    if (!transfersEnabled && topupsEnabled && activeTab === "envios") {
+      setActiveTab("recargas");
+    } else if (transfersEnabled && !topupsEnabled && activeTab === "recargas") {
+      setActiveTab("envios");
+    }
+  }, [transfersEnabled, topupsEnabled, activeTab]);
+
+  const [origin, setOrigin] = useState("MX");
+  const [destination, setDestination] = useState("HT");
+  const [amount, setAmount] = useState("2000");
+
+  const [topupOrigin, setTopupOrigin] = useState("MX");
+  const [topupDestination, setTopupDestination] = useState("HT");
+  const [topupOperator, setTopupOperator] = useState("Digicel");
+  const [topupAmount, setTopupAmount] = useState("200");
+
+  const { data: countries } = useCountries();
+
+  const origins = (countries ?? []).filter((c) => c.is_origin);
+  const destinations = (countries ?? []).filter((c) => c.is_destination && c.code !== "DO");
+  const originCountry = origins.find((c) => c.code === origin);
+  const destCountry = destinations.find((c) => c.code === destination);
+  const sendCurrency = originCountry?.currency ?? "MXN";
+  const receiveCurrency = destCountry?.currency ?? "HTG";
+  const { data: cfg } = useRate(sendCurrency, receiveCurrency);
+
+  const fbRate = fallbackRate(sendCurrency, receiveCurrency) ?? {
+    rate: 7.20,
+    fee_percent: 1.5,
+    fee_fixed: 15,
+    agent_commission_percent: 0.8,
+  };
+  const effectiveCfg = cfg && Number(cfg.rate) > 0 ? cfg : fbRate;
+
+  const q = quote(Number(amount), effectiveCfg, {
+    percent: currentBrand.settings?.feeMarkupPercent,
+    fixed: currentBrand.settings?.feeMarkupFixed,
+  });
+
+  // Recargas
+  const topupOriginCountry = origins.find((c) => c.code === topupOrigin);
+  const topupSendCurrency = topupOriginCountry?.currency ?? "MXN";
+  const topupDestCurrency =
+    destinations.find((c) => c.code === topupDestination)?.currency ||
+    (topupDestination === "HT"
+      ? "HTG"
+      : topupDestination === "DO"
+        ? "DOP"
+        : topupDestination === "CU"
+          ? "CUP"
+          : topupDestination === "US"
+            ? "USD"
+            : topupDestination === "JM"
+              ? "JMD"
+              : topupDestination === "BR"
+                ? "BRL"
+                : topupDestination === "CO"
+                  ? "COP"
+                  : "HTG");
+  const topupCountryInfo = findTopupCountry(topupDestination);
+
+  const sameTopupCurrency = topupSendCurrency === topupDestCurrency;
+  const { data: topupRateData } = useTopupRate(
+    sameTopupCurrency ? undefined : topupSendCurrency,
+    sameTopupCurrency ? undefined : topupDestCurrency,
+  );
+  const { data: fallbackRateData } = useRate(
+    sameTopupCurrency ? undefined : topupSendCurrency,
+    sameTopupCurrency ? undefined : topupDestCurrency,
+  );
+  const effectiveTopupRate = sameTopupCurrency
+    ? 1
+    : (topupRateData?.rate ?? fallbackRateData?.rate ?? 0);
+
+  const topupAmountNum = Number(topupAmount) || 0;
+  const topupReceived = effectiveTopupRate
+    ? Math.round(topupAmountNum * Number(effectiveTopupRate) * 100) / 100
+    : 0;
+
+  return (
+    <div className="min-h-screen bg-background">
+      <div className="bg-brand text-foreground">
+        <header className="mx-auto flex max-w-6xl items-center justify-between gap-2 px-4 py-5 sm:px-5">
+          <Link
+            to="/"
+            className="flex min-w-0 items-center gap-2 transition-opacity hover:opacity-90 sm:gap-2.5"
+            aria-label={currentBrand.name}
+          >
+            <span className="grid size-9 shrink-0 place-items-center overflow-hidden rounded-xl bg-logo-surface p-1 shadow-soft">
+              <img src={logoSrc} alt={currentBrand.name} className="h-full w-full object-contain" />
+            </span>
+            <span className="truncate font-display text-base font-semibold tracking-tight sm:text-lg">
+              {currentBrand.name}
+            </span>
+          </Link>
+          <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
+            <LanguageSwitcher className="h-9 w-[72px] shrink-0 border-foreground/20 bg-foreground/10 px-2 text-xs text-foreground sm:w-[132px] sm:px-3 [&_svg:last-child]:hidden sm:[&_svg:last-child]:inline-block [&_span]:truncate" />
+            <Button
+              asChild
+              variant="ghost"
+              size="sm"
+              className="px-2 text-[11px] text-foreground hover:bg-primary-foreground/10 hover:text-foreground sm:px-3 sm:text-xs"
+            >
+              <Link to="/auth">{t("auth.signin")}</Link>
+            </Button>
+            <Button
+              asChild
+              size="sm"
+              className="px-2 text-[11px] bg-primary-foreground text-primary hover:bg-primary-foreground/90 sm:px-3 sm:text-xs"
+            >
+              <Link to="/auth" search={{ modo: "registro" }}>
+                {t("auth.signup")}
+              </Link>
+            </Button>
+          </div>
+        </header>
+
+        <section className="mx-auto grid max-w-6xl items-center gap-8 px-4 pb-16 pt-6 sm:px-6 lg:grid-cols-[1.1fr_1fr] lg:gap-10 lg:pb-24 lg:pt-10">
+          <div className="space-y-6">
+            <span className="inline-flex items-center gap-2 rounded-full border border-foreground/35 bg-foreground/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-foreground">
+              <TrendingUp className="size-3.5" /> {t("landing.badge")}
+            </span>
+            <h1 className="font-display text-3xl font-bold leading-[1.08] sm:text-4xl lg:text-[3rem]">
+              {isCustomBrand && currentBrand.content.slogan
+                ? currentBrand.content.slogan
+                : t("landing.title")}
+            </h1>
+            <p className="max-w-lg text-base text-foreground/75 sm:text-lg leading-relaxed">
+              {isCustomBrand && currentBrand.content.tagline
+                ? currentBrand.content.tagline
+                : t("landing.subtitle")}
+            </p>
+            <div className="flex flex-wrap gap-3 pt-1">
+              {activeTab === "envios" && !transfersEnabled ? (
+                <Button
+                  size="lg"
+                  disabled
+                  className="gap-2 bg-primary-foreground/30 text-primary-foreground/70 cursor-not-allowed font-semibold"
+                >
+                  {t("services.disabled_btn")}
+                </Button>
+              ) : activeTab === "recargas" && !topupsEnabled ? (
+                <Button
+                  size="lg"
+                  disabled
+                  className="gap-2 bg-primary-foreground/30 text-primary-foreground/70 cursor-not-allowed font-semibold"
+                >
+                  {t("services.disabled_btn")}
+                </Button>
+              ) : (
+                <Button
+                  asChild
+                  size="lg"
+                  className="gap-2 bg-primary-foreground text-primary hover:bg-primary-foreground/90 font-semibold"
+                >
+                  <Link to="/auth" search={{ modo: "registro" }}>
+                    {activeTab === "recargas" ? t("topup.send_recharge") : t("landing.cta")}{" "}
+                    <ArrowRight className="size-4" />
+                  </Link>
+                </Button>
+              )}
+              <Button
+                asChild
+                size="lg"
+                variant="outline"
+                className="border-foreground/30 bg-transparent text-foreground hover:bg-foreground/10 hover:text-foreground"
+              >
+                <Link to="/auth">{t("landing.have_account")}</Link>
+              </Button>
+            </div>
+
+            {/* Beneficios clave que completan la visión web */}
+            <div className="grid grid-cols-3 gap-3 pt-2 text-xs text-foreground/80 sm:text-sm">
+              <div className="rounded-xl border border-white/10 bg-white/5 p-3 backdrop-blur-sm">
+                <span className="font-semibold block text-foreground">⚡ En minutos</span>
+                <span className="text-[11px] text-foreground/65">MonCash & NatCash</span>
+              </div>
+              <div className="rounded-xl border border-white/10 bg-white/5 p-3 backdrop-blur-sm">
+                <span className="font-semibold block text-foreground">🔒 100% Seguro</span>
+                <span className="text-[11px] text-foreground/65">Cifrado de punta a punta</span>
+              </div>
+              <div className="rounded-xl border border-white/10 bg-white/5 p-3 backdrop-blur-sm">
+                <span className="font-semibold block text-foreground">💸 Tasa clara</span>
+                <span className="text-[11px] text-foreground/65">Sin costos ocultos</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="relative">
+            <div className="absolute -inset-4 rounded-[2rem] bg-accent/15 blur-2xl" aria-hidden />
+            <Card className="relative mx-auto w-full border-white/10 shadow-lift bg-card/95 backdrop-blur-xl">
+              <CardContent className="space-y-4 p-5 sm:p-6">
+                <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+                  <TabsList className="grid w-full grid-cols-2 rounded-xl bg-secondary/80 p-1 mb-4">
+                    <TabsTrigger
+                      value="envios"
+                      className="gap-2 rounded-lg py-2 font-semibold text-xs sm:text-sm data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-soft"
+                    >
+                      <Send className="size-4 text-accent" />
+                      <span>{t("nav.send")}</span>
+                      {!transfersEnabled && (
+                        <Badge variant="outline" className="border-amber-500/40 bg-amber-500/10 text-amber-400 text-[10px] px-1.5 py-0 leading-none">
+                          {t("services.disabled_badge")}
+                        </Badge>
+                      )}
+                    </TabsTrigger>
+                    <TabsTrigger
+                      value="recargas"
+                      className="gap-2 rounded-lg py-2 font-semibold text-xs sm:text-sm data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-soft"
+                    >
+                      <Smartphone className="size-4 text-accent" />
+                      <span>{t("nav.topups")}</span>
+                      {!topupsEnabled && (
+                        <Badge variant="outline" className="border-amber-500/40 bg-amber-500/10 text-amber-400 text-[10px] px-1.5 py-0 leading-none">
+                          {t("services.disabled_badge")}
+                        </Badge>
+                      )}
+                    </TabsTrigger>
+                  </TabsList>
+
+                  <TabsContent value="envios" className="space-y-4 mt-0">
+                    {!transfersEnabled ? (
+                      <div className="space-y-4 py-8 text-center animate-in fade-in duration-200">
+                        <div className="mx-auto grid size-14 place-items-center rounded-2xl bg-amber-500/15 text-amber-500">
+                          <AlertTriangle className="size-7" />
+                        </div>
+                        <div className="space-y-2">
+                          <h3 className="font-display text-xl font-bold tracking-tight text-foreground">
+                            {t("services.disabled_badge")}
+                          </h3>
+                          <p className="mx-auto max-w-sm text-sm leading-relaxed text-muted-foreground">
+                            {getMessage("transfers") || t("services.disabled_alert")}
+                          </p>
+                        </div>
+                        <Button disabled className="w-full bg-muted text-muted-foreground cursor-not-allowed">
+                          {t("services.disabled_btn")}
+                        </Button>
+                      </div>
+                    ) : (
+                      <>
+                        <div className="grid grid-cols-2 gap-3">
+                          <div className="space-y-1.5">
+                            <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                              {t("landing.from")}
+                            </span>
+                            <Select value={origin} onValueChange={setOrigin}>
+                              <SelectTrigger>
+                                <SelectValue
+                                  placeholder={
+                                    originCountry
+                                      ? `${originCountry.flag} ${originCountry.name}`
+                                      : "🇲🇽 México"
+                                  }
+                                />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {origins.map((c) => (
+                                  <SelectItem key={c.code} value={c.code}>
+                                    {c.flag} {c.name}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <div className="space-y-1.5">
+                            <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                              {t("landing.to")}
+                            </span>
+                            <Select value={destination} onValueChange={setDestination}>
+                              <SelectTrigger>
+                                <SelectValue
+                                  placeholder={
+                                    destCountry ? `${destCountry.flag} ${destCountry.name}` : "🇭🇹 Haití"
+                                  }
+                                />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {destinations.map((c) => (
+                                  <SelectItem key={c.code} value={c.code}>
+                                    {c.flag} {c.name}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        </div>
+                        <div>
+                          <label
+                            htmlFor="monto"
+                            className="text-xs font-semibold uppercase tracking-wide text-muted-foreground"
+                          >
+                            {t("landing.you_send")} ({sendCurrency})
+                          </label>
+                          <Input
+                            id="monto"
+                            inputMode="decimal"
+                            value={amount}
+                            onChange={(e) => setAmount(e.target.value.replace(/[^0-9.]/g, ""))}
+                            className="mt-1 h-14 font-display text-2xl font-bold"
+                          />
+                        </div>
+                        <div className="space-y-1.5 rounded-xl bg-secondary p-4 text-sm">
+                          <Row
+                            label={t("landing.rate")}
+                            value={`1 ${sendCurrency} = ${Number(effectiveCfg.rate).toFixed(4)} ${receiveCurrency}`}
+                          />
+                          <Row label={t("landing.fee")} value={money(q.fee, sendCurrency)} />
+                          <Row label={t("landing.total")} value={money(q.total, sendCurrency)} strong />
+                        </div>
+                        <div className="relative overflow-hidden rounded-2xl bg-mint p-4 text-white shadow-lg shadow-emerald-950/25 border border-emerald-400/25">
+                          <p className="text-xs font-semibold uppercase tracking-wider text-emerald-100/90">
+                            {t("landing.family_gets")}
+                          </p>
+                          <p className="mt-1 font-display text-3xl font-extrabold tracking-tight text-white">
+                            {money(q.receives, receiveCurrency)}
+                          </p>
+                        </div>
+                      </>
+                    )}
+                  </TabsContent>
+
+                  <TabsContent value="recargas" className="space-y-4 mt-0">
+                    {!topupsEnabled ? (
+                      <div className="space-y-4 py-8 text-center animate-in fade-in duration-200">
+                        <div className="mx-auto grid size-14 place-items-center rounded-2xl bg-amber-500/15 text-amber-500">
+                          <AlertTriangle className="size-7" />
+                        </div>
+                        <div className="space-y-2">
+                          <h3 className="font-display text-xl font-bold tracking-tight text-foreground">
+                            {t("services.disabled_badge")}
+                          </h3>
+                          <p className="mx-auto max-w-sm text-sm leading-relaxed text-muted-foreground">
+                            {getMessage("topups") || t("services.disabled_alert")}
+                          </p>
+                        </div>
+                        <Button disabled className="w-full bg-muted text-muted-foreground cursor-not-allowed">
+                          {t("services.disabled_btn")}
+                        </Button>
+                      </div>
+                    ) : (
+                      <>
+                        <div className="grid grid-cols-2 gap-3">
+                          <div className="space-y-1.5">
+                            <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                              {t("topup.pay_country")}
+                            </span>
+                            <Select value={topupOrigin} onValueChange={setTopupOrigin}>
+                              <SelectTrigger>
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {origins.map((c) => (
+                                  <SelectItem key={c.code} value={c.code}>
+                                    {c.flag} {c.name}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <div className="space-y-1.5">
+                            <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                              {t("topup.number_country")}
+                            </span>
+                            <Select
+                              value={topupDestination}
+                              onValueChange={(val) => {
+                                setTopupDestination(val);
+                                const info = findTopupCountry(val);
+                                if (info?.operators[0]) setTopupOperator(info.operators[0]);
+                              }}
+                            >
+                              <SelectTrigger>
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {TOPUP_COUNTRIES.map((c) => (
+                                  <SelectItem key={c.code} value={c.code}>
+                                    {c.label}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        </div>
+
+                        {topupCountryInfo?.operators && topupCountryInfo.operators.length > 0 && (
+                          <div className="space-y-1.5">
+                            <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                              {t("topup.choose_operator")}
+                            </span>
+                            <Select value={topupOperator} onValueChange={setTopupOperator}>
+                              <SelectTrigger>
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {topupCountryInfo.operators.map((op) => (
+                                  <SelectItem key={op} value={op}>
+                                    {op}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        )}
+
+                        <div>
+                          <label
+                            htmlFor="monto-recarga"
+                            className="text-xs font-semibold uppercase tracking-wide text-muted-foreground"
+                          >
+                            {t("topup.amount_to_pay")} ({topupSendCurrency})
+                          </label>
+                          <Input
+                            id="monto-recarga"
+                            inputMode="decimal"
+                            value={topupAmount}
+                            onChange={(e) => setTopupAmount(e.target.value.replace(/[^0-9.]/g, ""))}
+                            className="mt-1 h-14 font-display text-2xl font-bold"
+                          />
+                        </div>
+
+                        <div className="space-y-1.5 rounded-xl bg-secondary p-4 text-sm">
+                          <Row
+                            label={t("landing.rate")}
+                            value={
+                              effectiveTopupRate
+                                ? `1 ${topupSendCurrency} = ${Number(effectiveTopupRate).toFixed(4)} ${topupDestCurrency}`
+                                : t("landing.unavailable")
+                            }
+                          />
+                          <Row label={t("landing.fee")} value={money(0, topupSendCurrency)} />
+                          <Row
+                            label={t("landing.total")}
+                            value={money(topupAmountNum, topupSendCurrency)}
+                            strong
+                          />
+                        </div>
+
+                        <div className="relative overflow-hidden rounded-2xl bg-mint p-4 text-white shadow-lg shadow-emerald-950/25 border border-emerald-400/25">
+                          <p className="text-xs font-semibold uppercase tracking-wider text-emerald-100/90">
+                            {t("topup.recipient_gets")}
+                          </p>
+                          <p className="mt-1 font-display text-3xl font-extrabold tracking-tight text-white">
+                            {money(topupReceived, topupDestCurrency)}
+                          </p>
+                        </div>
+                      </>
+                    )}
+                  </TabsContent>
+                  </Tabs>
+              </CardContent>
+            </Card>
+          </div>
+        </section>
+      </div>
+
+      <section className="mx-auto -mt-12 max-w-6xl px-5 pb-20">
+        <dl className="grid gap-4 sm:grid-cols-3">
+          <Stat
+            icon={Timer}
+            title={t("landing.stat_minutes")}
+            desc={t("landing.stat_minutes_desc")}
+          />
+          <Stat icon={ShieldCheck} title="KYC" desc={t("landing.stat_kyc_desc")} />
+          <Stat
+            icon={Wallet}
+            title={t("landing.stat_countries")}
+            desc={t("landing.stat_countries_desc")}
+          />
+        </dl>
+      </section>
+
+      <section className="mx-auto max-w-6xl px-5 pb-10">
+        <AdBanner />
+      </section>
+
+      <section id="install-app" className="mx-auto max-w-2xl px-5 pb-20">
+        <InstallAppCard />
+      </section>
+
+      <footer className="border-t py-8 text-center text-sm text-muted-foreground space-y-3">
+        {isCustomBrand && (
+          <div className="pb-1">
+            <a
+              href="https://lajanrapid.app"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center gap-1.5 rounded-full border border-border/60 bg-card px-4 py-1.5 text-xs text-muted-foreground transition hover:border-primary/50 hover:text-foreground shadow-sm"
+            >
+              <span>Creado por</span>
+              <strong className="font-semibold text-primary underline underline-offset-2">lajanrapid.app</strong>
+            </a>
+          </div>
+        )}
+        <p>{isCustomBrand ? `© ${new Date().getFullYear()} ${currentBrand.name}. Operado con la infraestructura de Lajan Rapid.` : t("landing.footer")}</p>
+        <p className="mt-2">
+          <Link to="/privacidad" className="underline hover:text-foreground">
+            Política de Privacidad
+          </Link>
+        </p>
+      </footer>
+    </div>
+  );
+}
+
+function Stat({ icon: Icon, title, desc }: { icon: typeof Timer; title: string; desc: string }) {
+  return (
+    <div className="rounded-2xl border bg-card p-5 shadow-soft">
+      <span className="grid size-10 place-items-center rounded-xl bg-accent/15 text-accent">
+        <Icon className="size-5" />
+      </span>
+      <dt className="mt-4 font-display text-lg font-semibold">{title}</dt>
+      <dd className="mt-1 text-sm text-muted-foreground">{desc}</dd>
+    </div>
+  );
+}
+
+function Row({ label, value, strong }: { label: string; value: string; strong?: boolean }) {
+  return (
+    <div className="flex items-center justify-between">
+      <span className="text-muted-foreground">{label}</span>
+      <span className={strong ? "font-semibold" : ""}>{value}</span>
+    </div>
+  );
+}

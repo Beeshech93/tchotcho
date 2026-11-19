@@ -1,0 +1,2 @@
+[install.scopes]
+"@lovable" = { token = "$LOVABLE_REGISTRY_TOKEN", url = "https://registry.lovable.dev" }

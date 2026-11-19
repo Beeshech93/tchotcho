@@ -1,0 +1,745 @@
+import { createFileRoute, Link, redirect } from "@tanstack/react-router";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
+import { useState } from "react";
+import { ArrowLeft, FileText, Shield } from "lucide-react";
+import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+import { useRealtimeInvalidate } from "@/hooks/useRealtimeInvalidate";
+import { useAdminPermissions } from "@/hooks/useAdminPermissions";
+import { getAllAdminsPermissionsMap, type AdminTabId } from "@/lib/admin-permissions.functions";
+import { AdminPermissionsModal } from "@/components/admin/AdminPermissionsModal";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { useCountries } from "@/hooks/useCorridors";
+import { BazikPanel } from "@/components/admin/BazikPanel";
+import { CryptoPanel } from "@/components/admin/CryptoPanel";
+import { MercadoPagoPanel } from "@/components/admin/MercadoPagoPanel";
+import { StripePanel } from "@/components/admin/StripePanel";
+import { ResendPanel } from "@/components/admin/ResendPanel";
+import { BulkEmailPanel } from "@/components/admin/BulkEmailPanel";
+import { SecurityPanel } from "@/components/admin/SecurityPanel";
+import { OperatorReportPanel } from "@/components/admin/OperatorReportPanel";
+import { TopupRatesPanel } from "@/components/admin/TopupRatesPanel";
+import { DingConnectPanel } from "@/components/admin/DingConnectPanel";
+import { AccountingPanel } from "@/components/admin/AccountingPanel";
+import { SupportPanel } from "@/components/admin/SupportPanel";
+import { AdBannerPanel } from "@/components/admin/AdBannerPanel";
+import { ServicesPanel } from "@/components/admin/ServicesPanel";
+import { KycPanel } from "@/components/admin/KycPanel";
+import { TopupsPanel } from "@/components/admin/TopupsPanel";
+import { WhiteLabelPanel } from "@/components/admin/WhiteLabelPanel";
+import { MigrationAnalysisPanel } from "@/components/admin/MigrationAnalysisPanel";
+import { adminCancelTransfer, adminSetTransferStatus } from "@/lib/transfers.functions";
+import {
+  money,
+  shortDate,
+  STATUS_LABEL,
+  STATUS_TONE,
+  KYC_LABEL,
+  KYC_TONE,
+  type KycStatus,
+  type TransferStatus,
+} from "@/lib/remesa";
+
+export const Route = createFileRoute("/_authenticated/admin")({
+  head: () => ({
+    meta: [
+      { title: "Administración — Lajan Rapid" },
+      { name: "description", content: "Gestiona usuarios, KYC, tipos de cambio y transacciones." },
+      { property: "og:title", content: "Administración — Lajan Rapid" },
+      { property: "og:description", content: "Panel de control de la operación de remesas." },
+    ],
+  }),
+  beforeLoad: async () => {
+    const { data, error } = await supabase.auth.getUser();
+    if (error || !data.user) {
+      await supabase.auth.signOut().catch(() => {});
+      throw redirect({ to: "/auth" });
+    }
+    const email = (data.user.email ?? "").toLowerCase().trim();
+    if (email === "lajanrapid26@gmail.com") {
+      return;
+    }
+    let isAdmin = false;
+    try {
+      const { data: rpcAdmin } = await supabase.rpc("has_role", {
+        _user_id: data.user.id,
+        _role: "admin",
+      });
+      if (rpcAdmin) isAdmin = true;
+    } catch {
+      // ignore
+    }
+    if (!isAdmin) {
+      try {
+        const { data: roleRow } = await supabase
+          .from("user_roles")
+          .select("id")
+          .eq("user_id", data.user.id)
+          .eq("role", "admin")
+          .maybeSingle();
+        if (roleRow) isAdmin = true;
+      } catch {
+        // ignore
+      }
+    }
+    if (!isAdmin) throw redirect({ to: "/dashboard" });
+  },
+  component: Admin,
+});
+
+function Admin() {
+  const { hasTabPermission, isSuperAdmin } = useAdminPermissions();
+
+  const tabDefs: { id: AdminTabId; label: string; panel: React.ReactNode }[] = [
+    { id: "resumen", label: "Resumen", panel: <Resumen /> },
+    { id: "servicios", label: "Servicios", panel: <ServicesPanel /> },
+    { id: "contabilidad", label: "Contabilidad", panel: <AccountingPanel /> },
+    { id: "soporte", label: "Soporte", panel: <SupportPanel /> },
+    { id: "banner", label: "Banner", panel: <AdBannerPanel /> },
+    { id: "mercadopago", label: "Mercado Pago", panel: <MercadoPagoPanel /> },
+    { id: "stripe", label: "Stripe", panel: <StripePanel /> },
+    { id: "resend", label: "Correo", panel: <ResendPanel /> },
+    { id: "bulk-email", label: "Correo masivo", panel: <BulkEmailPanel /> },
+    { id: "security", label: "Seguridad", panel: <SecurityPanel /> },
+    { id: "operators", label: "Operadores", panel: <OperatorReportPanel /> },
+    { id: "topup-rates", label: "Tasas Ding", panel: <TopupRatesPanel /> },
+    { id: "dingconnect", label: "Recargas (Ding)", panel: <DingConnectPanel /> },
+    { id: "cripto", label: "Cripto", panel: <CryptoPanel /> },
+    { id: "bazik", label: "Bazik API", panel: <BazikPanel /> },
+    { id: "kyc", label: "KYC", panel: <KycPanel /> },
+    { id: "tx", label: "Transacciones", panel: <TxPanel /> },
+    { id: "recargas", label: "Recargas", panel: <TopupsPanel /> },
+    { id: "usuarios", label: "Usuarios", panel: <UsersPanel /> },
+    { id: "tarifas", label: "Tarifas", panel: <RatesPanel /> },
+    { id: "whitelabel", label: "White Label", panel: <WhiteLabelPanel /> },
+    { id: "migracion", label: "Migración IA", panel: <MigrationAnalysisPanel /> },
+  ];
+
+  const allowedTabs = tabDefs.filter((t) => hasTabPermission(t.id));
+  const defaultTab = allowedTabs.some((t) => t.id === "resumen")
+    ? "resumen"
+    : allowedTabs[0]?.id || "tx";
+
+  return (
+    <div className="mx-auto max-w-6xl space-y-5">
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-2">
+          <Button
+            asChild
+            variant="ghost"
+            size="icon"
+            className="shrink-0"
+            aria-label="Volver al inicio"
+          >
+            <Link to="/dashboard">
+              <ArrowLeft className="size-5" />
+            </Link>
+          </Button>
+          <div className="flex flex-wrap items-center gap-2">
+            <h1 className="text-2xl font-bold">Administración</h1>
+            {isSuperAdmin ? (
+              <Badge className="bg-amber-500/15 text-amber-500 border-amber-500/30 gap-1 text-xs">
+                <Shield className="size-3" /> Super Admin
+              </Badge>
+            ) : (
+              <Badge variant="outline" className="border-primary/50 text-primary text-xs">
+                Admin Restringido ({allowedTabs.length} módulos)
+              </Badge>
+            )}
+          </div>
+        </div>
+      </div>
+      <Tabs defaultValue={defaultTab}>
+        <TabsList className="flex h-auto w-full flex-wrap justify-start gap-1">
+          {allowedTabs.map((t) => (
+            <TabsTrigger key={t.id} value={t.id}>
+              {t.label}
+            </TabsTrigger>
+          ))}
+        </TabsList>
+        {allowedTabs.map((t) => (
+          <TabsContent key={t.id} value={t.id} className="mt-4">
+            {t.panel}
+          </TabsContent>
+        ))}
+      </Tabs>
+    </div>
+  );
+}
+
+function useTransfers() {
+  useRealtimeInvalidate("transfers", ["admin-transfers"]);
+  return useQuery({
+    queryKey: ["admin-transfers"],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("transfers")
+        .select("*")
+        .order("created_at", { ascending: false });
+      return data ?? [];
+    },
+  });
+}
+
+function Resumen() {
+  const { data: transfers } = useTransfers();
+  const { data: profiles } = useQuery({
+    queryKey: ["admin-profiles"],
+    queryFn: async () => (await supabase.from("profiles").select("*")).data ?? [],
+  });
+
+  const rows = transfers ?? [];
+  const sumBy = (pick: (t: (typeof rows)[number]) => number) => {
+    const acc: Record<string, number> = {};
+    rows.forEach((t) => {
+      acc[t.send_currency] = (acc[t.send_currency] ?? 0) + pick(t);
+    });
+    const entries = Object.entries(acc);
+    return entries.length ? entries.map(([c, v]) => money(v, c)).join(" · ") : "—";
+  };
+  const volume = sumBy((t) => Number(t.amount_send));
+  const fees = sumBy((t) => Number(t.fee_send));
+  const completed = rows.filter((t) => t.status === "completed").length;
+  const pendingKyc = (profiles ?? []).filter((p) => p.kyc_status === "pending").length;
+
+  return (
+    <div className="space-y-4">
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <Stat label="Volumen total" value={volume} />
+        <Stat label="Ingresos por comisión" value={fees} />
+        <Stat label="Envíos entregados" value={`${completed} / ${rows.length}`} />
+        <Stat label="KYC por revisar" value={String(pendingKyc)} />
+      </div>
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">Envíos por estado</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-2">
+          {(Object.keys(STATUS_LABEL) as TransferStatus[]).map((s) => {
+            const n = rows.filter((t) => t.status === s).length;
+            const pct = rows.length ? Math.round((n / rows.length) * 100) : 0;
+            return (
+              <div key={s} className="space-y-1">
+                <div className="flex justify-between text-sm">
+                  <span>{STATUS_LABEL[s]}</span>
+                  <span className="text-muted-foreground">
+                    {n} ({pct}%)
+                  </span>
+                </div>
+                <div className="h-2 rounded-full bg-secondary">
+                  <div className="h-2 rounded-full bg-accent" style={{ width: `${pct}%` }} />
+                </div>
+              </div>
+            );
+          })}
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+const ALL_TRANSFER_STATUSES: TransferStatus[] = [
+  "created",
+  "awaiting_payment",
+  "paid",
+  "processing",
+  "ready_for_pickup",
+  "completed",
+  "cancelled",
+];
+
+function TxPanel() {
+  const qc = useQueryClient();
+  const { data, isLoading } = useTransfers();
+  const setStatus = useServerFn(adminSetTransferStatus);
+  const cancelTransfer = useServerFn(adminCancelTransfer);
+  const [search, setSearch] = useState("");
+  const [filter, setFilter] = useState<"all" | TransferStatus>("all");
+  const [busy, setBusy] = useState<string | null>(null);
+
+  const rows = (data ?? []).filter((t) => {
+    if (filter !== "all" && t.status !== filter) return false;
+    const q = search.trim().toLowerCase();
+    if (!q) return true;
+    return [t.reference, t.recipient_name, t.recipient_phone, t.destination_country]
+      .filter(Boolean)
+      .some((v) => String(v).toLowerCase().includes(q));
+  });
+
+  const change = async (id: string, status: TransferStatus) => {
+    setBusy(id);
+    try {
+      if (status === "cancelled") {
+        const r = await cancelTransfer({ data: { transferId: id } });
+        toast.success(r.message);
+      } else {
+        const r = await setStatus({ data: { transferId: id, status } });
+        toast.success(r.message);
+      }
+      qc.invalidateQueries({ queryKey: ["admin-transfers"] });
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "No se pudo actualizar");
+    } finally {
+      setBusy(null);
+    }
+  };
+
+  return (
+    <Card>
+      <CardHeader className="space-y-3">
+        <CardTitle className="text-base">Todas las transacciones</CardTitle>
+        <div className="grid gap-2 sm:grid-cols-[1fr_200px]">
+          <Input
+            placeholder="Buscar por referencia o destinatario"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+          <Select value={filter} onValueChange={(v) => setFilter(v as typeof filter)}>
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos los estados</SelectItem>
+              {ALL_TRANSFER_STATUSES.map((s) => (
+                <SelectItem key={s} value={s}>
+                  {STATUS_LABEL[s]}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      </CardHeader>
+      <CardContent className="space-y-2">
+        {isLoading && <p className="text-sm text-muted-foreground">Cargando envíos…</p>}
+        {!isLoading && rows.length === 0 && (
+          <p className="text-sm text-muted-foreground">No hay envíos para este filtro.</p>
+        )}
+        {rows.map((t) => (
+          <div
+            key={t.id}
+            className="flex flex-wrap items-center justify-between gap-3 rounded-xl border p-3"
+          >
+            <div className="min-w-0">
+              <p className="font-medium">{t.recipient_name}</p>
+              <p className="text-xs text-muted-foreground">
+                {t.reference} · {t.origin_country} → {t.destination_country} · {t.payment_method} ·{" "}
+                {shortDate(t.created_at)}
+              </p>
+            </div>
+            <div className="text-right">
+              <p className="font-semibold">{money(Number(t.amount_send), t.send_currency)}</p>
+              <p className="text-xs text-muted-foreground">
+                {money(Number(t.amount_receive), t.receive_currency)}
+              </p>
+            </div>
+            <Badge className={STATUS_TONE[t.status as TransferStatus]} variant="secondary">{STATUS_LABEL[t.status as TransferStatus]}</Badge>
+            <Button size="sm" variant="outline" onClick={() => {
+const w=window.open("", "_blank", "width=800,height=700");if(!w){toast.error("Permite las ventanas emergentes.");return;}
+const safe=(v:unknown)=>String(v??"").replace(/[&<>"]/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[ch]??ch));
+w.document.write(`<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Recibo ${safe(t.reference)}</title><style>body{font:16px Arial;max-width:720px;margin:40px auto;padding:24px;color:#172033}h1{color:#0e9f6e}.row{display:flex;justify-content:space-between;border-bottom:1px solid #ddd;padding:13px 0}span{color:#667085}@media print{button{display:none}}</style></head><body><h1>LAJAN RAPID</h1><h2>Recibo de transacción</h2><p>Referencia: ${safe(t.reference)} · Fecha: ${safe(shortDate(t.created_at))}</p><div class="row"><span>Estado</span><strong>${safe(STATUS_LABEL[t.status as TransferStatus]??t.status)}</strong></div><div class="row"><span>Destinatario</span><strong>${safe(t.recipient_name)}</strong></div><div class="row"><span>Países</span><strong>${safe(t.origin_country)} → ${safe(t.destination_country)}</strong></div><div class="row"><span>Método de pago</span><strong>${safe(t.payment_method)}</strong></div><div class="row"><span>Enviado</span><strong>${safe(money(Number(t.amount_send),t.send_currency))}</strong></div><div class="row"><span>Recibe</span><strong>${safe(money(Number(t.amount_receive),t.receive_currency))}</strong></div><button onclick="window.print()">Imprimir / Guardar como PDF</button></body></html>`);w.document.close();
+}}><FileText className="mr-2 size-4"/>Generar recibo</Button>
+            <Select
+              value={t.status}
+              disabled={busy === t.id || t.status === "cancelled" || t.status === "completed"}
+              onValueChange={(v) => void change(t.id, v as TransferStatus)}
+            >
+              <SelectTrigger className="h-9 w-[170px]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {ALL_TRANSFER_STATUSES.map((s) => (
+                  <SelectItem key={s} value={s}>
+                    {STATUS_LABEL[s]}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        ))}
+      </CardContent>
+    </Card>
+  );
+}
+
+function UsersPanel() {
+  const qc = useQueryClient();
+  const [userSearch, setUserSearch] = useState("");
+  const [editingUser, setEditingUser] = useState<any>(null);
+
+  const fetchAdminsMap = useServerFn(getAllAdminsPermissionsMap);
+  const { data: adminsMap } = useQuery({
+    queryKey: ["all-admins-permissions"],
+    queryFn: () => fetchAdminsMap(),
+  });
+
+  const { data: profiles } = useQuery({
+    queryKey: ["admin-profiles"],
+    queryFn: async () => (await supabase.from("profiles").select("*")).data ?? [],
+  });
+  const { data: roles } = useQuery({
+    queryKey: ["admin-roles"],
+    queryFn: async () => (await supabase.from("user_roles").select("*")).data ?? [],
+  });
+
+  return (
+    <Card>
+      <CardHeader>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <CardTitle className="text-base flex items-center gap-2">
+              <Shield className="size-4 text-primary" />
+              Gestión de Usuarios, Roles y Permisos
+            </CardTitle>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              Transforma cualquier usuario en Administrador con acceso total o restricciones modulares.
+            </p>
+          </div>
+        </div>
+        <Input
+          className="mt-3"
+          placeholder="Buscar por nombre o teléfono..."
+          value={userSearch}
+          onChange={(e) => setUserSearch(e.target.value)}
+        />
+      </CardHeader>
+      <CardContent className="space-y-2">
+        {(profiles ?? [])
+          .filter((p) => {
+            const q = userSearch.trim().toLowerCase();
+            if (!q) return true;
+            return [p.full_name, p.phone]
+              .filter(Boolean)
+              .some((v) => String(v).toLowerCase().includes(q));
+          })
+          .map((p) => {
+            const mine = (roles ?? []).filter((r) => r.user_id === p.id).map((r) => r.role);
+            const isAdmin = mine.includes("admin");
+            const isAgent = mine.includes("agent");
+            const adminPerms = adminsMap?.[p.id];
+            const isSuper = adminPerms ? adminPerms.isSuperAdmin : true;
+
+            return (
+              <div
+                key={p.id}
+                className={`flex flex-wrap items-center justify-between gap-3 rounded-xl border p-3.5 transition-colors ${
+                  isAdmin ? "border-primary/30 bg-primary/5" : "border-border"
+                }`}
+              >
+                <div>
+                  <div className="flex items-center gap-2">
+                    <p className="font-semibold text-sm">{p.full_name || "Sin nombre"}</p>
+                    {isAdmin && (
+                      <span className="size-2 rounded-full bg-primary" title="Administrador activo" />
+                    )}
+                  </div>
+                  <p className="text-xs text-muted-foreground">{p.phone || "sin teléfono"}</p>
+                </div>
+                <div className="flex flex-wrap items-center gap-1.5">
+                  {isAdmin && (
+                    <>
+                      {adminPerms?.tenantName && (
+                        <Badge className="bg-blue-500/15 text-blue-400 border-blue-500/30 gap-1 text-xs font-semibold">
+                          🏢 {adminPerms.tenantName}
+                        </Badge>
+                      )}
+                      {isSuper ? (
+                        <Badge className="bg-amber-500/15 text-amber-500 border-amber-500/30 gap-1 text-xs">
+                          <Shield className="size-3" /> Super Admin
+                        </Badge>
+                      ) : (
+                        <Badge variant="outline" className="border-primary/50 text-primary gap-1 text-xs font-semibold">
+                          <Shield className="size-3" /> Admin ({adminPerms?.allowedTabs?.length ?? 0} módulos)
+                        </Badge>
+                      )}
+                    </>
+                  )}
+                  {isAgent && !isAdmin && (
+                    <Badge variant="secondary" className="text-xs">
+                      Agente
+                    </Badge>
+                  )}
+                  {!isAdmin && !isAgent && (
+                    <Badge variant="outline" className="text-xs text-muted-foreground">
+                      Cliente
+                    </Badge>
+                  )}
+                  <Badge className={KYC_TONE[p.kyc_status as KycStatus]} variant="secondary">
+                    {KYC_LABEL[p.kyc_status as KycStatus]}
+                  </Badge>
+                </div>
+                <Button
+                  size="sm"
+                  variant={isAdmin ? "default" : "outline"}
+                  className={isAdmin ? "gap-1.5 bg-primary text-primary-foreground font-semibold" : "gap-1.5"}
+                  onClick={() => setEditingUser(p)}
+                >
+                  <Shield className="size-3.5" />
+                  {isAdmin ? "Gestionar Permisos" : "Hacer Admin / Rol"}
+                </Button>
+              </div>
+            );
+          })}
+      </CardContent>
+
+      {/* Modal de edición de roles y permisos */}
+      {editingUser && (
+        <AdminPermissionsModal
+          isOpen={Boolean(editingUser)}
+          onClose={() => setEditingUser(null)}
+          user={editingUser}
+          currentRole={
+            roles?.some((r) => r.user_id === editingUser.id && r.role === "admin")
+              ? "admin"
+              : roles?.some((r) => r.user_id === editingUser.id && r.role === "agent")
+                ? "agent"
+                : "client"
+          }
+          currentPerms={adminsMap?.[editingUser.id] ?? null}
+        />
+      )}
+    </Card>
+  );
+}
+
+function RatesPanel() {
+  const qc = useQueryClient();
+  const [saving, setSaving] = useState(false);
+  const [from, setFrom] = useState("MXN");
+  const [to, setTo] = useState("HTG");
+  const { data: countries } = useCountries();
+
+  const originCurrencies = Array.from(
+    new Set((countries ?? []).filter((c) => c.is_origin).map((c) => c.currency)),
+  ).sort();
+  const destCurrencies = Array.from(
+    new Set((countries ?? []).filter((c) => c.is_destination).map((c) => c.currency)),
+  ).sort();
+
+  const { data: rates } = useQuery({
+    queryKey: ["all-rates"],
+    queryFn: async () =>
+      (
+        await supabase
+          .from("exchange_rates")
+          .select("*")
+          .eq("is_active", true)
+          .order("from_currency")
+      ).data ?? [],
+  });
+
+  const rate = (rates ?? []).find((r) => r.from_currency === from && r.to_currency === to);
+
+  const save = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const f = new FormData(e.currentTarget);
+    const values = {
+      rate: Number(f.get("rate")),
+      fee_percent: Number(f.get("fee_percent")),
+      fee_fixed: Number(f.get("fee_fixed")),
+      agent_commission_percent: Number(f.get("agent_commission_percent")),
+    };
+    if (Object.values(values).some((v) => !Number.isFinite(v) || v < 0)) {
+      toast.error("Valores inválidos");
+      return;
+    }
+    if (values.rate <= 0) {
+      toast.error("El tipo de cambio debe ser un número mayor a 0 (ej. 7.20)");
+      return;
+    }
+    setSaving(true);
+    const { error } = rate
+      ? await supabase.from("exchange_rates").update(values).eq("id", rate.id)
+      : await supabase
+          .from("exchange_rates")
+          .insert({ ...values, is_active: true, from_currency: from, to_currency: to });
+    setSaving(false);
+    if (error) {
+      toast.error("No se pudo guardar");
+      return;
+    }
+    toast.success("Tarifas actualizadas");
+    qc.invalidateQueries({ queryKey: ["all-rates"] });
+    qc.invalidateQueries({ queryKey: ["rate"] });
+  };
+
+  return (
+    <div className="space-y-4">
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">Tarifas por corredor</CardTitle>
+          <p className="text-xs text-muted-foreground">
+            Estas tasas se usan para calcular cuánto recibe el destinatario en los envíos de dinero.
+            Las recargas de saldo móvil (DingConnect) usan su propia tasa, configurable en la
+            pestaña "Tasas Ding".
+          </p>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="space-y-1.5">
+              <Label>Moneda de origen</Label>
+              <Select value={from} onValueChange={setFrom}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {originCurrencies.map((c) => (
+                    <SelectItem key={c} value={c}>
+                      {c}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1.5">
+              <Label>Moneda de destino</Label>
+              <Select value={to} onValueChange={setTo}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {destCurrencies.map((c) => (
+                    <SelectItem key={c} value={c}>
+                      {c}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <form onSubmit={save} className="grid gap-4 sm:grid-cols-2" key={`${from}-${to}`}>
+            <Field
+              name="rate"
+              label={`Tipo de cambio (${to} por 1 ${from})`}
+              value={
+                rate && Number(rate.rate) > 0
+                  ? Number(rate.rate)
+                  : from === "MXN" && to === "HTG"
+                    ? 7.2
+                    : undefined
+              }
+              step="0.0001"
+              placeholder="Ej. 7.20"
+              helperText={`Cuánto ${to} recibe el destinatario por cada 1 ${from}`}
+            />
+            <Field
+              name="fee_percent"
+              label="Comisión porcentual (%)"
+              value={rate?.fee_percent}
+              step="0.01"
+              placeholder="Ej. 1.5"
+              helperText="% cobrado sobre el monto enviado"
+            />
+            <Field
+              name="fee_fixed"
+              label={`Comisión fija (${from})`}
+              value={
+                rate && Number(rate.rate) === 0 && Number(rate.fee_fixed) === 7.2
+                  ? 15
+                  : rate?.fee_fixed
+              }
+              step="0.01"
+              placeholder="Ej. 15.00"
+              helperText={`Cargo fijo por transacción en ${from}`}
+            />
+            <Field
+              name="agent_commission_percent"
+              label="Comisión del agente (%)"
+              value={rate?.agent_commission_percent}
+              step="0.01"
+              placeholder="Ej. 0.8"
+              helperText="% que gana el agente que procese la entrega"
+            />
+            <Button type="submit" disabled={saving} className="sm:col-span-2">
+              {saving ? "Guardando…" : rate ? "Actualizar tarifas" : "Crear corredor"}
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">Corredores activos</CardTitle>
+        </CardHeader>
+        <CardContent className="grid gap-2 sm:grid-cols-2">
+          {(rates ?? []).map((r) => (
+            <button
+              key={r.id}
+              type="button"
+              onClick={() => {
+                setFrom(r.from_currency);
+                setTo(r.to_currency);
+              }}
+              className="rounded-xl border p-3 text-left transition-colors hover:bg-secondary"
+            >
+              <p className="font-medium">
+                {r.from_currency} → {r.to_currency}
+              </p>
+              <p className="text-xs text-muted-foreground">
+                1 {r.from_currency} = {Number(r.rate).toFixed(4)} {r.to_currency} · comisión{" "}
+                {Number(r.fee_percent)}% + {Number(r.fee_fixed)} {r.from_currency}
+              </p>
+            </button>
+          ))}
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+function Field({
+  name,
+  label,
+  value,
+  step,
+  placeholder,
+  helperText,
+}: {
+  name: string;
+  label: string;
+  value: number | undefined;
+  step: string;
+  placeholder?: string;
+  helperText?: string;
+}) {
+  return (
+    <div className="space-y-1.5">
+      <Label htmlFor={name}>{label}</Label>
+      <Input
+        id={name}
+        name={name}
+        type="number"
+        step={step}
+        min={name === "rate" ? "0.0001" : "0"}
+        defaultValue={value !== undefined ? value : ""}
+        placeholder={placeholder ?? "0.00"}
+        required={name === "rate"}
+      />
+      {helperText && <p className="text-[11px] text-muted-foreground">{helperText}</p>}
+    </div>
+  );
+}
+
+function Stat({ label, value }: { label: string; value: string }) {
+  return (
+    <Card>
+      <CardContent className="p-4">
+        <p className="text-xs font-semibold text-muted-foreground">{label}</p>
+        <p className="mt-1 font-display text-xl font-bold">{value}</p>
+      </CardContent>
+    </Card>
+  );
+}
