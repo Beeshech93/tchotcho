@@ -188,7 +188,7 @@ function Enviar() {
         });
         setSaving(false);
         if (res.ok) {
-          toast.success("¡Transacción enviada directamente por agente en efectivo!");
+          toast.success("¡Transacción enviada correctamente!");
           router.navigate({ to: "/transferencia/$id", params: { id: res.transferId } });
           return;
         }
@@ -409,60 +409,26 @@ function Enviar() {
         </CardContent>
       </Card>
 
-      {isAgent ? (
-        <Card className="border-emerald-500/30 bg-emerald-950/20">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base flex items-center gap-2 text-white">
-              <Banknote className="size-5 text-emerald-400" />
-              Envío Directo de Agente (Bazik Payout)
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <div className="rounded-xl border border-emerald-500/30 bg-card/60 p-4 space-y-2">
-              <div className="flex flex-wrap items-center justify-between gap-2">
-                <div className="flex items-center gap-2">
-                  <ShieldCheck className="size-4 text-emerald-400" />
-                  <span className="font-semibold text-white text-sm sm:text-base">
-                    Directo a Bazik (MonCash / NatCash)
-                  </span>
-                </div>
-                <Badge
-                  variant="outline"
-                  className="border-emerald-500/40 text-emerald-300 bg-emerald-500/10 text-xs font-semibold"
-                >
-                  Sin Stripe ni Mercado Pago
-                </Badge>
-              </div>
-              <p className="text-xs text-muted-foreground leading-relaxed">
-                Como cuenta de agente, esta operación se procesa de forma directa con Bazik
-                descontando de tu saldo de agente o cobro en ventanilla, sin pasar por pasarelas externas
-                como Stripe o Mercado Pago.
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-      ) : (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">{t("send.step3")}</CardTitle>
-          </CardHeader>
-          <CardContent className="grid gap-3 sm:grid-cols-2">
-            {payments.map((m) => (
-              <button
-                key={m.value}
-                type="button"
-                onClick={() => setPayment(m.value)}
-                className={`rounded-xl border p-4 text-left transition-colors ${
-                  payment === m.value ? "border-accent bg-accent/10" : "hover:bg-secondary"
-                }`}
-              >
-                <p className="font-medium">{m.label}</p>
-                <p className="text-xs text-muted-foreground">{m.hint}</p>
-              </button>
-            ))}
-          </CardContent>
-        </Card>
-      )}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">{t("send.step3")}</CardTitle>
+        </CardHeader>
+        <CardContent className="grid gap-3 sm:grid-cols-2">
+          {payments.map((m) => (
+            <button
+              key={m.value}
+              type="button"
+              onClick={() => setPayment(m.value)}
+              className={`rounded-xl border p-4 text-left transition-colors ${
+                payment === m.value ? "border-accent bg-accent/10" : "hover:bg-secondary"
+              }`}
+            >
+              <p className="font-medium">{m.label}</p>
+              <p className="text-xs text-muted-foreground">{m.hint}</p>
+            </button>
+          ))}
+        </CardContent>
+      </Card>
 
       <Button
         type="submit"
@@ -474,9 +440,7 @@ function Enviar() {
           ? t("services.disabled_btn")
           : saving
             ? t("send.creating")
-            : isAgent
-              ? `Enviar Directo en Efectivo (${money(q.total, sendCur)})`
-              : `${t("send.confirm")} ${money(q.total, sendCur)}`}
+            : `${t("send.confirm")} ${money(q.total, sendCur)}`}
       </Button>
     </form>
   );

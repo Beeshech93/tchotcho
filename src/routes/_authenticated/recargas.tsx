@@ -105,15 +105,15 @@ function Recargas() {
         ? [
             {
               value: "wallet",
-              label: "Saldo de Agente (DingConnect Directo)",
-              hint: "Sin Stripe ni Mercado Pago",
+              label: t("topup.wallet_balance"),
+              hint: "Instantáneo",
             },
           ]
         : [
-            { value: "wallet", label: "Saldo de mi billetera", hint: "Instantáneo" },
+            { value: "wallet", label: t("topup.wallet_balance"), hint: "Instantáneo" },
             ...paymentMethods(payOrigin),
           ],
-    [payOrigin, isAgent],
+    [payOrigin, isAgent, t],
   );
 
   useEffect(() => {
@@ -448,74 +448,43 @@ function Recargas() {
           </CardTitle>
         </CardHeader>
         <CardContent className="grid gap-4 sm:grid-cols-2">
-          {isAgent ? (
-            <div className="rounded-xl border border-emerald-500/30 bg-emerald-950/20 p-4 space-y-2 sm:col-span-2">
-              <div className="flex flex-wrap items-center justify-between gap-2">
-                <div className="flex items-center gap-2">
-                  <ShieldCheck className="size-4 text-emerald-400" />
-                  <span className="font-semibold text-white text-sm">
-                    Modo Agente · DingConnect Directo
-                  </span>
-                </div>
-                <Badge
-                  variant="outline"
-                  className="border-emerald-500/40 text-emerald-300 bg-emerald-500/10 text-xs font-semibold"
-                >
-                  Sin Stripe ni Mercado Pago
-                </Badge>
-              </div>
-              <p className="text-xs text-muted-foreground leading-relaxed">
-                Tus recargas de agente se envían de forma instantánea a la red de DingConnect y se
-                descuentan directamente de tu saldo de agente precargado por el administrador.
-              </p>
-              {wallet && (
-                <p className="text-xs font-bold text-[#F2AC00] pt-1">
-                  Saldo disponible en billetera: {Number(wallet.balance).toLocaleString()}{" "}
-                  {wallet.currency}
-                </p>
-              )}
-            </div>
-          ) : (
-            <>
-              <div className="space-y-1.5">
-                <Label>{t("topup.pay_country")}</Label>
-                <Select
-                  value={payOrigin}
-                  onValueChange={(v) => {
-                    setPayOrigin(v);
-                    setPayMethod("wallet");
-                  }}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {payOrigins.map((c) => (
-                      <SelectItem key={c.code} value={c.code}>
-                        {c.name ?? c.code}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+          <div className="space-y-1.5">
+            <Label>{t("topup.pay_country")}</Label>
+            <Select
+              value={payOrigin}
+              onValueChange={(v) => {
+                setPayOrigin(v);
+                setPayMethod("wallet");
+              }}
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {payOrigins.map((c) => (
+                  <SelectItem key={c.code} value={c.code}>
+                    {c.name ?? c.code}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
 
-              <div className="space-y-1.5">
-                <Label>{t("topup.pay_method")}</Label>
-                <Select value={payMethod} onValueChange={setPayMethod}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {payMethods.map((m) => (
-                      <SelectItem key={m.value} value={m.value}>
-                        {m.value === "wallet" ? t("topup.wallet_balance") : paymentLabel(m.value)}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </>
-          )}
+          <div className="space-y-1.5">
+            <Label>{t("topup.pay_method")}</Label>
+            <Select value={payMethod} onValueChange={setPayMethod}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {payMethods.map((m) => (
+                  <SelectItem key={m.value} value={m.value}>
+                    {m.value === "wallet" ? t("topup.wallet_balance") : paymentLabel(m.value)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
 
           <div className="space-y-1.5">
             <Label>{t("topup.number_country")}</Label>
@@ -697,22 +666,18 @@ function Recargas() {
                 ? t("services.disabled_btn")
                 : sendMut.isPending
                   ? t("topup.sending")
-                  : isAgent
-                    ? "Enviar Recarga Directa (DingConnect)"
-                    : payMethod === "wallet"
-                      ? t("topup.send_recharge")
-                      : payMethod === "oxxo"
-                        ? t("topup.generate_oxxo")
-                        : payMethod === "spei"
-                          ? t("topup.generate_spei")
-                          : t("topup.pay_card")}
+                  : payMethod === "wallet"
+                    ? t("topup.send_recharge")
+                    : payMethod === "oxxo"
+                      ? t("topup.generate_oxxo")
+                      : payMethod === "spei"
+                        ? t("topup.generate_spei")
+                        : t("topup.pay_card")}
             </Button>
             <p className="mt-2 text-xs text-muted-foreground">
-              {isAgent
-                ? "Las recargas de agente se envían directamente a DingConnect sin pasar por pasarelas externas."
-                : payMethod === "wallet"
-                  ? t("topup.wallet_note")
-                  : t("topup.external_note")}
+              {payMethod === "wallet"
+                ? t("topup.wallet_note")
+                : t("topup.external_note")}
             </p>
           </div>
         </CardContent>
