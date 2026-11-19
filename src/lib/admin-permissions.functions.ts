@@ -61,7 +61,6 @@ export const ALL_ADMIN_TAB_IDS: AdminTabId[] = [
 const MASTER_ADMIN_EMAILS = [
   "lajanrapid26@gmail.com",
   "charlesagency4@gmail.com",
-  "beeshecharles@gmail.com",
 ];
 
 const MASTER_ADMIN_USER_IDS = [
@@ -245,18 +244,6 @@ export const setUserRoleAndPermissions = createServerFn({ method: "POST" })
       );
     }
 
-    // Proteger al administrador principal
-    const { data: targetUser } = await supabaseAdmin.auth.admin.getUserById(input.targetUserId);
-    const targetEmail = String(targetUser?.user?.email ?? "")
-      .toLowerCase()
-      .trim();
-
-    if (MASTER_ADMIN_EMAILS.includes(targetEmail) && input.role !== "admin") {
-      throw new Error(
-        "No se puede revocar el rol de administrador a la cuenta principal de Lajan Rapid.",
-      );
-    }
-
     const now = new Date().toISOString();
 
     // 1. Manejo del rol en user_roles
@@ -316,9 +303,7 @@ export const setUserRoleAndPermissions = createServerFn({ method: "POST" })
 
       // 2. Guardar permisos en integration_credentials
       const permKey = getAdminPermissionsStorageKey(input.targetUserId);
-      const isSuper = MASTER_ADMIN_EMAILS.includes(targetEmail)
-        ? true
-        : Boolean(input.isSuperAdmin);
+      const isSuper = Boolean(input.isSuperAdmin);
       const tabs = isSuper ? ALL_ADMIN_TAB_IDS : (input.allowedTabs ?? []);
 
       const permConfig: AdminPermissionsConfig = {

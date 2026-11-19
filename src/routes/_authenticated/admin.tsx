@@ -88,7 +88,6 @@ export const Route = createFileRoute("/_authenticated/admin")({
     const isSpecialAdmin =
       email === "lajanrapid26@gmail.com" ||
       email === "charlesagency4@gmail.com" ||
-      email === "beeshecharles@gmail.com" ||
       phone === "529988100395" ||
       user.id === "0a1fec01-21c2-4af6-8e54-4b7ce6e2913c" ||
       user.id === "cca63804-b4c1-4221-bbd3-82258545f228" ||
@@ -558,7 +557,6 @@ function UsersPanel() {
             const isMaster =
               p.email?.toLowerCase() === "lajanrapid26@gmail.com" ||
               p.email?.toLowerCase() === "charlesagency4@gmail.com" ||
-              p.email?.toLowerCase() === "beeshecharles@gmail.com" ||
               p.phone?.replace(/\D/g, "") === "529988100395" ||
               p.id === "0a1fec01-21c2-4af6-8e54-4b7ce6e2913c" ||
               p.id === "cca63804-b4c1-4221-bbd3-82258545f228" ||
