@@ -54,7 +54,7 @@ async function buildEmail(payload: SupabaseAuthHookPayload): Promise<{
   html: string;
 } | null> {
   const { user, email_data } = payload;
-  const supabaseUrl = process.env["SUPABASE_URL"] || "https://pkximkpyguxehbjyaigt.supabase.co";
+  const supabaseUrl = process.env["SUPABASE_URL"] || "https://yyvaeapmmvoklofydcpl.supabase.co";
 
   const confirmationUrl = buildVerifyUrl(
     supabaseUrl,
