@@ -714,7 +714,7 @@ export function Landing() {
                 <p className="text-xs font-bold text-white">Tcho-Tcho</p>
                 <div className="rounded-xl bg-black/60 p-2 space-y-1">
                   <p className="text-[9px] text-slate-400">Balance</p>
-                  <p className="text-xs font-extrabold text-[#10B981]">$ 23,094.57</p>
+                  <p className="text-xs font-extrabold text-[#10B981]">HTG 14,400.00</p>
                 </div>
                 <span className="inline-block text-[9px] text-[#F2AC00] font-semibold">Listo para enviar</span>
               </div>

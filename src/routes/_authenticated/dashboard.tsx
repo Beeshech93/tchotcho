@@ -60,42 +60,43 @@ export function Dashboard() {
 
   const { data: wallets } = useWallets();
 
-  // Billetera 100% en HTG (Gourdes Haitianas)
+  // Billetera 100% en HTG (Gourdes Haitianas) reales del usuario
   const totalHtg = (wallets ?? []).reduce(
     (sum, w) => sum + (w.currency === "HTG" ? Number(w.balance) : 0),
     0,
   );
-
-  const primaryBalanceHtg = totalHtg > 0 ? totalHtg : 125450.0;
-  const formattedBalance = `HTG ${primaryBalanceHtg.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  const formattedBalance = `HTG ${totalHtg.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
   const displayName = profile?.full_name?.split(" ")[0] || "Usuario";
 
-  // Beneficiarios directos para envío en 1 clic
-  const quickContacts = [
-    { name: "Jean Baptiste", phone: "+509 3712-4589", wallet: "MonCash", color: "bg-red-500/20 text-red-400 border-red-500/40" },
-    { name: "Marie Claire", phone: "+509 4823-9012", wallet: "NatCash", color: "bg-cyan-500/20 text-cyan-400 border-cyan-500/40" },
-    { name: "Emmanuel Joseph", phone: "+509 3144-5566", wallet: "MonCash", color: "bg-red-500/20 text-red-400 border-red-500/40" },
-  ];
+  // Beneficiarios reales del usuario
+  const uniqueRecipientsMap = new Map<string, { name: string; phone: string; wallet: string; color: string }>();
+  (transfers ?? []).forEach((tx) => {
+    if (tx.recipient_name && !uniqueRecipientsMap.has(tx.recipient_name)) {
+      const isNatcash = tx.service_type === "natcash";
+      uniqueRecipientsMap.set(tx.recipient_name, {
+        name: tx.recipient_name,
+        phone: tx.recipient_phone || "",
+        wallet: isNatcash ? "NatCash" : "MonCash",
+        color: isNatcash
+          ? "bg-cyan-500/20 text-cyan-400 border-cyan-500/40"
+          : "bg-red-500/20 text-red-400 border-red-500/40",
+      });
+    }
+  });
+  const realContacts = Array.from(uniqueRecipientsMap.values()).slice(0, 3);
 
-  // Transacciones 100% en HTG
-  const displayTransfers = (transfers && transfers.length > 0)
-    ? transfers.map((tx) => ({
-        id: tx.id,
-        recipient: tx.recipient_name || "Destinatario en Haití",
-        service: tx.service_type === "moncash" ? "MonCash Haití" : tx.service_type === "natcash" ? "NatCash Haití" : "Remesa",
-        date: shortDate(tx.created_at),
-        amount: `HTG ${Number(tx.amount_destination || tx.amount_origin * 132.5).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
-        status: tx.status === "completed" ? "Completado" : tx.status === "cancelled" ? "Cancelado" : "En proceso",
-        statusColor: tx.status === "completed" ? "text-emerald-400 bg-emerald-500/15 border-emerald-500/30" : "text-amber-400 bg-amber-500/15 border-amber-500/30",
-        viewLink: `/transferencia/${tx.id}`,
-      }))
-    : [
-        { id: "1", recipient: "Jean Baptiste", service: "MonCash Haití (+509 37...)", date: "Hoy, 10:45 AM", amount: "HTG 19,875.00", status: "Completado", statusColor: "text-emerald-400 bg-emerald-500/15 border-emerald-500/30", viewLink: "/historial" },
-        { id: "2", recipient: "Marie Claire Pierre", service: "NatCash Haití (+509 48...)", date: "Ayer, 04:20 PM", amount: "HTG 11,260.00", status: "Completado", statusColor: "text-emerald-400 bg-emerald-500/15 border-emerald-500/30", viewLink: "/historial" },
-        { id: "3", recipient: "Recarga Digicel", service: "Haití (+509 31...)", date: "12 May", amount: "HTG 1,980.00", status: "Completado", statusColor: "text-emerald-400 bg-emerald-500/15 border-emerald-500/30", viewLink: "/historial" },
-        { id: "4", recipient: "Emmanuel Joseph", service: "MonCash Haití (+509 34...)", date: "08 May", amount: "HTG 29,150.00", status: "Completado", statusColor: "text-emerald-400 bg-emerald-500/15 border-emerald-500/30", viewLink: "/historial" },
-      ];
+  // Transacciones 100% reales en HTG
+  const displayTransfers = (transfers ?? []).map((tx) => ({
+    id: tx.id,
+    recipient: tx.recipient_name || "Destinatario en Haití",
+    service: tx.service_type === "moncash" ? "MonCash Haití" : tx.service_type === "natcash" ? "NatCash Haití" : "Remesa",
+    date: shortDate(tx.created_at),
+    amount: `HTG ${Number(tx.amount_destination || (tx.amount_origin ? tx.amount_origin * 132.5 : 0)).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+    status: tx.status === "completed" ? "Completado" : tx.status === "cancelled" ? "Cancelado" : "En proceso",
+    statusColor: tx.status === "completed" ? "text-emerald-400 bg-emerald-500/15 border-emerald-500/30" : "text-amber-400 bg-amber-500/15 border-amber-500/30",
+    viewLink: `/transferencia/${tx.id}`,
+  }));
 
   return (
     <div className="mx-auto max-w-3xl space-y-6 pb-24 md:pb-12 text-white selection:bg-[#02531C] selection:text-[#F2AC00]">
@@ -227,7 +228,7 @@ export function Dashboard() {
         </div>
       </div>
 
-      {/* BENEFICIARIOS RÁPIDOS EN HAITÍ */}
+      {/* BENEFICIARIOS EN HAITÍ */}
       <div className="rounded-[28px] bg-gradient-to-b from-[#131B15] to-[#0A0E0C] border border-white/12 p-6 space-y-4 shadow-xl">
         <div className="flex items-center justify-between">
           <div>
@@ -243,31 +244,43 @@ export function Dashboard() {
           </Link>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          {quickContacts.map((contact) => (
-            <Link
-              key={contact.name}
-              to="/enviar"
-              className="flex items-center justify-between rounded-2xl bg-black/40 border border-white/10 p-3.5 hover:border-[#F2AC00]/60 hover:bg-[#02531C]/30 transition group"
-            >
-              <div className="flex items-center gap-3">
-                <div className="grid size-9 place-items-center rounded-xl bg-[#02531C] text-[#F2AC00] font-black text-xs border border-[#F2AC00]/40">
-                  {contact.name.charAt(0)}
+        {realContacts.length > 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            {realContacts.map((contact) => (
+              <Link
+                key={contact.name}
+                to="/enviar"
+                className="flex items-center justify-between rounded-2xl bg-black/40 border border-white/10 p-3.5 hover:border-[#F2AC00]/60 hover:bg-[#02531C]/30 transition group"
+              >
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="grid size-9 shrink-0 place-items-center rounded-xl bg-[#02531C] text-[#F2AC00] font-black text-xs border border-[#F2AC00]/40">
+                    {contact.name.charAt(0).toUpperCase()}
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-xs font-bold text-white group-hover:text-[#F2AC00] transition truncate">
+                      {contact.name}
+                    </p>
+                    <p className="text-[11px] font-mono text-slate-400 truncate">{contact.phone}</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-xs font-bold text-white group-hover:text-[#F2AC00] transition">
-                    {contact.name}
-                  </p>
-                  <p className="text-[11px] font-mono text-slate-400">{contact.phone}</p>
-                </div>
-              </div>
 
-              <span className={cn("text-[10px] font-bold px-2 py-0.5 rounded-full border", contact.color)}>
-                {contact.wallet}
-              </span>
-            </Link>
-          ))}
-        </div>
+                <span className={cn("text-[10px] font-bold px-2 py-0.5 rounded-full border shrink-0", contact.color)}>
+                  {contact.wallet}
+                </span>
+              </Link>
+            ))}
+          </div>
+        ) : (
+          <div className="py-6 text-center space-y-2 rounded-2xl bg-black/30 border border-dashed border-white/10 p-4">
+            <p className="text-xs font-bold text-white">Aún no tienes beneficiarios registrados</p>
+            <p className="text-[11px] text-slate-400 max-w-sm mx-auto">
+              Al realizar envíos a MonCash o NatCash, tus destinatarios se guardarán aquí para tu próximo envío con 1 clic.
+            </p>
+            <Button asChild size="sm" className="mt-2 h-8 rounded-xl bg-[#02531C] text-[#F2AC00] border border-[#F2AC00]/40 text-xs font-bold hover:bg-[#036B25]">
+              <Link to="/enviar">Hacer un envío ahora</Link>
+            </Button>
+          </div>
+        )}
       </div>
 
       {/* ÚLTIMAS TRANSACCIONES */}
@@ -288,34 +301,51 @@ export function Dashboard() {
         </div>
 
         {/* Lista de transferencias */}
-        <div className="divide-y divide-white/10">
-          {displayTransfers.map((tx) => (
-            <Link
-              key={tx.id}
-              to={tx.viewLink}
-              className="flex items-center justify-between py-3.5 hover:bg-[#02531C]/20 px-2 rounded-xl transition group"
-            >
-              <div className="flex items-center gap-3 min-w-0">
-                <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-[#02531C] text-[#F2AC00] border border-[#F2AC00]/30 shadow-sm group-hover:scale-105 transition">
-                  <Send className="size-4" />
+        {displayTransfers.length > 0 ? (
+          <div className="divide-y divide-white/10">
+            {displayTransfers.map((tx) => (
+              <Link
+                key={tx.id}
+                to={tx.viewLink}
+                className="flex items-center justify-between py-3.5 hover:bg-[#02531C]/20 px-2 rounded-xl transition group"
+              >
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-[#02531C] text-[#F2AC00] border border-[#F2AC00]/30 shadow-sm group-hover:scale-105 transition">
+                    <Send className="size-4" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-xs font-extrabold text-white truncate group-hover:text-[#F2AC00] transition">
+                      {tx.recipient}
+                    </p>
+                    <p className="text-[11px] text-slate-300 truncate">{tx.service} • {tx.date}</p>
+                  </div>
                 </div>
-                <div className="min-w-0">
-                  <p className="text-xs font-extrabold text-white truncate group-hover:text-[#F2AC00] transition">
-                    {tx.recipient}
-                  </p>
-                  <p className="text-[11px] text-slate-300 truncate">{tx.service} • {tx.date}</p>
-                </div>
-              </div>
 
-              <div className="text-right shrink-0 space-y-1">
-                <p className="text-sm font-black text-white font-mono">{tx.amount}</p>
-                <span className={cn("inline-block text-[10px] font-bold px-2 py-0.5 rounded-full border", tx.statusColor)}>
-                  {tx.status}
-                </span>
-              </div>
-            </Link>
-          ))}
-        </div>
+                <div className="text-right shrink-0 space-y-1">
+                  <p className="text-sm font-black text-white font-mono">{tx.amount}</p>
+                  <span className={cn("inline-block text-[10px] font-bold px-2 py-0.5 rounded-full border", tx.statusColor)}>
+                    {tx.status}
+                  </span>
+                </div>
+              </Link>
+            ))}
+          </div>
+        ) : (
+          <div className="py-8 text-center space-y-3 rounded-2xl bg-black/30 border border-dashed border-white/10 p-6">
+            <div className="grid size-12 mx-auto place-items-center rounded-2xl bg-[#02531C]/30 text-[#F2AC00] border border-[#F2AC00]/30">
+              <History className="size-6" />
+            </div>
+            <div className="space-y-1">
+              <p className="text-sm font-bold text-white">Sin movimientos recientes</p>
+              <p className="text-xs text-slate-400 max-w-sm mx-auto">
+                Tus envíos a MonCash, NatCash o recargas a Haití aparecerán aquí en tiempo real.
+              </p>
+            </div>
+            <Button asChild size="sm" className="rounded-xl bg-[#02531C] text-[#F2AC00] border border-[#F2AC00]/40 font-bold hover:bg-[#036B25]">
+              <Link to="/enviar">Hacer mi primer envío</Link>
+            </Button>
+          </div>
+        )}
       </div>
 
     </div>
