@@ -418,17 +418,7 @@ function UsersPanel() {
   } = useQuery({
     queryKey: ["admin-users-list"],
     queryFn: async () => {
-      // 1. Probar función de servidor getAdminUsersList (usa supabaseAdmin para listar auth.users)
-      try {
-        const sRes = await fetchUsers();
-        if (sRes?.users && sRes.users.length > 0) {
-          return sRes;
-        }
-      } catch (e) {
-        console.warn("ServerFn failed:", e);
-      }
-
-      // 2. Probar RPC admin_get_all_users directo desde el cliente Supabase
+      // 1. Probar RPC admin_get_all_users directo desde el cliente Supabase (más rápido y directo)
       try {
         const { data: rpcRows, error: rpcErr } = await (supabase as any).rpc("admin_get_all_users");
         if (!rpcErr && Array.isArray(rpcRows) && rpcRows.length > 0) {
@@ -436,19 +426,29 @@ function UsersPanel() {
             users: rpcRows.map((u: any) => ({
               id: u.id,
               email: u.email || null,
-              full_name: u.full_name || "",
+              full_name: u.full_name || (u.email ? u.email.split("@")[0] : "Usuario"),
               phone: u.phone || null,
               country: u.country || "HT",
               language: u.language || "es",
               kyc_status: u.kyc_status || "none",
               created_at: u.created_at,
-              roles: Array.isArray(u.roles) ? u.roles : [],
+              roles: Array.isArray(u.roles) && u.roles.length > 0 ? u.roles : ["client"],
               balanceHTG: Number(u.balance_htg || 0),
             })),
           };
         }
       } catch (e) {
         console.warn("Client RPC failed:", e);
+      }
+
+      // 2. Probar función de servidor getAdminUsersList
+      try {
+        const sRes = await fetchUsers();
+        if (sRes?.users && sRes.users.length > 0) {
+          return sRes;
+        }
+      } catch (e) {
+        console.warn("ServerFn failed:", e);
       }
 
       // 3. Consulta de respaldo a profiles, user_roles y wallets del cliente
