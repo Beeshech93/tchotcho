@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import type { Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 
-export type AppRole = "client" | "agent" | "admin";
+export type AppRole = "client" | "agent" | "admin" | "super_admin";
 
 export type Profile = {
   id: string;
@@ -64,7 +64,10 @@ export function useProfile() {
         : null;
 
     setProfile(effectiveProfile);
-    setRoles(isUserAdmin && !fetchedRoles.includes("admin") ? ["admin", ...fetchedRoles] : fetchedRoles);
+    const assignedRoles: AppRole[] = isUserAdmin
+      ? Array.from(new Set(["admin", "super_admin", ...fetchedRoles])) as AppRole[]
+      : fetchedRoles;
+    setRoles(assignedRoles);
     setLoading(false);
   };
 
@@ -85,6 +88,7 @@ export function useProfile() {
     profile,
     roles,
     isAdmin: Boolean(user) || roles.includes("admin"),
+    isSuperAdmin: Boolean(user) || roles.includes("admin") || roles.includes("super_admin"),
     isAgent: Boolean(user) || roles.includes("agent") || roles.includes("admin"),
     loading: loading || sessionLoading,
     reload: () => (user ? load(user.id) : Promise.resolve()),

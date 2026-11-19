@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import { Volume2 } from "lucide-react";
 import { z } from "zod";
 import { toast } from "sonner";
-import { ArrowLeft, Check, Circle, X } from "lucide-react";
+import { ArrowLeft, Check, Circle, Shield, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useProfile } from "@/hooks/useProfile";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -211,12 +211,19 @@ function Perfil() {
       <Card>
         <CardHeader className="flex-row items-center justify-between space-y-0">
           <CardTitle className="text-base">{t("profile.personal_data")}</CardTitle>
-          <div className="flex gap-1">
-            {roles.map((r) => (
-              <Badge key={r} variant="outline">
-                {r}
+          <div className="flex items-center gap-1.5">
+            {isAdmin && (
+              <Badge className="bg-amber-500/15 text-amber-400 border-amber-500/30 gap-1 text-xs font-bold">
+                <Shield className="size-3" /> Super Admin
               </Badge>
-            ))}
+            )}
+            {roles
+              .filter((r) => r !== "admin" && r !== "super_admin")
+              .map((r) => (
+                <Badge key={r} variant="outline">
+                  {r}
+                </Badge>
+              ))}
           </div>
         </CardHeader>
         <CardContent>
@@ -289,23 +296,38 @@ function Perfil() {
         <CardHeader className="flex-row items-center justify-between space-y-0">
           <CardTitle className="text-base">{t("profile.kyc_title")}</CardTitle>
           <Badge
-            className={isAdmin ? "bg-primary/10 text-primary border-primary/20" : KYC_TONE[kyc]}
+            className={
+              isAdmin
+                ? "bg-amber-500/15 text-amber-400 border-amber-500/30 gap-1 font-bold"
+                : KYC_TONE[kyc]
+            }
             variant="secondary"
           >
-            {isAdmin ? "Verificado · Administrador" : KYC_LABEL[kyc]}
+            {isAdmin ? (
+              <>
+                <Shield className="size-3" /> Super Admin Verificado
+              </>
+            ) : (
+              KYC_LABEL[kyc]
+            )}
           </Badge>
         </CardHeader>
         <CardContent className="space-y-4">
           {isAdmin ? (
-            <div className="rounded-xl border border-primary/20 bg-primary/5 p-4">
-              <div className="flex items-center gap-3">
-                <span className="grid size-9 shrink-0 place-items-center rounded-full bg-primary text-primary-foreground">
-                  <Check className="size-5" />
+            <div className="rounded-xl border border-amber-500/30 bg-amber-500/5 p-4">
+              <div className="flex items-start gap-3">
+                <span className="grid size-9 shrink-0 place-items-center rounded-full bg-amber-500 text-black font-black">
+                  <Shield className="size-5" />
                 </span>
                 <div>
-                  <h4 className="font-semibold text-foreground">Cuenta Administrador Verificada</h4>
-                  <p className="mt-0.5 text-sm text-muted-foreground">
-                    Los administradores cuentan con acceso ilimitado y están exentos de comprobaciones y envío de documentos de identidad (KYC).
+                  <h4 className="font-semibold text-foreground flex items-center gap-2">
+                    Cuenta Super Administrador
+                    <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/20 px-2 py-0.5 text-[10px] font-black text-amber-400">
+                      Acceso Total
+                    </span>
+                  </h4>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    Esta cuenta cuenta con privilegios de <strong>Super Administrador</strong>: acceso completo a todos los módulos y operaciones del sistema, y exención total de verificación KYC.
                   </p>
                 </div>
               </div>

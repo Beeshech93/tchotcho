@@ -200,11 +200,18 @@ export function AppShell({ children }: { children: ReactNode }) {
         <div className="mt-4 shrink-0 space-y-2.5 border-t border-white/10 pt-3">
           <LanguageSwitcher className="w-full bg-[#161F18] text-slate-200 border-white/10 text-xs font-semibold" />
           <div className="px-1 py-1">
-            <p className="truncate text-xs font-extrabold text-white">
-              {profile?.full_name || t("nav.account")}
-            </p>
+            <div className="flex items-center justify-between gap-1.5">
+              <p className="truncate text-xs font-extrabold text-white">
+                {profile?.full_name || t("nav.account")}
+              </p>
+              {isAdmin && (
+                <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/20 border border-amber-500/40 px-2 py-0.5 text-[9px] font-black text-amber-300 shrink-0">
+                  <Shield className="size-2.5" /> Super Admin
+                </span>
+              )}
+            </div>
             <p className="truncate text-[10px] font-semibold text-emerald-400">
-              {profile?.phone || "Personal Account"}
+              {profile?.phone || "Super Administrador"}
             </p>
           </div>
           <Button
