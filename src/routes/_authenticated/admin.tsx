@@ -47,6 +47,7 @@ import { KycPanel } from "@/components/admin/KycPanel";
 import { TopupsPanel } from "@/components/admin/TopupsPanel";
 import { MigrationAnalysisPanel } from "@/components/admin/MigrationAnalysisPanel";
 import { adminCancelTransfer, adminSetTransferStatus } from "@/lib/transfers.functions";
+import { adminSaveExchangeRate } from "@/lib/exchange-rates.functions";
 import {
   money,
   shortDate,
@@ -718,39 +719,69 @@ function RatesPanel() {
   });
 
   const rate = (rates ?? []).find((r) => r.from_currency === from && r.to_currency === to);
+  const saveExchangeRateFn = useServerFn(adminSaveExchangeRate);
 
   const save = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const f = new FormData(e.currentTarget);
-    const values = {
-      rate: Number(f.get("rate")),
-      fee_percent: Number(f.get("fee_percent")),
-      fee_fixed: Number(f.get("fee_fixed")),
-      agent_commission_percent: Number(f.get("agent_commission_percent")),
-    };
-    if (Object.values(values).some((v) => !Number.isFinite(v) || v < 0)) {
-      toast.error("Valores inválidos");
-      return;
-    }
-    if (values.rate <= 0) {
+    const rawRate = Number(f.get("rate"));
+    const rawFeePercent = f.get("fee_percent") !== "" ? Number(f.get("fee_percent")) : 0;
+    const rawFeeFixed = f.get("fee_fixed") !== "" ? Number(f.get("fee_fixed")) : 0;
+    const rawAgentCommission =
+      f.get("agent_commission_percent") !== "" ? Number(f.get("agent_commission_percent")) : 0;
+
+    if (!Number.isFinite(rawRate) || rawRate <= 0) {
       toast.error("El tipo de cambio debe ser un número mayor a 0 (ej. 7.20)");
       return;
     }
-    setSaving(true);
-    const { error } = rate
-      ? await supabase.from("exchange_rates").update(values).eq("id", rate.id)
-      : await supabase
-          .from("exchange_rates")
-          .insert({ ...values, is_active: true, from_currency: from, to_currency: to });
-    setSaving(false);
-    if (error) {
-      console.error("[exchange_rates error]", error);
-      toast.error(error.message || "No se pudo guardar la tarifa");
+    if (rawFeePercent < 0 || rawFeeFixed < 0 || rawAgentCommission < 0) {
+      toast.error("Las comisiones no pueden ser números negativos");
       return;
     }
-    toast.success("Tarifas actualizadas correctamente");
-    qc.invalidateQueries({ queryKey: ["all-rates"] });
-    qc.invalidateQueries({ queryKey: ["rate"] });
+
+    setSaving(true);
+    try {
+      // 1. Intentar guardar mediante server function (con service role seguro)
+      await saveExchangeRateFn({
+        data: {
+          from_currency: from,
+          to_currency: to,
+          rate: rawRate,
+          fee_percent: rawFeePercent,
+          fee_fixed: rawFeeFixed,
+          agent_commission_percent: rawAgentCommission,
+        },
+      });
+      toast.success("Tarifas actualizadas correctamente");
+    } catch (serverErr: any) {
+      console.warn("[RatesPanel] Server fn error, intentando cliente upsert:", serverErr);
+      // 2. Fallback cliente upsert
+      const { error } = await supabase.from("exchange_rates").upsert(
+        {
+          ...(rate ? { id: rate.id } : {}),
+          from_currency: from,
+          to_currency: to,
+          rate: rawRate,
+          fee_percent: rawFeePercent,
+          fee_fixed: rawFeeFixed,
+          agent_commission_percent: rawAgentCommission,
+          is_active: true,
+          updated_at: new Date().toISOString(),
+        },
+        { onConflict: "from_currency,to_currency" }
+      );
+      if (error) {
+        console.error("[exchange_rates error]", error);
+        toast.error(error.message || serverErr?.message || "No se pudo guardar la tarifa");
+        setSaving(false);
+        return;
+      }
+      toast.success("Tarifas actualizadas correctamente");
+    } finally {
+      setSaving(false);
+      qc.invalidateQueries({ queryKey: ["all-rates"] });
+      qc.invalidateQueries({ queryKey: ["rate"] });
+    }
   };
 
   return (
@@ -818,7 +849,11 @@ function RatesPanel() {
             </div>
           </div>
 
-          <form onSubmit={save} className="grid gap-4 sm:grid-cols-2" key={`${from}-${to}`}>
+          <form
+            onSubmit={save}
+            className="grid gap-4 sm:grid-cols-2"
+            key={`${from}-${to}-${rate?.id ?? "new"}-${rate?.rate ?? ""}`}
+          >
             <Field
               name="rate"
               label={`Tipo de cambio (${to} por 1 ${from})`}

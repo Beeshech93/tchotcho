@@ -483,7 +483,8 @@ function AuthPage() {
               </button>
             </div>
 
-            {/* Botón Continue with Google */}
+            {/* Google OAuth desactivado temporalmente hasta configurar credenciales en Supabase */}
+            {/*
             <div className="mt-4">
               <button
                 type="button"
@@ -494,6 +495,7 @@ function AuthPage() {
                 <span>Continue with Google</span>
               </button>
             </div>
+            */}
           </div>
         </div>
 
