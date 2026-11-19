@@ -69,16 +69,10 @@ function Enviar() {
   const [origin, setOrigin] = useState("MX");
   const [destination, setDestination] = useState("HT");
   const [amount, setAmount] = useState("2000");
-  const [payment, setPayment] = useState("oxxo");
+  const [payment, setPayment] = useState("card");
   const [delivery, setDelivery] = useState("moncash");
   const [city, setCity] = useState("Port-au-Prince");
   const [saving, setSaving] = useState(false);
-
-  useEffect(() => {
-    if (isAgent) {
-      setPayment("cash_agent");
-    }
-  }, [isAgent]);
 
   const { isEnabled, getMessage, isLoading: isServicesLoading } = useServicesConfig();
   const transfersEnabled = isEnabled("transfers");

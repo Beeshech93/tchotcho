@@ -91,9 +91,9 @@ export const PAYMENT_CATALOG: Record<string, Method> = {
 const DEFAULT_PAYMENTS = ["card"];
 
 const PAYMENTS_BY_COUNTRY: Record<string, string[]> = {
-  MX: ["card", "spei", "oxxo", "mercado_pago", "cash_agent"],
-  DO: ["card", "cash_agent"],
-  US: ["card", "cash_agent"],
+  MX: ["card", "spei", "oxxo", "mercado_pago"],
+  DO: ["card"],
+  US: ["card"],
   CA: ["card"],
   BR: ["card"],
   ES: ["card"],
