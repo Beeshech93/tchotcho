@@ -14,11 +14,9 @@ import {
   Globe,
   Sparkles,
   ChevronDown,
-  Download,
 } from "lucide-react";
 
-import logoAsset from "@/assets/tchotcho-logo.png";
-import iconAsset from "@/assets/tchotcho-icon.png";
+import logoAsset from "@/assets/tchotcho-icon.png";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -51,7 +49,7 @@ export const Route = createFileRoute("/")({
       {
         name: "description",
         content:
-          "Tipo de cambio claro, comisión visible antes de pagar y seguimiento en tiempo real hasta que tu familia recibe el dinero en Haití.",
+          "Tipo de cambio claro, comisión visible antes de pagar y seguimiento en tiempo real hasta que tu familia recibe el dinero en Haití o República Dominicana.",
       },
       {
         name: "keywords",
@@ -66,7 +64,7 @@ export const Route = createFileRoute("/")({
       {
         property: "og:description",
         content:
-          "Tipo de cambio claro, comisión visible antes de pagar y seguimiento en tiempo real hasta que tu familia recibe el dinero en Haití.",
+          "Tipo de cambio claro, comisión visible antes de pagar y seguimiento en tiempo real hasta que tu familia recibe el dinero en Haití o República Dominicana.",
       },
     ],
   }),
@@ -167,22 +165,17 @@ export function Landing() {
 
       {/* TOP HEADER ELEGANTE */}
       <header className="relative z-20 mx-auto flex max-w-7xl items-center justify-between px-5 py-6 sm:px-8">
-        {/* Logo Tcho-Tcho Oficial bien destacado */}
+        {/* Logo en cápsula de cristal redondeada */}
         <Link
           to="/"
-          className="group inline-flex items-center gap-2.5 sm:gap-3 rounded-full bg-white px-3.5 sm:px-4 py-2 shadow-[0_0_28px_rgba(242,172,0,0.4),0_6px_20px_rgba(0,0,0,0.35)] border-2 border-white hover:scale-105 active:scale-95 transition-all"
-          aria-label="Tcho-Tcho — Ir a Inicio"
+          className="inline-flex items-center gap-2.5 rounded-full bg-white/[0.08] border border-white/15 px-4 py-2 backdrop-blur-md shadow-sm hover:bg-white/[0.12] transition-all"
         >
-          <img
-            src={iconAsset}
-            alt="Tcho-Tcho"
-            className="size-7 sm:size-8 object-contain shrink-0 group-hover:rotate-6 transition-transform"
-          />
-          <img
-            src={logoAsset}
-            alt="Tcho-Tcho"
-            className="h-6 sm:h-7 w-auto object-contain shrink-0"
-          />
+          <span className="grid size-6 place-items-center rounded-full bg-[#02531C] border border-[#F2AC00]/40 text-[#F2AC00] font-black text-xs shadow-sm">
+            T
+          </span>
+          <span className="font-display font-bold text-sm tracking-tight text-white">
+            Tcho-Tcho
+          </span>
         </Link>
 
         {/* Acciones de cabecera: Idioma, Iniciar sesión y Crear cuenta */}
@@ -210,96 +203,63 @@ export function Landing() {
       <section className="relative z-10 mx-auto grid max-w-7xl items-center gap-10 px-5 pt-8 pb-16 sm:px-8 lg:grid-cols-[1.1fr_1fr] lg:gap-14 lg:pt-14 lg:pb-24">
         
         {/* COLUMNA IZQUIERDA: Titular, Subtítulo, Botones y Píldoras de Confianza */}
-        <div className="space-y-6 sm:space-y-7">
-          {/* Badge superior ultra-moderno con punto pulsante */}
-          <div className="inline-flex items-center gap-2.5 rounded-full bg-gradient-to-r from-emerald-950/70 via-black/80 to-black/60 border border-emerald-500/35 px-4 py-1.5 text-[11px] font-bold uppercase tracking-wider text-emerald-300 backdrop-blur-xl shadow-[0_0_20px_rgba(2,83,28,0.25)]">
-            <span className="flex size-2 rounded-full bg-[#10B981] animate-ping" />
-            <span className="font-semibold text-slate-200">Fintech de Próxima Generación</span>
-            <span className="text-[#F2AC00] font-black">·</span>
-            <span>América & Europa → Haití</span>
+        <div className="space-y-6 sm:space-y-8">
+          {/* Badge superior */}
+          <div className="inline-flex items-center gap-2 rounded-full bg-white/[0.08] border border-white/15 px-4 py-1.5 text-[11px] font-bold uppercase tracking-wider text-white backdrop-blur-md shadow-sm">
+            <span className="text-[#F2AC00] font-black">~</span>
+            <span>América y Europa → Haití y R. Dominicana</span>
           </div>
 
-          {/* Titular Principal moderno y poderoso */}
-          <h1 className="font-display text-4xl sm:text-5xl lg:text-[3.85rem] font-black tracking-tight text-white leading-[1.03] max-w-xl">
-            Tu dinero en casa,{" "}
-            <span className="bg-gradient-to-r from-emerald-300 via-[#F2AC00] to-white bg-clip-text text-transparent">
-              al instante y sin límites.
-            </span>
+          {/* Titular Principal */}
+          <h1 className="font-display text-4xl sm:text-5xl lg:text-[3.6rem] font-black tracking-tight text-white leading-[1.08] max-w-xl">
+            Envía dinero a casa sin sorpresas
           </h1>
 
-          {/* Subtítulo descriptivo moderno */}
-          <p className="max-w-xl text-base sm:text-lg text-slate-300/90 leading-relaxed font-normal">
-            Mueve tu dinero al instante directo a cuentas <strong className="text-white font-semibold">MonCash</strong>, <strong className="text-white font-semibold">NatCash</strong> y bancos locales. Con la mejor tasa garantizada en tiempo real y cero comisiones sorpresa.
+          {/* Subtítulo descriptivo */}
+          <p className="max-w-xl text-base sm:text-lg text-slate-200/90 leading-relaxed font-normal">
+            Tipo de cambio claro, comisión visible antes de pagar y seguimiento en tiempo real hasta que tu familia recibe el dinero en Haití o República Dominicana.
           </p>
 
-          {/* Botones de acción CTA modernos */}
-          <div className="flex flex-wrap items-center gap-4 pt-1">
+          {/* Botones de acción CTA */}
+          <div className="flex flex-wrap items-center gap-4 pt-2">
             <Link
               to="/auth"
               search={{ modo: "registro" }}
-              className="group inline-flex items-center gap-3 rounded-full bg-white text-black font-black px-8 py-4 text-sm sm:text-base shadow-[0_12px_32px_rgba(255,255,255,0.25),0_0_40px_rgba(2,83,28,0.35)] hover:bg-slate-100 hover:scale-[1.02] active:scale-[0.98] transition-all"
+              className="inline-flex items-center gap-2 rounded-full bg-white text-black font-black px-7 py-3.5 text-sm sm:text-base shadow-[0_10px_30px_rgba(255,255,255,0.25)] hover:bg-slate-100 hover:scale-[1.03] active:scale-[0.98] transition-all"
             >
-              <span>Comenzar ahora</span>
-              <div className="grid size-6 place-items-center rounded-full bg-black text-white group-hover:translate-x-0.5 transition-transform">
-                <ArrowRight className="size-3.5" />
-              </div>
+              <span>Enviar dinero</span>
+              <ArrowRight className="size-4" />
             </Link>
 
             <Link
               to="/auth"
-              className="inline-flex items-center rounded-full border border-white/20 bg-white/[0.05] text-white font-bold px-7 py-4 text-sm sm:text-base backdrop-blur-xl hover:bg-white/[0.12] hover:border-white/35 transition-all"
+              className="inline-flex items-center rounded-full border border-white/30 bg-white/[0.04] text-white font-bold px-7 py-3.5 text-sm sm:text-base backdrop-blur-md hover:bg-white/15 transition-all"
             >
-              Iniciar sesión
+              Ya tengo cuenta
             </Link>
           </div>
 
-          {/* 3 Tarjetas de Beneficios estilo Fintech Moderno */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
-            <div className="rounded-2xl bg-gradient-to-b from-white/[0.08] to-white/[0.02] border border-white/12 p-4 backdrop-blur-xl shadow-sm space-y-2 hover:border-[#F2AC00]/40 transition-all group">
-              <div className="grid size-8 place-items-center rounded-xl bg-[#02531C] border border-[#F2AC00]/30 text-[#F2AC00] group-hover:scale-110 transition shadow-sm">
-                <Zap className="size-4" />
-              </div>
-              <div>
-                <p className="font-extrabold text-sm text-white">Acreditación Flash</p>
-                <p className="text-[11px] text-slate-300 mt-0.5">En segundos en su billetera</p>
-              </div>
+          {/* 3 Tarjetas de Beneficios (En minutos, 100% Seguro, Tasa clara) */}
+          <div className="grid grid-cols-3 gap-3 pt-3">
+            <div className="rounded-2xl bg-white/[0.06] border border-white/10 p-3.5 backdrop-blur-md shadow-sm space-y-1">
+              <span className="font-extrabold text-xs sm:text-sm block text-white flex items-center gap-1.5">
+                <span className="text-[#F2AC00]">⚡</span> En minutos
+              </span>
+              <span className="text-[11px] text-slate-300 block leading-tight">MonCash & NatCash</span>
             </div>
 
-            <div className="rounded-2xl bg-gradient-to-b from-white/[0.08] to-white/[0.02] border border-white/12 p-4 backdrop-blur-xl shadow-sm space-y-2 hover:border-emerald-400/40 transition-all group">
-              <div className="grid size-8 place-items-center rounded-xl bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 group-hover:scale-110 transition shadow-sm">
-                <ShieldCheck className="size-4" />
-              </div>
-              <div>
-                <p className="font-extrabold text-sm text-white">Seguridad Blindada</p>
-                <p className="text-[11px] text-slate-300 mt-0.5">Cifrado bancario 256-bit</p>
-              </div>
+            <div className="rounded-2xl bg-white/[0.06] border border-white/10 p-3.5 backdrop-blur-md shadow-sm space-y-1">
+              <span className="font-extrabold text-xs sm:text-sm block text-white flex items-center gap-1.5">
+                <span className="text-emerald-400">🔒</span> 100% Seguro
+              </span>
+              <span className="text-[11px] text-slate-300 block leading-tight">Cifrado punta a punta</span>
             </div>
 
-            <div className="rounded-2xl bg-gradient-to-b from-white/[0.08] to-white/[0.02] border border-white/12 p-4 backdrop-blur-xl shadow-sm space-y-2 hover:border-[#F2AC00]/40 transition-all group">
-              <div className="grid size-8 place-items-center rounded-xl bg-[#02531C] border border-[#F2AC00]/30 text-[#F2AC00] group-hover:scale-110 transition shadow-sm">
-                <BadgePercent className="size-4" />
-              </div>
-              <div>
-                <p className="font-extrabold text-sm text-white">Tasa Máxima Real</p>
-                <p className="text-[11px] text-slate-300 mt-0.5">Más dinero para tu familia</p>
-              </div>
-            </div>
-          </div>
-
-          {/* Social Proof y confianza */}
-          <div className="flex items-center gap-3 pt-1 text-xs text-slate-300">
-            <div className="flex -space-x-2">
-              <div className="grid size-7 place-items-center rounded-full bg-slate-800 border-2 border-black text-xs shadow-sm">🇭🇹</div>
-              <div className="grid size-7 place-items-center rounded-full bg-slate-700 border-2 border-black text-xs shadow-sm">🇩🇴</div>
-              <div className="grid size-7 place-items-center rounded-full bg-slate-800 border-2 border-black text-xs shadow-sm">🇲🇽</div>
-              <div className="grid size-7 place-items-center rounded-full bg-[#02531C] border-2 border-black text-[10px] font-black text-[#F2AC00]">★</div>
-            </div>
-            <div className="leading-tight">
-              <p className="font-bold text-white text-[12px] flex items-center gap-1.5">
-                <span>4.9 / 5</span>
-                <span className="text-[#F2AC00]">★★★★★</span>
-              </p>
-              <p className="text-[11px] text-slate-400">Elegido por más de 50,000 familias cada mes</p>
+            <div className="rounded-2xl bg-white/[0.06] border border-white/10 p-3.5 backdrop-blur-md shadow-sm space-y-1">
+              <span className="font-extrabold text-xs sm:text-sm block text-white flex items-center gap-1.5">
+                <span className="text-[#F2AC00]">💸</span> Tasa clara
+              </span>
+              <span className="text-[11px] text-slate-300 block leading-tight">Sin costos ocultos</span>
             </div>
           </div>
         </div>
@@ -530,198 +490,47 @@ export function Landing() {
 
       </section>
 
-      {/* SECCIÓN BENTO GRID DE TECNOLOGÍA & EXPERIENCIA MODERNA */}
-      <section className="relative z-10 mx-auto max-w-7xl px-5 pb-24 sm:px-8 space-y-10">
-        
-        {/* Encabezado de la Sección */}
-        <div className="text-center max-w-2xl mx-auto space-y-3">
-          <div className="inline-flex items-center gap-2 rounded-full bg-emerald-950/60 border border-emerald-500/35 px-4 py-1 text-[11px] font-bold uppercase tracking-wider text-emerald-300 backdrop-blur-xl shadow-sm">
-            <Sparkles className="size-3 text-[#F2AC00]" />
-            <span>Infraestructura Financiera 2026</span>
+      {/* SECCIÓN DE 3 TARJETAS GRANDES INFERIORES (Minutos, KYC, +30 países) */}
+      <section className="relative z-10 mx-auto max-w-7xl px-5 pb-16 sm:px-8">
+        <div className="grid gap-5 sm:grid-cols-3">
+          {/* Card 1: Minutos */}
+          <div className="rounded-3xl bg-[#0D120E] border border-white/10 p-6 space-y-3 shadow-xl hover:border-emerald-500/40 transition group">
+            <div className="grid size-12 place-items-center rounded-2xl bg-black/50 border border-[#F2AC00]/30 text-[#F2AC00] shadow-inner group-hover:scale-110 transition">
+              <Timer className="size-6" />
+            </div>
+            <div>
+              <h3 className="font-display text-xl font-black text-white">Minutos</h3>
+              <p className="text-xs text-slate-400 mt-1">Entrega típica en MonCash & NatCash</p>
+            </div>
           </div>
-          <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight">
-            Diseñado para mover tu dinero{" "}
-            <span className="bg-gradient-to-r from-emerald-300 via-[#F2AC00] to-white bg-clip-text text-transparent">
-              sin fronteras.
-            </span>
-          </h2>
-          <p className="text-sm sm:text-base text-slate-300">
-            Tecnología bancaria instantánea, seguridad criptográfica y la mejor experiencia móvil para conectar con tu familia en Haití.
-          </p>
+
+          {/* Card 2: KYC */}
+          <div className="rounded-3xl bg-[#0D120E] border border-white/10 p-6 space-y-3 shadow-xl hover:border-emerald-500/40 transition group">
+            <div className="grid size-12 place-items-center rounded-2xl bg-black/50 border border-emerald-500/30 text-emerald-400 shadow-inner group-hover:scale-110 transition">
+              <ShieldCheck className="size-6" />
+            </div>
+            <div>
+              <h3 className="font-display text-xl font-black text-white">KYC</h3>
+              <p className="text-xs text-slate-400 mt-1">Identidad verificada y protección bancaria</p>
+            </div>
+          </div>
+
+          {/* Card 3: +30 países */}
+          <div className="rounded-3xl bg-[#0D120E] border border-white/10 p-6 space-y-3 shadow-xl hover:border-emerald-500/40 transition group">
+            <div className="grid size-12 place-items-center rounded-2xl bg-black/50 border border-[#F2AC00]/30 text-[#F2AC00] shadow-inner group-hover:scale-110 transition">
+              <Wallet className="size-6" />
+            </div>
+            <div>
+              <h3 className="font-display text-xl font-black text-white">+30 países</h3>
+              <p className="text-xs text-slate-400 mt-1">De origen en América, el Caribe y Europa</p>
+            </div>
+          </div>
         </div>
+      </section>
 
-        {/* Bento Grid: 4 Cajas Ricas e Interactivas */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-
-          {/* Bento Card 1 (7 cols): Acreditación Flash MonCash & NatCash con simulador */}
-          <div className="lg:col-span-7 rounded-[32px] bg-gradient-to-b from-[#131B15] to-[#0A0E0C] border border-emerald-500/25 p-7 sm:p-8 space-y-6 shadow-2xl relative overflow-hidden group hover:border-emerald-500/50 transition-all">
-            <div className="absolute top-0 right-0 size-60 rounded-full bg-[#10B981]/15 blur-3xl pointer-events-none" />
-
-            <div className="flex items-start justify-between relative z-10">
-              <div className="space-y-1">
-                <div className="inline-flex items-center gap-2 text-xs font-bold text-[#10B981] bg-[#02531C]/60 border border-[#10B981]/30 px-3 py-1 rounded-full shadow-sm">
-                  <Zap className="size-3.5 text-[#F2AC00]" />
-                  <span>Entrega en menos de 120 segundos</span>
-                </div>
-                <h3 className="font-display text-2xl font-black text-white pt-2">
-                  Acreditación Flash a MonCash & NatCash
-                </h3>
-                <p className="text-xs sm:text-sm text-slate-300 max-w-md">
-                  El dinero viaja de inmediato desde tu tarjeta o banco directo al saldo del teléfono del beneficiario, listo para retirar en cualquier agente.
-                </p>
-              </div>
-            </div>
-
-            {/* Simulador visual de entrega en tiempo real */}
-            <div className="rounded-2xl bg-black/60 border border-white/10 p-4 space-y-3 relative z-10">
-              <div className="flex items-center justify-between text-xs font-mono">
-                <span className="text-slate-400">Origen: México (MXN)</span>
-                <span className="text-[#10B981] font-bold flex items-center gap-1.5">
-                  <span className="size-2 rounded-full bg-[#10B981] animate-ping" />
-                  Estado: Acreditado
-                </span>
-              </div>
-
-              <div className="h-2 w-full bg-slate-800 rounded-full overflow-hidden">
-                <div className="h-full bg-gradient-to-r from-[#02531C] via-[#10B981] to-[#F2AC00] w-full rounded-full animate-pulse" />
-              </div>
-
-              <div className="flex items-center justify-between pt-1">
-                <div className="flex items-center gap-2">
-                  <span className="size-3 rounded-full bg-red-500 shadow-[0_0_8px_#ef4444]" />
-                  <span className="text-xs font-bold text-white">MonCash Digicel</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="size-3 rounded-full bg-blue-500 shadow-[0_0_8px_#3b82f6]" />
-                  <span className="text-xs font-bold text-white">NatCash Natcom</span>
-                </div>
-                <span className="text-xs font-extrabold text-[#F2AC00]">Comisión $0.00</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Bento Card 2 (5 cols): Seguridad de Grado Bancario 100% Protegido */}
-          <div className="lg:col-span-5 rounded-[32px] bg-gradient-to-b from-[#181E19] to-[#0A0D0B] border border-white/12 p-7 sm:p-8 space-y-6 shadow-2xl relative overflow-hidden group hover:border-[#F2AC00]/40 transition-all">
-            <div className="absolute top-0 right-0 size-48 rounded-full bg-[#F2AC00]/10 blur-3xl pointer-events-none" />
-
-            <div className="space-y-2 relative z-10">
-              <div className="inline-flex items-center gap-2 text-xs font-bold text-[#F2AC00] bg-amber-500/10 border border-[#F2AC00]/30 px-3 py-1 rounded-full">
-                <ShieldCheck className="size-3.5" />
-                <span>Custodia Segura Regulada</span>
-              </div>
-              <h3 className="font-display text-2xl font-black text-white">
-                100% Protegido & Blindado
-              </h3>
-              <p className="text-xs sm:text-sm text-slate-300">
-                Cada centavo está respaldado con encriptación militar y verificación de identidad bancaria.
-              </p>
-            </div>
-
-            <div className="space-y-2.5 relative z-10 pt-1">
-              <div className="flex items-center gap-3 rounded-xl bg-black/40 border border-white/5 p-3 text-xs">
-                <div className="grid size-7 place-items-center rounded-lg bg-[#02531C] text-[#F2AC00] font-black">✓</div>
-                <span className="text-slate-200 font-semibold">Cifrado de extremo a extremo SHA-256</span>
-              </div>
-              <div className="flex items-center gap-3 rounded-xl bg-black/40 border border-white/5 p-3 text-xs">
-                <div className="grid size-7 place-items-center rounded-lg bg-[#02531C] text-[#F2AC00] font-black">✓</div>
-                <span className="text-slate-200 font-semibold">Verificación biométrica KYC instantánea</span>
-              </div>
-              <div className="flex items-center gap-3 rounded-xl bg-black/40 border border-white/5 p-3 text-xs">
-                <div className="grid size-7 place-items-center rounded-lg bg-[#02531C] text-[#F2AC00] font-black">✓</div>
-                <span className="text-slate-200 font-semibold">Garantía total de entrega o reembolso</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Bento Card 3 (5 cols): Cobertura Global Sin Fronteras */}
-          <div className="lg:col-span-5 rounded-[32px] bg-gradient-to-b from-[#181E19] to-[#0A0D0B] border border-white/12 p-7 sm:p-8 space-y-5 shadow-2xl group hover:border-emerald-500/40 transition-all">
-            <div className="space-y-2">
-              <div className="inline-flex items-center gap-2 text-xs font-bold text-emerald-300 bg-emerald-500/10 border border-emerald-500/30 px-3 py-1 rounded-full">
-                <Globe className="size-3.5" />
-                <span>+30 Corredores Activos</span>
-              </div>
-              <h3 className="font-display text-2xl font-black text-white">
-                Sin Fronteras hacia Haití
-              </h3>
-              <p className="text-xs sm:text-sm text-slate-300">
-                Transfiere fondos desde los principales países donde reside la diáspora con liquidación en Gourdes (HTG).
-              </p>
-            </div>
-
-            <div className="flex flex-wrap gap-2 pt-2">
-              {[
-                { name: "Estados Unidos", flag: "🇺🇸", cur: "USD" },
-                { name: "México", flag: "🇲🇽", cur: "MXN" },
-                { name: "Chile", flag: "🇨🇱", cur: "CLP" },
-                { name: "Brasil", flag: "🇧🇷", cur: "BRL" },
-                { name: "Canadá", flag: "🇨🇦", cur: "CAD" },
-                { name: "Francia / Europa", flag: "🇫🇷", cur: "EUR" },
-              ].map((c) => (
-                <span
-                  key={c.name}
-                  className="inline-flex items-center gap-1.5 rounded-xl bg-black/50 border border-white/10 px-3 py-1.5 text-xs font-semibold text-white shadow-sm"
-                >
-                  <span>{c.flag}</span>
-                  <span>{c.name}</span>
-                  <span className="text-[10px] font-mono text-emerald-400 font-bold">{c.cur}</span>
-                </span>
-              ))}
-            </div>
-          </div>
-
-          {/* Bento Card 4 (7 cols): App Móvil Ultra-Moderna (PWA One-Click) */}
-          <div className="lg:col-span-7 rounded-[32px] bg-gradient-to-b from-[#131B15] to-[#0A0E0C] border border-emerald-500/25 p-7 sm:p-8 shadow-2xl relative overflow-hidden group hover:border-emerald-500/50 transition-all">
-            <div className="flex flex-col sm:flex-row items-center gap-6 justify-between relative z-10">
-              <div className="space-y-3 text-center sm:text-left">
-                <div className="inline-flex items-center gap-2 text-xs font-bold text-[#F2AC00] bg-amber-500/10 border border-[#F2AC00]/30 px-3 py-1 rounded-full">
-                  <Smartphone className="size-3.5" />
-                  <span>Experiencia Móvil Nativa PWA</span>
-                </div>
-                <h3 className="font-display text-2xl font-black text-white">
-                  Instala Tcho-Tcho en tu Teléfono
-                </h3>
-                <p className="text-xs sm:text-sm text-slate-300 max-w-sm">
-                  Abre la app con un solo toque desde tu pantalla de inicio. Sin descargas pesadas de tienda, ligera y segura.
-                </p>
-
-                <div className="flex flex-wrap items-center gap-3 pt-2 justify-center sm:justify-start">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      if (typeof window !== "undefined") {
-                        const event = new CustomEvent("open-install-prompt");
-                        window.dispatchEvent(event);
-                      }
-                    }}
-                    className="inline-flex items-center gap-2.5 rounded-full bg-[#F2AC00] text-black font-black px-6 py-3 text-xs sm:text-sm shadow-[0_0_20px_rgba(242,172,0,0.35)] hover:bg-[#FBBF24] hover:scale-105 active:scale-95 transition-all"
-                  >
-                    <Download className="size-4" />
-                    <span>Instalar App Gratis</span>
-                  </button>
-
-                  <div className="flex items-center gap-2 text-xs text-slate-400">
-                    <span className="inline-block size-2 rounded-full bg-emerald-400" />
-                    <span>Android & iPhone</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Mockup visual de la app en miniatura */}
-              <div className="shrink-0 w-36 sm:w-44 rounded-2xl bg-gradient-to-tr from-black to-[#052B11] border-2 border-[#F2AC00]/50 p-3 shadow-2xl text-center space-y-2 rotate-2 hover:rotate-0 transition-transform">
-                <div className="size-11 mx-auto rounded-xl bg-white p-1 border border-white shadow-md flex items-center justify-center">
-                  <img src={iconAsset} alt="Tcho-Tcho" className="size-9 object-contain" />
-                </div>
-                <p className="text-xs font-bold text-white">Tcho-Tcho</p>
-                <div className="rounded-xl bg-black/60 p-2 space-y-1">
-                  <p className="text-[9px] text-slate-400">Balance</p>
-                  <p className="text-xs font-extrabold text-[#10B981]">HTG 14,400.00</p>
-                </div>
-                <span className="inline-block text-[9px] text-[#F2AC00] font-semibold">Listo para enviar</span>
-              </div>
-            </div>
-          </div>
-
-        </div>
+      {/* INSTALADOR DE APLICACIÓN */}
+      <section id="install-app" className="relative z-10 mx-auto max-w-2xl px-5 pb-20">
+        <InstallAppCard />
       </section>
 
       {/* FOOTER ELEGANTE */}

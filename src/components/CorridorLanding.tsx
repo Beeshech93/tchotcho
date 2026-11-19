@@ -48,11 +48,11 @@ export function CorridorLanding({
       <div className="bg-brand text-foreground">
         <header className="mx-auto flex max-w-6xl items-center justify-between gap-2 px-4 py-5 sm:px-5">
           <Link to="/" className="flex min-w-0 items-center gap-2 sm:gap-2.5">
-            <span className="grid size-9 shrink-0 place-items-center overflow-hidden rounded-xl bg-white p-1 shadow-soft">
-              <img src={logoAsset} alt="Tcho-Tcho" className="h-full w-full object-contain" />
+            <span className="grid size-9 shrink-0 place-items-center overflow-hidden rounded-xl bg-logo-surface p-1 shadow-soft">
+              <img src={logoAsset} alt="Lajan Rapid" className="h-full w-full object-contain" />
             </span>
             <span className="truncate font-display text-base font-semibold tracking-tight sm:text-lg">
-              Tcho-Tcho
+              Lajan Rapid
             </span>
           </Link>
           <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
