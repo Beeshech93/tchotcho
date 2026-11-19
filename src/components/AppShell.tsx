@@ -8,8 +8,14 @@ import {
   Shield,
   Briefcase,
   LogOut,
-  Plus,
   Smartphone,
+  CreditCard,
+  Wallet,
+  Receipt,
+  FileSpreadsheet,
+  ChevronDown,
+  Sparkles,
+  ArrowRight,
 } from "lucide-react";
 import type { ReactNode } from "react";
 import logoAsset from "@/assets/lajan-rapid-logo.png";
@@ -76,15 +82,20 @@ export function AppShell({ children }: { children: ReactNode }) {
   const transfersEnabled = isEnabled("transfers");
   const topupsEnabled = isEnabled("topups");
 
-  const nav = [
-    { to: "/dashboard", key: "nav.home", icon: Home },
-    ...(transfersEnabled ? [{ to: "/enviar", key: "nav.send", icon: Send }] : []),
-    ...(topupsEnabled ? [{ to: "/recargas", key: "nav.topups", icon: Smartphone }] : []),
-    { to: "/historial", key: "nav.history", icon: History },
-    { to: "/perfil", key: "nav.profile", icon: User },
-    ...(isAgent ? [{ to: "/agente", key: "nav.agent", icon: Briefcase }] : []),
-    ...(isAdmin ? [{ to: "/admin", key: "nav.admin", icon: Shield }] : []),
-    { to: "/soporte", key: "nav.support", icon: LifeBuoy },
+  const coreNav = [
+    { to: "/dashboard", label: "Home", icon: Home },
+    { to: "/historial", label: "Transactions", icon: History },
+    ...(transfersEnabled ? [{ to: "/enviar", label: "Payments", icon: Send }] : []),
+    { to: "/dashboard", label: "Cards", icon: CreditCard },
+    { to: "/perfil", label: "Accounts", icon: Wallet },
+  ];
+
+  const workflowNav = [
+    ...(topupsEnabled ? [{ to: "/recargas", label: "Bill Pay", icon: Smartphone }] : []),
+    ...(transfersEnabled ? [{ to: "/enviar", label: "Invoicing", icon: Receipt }] : []),
+    { to: "/soporte", label: "Reimbursements", icon: LifeBuoy },
+    ...(isAdmin ? [{ to: "/admin", label: "Accounting", icon: Shield }] : []),
+    ...(isAgent ? [{ to: "/agente", label: "Agent Portal", icon: Briefcase }] : []),
   ];
 
   const signOut = async () => {
@@ -93,57 +104,117 @@ export function AppShell({ children }: { children: ReactNode }) {
   };
 
   return (
-    <div className="min-h-screen bg-background md:flex">
-      <aside className="hidden w-64 shrink-0 flex-col justify-between bg-sidebar p-5 text-sidebar-foreground md:sticky md:top-0 md:flex md:h-screen md:overflow-y-auto">
+    <div className="min-h-screen bg-black text-slate-100 md:flex selection:bg-[#02531C] selection:text-[#F2AC00]">
+      {/* Desktop Sidebar matching SaaS Dashboard mockup */}
+      <aside className="hidden w-64 shrink-0 flex-col justify-between bg-[#0B0D0C] border-r border-white/5 p-4 text-slate-300 md:sticky md:top-0 md:flex md:h-screen md:overflow-y-auto custom-scrollbar">
         <div className="flex flex-1 flex-col">
-          <div className="mb-8 flex items-center justify-between gap-2">
-            <Link to="/dashboard" className="flex min-w-0 items-center gap-2">
-              <span className="grid size-9 shrink-0 place-items-center overflow-hidden rounded-xl bg-logo-surface p-1">
+          {/* Organization Switcher Header */}
+          <div className="mb-6 flex items-center justify-between gap-2 p-2 rounded-xl bg-white/[0.03] border border-white/5">
+            <Link to="/dashboard" className="flex min-w-0 items-center gap-2.5">
+              <span className="grid size-9 shrink-0 place-items-center overflow-hidden rounded-lg bg-[#02531C] p-1 border border-[#F2AC00]/30 shadow-md">
                 <img src={logoSrc} alt={currentBrand.name} className="h-full w-full object-contain" />
               </span>
-              <span className="truncate font-display text-lg font-semibold">{currentBrand.name}</span>
+              <div className="min-w-0 flex-1">
+                <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Banking</p>
+                <h2 className="truncate font-display text-sm font-bold text-white">{currentBrand.name}</h2>
+              </div>
             </Link>
-            <NotificationBell triggerClassName="text-sidebar-foreground/70 hover:text-sidebar-accent-foreground hover:bg-sidebar-accent/60" />
+            <NotificationBell triggerClassName="text-slate-400 hover:text-white hover:bg-white/5" />
           </div>
-          <nav className="flex flex-1 flex-col gap-1">
-            {nav.map((item) => (
-              <Link
-                key={item.to}
-                to={item.to}
-                className={cn(
-                  "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
-                  pathname === item.to
-                    ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                    : "text-sidebar-foreground/70 hover:bg-sidebar-accent/60 hover:text-sidebar-accent-foreground",
-                )}
-              >
-                <item.icon className="size-4" />
-                {t(item.key)}
-              </Link>
-            ))}
+
+          {/* Core Navigation */}
+          <nav className="flex flex-col gap-1">
+            {coreNav.map((item) => {
+              const isActive = pathname === item.to;
+              return (
+                <Link
+                  key={item.label}
+                  to={item.to}
+                  className={cn(
+                    "flex items-center gap-3 rounded-xl px-3 py-2 text-xs font-medium transition-all",
+                    isActive
+                      ? "bg-[#02531C] text-[#F2AC00] font-semibold shadow-sm border border-[#F2AC00]/20"
+                      : "text-slate-400 hover:bg-white/[0.04] hover:text-white"
+                  )}
+                >
+                  <item.icon className={cn("size-4 shrink-0", isActive ? "text-[#F2AC00]" : "text-slate-400")} />
+                  <span>{item.label}</span>
+                </Link>
+              );
+            })}
           </nav>
+
+          {/* Workflows Sub-Group */}
+          <div className="mt-6">
+            <p className="px-3 pb-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+              Workflows
+            </p>
+            <nav className="flex flex-col gap-1">
+              {workflowNav.map((item) => {
+                const isActive = pathname === item.to;
+                return (
+                  <Link
+                    key={item.label}
+                    to={item.to}
+                    className={cn(
+                      "flex items-center gap-3 rounded-xl px-3 py-2 text-xs font-medium transition-all",
+                      isActive
+                        ? "bg-[#02531C] text-[#F2AC00] font-semibold shadow-sm border border-[#F2AC00]/20"
+                        : "text-slate-400 hover:bg-white/[0.04] hover:text-white"
+                    )}
+                  >
+                    <item.icon className={cn("size-4 shrink-0", isActive ? "text-[#F2AC00]" : "text-slate-400")} />
+                    <span>{item.label}</span>
+                  </Link>
+                );
+              })}
+            </nav>
+          </div>
+
+          {/* Promotional Bottom Widget ("Accept credit cards and bank payment") */}
+          <div className="mt-8 rounded-2xl bg-gradient-to-b from-[#141815] to-[#0A0D0B] border border-white/5 p-3.5 text-center shadow-lg relative overflow-hidden group">
+            <div className="absolute -top-10 -right-10 size-24 rounded-full bg-[#02531C]/20 blur-xl pointer-events-none" />
+            <div className="mx-auto mb-2.5 flex h-14 w-24 items-center justify-between rounded-lg bg-gradient-to-tr from-slate-900 to-[#122417] p-2 border border-white/10 shadow-inner">
+              <div className="size-3.5 rounded-sm bg-[#F2AC00]/80 border border-white/30" />
+              <span className="text-[8px] font-mono font-bold text-white/50">Tcho-Tcho</span>
+            </div>
+            <p className="text-xs font-semibold text-white">Accept credit cards and bank payment</p>
+            <p className="text-[10px] text-slate-400 mt-0.5">Instant deposits in HTG & USD</p>
+            <Link
+              to="/enviar"
+              className="mt-3 inline-flex w-full items-center justify-center gap-1.5 rounded-xl bg-[#F2AC00] px-3 py-2 text-xs font-bold text-black shadow-md hover:bg-[#F2AC00]/90 transition"
+            >
+              Set up now
+              <ArrowRight className="size-3.5" />
+            </Link>
+          </div>
         </div>
-        <div className="mt-4 shrink-0 space-y-2 border-t border-sidebar-border pt-4">
-          <LanguageSwitcher className="w-full bg-sidebar-accent/40 text-sidebar-foreground" />
-          <p className="truncate text-sm font-medium">{profile?.full_name || t("nav.account")}</p>
+
+        {/* Sidebar Footer */}
+        <div className="mt-4 shrink-0 space-y-2 border-t border-white/5 pt-3">
+          <LanguageSwitcher className="w-full bg-white/[0.04] text-slate-300 border-white/5 text-xs" />
+          <div className="px-1 py-1">
+            <p className="truncate text-xs font-semibold text-white">{profile?.full_name || t("nav.account")}</p>
+            <p className="truncate text-[10px] text-slate-400">{profile?.phone || "Personal Account"}</p>
+          </div>
           <Button
             variant="ghost"
             size="sm"
-            className="mt-2 w-full justify-start gap-2 text-sidebar-foreground/70 hover:text-sidebar-accent-foreground"
+            className="w-full justify-start gap-2 text-xs text-rose-400 hover:bg-rose-500/10 hover:text-rose-300"
             onClick={signOut}
           >
-            <LogOut className="size-4" /> {t("nav.signout")}
+            <LogOut className="size-3.5" /> {t("nav.signout")}
           </Button>
           {isCustomBrand && (
-            <div className="pt-3 text-center border-t border-sidebar-border/40">
+            <div className="pt-2 text-center border-t border-white/5">
               <a
                 href="https://lajanrapid.app"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center justify-center gap-1 text-[11px] text-sidebar-foreground/60 transition hover:text-sidebar-foreground"
+                className="inline-flex items-center justify-center gap-1 text-[10px] text-slate-500 transition hover:text-slate-300"
               >
                 <span>Creado por</span>
-                <span className="font-semibold text-primary underline underline-offset-2">lajanrapid.app</span>
+                <span className="font-semibold text-[#F2AC00] underline underline-offset-2">lajanrapid.app</span>
               </a>
             </div>
           )}
