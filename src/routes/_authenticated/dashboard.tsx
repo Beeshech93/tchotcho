@@ -20,6 +20,8 @@ import { Button } from "@/components/ui/button";
 import { shortDate } from "@/lib/remesa";
 import { useI18n } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
+import logoAsset from "@/assets/tchotcho-logo.png";
+import iconAsset from "@/assets/tchotcho-icon.png";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({
@@ -120,20 +122,26 @@ export function Dashboard() {
       <div className="rounded-[32px] bg-gradient-to-b from-[#131B15] to-[#0A0E0C] border border-white/12 p-6 sm:p-8 space-y-6 shadow-2xl relative overflow-hidden">
         <div className="absolute top-0 right-0 size-72 rounded-full bg-[#02531C]/30 blur-3xl pointer-events-none" />
 
-        {/* Fila superior: Saludo y selector de moneda */}
-        <div className="flex items-center justify-between relative z-10">
-          <div className="space-y-0.5">
-            <p className="text-xs font-semibold text-emerald-400 flex items-center gap-1.5">
-              <span className="size-2 rounded-full bg-emerald-400 animate-pulse" />
-              Tcho-Tcho
-            </p>
-            <h1 className="text-xl sm:text-2xl font-black text-white">
-              Hola, {displayName} 👋
-            </h1>
+        {/* Fila superior: Logo Oficial Tcho-Tcho bien destacado y Saludo */}
+        <div className="flex flex-wrap items-center justify-between gap-4 relative z-10">
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 rounded-2xl bg-white px-3.5 py-2 shadow-[0_0_24px_rgba(242,172,0,0.35),0_4px_16px_rgba(0,0,0,0.3)] border-2 border-white hover:scale-105 transition-all">
+              <img src={iconAsset} alt="Tcho-Tcho" className="size-8 object-contain shrink-0" />
+              <img src={logoAsset} alt="Tcho-Tcho" className="h-6 w-auto object-contain shrink-0" />
+            </div>
+            <div className="space-y-0.5">
+              <p className="text-[11px] font-bold text-emerald-400 uppercase tracking-wider flex items-center gap-1.5">
+                <span className="size-2 rounded-full bg-emerald-400 animate-pulse" />
+                Banca Oficial
+              </p>
+              <h1 className="text-lg sm:text-xl font-black text-white">
+                Hola, {displayName} 👋
+              </h1>
+            </div>
           </div>
 
           <div className="inline-flex items-center gap-1.5 rounded-full bg-[#02531C] border border-[#F2AC00]/40 px-3.5 py-1.5 text-xs font-black text-[#F2AC00] shadow-sm">
-            <span>🇭🇹 Billetera HTG</span>
+            <span>🇭🇹 Billetera 100% HTG</span>
           </div>
         </div>
 

@@ -19,7 +19,8 @@ import {
   Coins,
 } from "lucide-react";
 import type { ReactNode } from "react";
-import logoAsset from "@/assets/lajan-rapid-logo.png";
+import logoAsset from "@/assets/tchotcho-logo.png";
+import iconAsset from "@/assets/tchotcho-icon.png";
 import { supabase } from "@/integrations/supabase/client";
 import { useProfile } from "@/hooks/useProfile";
 import { cn } from "@/lib/utils";
@@ -107,18 +108,13 @@ export function AppShell({ children }: { children: ReactNode }) {
       {/* Desktop Sidebar matching SaaS Dashboard mockup */}
       <aside className="hidden w-64 shrink-0 flex-col justify-between bg-gradient-to-b from-[#101612] via-[#0C110E] to-[#080B09] border-r border-white/10 p-4 text-slate-200 md:sticky md:top-0 md:flex md:h-screen md:overflow-y-auto custom-scrollbar">
         <div className="flex flex-1 flex-col">
-          {/* Organization Switcher Header */}
-          <div className="mb-6 flex items-center justify-between gap-2 p-2.5 rounded-2xl bg-[#161F18] border border-white/12 shadow-sm">
-            <Link to="/dashboard" className="flex min-w-0 items-center gap-2.5">
-              <span className="grid size-10 shrink-0 place-items-center overflow-hidden rounded-xl bg-gradient-to-br from-[#02531C] to-[#046824] p-1.5 border-2 border-[#F2AC00] shadow-[0_0_12px_rgba(242,172,0,0.3)]">
-                <img src={logoSrc} alt={currentBrand.name} className="h-full w-full object-contain" />
-              </span>
-              <div className="min-w-0 flex-1">
-                <p className="text-[10px] font-bold text-emerald-400 uppercase tracking-wider">Banking</p>
-                <h2 className="truncate font-display text-sm font-black text-white">{currentBrand.name}</h2>
-              </div>
+          {/* Organization Switcher Header con Logo Tcho-Tcho bien destacado */}
+          <div className="mb-6 flex items-center justify-between gap-2 p-2.5 rounded-2xl bg-white border-2 border-white shadow-[0_0_24px_rgba(242,172,0,0.3)]">
+            <Link to="/dashboard" className="flex min-w-0 items-center gap-2">
+              <img src={iconAsset} alt="Tcho-Tcho" className="size-8 object-contain shrink-0" />
+              <img src={logoAsset} alt="Tcho-Tcho" className="h-6 w-auto object-contain shrink-0" />
             </Link>
-            <NotificationBell triggerClassName="text-slate-300 hover:text-white hover:bg-white/10" />
+            <NotificationBell triggerClassName="text-slate-800 hover:text-black hover:bg-slate-100" />
           </div>
 
           {/* Core Navigation */}
@@ -220,22 +216,22 @@ export function AppShell({ children }: { children: ReactNode }) {
       </aside>
 
       <div className="flex min-h-screen flex-1 flex-col">
-        <header className="sticky top-0 z-30 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 border-b bg-card/90 px-4 py-3 pt-[calc(0.75rem+env(safe-area-inset-top))] backdrop-blur-md md:hidden">
+        <header className="sticky top-0 z-30 flex items-center justify-between gap-2 border-b border-white/10 bg-[#060A08]/95 px-4 py-3 pt-[calc(0.75rem+env(safe-area-inset-top))] backdrop-blur-xl md:hidden">
           <Link to="/dashboard" className="flex min-w-0 items-center gap-2">
-            <span className="grid size-8 shrink-0 place-items-center overflow-hidden rounded-lg bg-logo-surface p-0.5">
-              <img src={logoSrc} alt={currentBrand.name} className="h-full w-full object-contain" />
+            <span className="inline-flex items-center gap-2 rounded-xl bg-white px-2.5 py-1 shadow-[0_0_16px_rgba(242,172,0,0.3)] border border-white">
+              <img src={iconAsset} alt="Tcho-Tcho" className="size-6 object-contain shrink-0" />
+              <img src={logoAsset} alt="Tcho-Tcho" className="h-5 w-auto object-contain shrink-0" />
             </span>
-            <span className="truncate font-display font-semibold">{currentBrand.name}</span>
           </Link>
           <div className="flex shrink-0 items-center gap-1">
-            <Button variant="ghost" size="icon" asChild aria-label={t("nav.support")}>
+            <Button variant="ghost" size="icon" asChild aria-label={t("nav.support")} className="text-slate-300 hover:text-white hover:bg-white/10">
               <Link to="/soporte">
                 <LifeBuoy className="size-4" />
               </Link>
             </Button>
-            <NotificationBell />
-            <LanguageSwitcher className="h-9 w-[96px] text-xs" />
-            <Button variant="ghost" size="icon" onClick={signOut} aria-label={t("nav.signout")}>
+            <NotificationBell triggerClassName="text-slate-300 hover:text-white hover:bg-white/10" />
+            <LanguageSwitcher className="h-9 w-[80px] text-xs bg-white/10 border-white/15 text-white" />
+            <Button variant="ghost" size="icon" onClick={signOut} aria-label={t("nav.signout")} className="text-slate-300 hover:text-white hover:bg-white/10">
               <LogOut className="size-4" />
             </Button>
           </div>
