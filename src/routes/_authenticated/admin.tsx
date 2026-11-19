@@ -743,10 +743,11 @@ function RatesPanel() {
           .insert({ ...values, is_active: true, from_currency: from, to_currency: to });
     setSaving(false);
     if (error) {
-      toast.error("No se pudo guardar");
+      console.error("[exchange_rates error]", error);
+      toast.error(error.message || "No se pudo guardar la tarifa");
       return;
     }
-    toast.success("Tarifas actualizadas");
+    toast.success("Tarifas actualizadas correctamente");
     qc.invalidateQueries({ queryKey: ["all-rates"] });
     qc.invalidateQueries({ queryKey: ["rate"] });
   };

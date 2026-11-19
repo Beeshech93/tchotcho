@@ -52,7 +52,8 @@ export function TopupRatesPanel() {
         });
     setSaving(false);
     if (error) {
-      toast.error("No se pudo guardar");
+      console.error("[topup_rates error]", error);
+      toast.error(error.message || "No se pudo guardar la tasa");
       return;
     }
     toast.success("Tasa de recarga actualizada");
