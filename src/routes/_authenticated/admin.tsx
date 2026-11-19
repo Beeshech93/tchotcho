@@ -2,8 +2,9 @@ import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
-import { ArrowLeft, Coins, FileText, Shield } from "lucide-react";
+import { ArrowLeft, Coins, FileText, RefreshCw, Shield } from "lucide-react";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { useRealtimeInvalidate } from "@/hooks/useRealtimeInvalidate";
 import { useAdminPermissions } from "@/hooks/useAdminPermissions";
@@ -410,9 +411,77 @@ function UsersPanel() {
   });
 
   const fetchUsers = useServerFn(getAdminUsersList);
-  const { data: usersData, isLoading: isLoadingUsers } = useQuery({
+  const {
+    data: usersData,
+    isLoading: isLoadingUsers,
+    refetch: refetchUsers,
+  } = useQuery({
     queryKey: ["admin-users-list"],
-    queryFn: () => fetchUsers(),
+    queryFn: async () => {
+      // 1. Probar RPC admin_get_all_users directo desde el cliente Supabase
+      try {
+        const { data: rpcRows, error: rpcErr } = await (supabase as any).rpc("admin_get_all_users");
+        if (!rpcErr && Array.isArray(rpcRows) && rpcRows.length > 0) {
+          return {
+            users: rpcRows.map((u: any) => ({
+              id: u.id,
+              email: u.email || null,
+              full_name: u.full_name || "",
+              phone: u.phone || null,
+              country: u.country || "HT",
+              language: u.language || "es",
+              kyc_status: u.kyc_status || "none",
+              created_at: u.created_at,
+              roles: Array.isArray(u.roles) ? u.roles : [],
+              balanceHTG: Number(u.balance_htg || 0),
+            })),
+          };
+        }
+      } catch (e) {
+        console.warn("Client RPC failed:", e);
+      }
+
+      // 2. Probar función de servidor getAdminUsersList
+      try {
+        const sRes = await fetchUsers();
+        if (sRes?.users && sRes.users.length > 0) {
+          return sRes;
+        }
+      } catch (e) {
+        console.warn("ServerFn failed:", e);
+      }
+
+      // 3. Consulta de respaldo a profiles, user_roles y wallets del cliente
+      try {
+        const [{ data: pList }, { data: rList }, { data: wList }] = await Promise.all([
+          supabase.from("profiles").select("*").order("created_at", { ascending: false }),
+          supabase.from("user_roles").select("*"),
+          supabase.from("wallets").select("user_id, currency, balance"),
+        ]);
+
+        const map = new Map<string, any>();
+        for (const p of pList ?? []) {
+          const uRoles = (rList ?? []).filter((r) => r.user_id === p.id).map((r) => r.role);
+          const uWallets = (wList ?? []).filter((w) => w.user_id === p.id);
+          const bal = uWallets.find((w) => w.currency === "HTG")?.balance ?? 0;
+          map.set(p.id, {
+            id: p.id,
+            email: null,
+            full_name: p.full_name || "Usuario",
+            phone: p.phone || null,
+            country: p.country || "HT",
+            language: p.language || "es",
+            kyc_status: p.kyc_status || "none",
+            created_at: p.created_at,
+            roles: uRoles,
+            balanceHTG: Number(bal),
+          });
+        }
+        return { users: Array.from(map.values()) };
+      } catch {
+        return { users: [] };
+      }
+    },
   });
 
   const usersList = usersData?.users ?? [];
@@ -430,6 +499,18 @@ function UsersPanel() {
               Los nuevos usuarios se registran como clientes. Solo el Super Administrador puede asignar roles de Agente y Administrador.
             </p>
           </div>
+          <Button
+            size="sm"
+            variant="outline"
+            className="gap-1.5 font-semibold text-xs border-white/20 hover:bg-white/10"
+            onClick={() => {
+              refetchUsers();
+              toast.info("Actualizando lista de usuarios...");
+            }}
+          >
+            <RefreshCw className={cn("size-3.5", isLoadingUsers && "animate-spin")} />
+            Actualizar Lista
+          </Button>
         </div>
         <Input
           className="mt-3"
