@@ -697,12 +697,13 @@ function RatesPanel() {
   const [to, setTo] = useState("HTG");
   const { data: countries } = useCountries();
 
-  const originCurrencies = Array.from(
-    new Set((countries ?? []).filter((c) => c.is_origin).map((c) => c.currency)),
-  ).sort();
-  const destCurrencies = Array.from(
-    new Set((countries ?? []).filter((c) => c.is_destination).map((c) => c.currency)),
-  ).sort();
+  const originCountries = (countries ?? []).filter((c) => c.is_origin);
+  const destCountries = (countries ?? []).filter(
+    (c) => c.is_destination || c.code === "HT" || c.currency === "HTG" || c.currency === "DOP",
+  );
+
+  const selectedOriginCountry = originCountries.find((c) => c.currency === from);
+  const selectedDestCountry = destCountries.find((c) => c.currency === to);
 
   const { data: rates } = useQuery({
     queryKey: ["all-rates"],
@@ -769,12 +770,22 @@ function RatesPanel() {
               <Label>Moneda de origen</Label>
               <Select value={from} onValueChange={setFrom}>
                 <SelectTrigger>
-                  <SelectValue />
+                  <SelectValue
+                    placeholder={
+                      selectedOriginCountry
+                        ? `${selectedOriginCountry.flag} ${selectedOriginCountry.name} · ${selectedOriginCountry.currency}`
+                        : "Seleccionar país de origen"
+                    }
+                  >
+                    {selectedOriginCountry
+                      ? `${selectedOriginCountry.flag} ${selectedOriginCountry.name} · ${selectedOriginCountry.currency}`
+                      : from}
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
-                  {originCurrencies.map((c) => (
-                    <SelectItem key={c} value={c}>
-                      {c}
+                  {originCountries.map((c) => (
+                    <SelectItem key={`${c.code}-${c.currency}`} value={c.currency}>
+                      {c.flag} {c.name} · {c.currency}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -784,12 +795,22 @@ function RatesPanel() {
               <Label>Moneda de destino</Label>
               <Select value={to} onValueChange={setTo}>
                 <SelectTrigger>
-                  <SelectValue />
+                  <SelectValue
+                    placeholder={
+                      selectedDestCountry
+                        ? `${selectedDestCountry.flag} ${selectedDestCountry.name} · ${selectedDestCountry.currency}`
+                        : "Seleccionar país de destino"
+                    }
+                  >
+                    {selectedDestCountry
+                      ? `${selectedDestCountry.flag} ${selectedDestCountry.name} · ${selectedDestCountry.currency}`
+                      : to}
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
-                  {destCurrencies.map((c) => (
-                    <SelectItem key={c} value={c}>
-                      {c}
+                  {destCountries.map((c) => (
+                    <SelectItem key={`${c.code}-${c.currency}`} value={c.currency}>
+                      {c.flag} {c.name} · {c.currency}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -852,25 +873,58 @@ function RatesPanel() {
           <CardTitle className="text-base">Corredores activos</CardTitle>
         </CardHeader>
         <CardContent className="grid gap-2 sm:grid-cols-2">
-          {(rates ?? []).map((r) => (
-            <button
-              key={r.id}
-              type="button"
-              onClick={() => {
-                setFrom(r.from_currency);
-                setTo(r.to_currency);
-              }}
-              className="rounded-xl border p-3 text-left transition-colors hover:bg-secondary"
-            >
-              <p className="font-medium">
-                {r.from_currency} → {r.to_currency}
-              </p>
-              <p className="text-xs text-muted-foreground">
-                1 {r.from_currency} = {Number(r.rate).toFixed(4)} {r.to_currency} · comisión{" "}
-                {Number(r.fee_percent)}% + {Number(r.fee_fixed)} {r.from_currency}
-              </p>
-            </button>
-          ))}
+          {(rates ?? []).map((r) => {
+            const originC = originCountries.find((c) => c.currency === r.from_currency);
+            const destC = destCountries.find((c) => c.currency === r.to_currency);
+            const isSelected = from === r.from_currency && to === r.to_currency;
+
+            return (
+              <button
+                key={r.id}
+                type="button"
+                onClick={() => {
+                  setFrom(r.from_currency);
+                  setTo(r.to_currency);
+                }}
+                className={`rounded-xl border p-3.5 text-left transition-all ${
+                  isSelected
+                    ? "border-primary bg-primary/10 shadow-sm"
+                    : "border-border hover:bg-secondary/60 hover:border-border/80"
+                }`}
+              >
+                <div className="flex items-center justify-between gap-2">
+                  <p className="font-semibold text-sm flex items-center gap-1.5">
+                    <span>{originC?.flag ?? "🌐"}</span>
+                    <span>{originC?.name ?? r.from_currency}</span>
+                    <span className="text-muted-foreground text-xs">({r.from_currency})</span>
+                    <span className="text-primary font-bold">→</span>
+                    <span>{destC?.flag ?? "🇭🇹"}</span>
+                    <span>{destC?.name ?? r.to_currency}</span>
+                    <span className="text-muted-foreground text-xs">({r.to_currency})</span>
+                  </p>
+                  {isSelected && (
+                    <span className="text-[11px] font-semibold text-primary bg-primary/20 px-2 py-0.5 rounded-full">
+                      Editando
+                    </span>
+                  )}
+                </div>
+                <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
+                  <span className="text-emerald-400 font-medium">
+                    1 {r.from_currency} = {Number(r.rate).toLocaleString(undefined, { maximumFractionDigits: 4 })}{" "}
+                    {r.to_currency}
+                  </span>
+                  <span>·</span>
+                  <span>Comisión: {Number(r.fee_percent)}% + {Number(r.fee_fixed)} {r.from_currency}</span>
+                  {Number(r.agent_commission_percent || 0) > 0 && (
+                    <>
+                      <span>·</span>
+                      <span className="text-amber-400/90">Agente: {Number(r.agent_commission_percent)}%</span>
+                    </>
+                  )}
+                </div>
+              </button>
+            );
+          })}
         </CardContent>
       </Card>
     </div>
