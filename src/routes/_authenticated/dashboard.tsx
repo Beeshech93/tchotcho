@@ -3,7 +3,6 @@ import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import {
   ArrowRight,
-  ChevronDown,
   Eye,
   EyeOff,
   History,
@@ -36,7 +35,6 @@ export function Dashboard() {
   const { profile, user } = useProfile();
   const { t } = useI18n();
   const { data: countries } = useCountries();
-  const [currencyView, setCurrencyView] = useState<"USD" | "HTG">("USD");
   const [hideBalance, setHideBalance] = useState(false);
 
   const origins = (countries ?? []).filter((c) => c.is_origin);
@@ -62,19 +60,14 @@ export function Dashboard() {
 
   const { data: wallets } = useWallets();
 
+  // Billetera 100% en HTG (Gourdes Haitianas)
   const totalHtg = (wallets ?? []).reduce(
     (sum, w) => sum + (w.currency === "HTG" ? Number(w.balance) : 0),
     0,
   );
-  const totalUsd = (wallets ?? []).reduce(
-    (sum, w) => sum + (w.currency === "USD" ? Number(w.balance) : 0),
-    0,
-  );
 
-  const primaryBalance = currencyView === "USD" ? (totalUsd > 0 ? totalUsd : 23094.57) : (totalHtg > 0 ? totalHtg : 3250000.0);
-  const formattedBalance = currencyView === "USD"
-    ? `$ ${primaryBalance.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
-    : `HTG ${primaryBalance.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  const primaryBalanceHtg = totalHtg > 0 ? totalHtg : 125450.0;
+  const formattedBalance = `HTG ${primaryBalanceHtg.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
   const displayName = profile?.full_name?.split(" ")[0] || "Usuario";
 
@@ -85,23 +78,23 @@ export function Dashboard() {
     { name: "Emmanuel Joseph", phone: "+509 3144-5566", wallet: "MonCash", color: "bg-red-500/20 text-red-400 border-red-500/40" },
   ];
 
-  // Transacciones
+  // Transacciones 100% en HTG
   const displayTransfers = (transfers && transfers.length > 0)
     ? transfers.map((tx) => ({
         id: tx.id,
         recipient: tx.recipient_name || "Destinatario en Haití",
         service: tx.service_type === "moncash" ? "MonCash Haití" : tx.service_type === "natcash" ? "NatCash Haití" : "Remesa",
         date: shortDate(tx.created_at),
-        amount: `$ ${Number(tx.amount_origin).toLocaleString("en-US", { minimumFractionDigits: 2 })}`,
+        amount: `HTG ${Number(tx.amount_destination || tx.amount_origin * 132.5).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
         status: tx.status === "completed" ? "Completado" : tx.status === "cancelled" ? "Cancelado" : "En proceso",
         statusColor: tx.status === "completed" ? "text-emerald-400 bg-emerald-500/15 border-emerald-500/30" : "text-amber-400 bg-amber-500/15 border-amber-500/30",
         viewLink: `/transferencia/${tx.id}`,
       }))
     : [
-        { id: "1", recipient: "Jean Baptiste", service: "MonCash Haití (+509 37...)", date: "Hoy, 10:45 AM", amount: "$ 150.00", status: "Completado", statusColor: "text-emerald-400 bg-emerald-500/15 border-emerald-500/30", viewLink: "/historial" },
-        { id: "2", recipient: "Marie Claire Pierre", service: "NatCash Haití (+509 48...)", date: "Ayer, 04:20 PM", amount: "$ 85.00", status: "Completado", statusColor: "text-emerald-400 bg-emerald-500/15 border-emerald-500/30", viewLink: "/historial" },
-        { id: "3", recipient: "Recarga Digicel", service: "Haití (+509 31...)", date: "12 May", amount: "$ 15.00", status: "Completado", statusColor: "text-emerald-400 bg-emerald-500/15 border-emerald-500/30", viewLink: "/historial" },
-        { id: "4", recipient: "Emmanuel Joseph", service: "MonCash Haití (+509 34...)", date: "08 May", amount: "$ 220.00", status: "Completado", statusColor: "text-emerald-400 bg-emerald-500/15 border-emerald-500/30", viewLink: "/historial" },
+        { id: "1", recipient: "Jean Baptiste", service: "MonCash Haití (+509 37...)", date: "Hoy, 10:45 AM", amount: "HTG 19,875.00", status: "Completado", statusColor: "text-emerald-400 bg-emerald-500/15 border-emerald-500/30", viewLink: "/historial" },
+        { id: "2", recipient: "Marie Claire Pierre", service: "NatCash Haití (+509 48...)", date: "Ayer, 04:20 PM", amount: "HTG 11,260.00", status: "Completado", statusColor: "text-emerald-400 bg-emerald-500/15 border-emerald-500/30", viewLink: "/historial" },
+        { id: "3", recipient: "Recarga Digicel", service: "Haití (+509 31...)", date: "12 May", amount: "HTG 1,980.00", status: "Completado", statusColor: "text-emerald-400 bg-emerald-500/15 border-emerald-500/30", viewLink: "/historial" },
+        { id: "4", recipient: "Emmanuel Joseph", service: "MonCash Haití (+509 34...)", date: "08 May", amount: "HTG 29,150.00", status: "Completado", statusColor: "text-emerald-400 bg-emerald-500/15 border-emerald-500/30", viewLink: "/historial" },
       ];
 
   return (
@@ -147,19 +140,14 @@ export function Dashboard() {
             </h1>
           </div>
 
-          <button
-            type="button"
-            onClick={() => setCurrencyView(currencyView === "USD" ? "HTG" : "USD")}
-            className="inline-flex items-center gap-1.5 rounded-full bg-[#1C2620] border border-[#F2AC00]/40 px-3.5 py-1.5 text-xs font-black text-[#F2AC00] hover:bg-[#02531C]/60 shadow-sm transition"
-          >
-            <span>{currencyView}</span>
-            <ChevronDown className="size-3.5" />
-          </button>
+          <div className="inline-flex items-center gap-1.5 rounded-full bg-[#02531C] border border-[#F2AC00]/40 px-3.5 py-1.5 text-xs font-black text-[#F2AC00] shadow-sm">
+            <span>🇭🇹 Billetera HTG</span>
+          </div>
         </div>
 
-        {/* Saldo Central Grande */}
+        {/* Saldo Central Grande 100% en HTG */}
         <div className="space-y-1 relative z-10">
-          <p className="text-xs font-bold uppercase tracking-wider text-slate-400">Saldo Disponible</p>
+          <p className="text-xs font-bold uppercase tracking-wider text-slate-400">Saldo Disponible (Gourdes)</p>
           <div className="flex items-center gap-3">
             <span className="text-4xl sm:text-5xl font-black tracking-tight text-white">
               {hideBalance ? "••••••••" : formattedBalance}
