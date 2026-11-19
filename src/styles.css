@@ -76,29 +76,29 @@
   --radius: 1.25rem;
 
   /* ---- Tcho-Tcho Design System: Pure Black (#000000) + Forest Emerald (#02531C) + Sun Amber Gold (#F2AC00) ---- */
-  --primary: #02531C; /* Brand Forest Emerald */
+  --primary: #02531c; /* Brand Forest Emerald */
   --primary-dark: #013813; /* Deep Pine */
-  --primary-light: #0E742C; /* Vibrant Emerald Glow */
+  --primary-light: #0e742c; /* Vibrant Emerald Glow */
 
   --background: #000000; /* Pure OLED Black */
-  --surface: #0D0D0D; /* Sleek Dark Cards */
+  --surface: #0d0d0d; /* Sleek Dark Cards */
   --surface-secondary: #141414; /* Inner cards & inputs */
-  --surface-elevated: #1A1A1A; /* Modals, popovers & docks */
+  --surface-elevated: #1a1a1a; /* Modals, popovers & docks */
   --logo-surface: transparent;
 
-  --text-primary: #FFFFFF;
-  --text-secondary: #94A3B8;
-  --text-muted: #64748B;
+  --text-primary: #ffffff;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
 
-  --success: #10B981; /* Emerald Green */
-  --warning: #F2AC00; /* Tcho-Tcho Sun Gold */
-  --error: #EF4444; /* Rose Red */
+  --success: #10b981; /* Emerald Green */
+  --warning: #f2ac00; /* Tcho-Tcho Sun Gold */
+  --error: #ef4444; /* Rose Red */
 
   --border: rgba(255, 255, 255, 0.08);
   --border-strong: rgba(2, 83, 28, 0.4);
 
-  --card-gradient-start: #02531C;
-  --card-gradient-end: #082B12;
+  --card-gradient-start: #02531c;
+  --card-gradient-end: #082b12;
 
   /* ---- Mapeo a tokens de componentes (shadcn) ---- */
   --foreground: var(--text-primary);
@@ -108,7 +108,7 @@
   --popover: var(--surface-elevated);
   --popover-foreground: var(--text-primary);
 
-  --primary-foreground: #FFFFFF;
+  --primary-foreground: #ffffff;
 
   --secondary: var(--surface-secondary);
   --secondary-foreground: var(--text-primary);
@@ -116,35 +116,35 @@
   --muted: var(--surface-secondary);
   --muted-foreground: var(--text-muted);
 
-  --accent: #F2AC00;
+  --accent: #f2ac00;
   --accent-foreground: #000000;
 
   --destructive: var(--error);
-  --destructive-foreground: #FFFFFF;
+  --destructive-foreground: #ffffff;
   --success-foreground: #000000;
   --warning-foreground: #000000;
 
   --input: #141414;
-  --ring: #02531C;
+  --ring: #02531c;
 
-  --chart-1: #02531C;
-  --chart-2: #F2AC00;
-  --chart-3: #10B981;
-  --chart-4: #FBBF24;
+  --chart-1: #02531c;
+  --chart-2: #f2ac00;
+  --chart-3: #10b981;
+  --chart-4: #fbbf24;
   --chart-5: var(--error);
 
   --sidebar: #000000;
-  --sidebar-foreground: #FFFFFF;
+  --sidebar-foreground: #ffffff;
   --sidebar-primary: var(--primary);
-  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-primary-foreground: #ffffff;
   --sidebar-accent: #141414;
-  --sidebar-accent-foreground: #FFFFFF;
+  --sidebar-accent-foreground: #ffffff;
   --sidebar-border: var(--border);
   --sidebar-ring: var(--primary);
 
-  --gradient-brand: linear-gradient(135deg, #02531C 0%, #086B27 50%, #033913 100%);
-  --gradient-gold: linear-gradient(135deg, #F2AC00 0%, #FBBF24 50%, #D97706 100%);
-  --gradient-mint: linear-gradient(135deg, #10B981 0%, #059669 100%);
+  --gradient-brand: linear-gradient(135deg, #02531c 0%, #086b27 50%, #033913 100%);
+  --gradient-gold: linear-gradient(135deg, #f2ac00 0%, #fbbf24 50%, #d97706 100%);
+  --gradient-mint: linear-gradient(135deg, #10b981 0%, #059669 100%);
   --shadow-soft: 0 4px 20px -2px rgba(0, 0, 0, 0.5), 0 0 25px -5px rgba(2, 83, 28, 0.2);
   --shadow-lift: 0 10px 30px -5px rgba(0, 0, 0, 0.7), 0 0 40px -10px rgba(2, 83, 28, 0.4);
 }
@@ -222,35 +222,35 @@
 }
 
 @utility finflow-card-hero {
-  background: linear-gradient(135deg, #02531C 0%, #086B27 50%, #042E11 100%);
+  background: linear-gradient(135deg, #02531c 0%, #086b27 50%, #042e11 100%);
   border: 1px solid rgba(242, 172, 0, 0.3);
   box-shadow: 0 16px 36px -10px rgba(2, 83, 28, 0.45);
 }
 
 @utility finflow-btn-white {
-  background-color: #FFFFFF;
-  color: #02531C;
+  background-color: #ffffff;
+  color: #02531c;
   font-weight: 600;
   border-radius: 9999px;
   box-shadow: 0 8px 24px -4px rgba(255, 255, 255, 0.2);
   transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
 
   &:hover {
-    background-color: #F0FDF4;
+    background-color: #f0fdf4;
     transform: translateY(-1px);
   }
 }
 
 @utility finflow-btn-gold {
-  background: linear-gradient(135deg, #F2AC00 0%, #FBBF24 100%);
-  color: #060F09;
+  background: linear-gradient(135deg, #f2ac00 0%, #fbbf24 100%);
+  color: #060f09;
   font-weight: 600;
   border-radius: 9999px;
   box-shadow: 0 8px 24px -4px rgba(242, 172, 0, 0.35);
   transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
 
   &:hover {
-    background: #E09E00;
+    background: #e09e00;
     transform: translateY(-1px);
   }
 }

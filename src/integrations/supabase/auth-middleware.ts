@@ -85,7 +85,10 @@ export const requireSupabaseAuth = createMiddleware({ type: "function" }).server
     const { data: userData, error: userError } = await supabase.auth.getUser(token);
 
     if (userError || !userData?.user) {
-      console.error("[requireSupabaseAuth] Error validando token:", userError?.message ?? "Sin usuario");
+      console.error(
+        "[requireSupabaseAuth] Error validando token:",
+        userError?.message ?? "Sin usuario",
+      );
       throw new Error("Unauthorized: Invalid token");
     }
 

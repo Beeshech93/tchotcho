@@ -121,9 +121,9 @@ export function ServicesPanel() {
                 <Power className="size-5 text-accent" /> Control de Servicios para Clientes
               </CardTitle>
               <CardDescription className="mt-1 text-sm">
-                Activa o desactiva de forma inmediata el acceso a los servicios clave de la plataforma.
-                Cuando un servicio está inactivo, los clientes verán un aviso de mantenimiento y no podrán
-                ejecutar la operación.
+                Activa o desactiva de forma inmediata el acceso a los servicios clave de la
+                plataforma. Cuando un servicio está inactivo, los clientes verán un aviso de
+                mantenimiento y no podrán ejecutar la operación.
               </CardDescription>
             </div>
             <Button
@@ -223,4 +223,3 @@ export function ServicesPanel() {
     </div>
   );
 }
-

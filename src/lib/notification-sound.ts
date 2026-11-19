@@ -52,7 +52,10 @@ export function playNotificationDing(): void {
     if (context.state === "suspended") {
       // Browsers require a user gesture before audio can start. The settings switch
       // previews the sound in that gesture and resumes this shared context.
-      void context.resume().then(play).catch(() => {});
+      void context
+        .resume()
+        .then(play)
+        .catch(() => {});
       return;
     }
     play();

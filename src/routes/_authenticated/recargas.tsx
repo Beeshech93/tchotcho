@@ -98,10 +98,6 @@ function Recargas() {
     }
   }, [isServicesLoading, topupsEnabled, isAdmin, router]);
 
-  if (!isServicesLoading && !topupsEnabled && !isAdmin) {
-    return null;
-  }
-
   const payOrigins = (countries ?? []).filter((c) => c.is_origin);
   const payMethods = useMemo(
     () => [
@@ -243,7 +239,7 @@ function Recargas() {
       const bFlexible = bHasRange && bMax > bMin;
 
       if (aFlexible !== bFlexible) return aFlexible ? -1 : 1;
-      if (aFlexible && bFlexible) return (bMax - bMin) - (aMax - aMin);
+      if (aFlexible && bFlexible) return bMax - bMin - (aMax - aMin);
       if (aHasRange !== bHasRange) return aHasRange ? 1 : -1;
       return 0;
     })[0];
@@ -389,6 +385,14 @@ function Recargas() {
     onError: (e: Error) => toast.error(e.message),
   });
 
+  if (!isServicesLoading && !topupsEnabled && !isAdmin) {
+    return (
+      <div className="mx-auto max-w-lg p-6 text-center text-slate-300">
+        <p>{topupsMessage}</p>
+      </div>
+    );
+  }
+
   return (
     <div className="mx-auto max-w-4xl space-y-5">
       <div className="flex items-center gap-2">
@@ -519,13 +523,16 @@ function Recargas() {
             {products && !products.ok && (
               <p role="alert" className="text-xs text-destructive">
                 No se pudieron cargar los operadores de DingConnect.
-                {products.error ? ` Detalle: ${products.error}` : " Revisa la configuración o los registros del servidor."}
+                {products.error
+                  ? ` Detalle: ${products.error}`
+                  : " Revisa la configuración o los registros del servidor."}
               </p>
             )}
             {products?.ok && products.items.length === 0 && !isFetching && (
               <p role="status" className="text-xs text-amber-600">
                 DingConnect respondió, pero no devolvió productos de recarga móvil para este país.
-                Comprueba la disponibilidad del catálogo de Haití o el filtro de productos en el servidor.
+                Comprueba la disponibilidad del catálogo de Haití o el filtro de productos en el
+                servidor.
               </p>
             )}
           </div>
@@ -604,17 +611,22 @@ function Recargas() {
             {selected?.minValue != null && (
               <div className="space-y-1">
                 <p className="text-xs text-muted-foreground">
-                  Recarga disponible con el proveedor: {selected.minValue} – {selected.maxValue ?? selected.minValue} {selected.currency}
+                  Recarga disponible con el proveedor: {selected.minValue} –{" "}
+                  {selected.maxValue ?? selected.minValue} {selected.currency}
                 </p>
                 {Number(selected.minValue) === Number(selected.maxValue ?? selected.minValue) && (
                   <p className="text-xs text-muted-foreground">
-                    Esta es una recarga de importe fijo. Para comprarla, el importe pagado debe equivaler a {selected.minValue} {selected.currency}.
-                    {suggestedPayAmount != null ? ` Con la tasa configurada, el pago aproximado es ${suggestedPayAmount.toFixed(2)} ${payCurrency}.` : ""}
+                    Esta es una recarga de importe fijo. Para comprarla, el importe pagado debe
+                    equivaler a {selected.minValue} {selected.currency}.
+                    {suggestedPayAmount != null
+                      ? ` Con la tasa configurada, el pago aproximado es ${suggestedPayAmount.toFixed(2)} ${payCurrency}.`
+                      : ""}
                   </p>
                 )}
                 {!providerAmountValid && hasAmount && (
                   <p className="text-xs text-destructive">
-                    El importe actual no coincide con una recarga admitida por el proveedor. Ajusta el pago al importe compatible antes de continuar.
+                    El importe actual no coincide con una recarga admitida por el proveedor. Ajusta
+                    el pago al importe compatible antes de continuar.
                   </p>
                 )}
               </div>

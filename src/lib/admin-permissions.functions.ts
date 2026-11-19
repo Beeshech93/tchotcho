@@ -137,10 +137,14 @@ export const setUserRoleAndPermissions = createServerFn({ method: "POST" })
 
     // Proteger al administrador principal
     const { data: targetUser } = await supabaseAdmin.auth.admin.getUserById(input.targetUserId);
-    const targetEmail = String(targetUser?.user?.email ?? "").toLowerCase().trim();
+    const targetEmail = String(targetUser?.user?.email ?? "")
+      .toLowerCase()
+      .trim();
 
     if (targetEmail === MASTER_ADMIN_EMAIL && input.role !== "admin") {
-      throw new Error("No se puede revocar el rol de administrador a la cuenta principal de Lajan Rapid.");
+      throw new Error(
+        "No se puede revocar el rol de administrador a la cuenta principal de Lajan Rapid.",
+      );
     }
 
     const now = new Date().toISOString();
@@ -208,24 +212,26 @@ export const setUserRoleAndPermissions = createServerFn({ method: "POST" })
       const permConfig: AdminPermissionsConfig = {
         isSuperAdmin: isSuper,
         allowedTabs: tabs,
-        tenantId: input.tenantId?.trim() && input.tenantId !== "global" ? input.tenantId.trim() : undefined,
-        tenantSlug: input.tenantSlug?.trim() && input.tenantSlug !== "global" ? input.tenantSlug.trim() : undefined,
+        tenantId:
+          input.tenantId?.trim() && input.tenantId !== "global" ? input.tenantId.trim() : undefined,
+        tenantSlug:
+          input.tenantSlug?.trim() && input.tenantSlug !== "global"
+            ? input.tenantSlug.trim()
+            : undefined,
         tenantName: input.tenantName?.trim() ? input.tenantName.trim() : undefined,
         updatedAt: now,
         updatedBy: context.userId,
       };
 
-      await supabaseAdmin
-        .from("integration_credentials")
-        .upsert(
-          {
-            name: permKey,
-            value: JSON.stringify(permConfig),
-            updated_at: now,
-            updated_by: context.userId,
-          },
-          { onConflict: "name" },
-        );
+      await supabaseAdmin.from("integration_credentials").upsert(
+        {
+          name: permKey,
+          value: JSON.stringify(permConfig),
+          updated_at: now,
+          updated_by: context.userId,
+        },
+        { onConflict: "name" },
+      );
 
       // 3. Asociar tenant_id en profiles para consistencia multiempresa
       try {
@@ -244,4 +250,3 @@ export const setUserRoleAndPermissions = createServerFn({ method: "POST" })
 
     return { ok: true };
   });
-

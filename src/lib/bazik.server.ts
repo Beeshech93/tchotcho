@@ -40,10 +40,11 @@ export async function loadStoredCreds(client?: any): Promise<Record<string, stri
   try {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const sb = client ?? supabaseAdmin;
-    let { data, error } = await sb
+    const { data: initialData, error } = await sb
       .from("integration_credentials")
       .select("name, value")
       .in("name", [...BAZIK_CRED_NAMES]);
+    let data = initialData;
     if ((error || !data || data.length === 0) && client) {
       const fallback = await supabaseAdmin
         .from("integration_credentials")

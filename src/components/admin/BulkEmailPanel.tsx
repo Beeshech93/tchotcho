@@ -38,7 +38,8 @@ export function BulkEmailPanel() {
           <Mail className="size-4" /> Enviar correo a todos los usuarios
         </CardTitle>
         <p className="text-sm text-muted-foreground">
-          Envía un anuncio individual a cada cuenta con correo confirmado. Las direcciones de otros usuarios no se muestran.
+          Envía un anuncio individual a cada cuenta con correo confirmado. Las direcciones de otros
+          usuarios no se muestran.
         </p>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -71,18 +72,26 @@ export function BulkEmailPanel() {
             checked={confirmed}
             onChange={(event) => setConfirmed(event.target.checked)}
           />
-          <span>Confirmo que quiero enviar este mensaje a todos los usuarios con correo confirmado.</span>
+          <span>
+            Confirmo que quiero enviar este mensaje a todos los usuarios con correo confirmado.
+          </span>
         </label>
         <Button
           className="w-full gap-2"
-          disabled={mutation.isPending || !confirmed || subject.trim().length < 3 || message.trim().length < 2}
+          disabled={
+            mutation.isPending ||
+            !confirmed ||
+            subject.trim().length < 3 ||
+            message.trim().length < 2
+          }
           onClick={() => mutation.mutate()}
         >
           <Send className="size-4" />
           {mutation.isPending ? "Enviando a los usuarios…" : "Enviar correo a todos"}
         </Button>
         <p className="text-xs text-muted-foreground">
-          Solo administradores pueden iniciar el envío. Revisa el asunto y el contenido antes de confirmar.
+          Solo administradores pueden iniciar el envío. Revisa el asunto y el contenido antes de
+          confirmar.
         </p>
       </CardContent>
     </Card>

@@ -20,10 +20,11 @@ export async function loadDingCreds(client?: any): Promise<Record<string, string
   try {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const sb = client ?? supabaseAdmin;
-    let { data, error } = await sb
+    const { data: initialData, error } = await sb
       .from("integration_credentials")
       .select("name, value")
       .in("name", [...DING_CRED_NAMES]);
+    let data = initialData;
     if ((error || !data || data.length === 0) && client) {
       const fallback = await supabaseAdmin
         .from("integration_credentials")
@@ -66,10 +67,7 @@ export async function saveDingCred(name: string, value: string, userId: string, 
   try {
     const res = await primary
       .from("integration_credentials")
-      .upsert(
-        { name, value, updated_at: now, updated_by: userId },
-        { onConflict: "name" },
-      );
+      .upsert({ name, value, updated_at: now, updated_by: userId }, { onConflict: "name" });
     if (!res.error) saved = true;
   } catch {
     // Si primary falla (por RLS o fetch), intentar con supabaseAdmin
@@ -79,10 +77,7 @@ export async function saveDingCred(name: string, value: string, userId: string, 
     try {
       const res = await supabaseAdmin
         .from("integration_credentials")
-        .upsert(
-          { name, value, updated_at: now, updated_by: userId },
-          { onConflict: "name" },
-        );
+        .upsert({ name, value, updated_at: now, updated_by: userId }, { onConflict: "name" });
       if (!res.error) saved = true;
     } catch {
       // Las credenciales quedan preservadas en inMemoryCreds
@@ -106,7 +101,9 @@ export async function dingStatusInfo(client?: any) {
 async function dingFetch(path: string, init?: RequestInit) {
   const stored = await loadDingCreds();
   const apiKey = pick(stored, "DINGCONNECT_API_KEY");
-  const configuredBaseUrl = (pick(stored, "DINGCONNECT_BASE_URL") ?? DEFAULT_BASE_URL).trim().replace(/\/$/, "");
+  const configuredBaseUrl = (pick(stored, "DINGCONNECT_BASE_URL") ?? DEFAULT_BASE_URL)
+    .trim()
+    .replace(/\/$/, "");
   // The public DingConnect website is not the API host. Recover safely if it was
   // entered in the admin panel instead of the documented API base URL.
   let baseUrl = configuredBaseUrl;
@@ -136,7 +133,9 @@ async function dingFetch(path: string, init?: RequestInit) {
   if (!res.ok) {
     const contentType = res.headers.get("content-type") ?? "";
     const isHtml = contentType.includes("text/html") || /^\s*<!doctype html|^\s*<html/i.test(text);
-    console.error(`DingConnect ${path} falló [${res.status}] (content-type: ${contentType || "desconocido"}; HTML: ${isHtml})`);
+    console.error(
+      `DingConnect ${path} falló [${res.status}] (content-type: ${contentType || "desconocido"}; HTML: ${isHtml})`,
+    );
     throw new Error(
       isHtml
         ? `DingConnect [${res.status}]: el servidor devolvió una página HTML en vez de JSON. Revisa la URL base de la API y el acceso permitido por DingConnect.`

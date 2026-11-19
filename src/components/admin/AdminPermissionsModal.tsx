@@ -43,35 +43,140 @@ interface TabMeta {
 
 const TAB_METAS: TabMeta[] = [
   // Operaciones
-  { id: "tx", label: "Transacciones", desc: "Aprobar, ver y cancelar envíos de dinero", category: "operaciones" },
-  { id: "recargas", label: "Recargas móviles", desc: "Historial, detalles y reintento de recargas", category: "operaciones" },
-  { id: "kyc", label: "Validación KYC", desc: "Revisar, aprobar o rechazar identificaciones", category: "operaciones" },
-  { id: "soporte", label: "Soporte al cliente", desc: "Ver y responder tickets de soporte", category: "operaciones" },
-  { id: "bulk-email", label: "Correo masivo", desc: "Enviar comunicados por correo a clientes", category: "operaciones" },
-  { id: "operators", label: "Reporte operadores", desc: "Métricas por operador telefónico", category: "operaciones" },
+  {
+    id: "tx",
+    label: "Transacciones",
+    desc: "Aprobar, ver y cancelar envíos de dinero",
+    category: "operaciones",
+  },
+  {
+    id: "recargas",
+    label: "Recargas móviles",
+    desc: "Historial, detalles y reintento de recargas",
+    category: "operaciones",
+  },
+  {
+    id: "kyc",
+    label: "Validación KYC",
+    desc: "Revisar, aprobar o rechazar identificaciones",
+    category: "operaciones",
+  },
+  {
+    id: "soporte",
+    label: "Soporte al cliente",
+    desc: "Ver y responder tickets de soporte",
+    category: "operaciones",
+  },
+  {
+    id: "bulk-email",
+    label: "Correo masivo",
+    desc: "Enviar comunicados por correo a clientes",
+    category: "operaciones",
+  },
+  {
+    id: "operators",
+    label: "Reporte operadores",
+    desc: "Métricas por operador telefónico",
+    category: "operaciones",
+  },
 
   // Finanzas
-  { id: "resumen", label: "Resumen y Métricas", desc: "KPIs, volumen y gráficos generales", category: "finanzas" },
-  { id: "contabilidad", label: "Contabilidad", desc: "Billeteras, saldos de clientes y recargas", category: "finanzas" },
-  { id: "tarifas", label: "Tarifas de remesas", desc: "Tasas de cambio y comisiones de envío", category: "finanzas" },
-  { id: "topup-rates", label: "Tasas de recargas", desc: "Márgenes y tasas para recargas Ding", category: "finanzas" },
-  { id: "cripto", label: "Criptomonedas", desc: "Billeteras cripto y depósitos", category: "finanzas" },
+  {
+    id: "resumen",
+    label: "Resumen y Métricas",
+    desc: "KPIs, volumen y gráficos generales",
+    category: "finanzas",
+  },
+  {
+    id: "contabilidad",
+    label: "Contabilidad",
+    desc: "Billeteras, saldos de clientes y recargas",
+    category: "finanzas",
+  },
+  {
+    id: "tarifas",
+    label: "Tarifas de remesas",
+    desc: "Tasas de cambio y comisiones de envío",
+    category: "finanzas",
+  },
+  {
+    id: "topup-rates",
+    label: "Tasas de recargas",
+    desc: "Márgenes y tasas para recargas Ding",
+    category: "finanzas",
+  },
+  {
+    id: "cripto",
+    label: "Criptomonedas",
+    desc: "Billeteras cripto y depósitos",
+    category: "finanzas",
+  },
 
   // Configuración
-  { id: "servicios", label: "Control de Servicios", desc: "Habilitar/deshabilitar envíos, recargas o cripto", category: "configuracion" },
-  { id: "banner", label: "Banner Promocional", desc: "Gestionar anuncios y avisos en la web", category: "configuracion" },
+  {
+    id: "servicios",
+    label: "Control de Servicios",
+    desc: "Habilitar/deshabilitar envíos, recargas o cripto",
+    category: "configuracion",
+  },
+  {
+    id: "banner",
+    label: "Banner Promocional",
+    desc: "Gestionar anuncios y avisos en la web",
+    category: "configuracion",
+  },
 
   // Integraciones
-  { id: "mercadopago", label: "Mercado Pago", desc: "Credenciales y cobros en México", category: "integraciones" },
-  { id: "stripe", label: "Stripe", desc: "Pasarela para tarjetas internacionales", category: "integraciones" },
-  { id: "dingconnect", label: "DingConnect", desc: "Conexión para recargas de saldo", category: "integraciones" },
-  { id: "bazik", label: "Bazik API", desc: "Dispersión a MonCash y NatCash", category: "integraciones" },
-  { id: "resend", label: "Servicio de Correo", desc: "API key de Resend y remitente", category: "integraciones" },
+  {
+    id: "mercadopago",
+    label: "Mercado Pago",
+    desc: "Credenciales y cobros en México",
+    category: "integraciones",
+  },
+  {
+    id: "stripe",
+    label: "Stripe",
+    desc: "Pasarela para tarjetas internacionales",
+    category: "integraciones",
+  },
+  {
+    id: "dingconnect",
+    label: "DingConnect",
+    desc: "Conexión para recargas de saldo",
+    category: "integraciones",
+  },
+  {
+    id: "bazik",
+    label: "Bazik API",
+    desc: "Dispersión a MonCash y NatCash",
+    category: "integraciones",
+  },
+  {
+    id: "resend",
+    label: "Servicio de Correo",
+    desc: "API key de Resend y remitente",
+    category: "integraciones",
+  },
 
   // Sistema
-  { id: "usuarios", label: "Gestión de Usuarios", desc: "Asignar roles y restringir permisos a otros admins", category: "sistema" },
-  { id: "security", label: "Seguridad y Auditoría", desc: "Logs de seguridad y bloqueos", category: "sistema" },
-  { id: "migracion", label: "Migración IA", desc: "Herramienta de migración asistida", category: "sistema" },
+  {
+    id: "usuarios",
+    label: "Gestión de Usuarios",
+    desc: "Asignar roles y restringir permisos a otros admins",
+    category: "sistema",
+  },
+  {
+    id: "security",
+    label: "Seguridad y Auditoría",
+    desc: "Logs de seguridad y bloqueos",
+    category: "sistema",
+  },
+  {
+    id: "migracion",
+    label: "Migración IA",
+    desc: "Herramienta de migración asistida",
+    category: "sistema",
+  },
 ];
 
 const CATEGORY_TITLES = {
@@ -117,7 +222,9 @@ export function AdminPermissionsModal({
       if (currentRole === "admin") {
         const isSuper = currentPerms ? currentPerms.isSuperAdmin : true;
         setIsSuperAdmin(isSuper);
-        setSelectedTabs(currentPerms?.allowedTabs?.length ? currentPerms.allowedTabs : ALL_ADMIN_TAB_IDS);
+        setSelectedTabs(
+          currentPerms?.allowedTabs?.length ? currentPerms.allowedTabs : ALL_ADMIN_TAB_IDS,
+        );
       } else {
         setIsSuperAdmin(false);
         setSelectedTabs(OPERATIONAL_TABS);
@@ -128,9 +235,7 @@ export function AdminPermissionsModal({
   if (!user) return null;
 
   const toggleTab = (id: AdminTabId) => {
-    setSelectedTabs((prev) =>
-      prev.includes(id) ? prev.filter((t) => t !== id) : [...prev, id],
-    );
+    setSelectedTabs((prev) => (prev.includes(id) ? prev.filter((t) => t !== id) : [...prev, id]));
   };
 
   const handleSelectAll = () => setSelectedTabs([...ALL_ADMIN_TAB_IDS]);
@@ -254,7 +359,10 @@ export function AdminPermissionsModal({
               <div className="flex items-center justify-between gap-3 pt-1">
                 <div className="space-y-0.5">
                   <div className="flex items-center gap-2">
-                    <Label htmlFor="super-admin-switch" className="font-bold text-base cursor-pointer">
+                    <Label
+                      htmlFor="super-admin-switch"
+                      className="font-bold text-base cursor-pointer"
+                    >
                       Super Administrador (Acceso Total)
                     </Label>
                     {isSuperAdmin && (
@@ -289,65 +397,86 @@ export function AdminPermissionsModal({
                       </p>
                     </div>
                     <div className="flex flex-wrap gap-1.5">
-                      <Button size="sm" variant="outline" className="h-7 text-xs" onClick={handleSelectAll}>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="h-7 text-xs"
+                        onClick={handleSelectAll}
+                      >
                         Todos
                       </Button>
-                      <Button size="sm" variant="outline" className="h-7 text-xs" onClick={handleSelectOps}>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="h-7 text-xs"
+                        onClick={handleSelectOps}
+                      >
                         Solo Operaciones
                       </Button>
-                      <Button size="sm" variant="ghost" className="h-7 text-xs text-muted-foreground" onClick={handleClearAll}>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="h-7 text-xs text-muted-foreground"
+                        onClick={handleClearAll}
+                      >
                         Limpiar
                       </Button>
                     </div>
                   </div>
 
                   {/* Lista de módulos por categoría */}
-                  {(["operaciones", "finanzas", "configuracion", "integraciones", "sistema"] as const).map(
-                    (cat) => {
-                      const items = TAB_METAS.filter((m) => m.category === cat);
-                      return (
-                        <div key={cat} className="space-y-2">
-                          <p className="text-xs font-bold text-foreground/80 flex items-center gap-1.5">
-                            <span className="size-1.5 rounded-full bg-primary" />
-                            {CATEGORY_TITLES[cat]}
-                          </p>
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                            {items.map((tab) => {
-                              const checked = selectedTabs.includes(tab.id);
-                              return (
-                                <button
-                                  key={tab.id}
-                                  type="button"
-                                  onClick={() => toggleTab(tab.id)}
-                                  className={`flex items-start gap-2.5 p-2.5 rounded-xl border text-left transition-colors cursor-pointer ${
-                                    checked
-                                      ? "border-primary/60 bg-primary/5 text-foreground"
-                                      : "border-border/40 text-muted-foreground hover:bg-secondary/40"
-                                  }`}
-                                >
-                                  <div className="mt-0.5 shrink-0">
-                                    {checked ? (
-                                      <CheckSquare className="size-4 text-primary" />
-                                    ) : (
-                                      <Square className="size-4 text-muted-foreground/60" />
-                                    )}
-                                  </div>
-                                  <div className="min-w-0 flex-1">
-                                    <p className="font-semibold text-xs text-foreground leading-tight">
-                                      {tab.label}
-                                    </p>
-                                    <p className="text-[11px] text-muted-foreground leading-tight mt-0.5 truncate">
-                                      {tab.desc}
-                                    </p>
-                                  </div>
-                                </button>
-                              );
-                            })}
-                          </div>
+                  {(
+                    [
+                      "operaciones",
+                      "finanzas",
+                      "configuracion",
+                      "integraciones",
+                      "sistema",
+                    ] as const
+                  ).map((cat) => {
+                    const items = TAB_METAS.filter((m) => m.category === cat);
+                    return (
+                      <div key={cat} className="space-y-2">
+                        <p className="text-xs font-bold text-foreground/80 flex items-center gap-1.5">
+                          <span className="size-1.5 rounded-full bg-primary" />
+                          {CATEGORY_TITLES[cat]}
+                        </p>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                          {items.map((tab) => {
+                            const checked = selectedTabs.includes(tab.id);
+                            return (
+                              <button
+                                key={tab.id}
+                                type="button"
+                                onClick={() => toggleTab(tab.id)}
+                                className={`flex items-start gap-2.5 p-2.5 rounded-xl border text-left transition-colors cursor-pointer ${
+                                  checked
+                                    ? "border-primary/60 bg-primary/5 text-foreground"
+                                    : "border-border/40 text-muted-foreground hover:bg-secondary/40"
+                                }`}
+                              >
+                                <div className="mt-0.5 shrink-0">
+                                  {checked ? (
+                                    <CheckSquare className="size-4 text-primary" />
+                                  ) : (
+                                    <Square className="size-4 text-muted-foreground/60" />
+                                  )}
+                                </div>
+                                <div className="min-w-0 flex-1">
+                                  <p className="font-semibold text-xs text-foreground leading-tight">
+                                    {tab.label}
+                                  </p>
+                                  <p className="text-[11px] text-muted-foreground leading-tight mt-0.5 truncate">
+                                    {tab.desc}
+                                  </p>
+                                </div>
+                              </button>
+                            );
+                          })}
                         </div>
-                      );
-                    },
-                  )}
+                      </div>
+                    );
+                  })}
                 </div>
               )}
             </div>
@@ -358,7 +487,11 @@ export function AdminPermissionsModal({
           <Button variant="outline" onClick={onClose} disabled={isSaving}>
             Cancelar
           </Button>
-          <Button onClick={handleSave} disabled={isSaving} className="gap-2 bg-primary text-primary-foreground font-bold">
+          <Button
+            onClick={handleSave}
+            disabled={isSaving}
+            className="gap-2 bg-primary text-primary-foreground font-bold"
+          >
             {isSaving ? "Guardando..." : "Guardar Permisos"}
           </Button>
         </DialogFooter>
@@ -366,4 +499,3 @@ export function AdminPermissionsModal({
     </Dialog>
   );
 }
-

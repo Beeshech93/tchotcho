@@ -88,9 +88,7 @@ export const mercadoPagoInitiatePayment = createServerFn({ method: "POST" })
       throw new Error("Este método de pago no usa Mercado Pago");
     }
 
-    const email =
-      (context.claims?.email as string | undefined) ||
-      "cliente@lajanrapid.com";
+    const email = (context.claims?.email as string | undefined) || "cliente@lajanrapid.com";
     const base = process.env["PUBLIC_URL"] || "https://lajanrapid.app";
 
     const { createMpPreference } = await import("@/lib/mercadopago.server");
@@ -135,9 +133,7 @@ export const mercadoPagoSpeiReference = createServerFn({ method: "POST" })
       .maybeSingle();
     const [firstName, ...rest] = (profile?.full_name || "Cliente Lajan").split(" ");
 
-    const email =
-      (context.claims?.email as string | undefined) ||
-      "cliente@lajanrapid.com";
+    const email = (context.claims?.email as string | undefined) || "cliente@lajanrapid.com";
 
     const { createSpeiReference } = await import("@/lib/mercadopago.server");
     const result = await createSpeiReference({
@@ -174,9 +170,7 @@ export const mercadoPagoOxxoVoucher = createServerFn({ method: "POST" })
       .maybeSingle();
     const [firstName, ...rest] = (profile?.full_name || "Cliente Lajan").split(" ");
 
-    const email =
-      (context.claims?.email as string | undefined) ||
-      "cliente@lajanrapid.com";
+    const email = (context.claims?.email as string | undefined) || "cliente@lajanrapid.com";
 
     const { createOxxoVoucher } = await import("@/lib/mercadopago.server");
     const result = await createOxxoVoucher({

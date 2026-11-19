@@ -1,4 +1,5 @@
 # Guía de Instalación y Despliegue para Nuevo Proyecto
+
 ## Lajan Rapid — Motor Fintech Multiempresa & White Label
 
 Esta guía contiene todas las instrucciones necesarias para poner en marcha el proyecto desde cero en un nuevo entorno, servidor o repositorio.
@@ -17,12 +18,14 @@ Esta guía contiene todas las instrucciones necesarias para poner en marcha el p
 ## 🚀 Paso 1: Clonar o Descomprimir el Proyecto
 
 Si descargaste el archivo `.zip`:
+
 ```bash
 unzip lajan-rapid-complete.zip -d mi-nuevo-proyecto
 cd mi-nuevo-proyecto
 ```
 
 Instala las dependencias del proyecto:
+
 ```bash
 npm install
 # o si usas bun:
@@ -41,6 +44,7 @@ bun install
 5. Copia todo su contenido, pégalo en el editor SQL de Supabase y presiona **Run**.
 
 > Este script crea automáticamente:
+>
 > - Todas las tablas del sistema (`profiles`, `transfers`, `tenants`, `user_roles`, `admin_permissions`, `integration_credentials`, `topup_rates`, etc.).
 > - Enums, disparadores (triggers) y funciones de auditoría.
 > - Políticas de seguridad RLS (Row Level Security).
@@ -128,6 +132,7 @@ ON CONFLICT (user_id) DO UPDATE SET is_super_admin = true;
 ## 🌐 Paso 6: Configuración del Sistema White Label
 
 Desde `/admin` en la pestaña **White Label**:
+
 1. **Crear Marca Aliada:** Define el nombre comercial, el dominio propio obligatorio (ej. `vippip.com`) y el slug.
 2. **Subir Identidad Gráfica:** Sube en formato de imagen (.png, .svg, .ico) el **Logotipo**, **Favicon** e **Ícono de la App Móvil**; se guardarán en Supabase Storage con vista previa instantánea.
 3. **Colores y Preset:** Elige combinaciones de colores (azul real, esmeralda, dorado, etc.) para personalizar la experiencia completa de esa empresa.
@@ -147,10 +152,11 @@ npm run build
 El proyecto genera los artefactos listos en `.output/` y `dist/`.
 
 ### Opciones de Despliegue:
-* **Cloudflare Workers / Pages:** Usa Nitro con preset Cloudflare (`wrangler deploy`).
-* **Vercel:** Conecta tu repositorio de GitHub directamente; la configuración está lista en `vercel.json`.
-* **Lovable:** El proyecto sincroniza directamente la rama `main` y publica el contenido de `dist/`.
-* **VPS / Docker:** Ejecuta `.output/server/index.mjs` con Node.js (`node .output/server/index.mjs`).
+
+- **Cloudflare Workers / Pages:** Usa Nitro con preset Cloudflare (`wrangler deploy`).
+- **Vercel:** Conecta tu repositorio de GitHub directamente; la configuración está lista en `vercel.json`.
+- **Lovable:** El proyecto sincroniza directamente la rama `main` y publica el contenido de `dist/`.
+- **VPS / Docker:** Ejecuta `.output/server/index.mjs` con Node.js (`node .output/server/index.mjs`).
 
 ---
 

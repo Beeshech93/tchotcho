@@ -86,9 +86,15 @@ export const Route = createFileRoute("/_authenticated/agente")({
   head: () => ({
     meta: [
       { title: "Panel de Agente Independiente — Lajan Rapid" },
-      { name: "description", content: "Ventanilla de transacciones en efectivo y comisiones de agente." },
+      {
+        name: "description",
+        content: "Ventanilla de transacciones en efectivo y comisiones de agente.",
+      },
       { property: "og:title", content: "Panel de Agente Independiente — Lajan Rapid" },
-      { property: "og:description", content: "Gestión autónoma de transacciones en efectivo y comisiones." },
+      {
+        property: "og:description",
+        content: "Gestión autónoma de transacciones en efectivo y comisiones.",
+      },
     ],
   }),
   beforeLoad: async () => {
@@ -130,17 +136,23 @@ function Agente() {
 
   // Cotización en tiempo real para la ventanilla en efectivo
   const origins = useMemo(() => (countries ?? []).filter((c) => c.is_origin), [countries]);
-  const activeOrigin = useMemo(() => origins.find((c) => c.code === originCountry) ?? origins[0], [origins, originCountry]);
+  const activeOrigin = useMemo(
+    () => origins.find((c) => c.code === originCountry) ?? origins[0],
+    [origins, originCountry],
+  );
   const sendCur = activeOrigin?.currency ?? "DOP";
   const recvCur = "HTG";
 
   const { data: corridorRate } = useRate(sendCur, recvCur);
-  const effectiveCfg = corridorRate && Number(corridorRate.rate) > 0 ? corridorRate : (fallbackRate(sendCur, recvCur) ?? {
-    rate: 2.20,
-    fee_percent: 2.5,
-    fee_fixed: 50,
-    agent_commission_percent: 1.0,
-  });
+  const effectiveCfg =
+    corridorRate && Number(corridorRate.rate) > 0
+      ? corridorRate
+      : (fallbackRate(sendCur, recvCur) ?? {
+          rate: 2.2,
+          fee_percent: 2.5,
+          fee_fixed: 50,
+          agent_commission_percent: 1.0,
+        });
 
   const parsedAmount = Number(amountSend) || 0;
   const q = quote(parsedAmount, effectiveCfg);
@@ -149,15 +161,12 @@ function Agente() {
   const { data: transfers, isLoading } = useQuery({
     queryKey: ["agent-transfers", user?.id, isAdmin],
     queryFn: async () => {
-      let query = supabase
-        .from("transfers")
-        .select("*")
-        .order("created_at", { ascending: false });
+      let query = supabase.from("transfers").select("*").order("created_at", { ascending: false });
 
       if (!isAdmin && user?.id) {
         // Un agente independiente ve sus propias operaciones y solicitudes en efectivo pendientes
         query = query.or(
-          `agent_id.eq.${user.id},user_id.eq.${user.id},and(status.eq.awaiting_payment,payment_method.eq.cash_agent)`
+          `agent_id.eq.${user.id},user_id.eq.${user.id},and(status.eq.awaiting_payment,payment_method.eq.cash_agent)`,
         );
       }
 
@@ -253,7 +262,9 @@ function Agente() {
         qc.invalidateQueries({ queryKey: ["agent-transfers"] });
       }
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Error al registrar la transacción en efectivo");
+      toast.error(
+        err instanceof Error ? err.message : "Error al registrar la transacción en efectivo",
+      );
     } finally {
       setIsSubmittingCash(false);
     }
@@ -295,23 +306,23 @@ function Agente() {
         t.reference.toLowerCase().includes(q) ||
         t.recipient_name.toLowerCase().includes(q) ||
         t.recipient_phone.toLowerCase().includes(q) ||
-        t.recipient_city.toLowerCase().includes(q)
+        t.recipient_city.toLowerCase().includes(q),
     );
   }, [rows, searchQuery]);
 
   // Mis operaciones como agente independiente
   const myOperations = filteredRows.filter(
-    (t) => t.agent_id === user?.id || (isAdmin && t.agent_id)
+    (t) => t.agent_id === user?.id || (isAdmin && t.agent_id),
   );
 
   // Solicitudes en efectivo pendientes por cobrar en ventanilla
   const pendingCashPickups = filteredRows.filter(
-    (t) => t.status === "awaiting_payment" && t.payment_method === "cash_agent"
+    (t) => t.status === "awaiting_payment" && t.payment_method === "cash_agent",
   );
 
   // Operaciones activas en proceso
   const activeOperations = myOperations.filter(
-    (t) => t.status === "processing" || t.status === "paid" || t.status === "ready_for_pickup"
+    (t) => t.status === "processing" || t.status === "paid" || t.status === "ready_for_pickup",
   );
 
   // Historial completado
@@ -320,11 +331,14 @@ function Agente() {
   // Suma total de efectivo recaudado por este agente
   const totalCashCollected = myOperations
     .filter((t) => t.payment_method === "cash_agent" && t.status !== "cancelled")
-    .reduce((acc, t) => {
-      const cur = t.send_currency;
-      acc[cur] = (acc[cur] ?? 0) + Number(t.total_send ?? 0);
-      return acc;
-    }, {} as Record<string, number>);
+    .reduce(
+      (acc, t) => {
+        const cur = t.send_currency;
+        acc[cur] = (acc[cur] ?? 0) + Number(t.total_send ?? 0);
+        return acc;
+      },
+      {} as Record<string, number>,
+    );
 
   const totalCashLabel =
     Object.keys(totalCashCollected).length === 0
@@ -336,11 +350,14 @@ function Agente() {
   // Comisiones acumuladas ganadas por este agente
   const commissions = myOperations
     .filter((t) => t.status !== "cancelled")
-    .reduce((acc, t) => {
-      const cur = t.send_currency;
-      acc[cur] = (acc[cur] ?? 0) + Number(t.agent_commission_send ?? 0);
-      return acc;
-    }, {} as Record<string, number>);
+    .reduce(
+      (acc, t) => {
+        const cur = t.send_currency;
+        acc[cur] = (acc[cur] ?? 0) + Number(t.agent_commission_send ?? 0);
+        return acc;
+      },
+      {} as Record<string, number>,
+    );
 
   const commissionsLabel =
     Object.keys(commissions).length === 0
@@ -368,7 +385,10 @@ function Agente() {
           <div>
             <div className="flex items-center gap-2">
               <h1 className="text-2xl font-bold tracking-tight">Panel de Agente Independiente</h1>
-              <Badge variant="outline" className="border-emerald-500/30 bg-emerald-500/10 text-emerald-400 font-semibold">
+              <Badge
+                variant="outline"
+                className="border-emerald-500/30 bg-emerald-500/10 text-emerald-400 font-semibold"
+              >
                 Solo Efectivo
               </Badge>
             </div>
@@ -403,11 +423,12 @@ function Agente() {
       <div className="rounded-2xl border border-emerald-500/20 bg-emerald-950/20 p-4 text-emerald-200/90 shadow-sm flex items-start gap-3">
         <Banknote className="size-5 text-emerald-400 shrink-0 mt-0.5" />
         <div className="text-xs sm:text-sm leading-relaxed space-y-1">
-          <p className="font-semibold text-white">
-            Operaciones Exclusivas en Efectivo
-          </p>
+          <p className="font-semibold text-white">Operaciones Exclusivas en Efectivo</p>
           <p className="text-emerald-200/80">
-            Cada agente opera de forma independiente y autónoma con sus servicios. Los agentes <strong>solo reciben efectivo en mano</strong> para realizar o cobrar transacciones. Todas las operaciones procesadas generan comisiones directas e independientes para tu punto de servicio.
+            Cada agente opera de forma independiente y autónoma con sus servicios. Los agentes{" "}
+            <strong>solo reciben efectivo en mano</strong> para realizar o cobrar transacciones.
+            Todas las operaciones procesadas generan comisiones directas e independientes para tu
+            punto de servicio.
           </p>
         </div>
       </div>
@@ -456,9 +477,7 @@ function Agente() {
       {/* Pestañas de Gestión de Envíos */}
       <Tabs defaultValue="my_operations" className="space-y-4">
         <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="my_operations">
-            Mis Operaciones ({myOperations.length})
-          </TabsTrigger>
+          <TabsTrigger value="my_operations">Mis Operaciones ({myOperations.length})</TabsTrigger>
           <TabsTrigger value="pending_cash">
             Pendientes por Cobrar ({pendingCashPickups.length})
           </TabsTrigger>
@@ -530,7 +549,8 @@ function Agente() {
             <div className="rounded-xl bg-emerald-500/10 border border-emerald-500/20 p-3 text-xs text-emerald-300 flex items-center gap-2">
               <ShieldCheck className="size-4 shrink-0 text-emerald-400" />
               <span>
-                <strong>Solo Efectivo:</strong> Debes cobrar el importe físico directamente al cliente en tu ventanilla antes de confirmar.
+                <strong>Solo Efectivo:</strong> Debes cobrar el importe físico directamente al
+                cliente en tu ventanilla antes de confirmar.
               </span>
             </div>
 
@@ -658,13 +678,17 @@ function Agente() {
                 </div>
                 <div className="pt-1 text-[11px] text-muted-foreground flex items-center gap-1">
                   <CheckCircle2 className="size-3 text-emerald-400" />
-                  <span>Método de pago: <strong>Efectivo en Ventanilla (cash_agent)</strong></span>
+                  <span>
+                    Método de pago: <strong>Efectivo en Ventanilla (cash_agent)</strong>
+                  </span>
                 </div>
               </div>
             )}
 
             <div className="space-y-1.5">
-              <Label htmlFor="note" className="text-xs">Nota interna (Opcional)</Label>
+              <Label htmlFor="note" className="text-xs">
+                Nota interna (Opcional)
+              </Label>
               <Textarea
                 id="note"
                 rows={2}
@@ -706,7 +730,8 @@ function Agente() {
               Cobrar Transferencia con Referencia
             </DialogTitle>
             <DialogDescription className="text-xs">
-              Si un cliente creó un envío en la app y seleccionó &ldquo;Efectivo con agente&rdquo;, ingresa su código de referencia para cobrar el efectivo en ventanilla y procesarlo.
+              Si un cliente creó un envío en la app y seleccionó &ldquo;Efectivo con agente&rdquo;,
+              ingresa su código de referencia para cobrar el efectivo en ventanilla y procesarlo.
             </DialogDescription>
           </DialogHeader>
 
@@ -833,7 +858,10 @@ function Section({
                   </p>
                   <span className="text-xs text-muted-foreground">({t.recipient_city})</span>
                   {t.payment_method === "cash_agent" && (
-                    <Badge variant="outline" className="border-emerald-500/30 text-emerald-400 bg-emerald-500/10 text-[10px] font-semibold py-0.5">
+                    <Badge
+                      variant="outline"
+                      className="border-emerald-500/30 text-emerald-400 bg-emerald-500/10 text-[10px] font-semibold py-0.5"
+                    >
                       💵 Efectivo en Ventanilla
                     </Badge>
                   )}
@@ -842,7 +870,9 @@ function Section({
                 <p className="text-xs text-muted-foreground flex flex-wrap items-center gap-2">
                   <span className="font-mono font-medium text-foreground">{t.reference}</span>
                   <span>·</span>
-                  <span>{t.origin_country} → {t.destination_country}</span>
+                  <span>
+                    {t.origin_country} → {t.destination_country}
+                  </span>
                   <span>·</span>
                   <span>Entrega: {t.delivery_method}</span>
                   <span>·</span>
@@ -903,12 +933,15 @@ function Section({
                 )}
 
                 {/* Cancelar transacción */}
-                {!readOnly && (isAdmin || isMyAgentTransfer) && t.status !== "cancelled" && t.status !== "completed" && (
-                  <CancelButton
-                    reference={t.reference}
-                    onConfirm={(reason) => cancel(t.id, reason)}
-                  />
-                )}
+                {!readOnly &&
+                  (isAdmin || isMyAgentTransfer) &&
+                  t.status !== "cancelled" &&
+                  t.status !== "completed" && (
+                    <CancelButton
+                      reference={t.reference}
+                      onConfirm={(reason) => cancel(t.id, reason)}
+                    />
+                  )}
               </div>
             </div>
           );
@@ -939,7 +972,8 @@ function CancelButton({
         <AlertDialogHeader>
           <AlertDialogTitle>Cancelar el envío {reference}</AlertDialogTitle>
           <AlertDialogDescription>
-            Esta acción marcará el envío como cancelado y se registrará en el historial de tu agencia.
+            Esta acción marcará el envío como cancelado y se registrará en el historial de tu
+            agencia.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <Textarea

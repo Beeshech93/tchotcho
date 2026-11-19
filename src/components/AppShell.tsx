@@ -129,10 +129,15 @@ export function AppShell({ children }: { children: ReactNode }) {
                     "flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-xs font-bold transition-all",
                     isActive
                       ? "bg-gradient-to-r from-[#02531C] to-[#046824] text-[#F2AC00] shadow-[0_0_16px_rgba(2,83,28,0.5)] border border-[#F2AC00]/50"
-                      : "text-slate-300 hover:bg-white/[0.06] hover:text-white hover:border-white/10 border border-transparent"
+                      : "text-slate-300 hover:bg-white/[0.06] hover:text-white hover:border-white/10 border border-transparent",
                   )}
                 >
-                  <item.icon className={cn("size-4 shrink-0", isActive ? "text-[#F2AC00]" : "text-emerald-400")} />
+                  <item.icon
+                    className={cn(
+                      "size-4 shrink-0",
+                      isActive ? "text-[#F2AC00]" : "text-emerald-400",
+                    )}
+                  />
                   <span>{item.label}</span>
                 </Link>
               );
@@ -155,10 +160,15 @@ export function AppShell({ children }: { children: ReactNode }) {
                       "flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-xs font-bold transition-all",
                       isActive
                         ? "bg-gradient-to-r from-[#02531C] to-[#046824] text-[#F2AC00] shadow-[0_0_16px_rgba(2,83,28,0.5)] border border-[#F2AC00]/50"
-                        : "text-slate-300 hover:bg-white/[0.06] hover:text-white hover:border-white/10 border border-transparent"
+                        : "text-slate-300 hover:bg-white/[0.06] hover:text-white hover:border-white/10 border border-transparent",
                     )}
                   >
-                    <item.icon className={cn("size-4 shrink-0", isActive ? "text-[#F2AC00]" : "text-emerald-400")} />
+                    <item.icon
+                      className={cn(
+                        "size-4 shrink-0",
+                        isActive ? "text-[#F2AC00]" : "text-emerald-400",
+                      )}
+                    />
                     <span>{item.label}</span>
                   </Link>
                 );
@@ -173,7 +183,9 @@ export function AppShell({ children }: { children: ReactNode }) {
               <span className="text-xs font-black text-[#F2AC00]">Tcho-Tcho</span>
             </div>
             <p className="text-xs font-black text-white">MonCash & NatCash Directo</p>
-            <p className="text-[10px] text-slate-300 mt-0.5">Acreditación flash en &lt; 2 minutos</p>
+            <p className="text-[10px] text-slate-300 mt-0.5">
+              Acreditación flash en &lt; 2 minutos
+            </p>
             <Link
               to="/enviar"
               className="mt-3 inline-flex w-full items-center justify-center gap-1.5 rounded-xl bg-[#F2AC00] px-3.5 py-2 text-xs font-black text-black shadow-[0_0_15px_rgba(242,172,0,0.4)] hover:bg-[#FBBF24] transition"
@@ -188,8 +200,12 @@ export function AppShell({ children }: { children: ReactNode }) {
         <div className="mt-4 shrink-0 space-y-2.5 border-t border-white/10 pt-3">
           <LanguageSwitcher className="w-full bg-[#161F18] text-slate-200 border-white/10 text-xs font-semibold" />
           <div className="px-1 py-1">
-            <p className="truncate text-xs font-extrabold text-white">{profile?.full_name || t("nav.account")}</p>
-            <p className="truncate text-[10px] font-semibold text-emerald-400">{profile?.phone || "Personal Account"}</p>
+            <p className="truncate text-xs font-extrabold text-white">
+              {profile?.full_name || t("nav.account")}
+            </p>
+            <p className="truncate text-[10px] font-semibold text-emerald-400">
+              {profile?.phone || "Personal Account"}
+            </p>
           </div>
           <Button
             variant="ghost"
@@ -208,7 +224,9 @@ export function AppShell({ children }: { children: ReactNode }) {
                 className="inline-flex items-center justify-center gap-1 text-[10px] text-slate-400 transition hover:text-slate-200"
               >
                 <span>Creado por</span>
-                <span className="font-bold text-[#F2AC00] underline underline-offset-2">lajanrapid.app</span>
+                <span className="font-bold text-[#F2AC00] underline underline-offset-2">
+                  lajanrapid.app
+                </span>
               </a>
             </div>
           )}
@@ -224,14 +242,26 @@ export function AppShell({ children }: { children: ReactNode }) {
             </span>
           </Link>
           <div className="flex shrink-0 items-center gap-1">
-            <Button variant="ghost" size="icon" asChild aria-label={t("nav.support")} className="text-slate-300 hover:text-white hover:bg-white/10">
+            <Button
+              variant="ghost"
+              size="icon"
+              asChild
+              aria-label={t("nav.support")}
+              className="text-slate-300 hover:text-white hover:bg-white/10"
+            >
               <Link to="/soporte">
                 <LifeBuoy className="size-4" />
               </Link>
             </Button>
             <NotificationBell triggerClassName="text-slate-300 hover:text-white hover:bg-white/10" />
             <LanguageSwitcher className="h-9 w-[80px] text-xs bg-white/10 border-white/15 text-white" />
-            <Button variant="ghost" size="icon" onClick={signOut} aria-label={t("nav.signout")} className="text-slate-300 hover:text-white hover:bg-white/10">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={signOut}
+              aria-label={t("nav.signout")}
+              className="text-slate-300 hover:text-white hover:bg-white/10"
+            >
               <LogOut className="size-4" />
             </Button>
           </div>
@@ -257,7 +287,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                   "flex items-center justify-center rounded-2xl p-2.5 transition-all",
                   pathname === "/dashboard"
                     ? "bg-gradient-to-r from-[#02531C] to-[#046824] text-[#F2AC00] shadow-[0_0_16px_rgba(242,172,0,0.4)] border-2 border-[#F2AC00]"
-                    : "text-slate-300 hover:text-white"
+                    : "text-slate-300 hover:text-white",
                 )}
                 aria-label={t("nav.home")}
               >
@@ -273,7 +303,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                     "flex items-center justify-center rounded-2xl p-2.5 transition-all",
                     pathname === "/recargas"
                       ? "bg-gradient-to-r from-[#02531C] to-[#046824] text-[#F2AC00] shadow-[0_0_16px_rgba(242,172,0,0.4)] border-2 border-[#F2AC00]"
-                      : "text-slate-300 hover:text-white"
+                      : "text-slate-300 hover:text-white",
                   )}
                   aria-label={t("nav.topups")}
                 >
@@ -290,7 +320,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                     "flex items-center justify-center rounded-2xl p-2.5 transition-all",
                     pathname === "/enviar"
                       ? "bg-gradient-to-r from-[#02531C] to-[#046824] text-[#F2AC00] shadow-[0_0_16px_rgba(242,172,0,0.4)] border-2 border-[#F2AC00]"
-                      : "text-slate-300 hover:text-white"
+                      : "text-slate-300 hover:text-white",
                   )}
                   aria-label={t("nav.send")}
                 >
@@ -306,7 +336,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                   "flex items-center justify-center rounded-2xl p-2.5 transition-all",
                   pathname === "/historial"
                     ? "bg-gradient-to-r from-[#02531C] to-[#046824] text-[#F2AC00] shadow-[0_0_16px_rgba(242,172,0,0.4)] border-2 border-[#F2AC00]"
-                    : "text-slate-300 hover:text-white"
+                    : "text-slate-300 hover:text-white",
                 )}
                 aria-label={t("nav.history")}
               >
@@ -321,7 +351,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                   "flex items-center justify-center rounded-2xl p-2.5 transition-all",
                   pathname === "/perfil"
                     ? "bg-gradient-to-r from-[#02531C] to-[#046824] text-[#F2AC00] shadow-[0_0_16px_rgba(242,172,0,0.4)] border-2 border-[#F2AC00]"
-                    : "text-slate-300 hover:text-white"
+                    : "text-slate-300 hover:text-white",
                 )}
                 aria-label={t("nav.profile")}
               >

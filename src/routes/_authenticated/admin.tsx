@@ -317,12 +317,32 @@ function TxPanel() {
                 {money(Number(t.amount_receive), t.receive_currency)}
               </p>
             </div>
-            <Badge className={STATUS_TONE[t.status as TransferStatus]} variant="secondary">{STATUS_LABEL[t.status as TransferStatus]}</Badge>
-            <Button size="sm" variant="outline" onClick={() => {
-const w=window.open("", "_blank", "width=800,height=700");if(!w){toast.error("Permite las ventanas emergentes.");return;}
-const safe=(v:unknown)=>String(v??"").replace(/[&<>"]/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[ch]??ch));
-w.document.write(`<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Recibo ${safe(t.reference)}</title><style>body{font:16px Arial;max-width:720px;margin:40px auto;padding:24px;color:#172033}h1{color:#0e9f6e}.row{display:flex;justify-content:space-between;border-bottom:1px solid #ddd;padding:13px 0}span{color:#667085}@media print{button{display:none}}</style></head><body><h1>LAJAN RAPID</h1><h2>Recibo de transacción</h2><p>Referencia: ${safe(t.reference)} · Fecha: ${safe(shortDate(t.created_at))}</p><div class="row"><span>Estado</span><strong>${safe(STATUS_LABEL[t.status as TransferStatus]??t.status)}</strong></div><div class="row"><span>Destinatario</span><strong>${safe(t.recipient_name)}</strong></div><div class="row"><span>Países</span><strong>${safe(t.origin_country)} → ${safe(t.destination_country)}</strong></div><div class="row"><span>Método de pago</span><strong>${safe(t.payment_method)}</strong></div><div class="row"><span>Enviado</span><strong>${safe(money(Number(t.amount_send),t.send_currency))}</strong></div><div class="row"><span>Recibe</span><strong>${safe(money(Number(t.amount_receive),t.receive_currency))}</strong></div><button onclick="window.print()">Imprimir / Guardar como PDF</button></body></html>`);w.document.close();
-}}><FileText className="mr-2 size-4"/>Generar recibo</Button>
+            <Badge className={STATUS_TONE[t.status as TransferStatus]} variant="secondary">
+              {STATUS_LABEL[t.status as TransferStatus]}
+            </Badge>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => {
+                const w = window.open("", "_blank", "width=800,height=700");
+                if (!w) {
+                  toast.error("Permite las ventanas emergentes.");
+                  return;
+                }
+                const safe = (v: unknown) =>
+                  String(v ?? "").replace(
+                    /[&<>"]/g,
+                    (ch) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[ch] ?? ch,
+                  );
+                w.document.write(
+                  `<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Recibo ${safe(t.reference)}</title><style>body{font:16px Arial;max-width:720px;margin:40px auto;padding:24px;color:#172033}h1{color:#0e9f6e}.row{display:flex;justify-content:space-between;border-bottom:1px solid #ddd;padding:13px 0}span{color:#667085}@media print{button{display:none}}</style></head><body><h1>LAJAN RAPID</h1><h2>Recibo de transacción</h2><p>Referencia: ${safe(t.reference)} · Fecha: ${safe(shortDate(t.created_at))}</p><div class="row"><span>Estado</span><strong>${safe(STATUS_LABEL[t.status as TransferStatus] ?? t.status)}</strong></div><div class="row"><span>Destinatario</span><strong>${safe(t.recipient_name)}</strong></div><div class="row"><span>Países</span><strong>${safe(t.origin_country)} → ${safe(t.destination_country)}</strong></div><div class="row"><span>Método de pago</span><strong>${safe(t.payment_method)}</strong></div><div class="row"><span>Enviado</span><strong>${safe(money(Number(t.amount_send), t.send_currency))}</strong></div><div class="row"><span>Recibe</span><strong>${safe(money(Number(t.amount_receive), t.receive_currency))}</strong></div><button onclick="window.print()">Imprimir / Guardar como PDF</button></body></html>`,
+                );
+                w.document.close();
+              }}
+            >
+              <FileText className="mr-2 size-4" />
+              Generar recibo
+            </Button>
             <Select
               value={t.status}
               disabled={busy === t.id || t.status === "cancelled" || t.status === "completed"}
@@ -376,7 +396,8 @@ function UsersPanel() {
               Gestión de Usuarios, Roles y Permisos
             </CardTitle>
             <p className="text-xs text-muted-foreground mt-0.5">
-              Transforma cualquier usuario en Administrador con acceso total o restricciones modulares.
+              Transforma cualquier usuario en Administrador con acceso total o restricciones
+              modulares.
             </p>
           </div>
         </div>
@@ -414,7 +435,10 @@ function UsersPanel() {
                   <div className="flex items-center gap-2">
                     <p className="font-semibold text-sm">{p.full_name || "Sin nombre"}</p>
                     {isAdmin && (
-                      <span className="size-2 rounded-full bg-primary" title="Administrador activo" />
+                      <span
+                        className="size-2 rounded-full bg-primary"
+                        title="Administrador activo"
+                      />
                     )}
                   </div>
                   <p className="text-xs text-muted-foreground">{p.phone || "sin teléfono"}</p>
@@ -432,8 +456,12 @@ function UsersPanel() {
                           <Shield className="size-3" /> Super Admin
                         </Badge>
                       ) : (
-                        <Badge variant="outline" className="border-primary/50 text-primary gap-1 text-xs font-semibold">
-                          <Shield className="size-3" /> Admin ({adminPerms?.allowedTabs?.length ?? 0} módulos)
+                        <Badge
+                          variant="outline"
+                          className="border-primary/50 text-primary gap-1 text-xs font-semibold"
+                        >
+                          <Shield className="size-3" /> Admin (
+                          {adminPerms?.allowedTabs?.length ?? 0} módulos)
                         </Badge>
                       )}
                     </>
@@ -455,7 +483,9 @@ function UsersPanel() {
                 <Button
                   size="sm"
                   variant={isAdmin ? "default" : "outline"}
-                  className={isAdmin ? "gap-1.5 bg-primary text-primary-foreground font-semibold" : "gap-1.5"}
+                  className={
+                    isAdmin ? "gap-1.5 bg-primary text-primary-foreground font-semibold" : "gap-1.5"
+                  }
                   onClick={() => setEditingUser(p)}
                 >
                   <Shield className="size-3.5" />

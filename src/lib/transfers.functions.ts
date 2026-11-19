@@ -238,10 +238,7 @@ export const adminConfirmTransfer = createServerFn({ method: "POST" })
 
     // Si un agente confirma la transferencia y no tenía agente asignado, asignarlo a este agente
     if (!isAdminData && !t.agent_id) {
-      await supabaseAdmin
-        .from("transfers")
-        .update({ agent_id: context.userId })
-        .eq("id", t.id);
+      await supabaseAdmin.from("transfers").update({ agent_id: context.userId }).eq("id", t.id);
     }
 
     // Si es MonCash/NatCash, llamar a Bazik (solo MonCash está soportado por su API).
@@ -377,7 +374,11 @@ export const agentCreateCashTransfer = createServerFn({ method: "POST" })
     const agentCommission = Math.round(data.amountSend * (agentCommPercent / 100) * 100) / 100;
 
     // Validación de límites MonCash / NatCash
-    if (data.destinationCountry === "HT" && data.deliveryMethod === "moncash" && amountReceive > 75000) {
+    if (
+      data.destinationCountry === "HT" &&
+      data.deliveryMethod === "moncash" &&
+      amountReceive > 75000
+    ) {
       throw new Error("MonCash permite un máximo de 75,000 HTG por transacción.");
     }
     if (data.destinationCountry === "HT" && data.deliveryMethod === "natcash") {
@@ -442,7 +443,9 @@ export const agentCreateCashTransfer = createServerFn({ method: "POST" })
             .from("transfers")
             .update({
               bazik_status: payoutRes.status ?? "pending",
-              ...(payoutRes.providerReference ? { bazik_transaction_id: payoutRes.providerReference } : {}),
+              ...(payoutRes.providerReference
+                ? { bazik_transaction_id: payoutRes.providerReference }
+                : {}),
             } as any)
             .eq("id", newTransfer.id);
         }

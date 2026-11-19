@@ -18,11 +18,11 @@ export function useServicesConfig() {
   });
 
   const isEnabled = (key: ServiceKey): boolean => {
-    return query.data ? query.data[key]?.enabled ?? true : true;
+    return query.data ? (query.data[key]?.enabled ?? true) : true;
   };
 
   const getMessage = (key: ServiceKey): string => {
-    return query.data ? query.data[key]?.message ?? "" : "";
+    return query.data ? (query.data[key]?.message ?? "") : "";
   };
 
   return {
@@ -32,4 +32,3 @@ export function useServicesConfig() {
     getMessage,
   };
 }
-

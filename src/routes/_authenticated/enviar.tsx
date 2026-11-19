@@ -90,10 +90,6 @@ function Enviar() {
     }
   }, [isServicesLoading, transfersEnabled, isAdmin, router]);
 
-  if (!isServicesLoading && !transfersEnabled && !isAdmin) {
-    return null;
-  }
-
   const origins = (countries ?? []).filter((c) => c.is_origin);
   const destinations = (countries ?? []).filter((c) => c.is_destination && c.code !== "DO");
   const originCountry = origins.find((c) => c.code === origin);
@@ -108,7 +104,7 @@ function Enviar() {
   const sendCur = originCountry?.currency ?? "MXN";
   const recvCur = destCountry?.currency ?? "HTG";
   const fbRate = fallbackRate(sendCur, recvCur) ?? {
-    rate: 7.20,
+    rate: 7.2,
     fee_percent: 1.5,
     fee_fixed: 15,
     agent_commission_percent: 0.8,
@@ -167,7 +163,9 @@ function Enviar() {
         return;
       }
       if (!Number.isInteger(amountReceiveHtg)) {
-        toast.error("Para NatCash, el monto recibido debe ser un número entero en HTG. Ajusta el monto enviado.");
+        toast.error(
+          "Para NatCash, el monto recibido debe ser un número entero en HTG. Ajusta el monto enviado.",
+        );
         return;
       }
     }
@@ -228,6 +226,14 @@ function Enviar() {
     toast.success(t("send.success_create"));
     router.navigate({ to: "/transferencia/$id", params: { id: data.id } });
   };
+
+  if (!isServicesLoading && !transfersEnabled && !isAdmin) {
+    return (
+      <div className="mx-auto max-w-lg p-6 text-center text-slate-300">
+        <p>{transfersMessage}</p>
+      </div>
+    );
+  }
 
   return (
     <form onSubmit={submit} className="mx-auto max-w-3xl space-y-5">
@@ -420,12 +426,17 @@ function Enviar() {
                     Efectivo en Ventanilla (Directo)
                   </span>
                 </div>
-                <Badge variant="outline" className="border-emerald-500/40 text-emerald-300 bg-emerald-500/10 text-xs font-semibold">
+                <Badge
+                  variant="outline"
+                  className="border-emerald-500/40 text-emerald-300 bg-emerald-500/10 text-xs font-semibold"
+                >
                   Sin Stripe ni Mercado Pago
                 </Badge>
               </div>
               <p className="text-xs text-muted-foreground leading-relaxed">
-                Como cuenta de agente, esta operación se envía directamente sin pasar por pasarelas externas. El cobro físico en efectivo queda registrado bajo tu agencia y pasa a entrega inmediata.
+                Como cuenta de agente, esta operación se envía directamente sin pasar por pasarelas
+                externas. El cobro físico en efectivo queda registrado bajo tu agencia y pasa a
+                entrega inmediata.
               </p>
             </div>
           </CardContent>

@@ -110,7 +110,7 @@ export function Landing() {
   const { data: cfg } = useRate(sendCurrency, receiveCurrency);
 
   const fbRate = fallbackRate(sendCurrency, receiveCurrency) ?? {
-    rate: 7.20,
+    rate: 7.2,
     fee_percent: 0,
     fee_fixed: 0,
     agent_commission_percent: 0.8,
@@ -148,7 +148,7 @@ export function Landing() {
   );
   const effectiveTopupRate = sameTopupCurrency
     ? 1
-    : (topupRateData?.rate ?? fallbackRateData?.rate ?? 7.20);
+    : (topupRateData?.rate ?? fallbackRateData?.rate ?? 7.2);
 
   const topupAmountNum = Number(topupAmount) || 0;
   const topupReceived = effectiveTopupRate
@@ -161,7 +161,8 @@ export function Landing() {
       <div
         className="pointer-events-none absolute inset-x-0 top-0 h-[850px] z-0"
         style={{
-          background: "radial-gradient(ellipse 95% 70% at 50% -5%, #036B25 0%, #013D14 40%, #000000 85%)",
+          background:
+            "radial-gradient(ellipse 95% 70% at 50% -5%, #036B25 0%, #013D14 40%, #000000 85%)",
         }}
       />
 
@@ -208,7 +209,6 @@ export function Landing() {
 
       {/* HERO SECTION DE 2 COLUMNAS */}
       <section className="relative z-10 mx-auto grid max-w-7xl items-center gap-10 px-5 pt-8 pb-16 sm:px-8 lg:grid-cols-[1.1fr_1fr] lg:gap-14 lg:pt-14 lg:pb-24">
-        
         {/* COLUMNA IZQUIERDA: Titular, Subtítulo, Botones y Píldoras de Confianza */}
         <div className="space-y-6 sm:space-y-7">
           {/* Badge superior ultra-moderno con punto pulsante */}
@@ -229,7 +229,10 @@ export function Landing() {
 
           {/* Subtítulo descriptivo moderno */}
           <p className="max-w-xl text-base sm:text-lg text-slate-300/90 leading-relaxed font-normal">
-            Mueve tu dinero al instante directo a cuentas <strong className="text-white font-semibold">MonCash</strong>, <strong className="text-white font-semibold">NatCash</strong> y bancos locales. Con la mejor tasa garantizada en tiempo real y cero comisiones sorpresa.
+            Mueve tu dinero al instante directo a cuentas{" "}
+            <strong className="text-white font-semibold">MonCash</strong>,{" "}
+            <strong className="text-white font-semibold">NatCash</strong> y bancos locales. Con la
+            mejor tasa garantizada en tiempo real y cero comisiones sorpresa.
           </p>
 
           {/* Botones de acción CTA modernos */}
@@ -289,17 +292,27 @@ export function Landing() {
           {/* Social Proof y confianza */}
           <div className="flex items-center gap-3 pt-1 text-xs text-slate-300">
             <div className="flex -space-x-2">
-              <div className="grid size-7 place-items-center rounded-full bg-slate-800 border-2 border-black text-xs shadow-sm">🇭🇹</div>
-              <div className="grid size-7 place-items-center rounded-full bg-slate-700 border-2 border-black text-xs shadow-sm">🇩🇴</div>
-              <div className="grid size-7 place-items-center rounded-full bg-slate-800 border-2 border-black text-xs shadow-sm">🇲🇽</div>
-              <div className="grid size-7 place-items-center rounded-full bg-[#02531C] border-2 border-black text-[10px] font-black text-[#F2AC00]">★</div>
+              <div className="grid size-7 place-items-center rounded-full bg-slate-800 border-2 border-black text-xs shadow-sm">
+                🇭🇹
+              </div>
+              <div className="grid size-7 place-items-center rounded-full bg-slate-700 border-2 border-black text-xs shadow-sm">
+                🇩🇴
+              </div>
+              <div className="grid size-7 place-items-center rounded-full bg-slate-800 border-2 border-black text-xs shadow-sm">
+                🇲🇽
+              </div>
+              <div className="grid size-7 place-items-center rounded-full bg-[#02531C] border-2 border-black text-[10px] font-black text-[#F2AC00]">
+                ★
+              </div>
             </div>
             <div className="leading-tight">
               <p className="font-bold text-white text-[12px] flex items-center gap-1.5">
                 <span>4.9 / 5</span>
                 <span className="text-[#F2AC00]">★★★★★</span>
               </p>
-              <p className="text-[11px] text-slate-400">Elegido por más de 50,000 familias cada mes</p>
+              <p className="text-[11px] text-slate-400">
+                Elegido por más de 50,000 familias cada mes
+              </p>
             </div>
           </div>
         </div>
@@ -310,7 +323,6 @@ export function Landing() {
           <div className="absolute -inset-4 rounded-[40px] bg-[#02531C]/30 blur-3xl pointer-events-none" />
 
           <div className="relative mx-auto w-full max-w-lg rounded-[36px] bg-[#0E1310]/95 border border-white/15 p-6 sm:p-7 shadow-[0_24px_64px_rgba(0,0,0,0.9)] backdrop-blur-2xl space-y-5">
-            
             {/* Tabs Enviar / Recargas con diseño estilizado */}
             <div className="flex items-center justify-between border-b border-white/10 pb-4">
               <button
@@ -318,12 +330,15 @@ export function Landing() {
                 onClick={() => setActiveTab("envios")}
                 className={cn(
                   "flex-1 flex items-center justify-center gap-2 pb-1 text-sm font-extrabold transition-all relative",
-                  activeTab === "envios"
-                    ? "text-white"
-                    : "text-slate-400 hover:text-white"
+                  activeTab === "envios" ? "text-white" : "text-slate-400 hover:text-white",
                 )}
               >
-                <Send className={cn("size-4", activeTab === "envios" ? "text-[#F2AC00]" : "text-slate-400")} />
+                <Send
+                  className={cn(
+                    "size-4",
+                    activeTab === "envios" ? "text-[#F2AC00]" : "text-slate-400",
+                  )}
+                />
                 <span>Enviar</span>
                 {activeTab === "envios" && (
                   <span className="absolute -bottom-4 inset-x-8 h-0.5 bg-[#F2AC00] rounded-full shadow-[0_0_8px_#F2AC00]" />
@@ -335,12 +350,15 @@ export function Landing() {
                 onClick={() => setActiveTab("recargas")}
                 className={cn(
                   "flex-1 flex items-center justify-center gap-2 pb-1 text-sm font-extrabold transition-all relative",
-                  activeTab === "recargas"
-                    ? "text-white"
-                    : "text-slate-400 hover:text-white"
+                  activeTab === "recargas" ? "text-white" : "text-slate-400 hover:text-white",
                 )}
               >
-                <Smartphone className={cn("size-4", activeTab === "recargas" ? "text-[#F2AC00]" : "text-slate-400")} />
+                <Smartphone
+                  className={cn(
+                    "size-4",
+                    activeTab === "recargas" ? "text-[#F2AC00]" : "text-slate-400",
+                  )}
+                />
                 <span>Recargas</span>
                 {activeTab === "recargas" && (
                   <span className="absolute -bottom-4 inset-x-8 h-0.5 bg-[#F2AC00] rounded-full shadow-[0_0_8px_#F2AC00]" />
@@ -360,12 +378,20 @@ export function Landing() {
                     <Select value={origin} onValueChange={setOrigin}>
                       <SelectTrigger className="h-11 rounded-2xl bg-[#161D18] border border-white/15 text-xs font-bold text-white focus:ring-1 focus:ring-[#F2AC00]">
                         <SelectValue
-                          placeholder={originCountry ? `${originCountry.flag} ${originCountry.name}` : "🇲🇽 México"}
+                          placeholder={
+                            originCountry
+                              ? `${originCountry.flag} ${originCountry.name}`
+                              : "🇲🇽 México"
+                          }
                         />
                       </SelectTrigger>
                       <SelectContent className="bg-[#121714] border border-white/15 text-white">
                         {origins.map((c) => (
-                          <SelectItem key={c.code} value={c.code} className="text-xs font-semibold focus:bg-[#02531C] focus:text-white">
+                          <SelectItem
+                            key={c.code}
+                            value={c.code}
+                            className="text-xs font-semibold focus:bg-[#02531C] focus:text-white"
+                          >
                             {c.flag} {c.name}
                           </SelectItem>
                         ))}
@@ -380,12 +406,18 @@ export function Landing() {
                     <Select value={destination} onValueChange={setDestination}>
                       <SelectTrigger className="h-11 rounded-2xl bg-[#161D18] border border-white/15 text-xs font-bold text-white focus:ring-1 focus:ring-[#F2AC00]">
                         <SelectValue
-                          placeholder={destCountry ? `${destCountry.flag} ${destCountry.name}` : "🇭🇹 Haití"}
+                          placeholder={
+                            destCountry ? `${destCountry.flag} ${destCountry.name}` : "🇭🇹 Haití"
+                          }
                         />
                       </SelectTrigger>
                       <SelectContent className="bg-[#121714] border border-white/15 text-white">
                         {destinations.map((c) => (
-                          <SelectItem key={c.code} value={c.code} className="text-xs font-semibold focus:bg-[#02531C] focus:text-white">
+                          <SelectItem
+                            key={c.code}
+                            value={c.code}
+                            className="text-xs font-semibold focus:bg-[#02531C] focus:text-white"
+                          >
                             {c.flag} {c.name}
                           </SelectItem>
                         ))}
@@ -423,9 +455,7 @@ export function Landing() {
                   </div>
                   <div className="flex items-center justify-between text-slate-300">
                     <span>Comisión</span>
-                    <span className="font-bold text-white font-mono">
-                      {sendCurrency} 0.00
-                    </span>
+                    <span className="font-bold text-white font-mono">{sendCurrency} 0.00</span>
                   </div>
                   <div className="flex items-center justify-between text-slate-300 pt-1 border-t border-white/5">
                     <span className="font-bold text-white">Total a pagar</span>
@@ -461,7 +491,11 @@ export function Landing() {
                       </SelectTrigger>
                       <SelectContent className="bg-[#121714] border border-white/15 text-white">
                         {origins.map((c) => (
-                          <SelectItem key={c.code} value={c.code} className="text-xs font-semibold focus:bg-[#02531C]">
+                          <SelectItem
+                            key={c.code}
+                            value={c.code}
+                            className="text-xs font-semibold focus:bg-[#02531C]"
+                          >
                             {c.flag} {c.name}
                           </SelectItem>
                         ))}
@@ -479,8 +513,12 @@ export function Landing() {
                       </SelectTrigger>
                       <SelectContent className="bg-[#121714] border border-white/15 text-white">
                         {TOPUP_COUNTRIES.map((c) => (
-                          <SelectItem key={c.code} value={c.code} className="text-xs font-semibold focus:bg-[#02531C]">
-                            {c.flag} {c.name}
+                          <SelectItem
+                            key={c.code}
+                            value={c.code}
+                            className="text-xs font-semibold focus:bg-[#02531C]"
+                          >
+                            {c.label}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -505,7 +543,8 @@ export function Landing() {
                   <div className="flex items-center justify-between text-slate-300">
                     <span>Tasa de recarga</span>
                     <span className="font-bold text-white font-mono">
-                      1 {topupSendCurrency} = {Number(effectiveTopupRate).toFixed(4)} {topupDestCurrency}
+                      1 {topupSendCurrency} = {Number(effectiveTopupRate).toFixed(4)}{" "}
+                      {topupDestCurrency}
                     </span>
                   </div>
                   <div className="flex items-center justify-between text-slate-300">
@@ -524,15 +563,12 @@ export function Landing() {
                 </div>
               </div>
             )}
-
           </div>
         </div>
-
       </section>
 
       {/* SECCIÓN BENTO GRID DE TECNOLOGÍA & EXPERIENCIA MODERNA */}
       <section className="relative z-10 mx-auto max-w-7xl px-5 pb-24 sm:px-8 space-y-10">
-        
         {/* Encabezado de la Sección */}
         <div className="text-center max-w-2xl mx-auto space-y-3">
           <div className="inline-flex items-center gap-2 rounded-full bg-emerald-950/60 border border-emerald-500/35 px-4 py-1 text-[11px] font-bold uppercase tracking-wider text-emerald-300 backdrop-blur-xl shadow-sm">
@@ -546,13 +582,13 @@ export function Landing() {
             </span>
           </h2>
           <p className="text-sm sm:text-base text-slate-300">
-            Tecnología bancaria instantánea, seguridad criptográfica y la mejor experiencia móvil para conectar con tu familia en Haití.
+            Tecnología bancaria instantánea, seguridad criptográfica y la mejor experiencia móvil
+            para conectar con tu familia en Haití.
           </p>
         </div>
 
         {/* Bento Grid: 4 Cajas Ricas e Interactivas */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-
           {/* Bento Card 1 (7 cols): Acreditación Flash MonCash & NatCash con simulador */}
           <div className="lg:col-span-7 rounded-[32px] bg-gradient-to-b from-[#131B15] to-[#0A0E0C] border border-emerald-500/25 p-7 sm:p-8 space-y-6 shadow-2xl relative overflow-hidden group hover:border-emerald-500/50 transition-all">
             <div className="absolute top-0 right-0 size-60 rounded-full bg-[#10B981]/15 blur-3xl pointer-events-none" />
@@ -567,7 +603,8 @@ export function Landing() {
                   Acreditación Flash a MonCash & NatCash
                 </h3>
                 <p className="text-xs sm:text-sm text-slate-300 max-w-md">
-                  El dinero viaja de inmediato desde tu tarjeta o banco directo al saldo del teléfono del beneficiario, listo para retirar en cualquier agente.
+                  El dinero viaja de inmediato desde tu tarjeta o banco directo al saldo del
+                  teléfono del beneficiario, listo para retirar en cualquier agente.
                 </p>
               </div>
             </div>
@@ -613,22 +650,35 @@ export function Landing() {
                 100% Protegido & Blindado
               </h3>
               <p className="text-xs sm:text-sm text-slate-300">
-                Cada centavo está respaldado con encriptación militar y verificación de identidad bancaria.
+                Cada centavo está respaldado con encriptación militar y verificación de identidad
+                bancaria.
               </p>
             </div>
 
             <div className="space-y-2.5 relative z-10 pt-1">
               <div className="flex items-center gap-3 rounded-xl bg-black/40 border border-white/5 p-3 text-xs">
-                <div className="grid size-7 place-items-center rounded-lg bg-[#02531C] text-[#F2AC00] font-black">✓</div>
-                <span className="text-slate-200 font-semibold">Cifrado de extremo a extremo SHA-256</span>
+                <div className="grid size-7 place-items-center rounded-lg bg-[#02531C] text-[#F2AC00] font-black">
+                  ✓
+                </div>
+                <span className="text-slate-200 font-semibold">
+                  Cifrado de extremo a extremo SHA-256
+                </span>
               </div>
               <div className="flex items-center gap-3 rounded-xl bg-black/40 border border-white/5 p-3 text-xs">
-                <div className="grid size-7 place-items-center rounded-lg bg-[#02531C] text-[#F2AC00] font-black">✓</div>
-                <span className="text-slate-200 font-semibold">Verificación biométrica KYC instantánea</span>
+                <div className="grid size-7 place-items-center rounded-lg bg-[#02531C] text-[#F2AC00] font-black">
+                  ✓
+                </div>
+                <span className="text-slate-200 font-semibold">
+                  Verificación biométrica KYC instantánea
+                </span>
               </div>
               <div className="flex items-center gap-3 rounded-xl bg-black/40 border border-white/5 p-3 text-xs">
-                <div className="grid size-7 place-items-center rounded-lg bg-[#02531C] text-[#F2AC00] font-black">✓</div>
-                <span className="text-slate-200 font-semibold">Garantía total de entrega o reembolso</span>
+                <div className="grid size-7 place-items-center rounded-lg bg-[#02531C] text-[#F2AC00] font-black">
+                  ✓
+                </div>
+                <span className="text-slate-200 font-semibold">
+                  Garantía total de entrega o reembolso
+                </span>
               </div>
             </div>
           </div>
@@ -644,7 +694,8 @@ export function Landing() {
                 Sin Fronteras hacia Haití
               </h3>
               <p className="text-xs sm:text-sm text-slate-300">
-                Transfiere fondos desde los principales países donde reside la diáspora con liquidación en Gourdes (HTG).
+                Transfiere fondos desde los principales países donde reside la diáspora con
+                liquidación en Gourdes (HTG).
               </p>
             </div>
 
@@ -681,7 +732,8 @@ export function Landing() {
                   Instala Tcho-Tcho en tu Teléfono
                 </h3>
                 <p className="text-xs sm:text-sm text-slate-300 max-w-sm">
-                  Abre la app con un solo toque desde tu pantalla de inicio. Sin descargas pesadas de tienda, ligera y segura.
+                  Abre la app con un solo toque desde tu pantalla de inicio. Sin descargas pesadas
+                  de tienda, ligera y segura.
                 </p>
 
                 <div className="flex flex-wrap items-center gap-3 pt-2 justify-center sm:justify-start">
@@ -716,11 +768,12 @@ export function Landing() {
                   <p className="text-[9px] text-slate-400">Balance</p>
                   <p className="text-xs font-extrabold text-[#10B981]">$ 23,094.57</p>
                 </div>
-                <span className="inline-block text-[9px] text-[#F2AC00] font-semibold">Listo para enviar</span>
+                <span className="inline-block text-[9px] text-[#F2AC00] font-semibold">
+                  Listo para enviar
+                </span>
               </div>
             </div>
           </div>
-
         </div>
       </section>
 

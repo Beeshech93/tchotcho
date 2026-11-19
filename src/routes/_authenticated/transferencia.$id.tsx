@@ -1,7 +1,19 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
-import { ArrowLeft, Check, Circle, Copy, Landmark, Loader2, Store, FileText, Banknote, Share2, ArrowRight } from "lucide-react";
+import {
+  ArrowLeft,
+  Check,
+  Circle,
+  Copy,
+  Landmark,
+  Loader2,
+  Store,
+  FileText,
+  Banknote,
+  Share2,
+  ArrowRight,
+} from "lucide-react";
 import { toast } from "sonner";
 import { celebrateLogo } from "@/components/LogoAnimation";
 import { useServerFn } from "@tanstack/react-start";
@@ -115,9 +127,10 @@ function Detalle() {
 
   const status = t?.status as TransferStatus | undefined;
   const isAgentPayment = t ? t.payment_method === "cash_agent" || Boolean(t.agent_id) : false;
-  const isCardPayment = t && !isAgentPayment
-    ? ["mercado_pago", "mercadopago", "card", "tarjeta"].includes(t.payment_method)
-    : false;
+  const isCardPayment =
+    t && !isAgentPayment
+      ? ["mercado_pago", "mercadopago", "card", "tarjeta"].includes(t.payment_method)
+      : false;
   const isStripePayment = isCardPayment && t?.origin_country !== "MX";
   const isOxxo = !isAgentPayment && t?.payment_method === "oxxo";
   const isSpei = !isAgentPayment && t?.payment_method === "spei";
@@ -125,7 +138,7 @@ function Detalle() {
   const shouldAutoFinalizeUser =
     !isAdmin && isDirectCashDelivery && !isCardPayment && !isOxxo && !isSpei && !isAgentPayment;
 
-  const effectiveRate = t && Number(t.rate) > 0 ? Number(t.rate) : 7.20;
+  const effectiveRate = t && Number(t.rate) > 0 ? Number(t.rate) : 7.2;
   const effectiveAmountReceive =
     t && Number(t.amount_receive) > 0
       ? Number(t.amount_receive)
@@ -210,10 +223,11 @@ function Detalle() {
                 const safe = (v: unknown) =>
                   String(v ?? "").replace(
                     /[&<>"]/g,
-                    (ch) =>
-                      (({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[ch] ?? ch),
+                    (ch) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[ch] ?? ch,
                   );
-                w.document.write(`<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Recibo ${safe(t.reference)}</title><style>body{font:16px Arial;max-width:720px;margin:40px auto;padding:24px;color:#172033;background:#fff}h1{color:#02531C}.row{display:flex;justify-content:space-between;border-bottom:1px solid #ddd;padding:13px 0}span{color:#667085}@media print{button{display:none}}</style></head><body><h1>TCHO-TCHO</h1><h2>Recibo de transacción</h2><p>Referencia: ${safe(t.reference)} · Fecha: ${safe(shortDate(t.created_at))}</p><div class="row"><span>Estado</span><strong>${safe(STATUS_LABEL[t.status as TransferStatus] ?? t.status)}</strong></div><div class="row"><span>Destinatario</span><strong>${safe(t.recipient_name)}</strong></div><div class="row"><span>Origen</span><strong>${safe(t.origin_country)}</strong></div><div class="row"><span>Destino</span><strong>${safe(t.destination_country)}</strong></div><div class="row"><span>Método de pago</span><strong>${safe(paymentName)}</strong></div><div class="row"><span>Monto enviado</span><strong>${safe(money(Number(t.amount_send), t.send_currency))}</strong></div><div class="row"><span>Monto a recibir</span><strong>${safe(money(Number(t.amount_receive), t.receive_currency))}</strong></div><p>Recibo informativo de Tcho-Tcho Digital Banking.</p><button onclick="window.print()">Imprimir / Guardar como PDF</button></body></html>`);
+                w.document.write(
+                  `<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Recibo ${safe(t.reference)}</title><style>body{font:16px Arial;max-width:720px;margin:40px auto;padding:24px;color:#172033;background:#fff}h1{color:#02531C}.row{display:flex;justify-content:space-between;border-bottom:1px solid #ddd;padding:13px 0}span{color:#667085}@media print{button{display:none}}</style></head><body><h1>TCHO-TCHO</h1><h2>Recibo de transacción</h2><p>Referencia: ${safe(t.reference)} · Fecha: ${safe(shortDate(t.created_at))}</p><div class="row"><span>Estado</span><strong>${safe(STATUS_LABEL[t.status as TransferStatus] ?? t.status)}</strong></div><div class="row"><span>Destinatario</span><strong>${safe(t.recipient_name)}</strong></div><div class="row"><span>Origen</span><strong>${safe(t.origin_country)}</strong></div><div class="row"><span>Destino</span><strong>${safe(t.destination_country)}</strong></div><div class="row"><span>Método de pago</span><strong>${safe(paymentName)}</strong></div><div class="row"><span>Monto enviado</span><strong>${safe(money(Number(t.amount_send), t.send_currency))}</strong></div><div class="row"><span>Monto a recibir</span><strong>${safe(money(Number(t.amount_receive), t.receive_currency))}</strong></div><p>Recibo informativo de Tcho-Tcho Digital Banking.</p><button onclick="window.print()">Imprimir / Guardar como PDF</button></body></html>`,
+                );
                 w.document.close();
               }}
               className="flex items-center justify-center gap-2 rounded-full bg-white/[0.06] border border-white/10 py-3 text-xs font-semibold text-white hover:bg-white/10 transition-colors"
@@ -281,11 +295,30 @@ function Detalle() {
         </Badge>
       </div>
 
-      <div className="flex justify-end"><Button variant="outline" className="gap-2" onClick={() => {
-const w=window.open("", "_blank", "width=800,height=700"); if(!w){toast.error("Permite las ventanas emergentes.");return;}
-const safe=(v:unknown)=>String(v??"").replace(/[&<>"]/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[ch]??ch));
-w.document.write(`<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Recibo ${safe(t.reference)}</title><style>body{font:16px Arial;max-width:720px;margin:40px auto;padding:24px;color:#172033}h1{color:#0e9f6e}.row{display:flex;justify-content:space-between;border-bottom:1px solid #ddd;padding:13px 0}span{color:#667085}@media print{button{display:none}}</style></head><body><h1>LAJAN RAPID</h1><h2>Recibo de transacción</h2><p>Referencia: ${safe(t.reference)} · Fecha: ${safe(shortDate(t.created_at))}</p><div class="row"><span>Estado</span><strong>${safe(STATUS_LABEL[t.status as TransferStatus]??t.status)}</strong></div><div class="row"><span>Destinatario</span><strong>${safe(t.recipient_name)}</strong></div><div class="row"><span>Origen</span><strong>${safe(t.origin_country)}</strong></div><div class="row"><span>Destino</span><strong>${safe(t.destination_country)}</strong></div><div class="row"><span>Método de pago</span><strong>${safe(paymentName)}</strong></div><div class="row"><span>Monto enviado</span><strong>${safe(money(Number(t.amount_send),t.send_currency))}</strong></div><div class="row"><span>Monto a recibir</span><strong>${safe(money(Number(t.amount_receive),t.receive_currency))}</strong></div><p>Recibo informativo; no sustituye confirmación bancaria.</p><button onclick="window.print()">Imprimir / Guardar como PDF</button></body></html>`);w.document.close();
-}}><FileText className="size-4"/> Generar recibo</Button></div>
+      <div className="flex justify-end">
+        <Button
+          variant="outline"
+          className="gap-2"
+          onClick={() => {
+            const w = window.open("", "_blank", "width=800,height=700");
+            if (!w) {
+              toast.error("Permite las ventanas emergentes.");
+              return;
+            }
+            const safe = (v: unknown) =>
+              String(v ?? "").replace(
+                /[&<>"]/g,
+                (ch) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[ch] ?? ch,
+              );
+            w.document.write(
+              `<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Recibo ${safe(t.reference)}</title><style>body{font:16px Arial;max-width:720px;margin:40px auto;padding:24px;color:#172033}h1{color:#0e9f6e}.row{display:flex;justify-content:space-between;border-bottom:1px solid #ddd;padding:13px 0}span{color:#667085}@media print{button{display:none}}</style></head><body><h1>LAJAN RAPID</h1><h2>Recibo de transacción</h2><p>Referencia: ${safe(t.reference)} · Fecha: ${safe(shortDate(t.created_at))}</p><div class="row"><span>Estado</span><strong>${safe(STATUS_LABEL[t.status as TransferStatus] ?? t.status)}</strong></div><div class="row"><span>Destinatario</span><strong>${safe(t.recipient_name)}</strong></div><div class="row"><span>Origen</span><strong>${safe(t.origin_country)}</strong></div><div class="row"><span>Destino</span><strong>${safe(t.destination_country)}</strong></div><div class="row"><span>Método de pago</span><strong>${safe(paymentName)}</strong></div><div class="row"><span>Monto enviado</span><strong>${safe(money(Number(t.amount_send), t.send_currency))}</strong></div><div class="row"><span>Monto a recibir</span><strong>${safe(money(Number(t.amount_receive), t.receive_currency))}</strong></div><p>Recibo informativo; no sustituye confirmación bancaria.</p><button onclick="window.print()">Imprimir / Guardar como PDF</button></body></html>`,
+            );
+            w.document.close();
+          }}
+        >
+          <FileText className="size-4" /> Generar recibo
+        </Button>
+      </div>
 
       <Card className="bg-brand text-primary-foreground">
         <CardContent className="grid gap-4 p-5 sm:grid-cols-3">
@@ -304,12 +337,21 @@ w.document.write(`<!doctype html><html lang="es"><head><meta charset="utf-8"><ti
       {isAgentPayment && (
         <div className="flex items-center gap-2 rounded-xl bg-emerald-500/10 border border-emerald-500/20 px-3.5 py-2.5 text-xs text-emerald-300 font-medium">
           <Banknote className="size-4 text-emerald-400 shrink-0" />
-          <span>Transacción de Agente Autorizado: Operación directa en efectivo sin intermediarios ni pasarelas de pago externas.</span>
+          <span>
+            Transacción de Agente Autorizado: Operación directa en efectivo sin intermediarios ni
+            pasarelas de pago externas.
+          </span>
         </div>
       )}
 
       {status !== "completed" && status !== "cancelled" && !isOxxo && !isSpei && (
-        <Card className={isAgentPayment ? "border-emerald-500/40 bg-emerald-950/20" : "border-warning/40 bg-warning/10"}>
+        <Card
+          className={
+            isAgentPayment
+              ? "border-emerald-500/40 bg-emerald-950/20"
+              : "border-warning/40 bg-warning/10"
+          }
+        >
           <CardContent className="flex flex-wrap items-center justify-between gap-3 p-4">
             <div>
               <p className="font-semibold">
@@ -339,7 +381,10 @@ w.document.write(`<!doctype html><html lang="es"><head><meta charset="utf-8"><ti
             </div>
             {isAgentPayment ? (
               status === "awaiting_payment" ? (
-                <Badge variant="outline" className="border-amber-500/40 bg-amber-500/10 text-amber-300">
+                <Badge
+                  variant="outline"
+                  className="border-amber-500/40 bg-amber-500/10 text-amber-300"
+                >
                   Esperando efectivo en ventanilla
                 </Badge>
               ) : isDirectCashDelivery && (isAdmin || isAgent) ? (
@@ -350,10 +395,15 @@ w.document.write(`<!doctype html><html lang="es"><head><meta charset="utf-8"><ti
                   onClick={() => finalize.mutate()}
                 >
                   {finalize.isPending && <Loader2 className="size-4 animate-spin" />}
-                  {finalize.isPending ? t2("detail.sending") : `${t2("detail.send_to")} ${deliveryName}`}
+                  {finalize.isPending
+                    ? t2("detail.sending")
+                    : `${t2("detail.send_to")} ${deliveryName}`}
                 </Button>
               ) : (
-                <Badge variant="outline" className="border-emerald-500/40 bg-emerald-500/10 text-emerald-300">
+                <Badge
+                  variant="outline"
+                  className="border-emerald-500/40 bg-emerald-500/10 text-emerald-300"
+                >
                   En proceso de entrega
                 </Badge>
               )

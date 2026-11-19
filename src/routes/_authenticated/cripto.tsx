@@ -2,7 +2,14 @@ import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { celebrateLogo } from "@/components/LogoAnimation";
-import { ArrowDownToLine, ArrowLeft, ArrowUpFromLine, Copy, Coins, AlertTriangle } from "lucide-react";
+import {
+  ArrowDownToLine,
+  ArrowLeft,
+  ArrowUpFromLine,
+  Copy,
+  Coins,
+  AlertTriangle,
+} from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useProfile } from "@/hooks/useProfile";
 import { useServicesConfig } from "@/hooks/useServicesConfig";
@@ -325,11 +332,7 @@ function Cripto() {
                 </p>
               )}
 
-              <Button
-                className="w-full"
-                disabled={busy || !cryptoEnabled}
-                onClick={submitDeposit}
-              >
+              <Button className="w-full" disabled={busy || !cryptoEnabled} onClick={submitDeposit}>
                 {!cryptoEnabled ? "Servicio en mantenimiento" : "Enviar comprobante"}
               </Button>
             </CardContent>

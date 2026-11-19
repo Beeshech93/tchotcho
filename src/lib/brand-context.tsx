@@ -1,8 +1,5 @@
 import React, { createContext, useContext } from "react";
-import {
-  type Tenant,
-  DEFAULT_LAJAN_RAPID_TENANT,
-} from "./whitelabel.types";
+import { type Tenant, DEFAULT_LAJAN_RAPID_TENANT } from "./whitelabel.types";
 import logoAsset from "@/assets/tchotcho-logo.png";
 
 interface BrandContextType {

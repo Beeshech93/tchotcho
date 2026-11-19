@@ -67,10 +67,7 @@ export async function saveResendCred(name: string, value: string, userId: string
   try {
     const res = await primary
       .from("integration_credentials")
-      .upsert(
-        { name, value, updated_at: now, updated_by: userId },
-        { onConflict: "name" },
-      );
+      .upsert({ name, value, updated_at: now, updated_by: userId }, { onConflict: "name" });
     if (!res.error) saved = true;
   } catch {
     // Si primary falla (por RLS o fetch), intentar con supabaseAdmin
@@ -80,10 +77,7 @@ export async function saveResendCred(name: string, value: string, userId: string
     try {
       const res = await supabaseAdmin
         .from("integration_credentials")
-        .upsert(
-          { name, value, updated_at: now, updated_by: userId },
-          { onConflict: "name" },
-        );
+        .upsert({ name, value, updated_at: now, updated_by: userId }, { onConflict: "name" });
       if (!res.error) saved = true;
     } catch {
       // Las credenciales quedan preservadas en inMemoryCreds
@@ -172,7 +166,6 @@ export async function resendSendEmail(opts: {
   }
 }
 
-
 export type ResendBulkEmail = { to: string; subject: string; html: string };
 export type ResendBulkResult = { sent: number; failed: number };
 
@@ -180,9 +173,7 @@ export type ResendBulkResult = { sent: number; failed: number };
  * Envía correos individuales en lotes de hasta 100. Cada mensaje tiene un solo
  * destinatario, por lo que las direcciones no se comparten entre usuarios.
  */
-export async function resendSendBulkEmails(
-  emails: ResendBulkEmail[],
-): Promise<ResendBulkResult> {
+export async function resendSendBulkEmails(emails: ResendBulkEmail[]): Promise<ResendBulkResult> {
   if (emails.length === 0) return { sent: 0, failed: 0 };
 
   const stored = await loadResendCreds();

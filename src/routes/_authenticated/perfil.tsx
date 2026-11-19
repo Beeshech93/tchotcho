@@ -22,7 +22,11 @@ import {
 import { KYC_TONE, type KycStatus } from "@/lib/remesa";
 import { useI18n } from "@/lib/i18n";
 import { Switch } from "@/components/ui/switch";
-import { isNotificationSoundEnabled, playNotificationDing, setNotificationSoundEnabled } from "@/lib/notification-sound";
+import {
+  isNotificationSoundEnabled,
+  playNotificationDing,
+  setNotificationSoundEnabled,
+} from "@/lib/notification-sound";
 
 export const Route = createFileRoute("/_authenticated/perfil")({
   head: () => ({
@@ -229,18 +233,31 @@ function Perfil() {
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="phone">{t("profile.phone")}</Label>
-              <Input id="phone" name="phone" defaultValue={profile?.phone ?? ""} maxLength={25} disabled={profile?.kyc_status === "approved"} />
+              <Input
+                id="phone"
+                name="phone"
+                defaultValue={profile?.phone ?? ""}
+                maxLength={25}
+                disabled={profile?.kyc_status === "approved"}
+              />
             </div>
             <div className="space-y-1.5 sm:col-span-2">
               <Label>{t("profile.email")}</Label>
               <Input value={user?.email ?? ""} disabled />
             </div>
-            <Button type="submit" disabled={savingProfile || profile?.kyc_status === "approved"} className="sm:col-span-2">
+            <Button
+              type="submit"
+              disabled={savingProfile || profile?.kyc_status === "approved"}
+              className="sm:col-span-2"
+            >
               {savingProfile ? t("profile.saving") : t("profile.save_changes")}
             </Button>
           </form>
           {profile?.kyc_status === "approved" && (
-            <p className="mt-3 text-sm text-muted-foreground">Tu identidad fue aprobada; los datos personales están bloqueados. Contacta al soporte si necesitas corregirlos.</p>
+            <p className="mt-3 text-sm text-muted-foreground">
+              Tu identidad fue aprobada; los datos personales están bloqueados. Contacta al soporte
+              si necesitas corregirlos.
+            </p>
           )}
         </CardContent>
       </Card>

@@ -83,7 +83,9 @@ function AuthPage() {
   const router = useRouter();
   const { t, lang } = useI18n();
   const { modo } = Route.useSearch();
-  const [tab, setTab] = useState<"ingreso" | "registro">(modo === "registro" ? "registro" : "ingreso");
+  const [tab, setTab] = useState<"ingreso" | "registro">(
+    modo === "registro" ? "registro" : "ingreso",
+  );
   const [loading, setLoading] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
   const [showForgot, setShowForgot] = useState(false);
@@ -109,8 +111,15 @@ function AuthPage() {
     e.preventDefault();
     const form = new FormData(e.currentTarget);
     const credSchema = z.object({
-      email: z.string().trim().email(t("auth.invalid_email") || "Email no válido").max(255),
-      password: z.string().min(8, t("auth.min_password") || "Mínimo 8 caracteres").max(72),
+      email: z
+        .string()
+        .trim()
+        .email(t("auth.invalid_email") || "Email no válido")
+        .max(255),
+      password: z
+        .string()
+        .min(8, t("auth.min_password") || "Mínimo 8 caracteres")
+        .max(72),
     });
     const parsed = credSchema.safeParse({
       email: String(form.get("email") ?? ""),
@@ -159,7 +168,7 @@ function AuthPage() {
         router.navigate({ to: "/dashboard", replace: true });
       }
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : (t("auth.error") || "Error al autenticar"));
+      toast.error(err instanceof Error ? err.message : t("auth.error") || "Error al autenticar");
     } finally {
       setLoading(false);
     }
@@ -169,8 +178,12 @@ function AuthPage() {
     setBiometricLoading(true);
     try {
       // Intento con WebAuthn si el navegador lo soporta
-      if (window.PublicKeyCredential && window.PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable) {
-        const available = await window.PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
+      if (
+        window.PublicKeyCredential &&
+        window.PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable
+      ) {
+        const available =
+          await window.PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
         if (available) {
           toast.info("Autenticando biométricamente con FaceID / TouchID...");
           setTimeout(() => {
@@ -206,7 +219,12 @@ function AuthPage() {
     e.preventDefault();
     const form = new FormData(e.currentTarget);
     const email = String(form.get("email") ?? "").trim();
-    const parsed = z.string().trim().email(t("auth.invalid_email") || "Email no válido").max(255).safeParse(email);
+    const parsed = z
+      .string()
+      .trim()
+      .email(t("auth.invalid_email") || "Email no válido")
+      .max(255)
+      .safeParse(email);
     if (!parsed.success) {
       toast.error(parsed.error.issues[0]?.message ?? (t("auth.invalid") || "Email inválido"));
       return;
@@ -219,7 +237,7 @@ function AuthPage() {
       if (error) throw error;
       setResetSent(true);
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : (t("auth.error") || "Error"));
+      toast.error(err instanceof Error ? err.message : t("auth.error") || "Error");
     } finally {
       setResetLoading(false);
     }
@@ -552,7 +570,11 @@ function AuthPage() {
                 disabled={resetLoading}
                 className="flex h-11 w-full items-center justify-center rounded-full bg-white text-xs font-bold text-black transition-all hover:bg-slate-200 disabled:opacity-50"
               >
-                {resetLoading ? <Loader2 className="size-4 animate-spin text-black" /> : "Enviar enlace"}
+                {resetLoading ? (
+                  <Loader2 className="size-4 animate-spin text-black" />
+                ) : (
+                  "Enviar enlace"
+                )}
               </button>
             </form>
           )}

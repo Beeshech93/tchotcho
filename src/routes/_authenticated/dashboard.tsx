@@ -27,7 +27,10 @@ export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({
     meta: [
       { title: "Dashboard — Tcho-Tcho" },
-      { name: "description", content: "Panel de control simple para enviar dinero y recargas a Haití." },
+      {
+        name: "description",
+        content: "Panel de control simple para enviar dinero y recargas a Haití.",
+      },
     ],
   }),
   component: Dashboard,
@@ -74,26 +77,53 @@ export function Dashboard() {
 
   // Beneficiarios directos para envío en 1 clic
   const quickContacts = [
-    { name: "Jean Baptiste", phone: "+509 3712-4589", wallet: "MonCash", color: "bg-red-500/20 text-red-400 border-red-500/40" },
-    { name: "Marie Claire", phone: "+509 4823-9012", wallet: "NatCash", color: "bg-cyan-500/20 text-cyan-400 border-cyan-500/40" },
-    { name: "Emmanuel Joseph", phone: "+509 3144-5566", wallet: "MonCash", color: "bg-red-500/20 text-red-400 border-red-500/40" },
+    {
+      name: "Jean Baptiste",
+      phone: "+509 3712-4589",
+      wallet: "MonCash",
+      color: "bg-red-500/20 text-red-400 border-red-500/40",
+    },
+    {
+      name: "Marie Claire",
+      phone: "+509 4823-9012",
+      wallet: "NatCash",
+      color: "bg-cyan-500/20 text-cyan-400 border-cyan-500/40",
+    },
+    {
+      name: "Emmanuel Joseph",
+      phone: "+509 3144-5566",
+      wallet: "MonCash",
+      color: "bg-red-500/20 text-red-400 border-red-500/40",
+    },
   ];
 
   // Transacciones 100% reales en HTG
   const displayTransfers = (transfers ?? []).map((tx) => ({
     id: tx.id,
     recipient: tx.recipient_name || "Destinatario en Haití",
-    service: tx.service_type === "moncash" ? "MonCash Haití" : tx.service_type === "natcash" ? "NatCash Haití" : "Remesa",
+    service:
+      tx.delivery_method?.toLowerCase() === "moncash"
+        ? "MonCash Haití"
+        : tx.delivery_method?.toLowerCase() === "natcash"
+          ? "NatCash Haití"
+          : "Remesa Haití",
     date: shortDate(tx.created_at),
-    amount: `HTG ${Number(tx.amount_destination || (tx.amount_origin ? tx.amount_origin * 132.5 : 0)).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
-    status: tx.status === "completed" ? "Completado" : tx.status === "cancelled" ? "Cancelado" : "En proceso",
-    statusColor: tx.status === "completed" ? "text-emerald-400 bg-emerald-500/15 border-emerald-500/30" : "text-amber-400 bg-amber-500/15 border-amber-500/30",
+    amount: `${tx.receive_currency || "HTG"} ${Number(tx.amount_receive || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+    status:
+      tx.status === "completed"
+        ? "Completado"
+        : tx.status === "cancelled"
+          ? "Cancelado"
+          : "En proceso",
+    statusColor:
+      tx.status === "completed"
+        ? "text-emerald-400 bg-emerald-500/15 border-emerald-500/30"
+        : "text-amber-400 bg-amber-500/15 border-amber-500/30",
     viewLink: `/transferencia/${tx.id}`,
   }));
 
   return (
     <div className="mx-auto max-w-3xl space-y-6 pb-24 md:pb-12 text-white selection:bg-[#02531C] selection:text-[#F2AC00]">
-      
       {/* Alerta KYC solo si está pendiente */}
       {profile && profile.kyc_status !== "approved" && (
         <div className="flex items-center justify-between gap-3 rounded-2xl bg-[#111713] border border-[#F2AC00]/40 p-4 shadow-lg">
@@ -112,7 +142,11 @@ export function Dashboard() {
               </p>
             </div>
           </div>
-          <Button asChild size="sm" className="h-8 px-3 rounded-xl bg-[#F2AC00] text-black font-extrabold text-xs hover:bg-[#FBBF24]">
+          <Button
+            asChild
+            size="sm"
+            className="h-8 px-3 rounded-xl bg-[#F2AC00] text-black font-extrabold text-xs hover:bg-[#FBBF24]"
+          >
             <Link to="/perfil">Verificar</Link>
           </Button>
         </div>
@@ -134,9 +168,7 @@ export function Dashboard() {
                 <span className="size-2 rounded-full bg-emerald-400 animate-pulse" />
                 Banca Oficial
               </p>
-              <h1 className="text-lg sm:text-xl font-black text-white">
-                Hola, {displayName} 👋
-              </h1>
+              <h1 className="text-lg sm:text-xl font-black text-white">Hola, {displayName} 👋</h1>
             </div>
           </div>
 
@@ -147,7 +179,9 @@ export function Dashboard() {
 
         {/* Saldo Central Grande 100% en HTG */}
         <div className="space-y-1 relative z-10">
-          <p className="text-xs font-bold uppercase tracking-wider text-slate-400">Saldo Disponible (Gourdes)</p>
+          <p className="text-xs font-bold uppercase tracking-wider text-slate-400">
+            Saldo Disponible (Gourdes)
+          </p>
           <div className="flex items-center gap-3">
             <span className="text-4xl sm:text-5xl font-black tracking-tight text-white">
               {hideBalance ? "••••••••" : formattedBalance}
@@ -262,7 +296,12 @@ export function Dashboard() {
                 </div>
               </div>
 
-              <span className={cn("text-[10px] font-bold px-2 py-0.5 rounded-full border", contact.color)}>
+              <span
+                className={cn(
+                  "text-[10px] font-bold px-2 py-0.5 rounded-full border",
+                  contact.color,
+                )}
+              >
                 {contact.wallet}
               </span>
             </Link>
@@ -304,13 +343,20 @@ export function Dashboard() {
                     <p className="text-xs font-extrabold text-white truncate group-hover:text-[#F2AC00] transition">
                       {tx.recipient}
                     </p>
-                    <p className="text-[11px] text-slate-300 truncate">{tx.service} • {tx.date}</p>
+                    <p className="text-[11px] text-slate-300 truncate">
+                      {tx.service} • {tx.date}
+                    </p>
                   </div>
                 </div>
 
                 <div className="text-right shrink-0 space-y-1">
                   <p className="text-sm font-black text-white font-mono">{tx.amount}</p>
-                  <span className={cn("inline-block text-[10px] font-bold px-2 py-0.5 rounded-full border", tx.statusColor)}>
+                  <span
+                    className={cn(
+                      "inline-block text-[10px] font-bold px-2 py-0.5 rounded-full border",
+                      tx.statusColor,
+                    )}
+                  >
                     {tx.status}
                   </span>
                 </div>
@@ -328,13 +374,16 @@ export function Dashboard() {
                 Tus envíos a MonCash, NatCash o recargas a Haití aparecerán aquí en tiempo real.
               </p>
             </div>
-            <Button asChild size="sm" className="rounded-xl bg-[#02531C] text-[#F2AC00] border border-[#F2AC00]/40 font-bold hover:bg-[#036B25]">
+            <Button
+              asChild
+              size="sm"
+              className="rounded-xl bg-[#02531C] text-[#F2AC00] border border-[#F2AC00]/40 font-bold hover:bg-[#036B25]"
+            >
               <Link to="/enviar">Hacer mi primer envío</Link>
             </Button>
           </div>
         )}
       </div>
-
     </div>
   );
 }

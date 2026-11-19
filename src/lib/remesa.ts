@@ -195,14 +195,12 @@ export const ZERO_RATE: RateConfig = {
 export function quote(
   amount: number,
   cfg: RateConfig,
-  markup?: { percent?: number | undefined; fixed?: number | undefined } | undefined
+  markup?: { percent?: number | undefined; fixed?: number | undefined } | undefined,
 ): Quote {
   const safe = Number.isFinite(amount) && amount > 0 ? amount : 0;
   const effectivePercent = Number(cfg.fee_percent) + (markup?.percent ? Number(markup.percent) : 0);
   const effectiveFixed = Number(cfg.fee_fixed) + (markup?.fixed ? Number(markup.fixed) : 0);
-  const fee = round2(
-    safe * (effectivePercent / 100) + (safe > 0 ? effectiveFixed : 0),
-  );
+  const fee = round2(safe * (effectivePercent / 100) + (safe > 0 ? effectiveFixed : 0));
   return {
     amount: round2(safe),
     fee,

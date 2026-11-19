@@ -62,10 +62,7 @@ export async function saveStripeCred(name: string, value: string, userId: string
   try {
     const res = await primary
       .from("integration_credentials")
-      .upsert(
-        { name, value, updated_at: now, updated_by: userId },
-        { onConflict: "name" },
-      );
+      .upsert({ name, value, updated_at: now, updated_by: userId }, { onConflict: "name" });
     if (!res.error) saved = true;
   } catch {
     // Si primary falla (por RLS o fetch), intentar con supabaseAdmin
@@ -75,10 +72,7 @@ export async function saveStripeCred(name: string, value: string, userId: string
     try {
       const res = await supabaseAdmin
         .from("integration_credentials")
-        .upsert(
-          { name, value, updated_at: now, updated_by: userId },
-          { onConflict: "name" },
-        );
+        .upsert({ name, value, updated_at: now, updated_by: userId }, { onConflict: "name" });
       if (!res.error) saved = true;
     } catch {
       // Las credenciales quedan preservadas en inMemoryCreds

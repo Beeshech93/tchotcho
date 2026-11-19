@@ -67,8 +67,9 @@ export function TopupRatesPanel() {
           <CardTitle className="text-base">Tasas de recarga (DingConnect)</CardTitle>
           <p className="text-xs text-muted-foreground">
             Tasa manual específica para recargas móviles — de la moneda que paga el usuario a la
-            moneda que debe recibir el destinatario. Para Haití, configura MXN → HTG; no cambies solo la etiqueta de una tasa USD existente. Separada de las
-            tasas de envíos de dinero, para poder ajustarlas sin afectarse entre sí.
+            moneda que debe recibir el destinatario. Para Haití, configura MXN → HTG; no cambies
+            solo la etiqueta de una tasa USD existente. Separada de las tasas de envíos de dinero,
+            para poder ajustarlas sin afectarse entre sí.
           </p>
         </CardHeader>
         <CardContent className="space-y-4">

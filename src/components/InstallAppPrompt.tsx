@@ -128,11 +128,7 @@ export function InstallAppPrompt() {
                 border: `1px solid ${currentBrand.branding.primaryColor}30`,
               }}
             >
-              <img
-                src={appLogo}
-                alt={appName}
-                className="h-full w-full object-contain"
-              />
+              <img src={appLogo} alt={appName} className="h-full w-full object-contain" />
             </div>
 
             {/* Título y descripción con tipografía limpia y de alto contraste */}
@@ -202,4 +198,3 @@ export function InstallAppPrompt() {
     </div>
   );
 }
-

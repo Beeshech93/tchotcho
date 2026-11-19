@@ -19,13 +19,13 @@ src/lib/cards.schemas.ts       Validación Zod de entradas
 
 ## Configuración (Panel de administración → Tarjetas)
 
-| Clave | Uso |
-| --- | --- |
-| `CARD_PROVIDER` | `mock`, `visa` o `mastercard` |
-| `VISA_ENABLED` / `MASTERCARD_ENABLED` | Habilita la red tras la aprobación del programa |
-| `VISA_BASE_URL`, `VISA_API_KEY`, `VISA_USER_ID` | Credenciales Visa |
-| `MASTERCARD_BASE_URL`, `MASTERCARD_API_KEY`, `MASTERCARD_CLIENT_ID`, `MASTERCARD_CLIENT_SECRET` | Credenciales Mastercard |
-| `CARD_API_BASE_URL`, `CARD_API_KEY`, `CARD_API_SECRET` | Emisor que entrega los datos completos de la tarjeta |
+| Clave                                                                                           | Uso                                                  |
+| ----------------------------------------------------------------------------------------------- | ---------------------------------------------------- |
+| `CARD_PROVIDER`                                                                                 | `mock`, `visa` o `mastercard`                        |
+| `VISA_ENABLED` / `MASTERCARD_ENABLED`                                                           | Habilita la red tras la aprobación del programa      |
+| `VISA_BASE_URL`, `VISA_API_KEY`, `VISA_USER_ID`                                                 | Credenciales Visa                                    |
+| `MASTERCARD_BASE_URL`, `MASTERCARD_API_KEY`, `MASTERCARD_CLIENT_ID`, `MASTERCARD_CLIENT_SECRET` | Credenciales Mastercard                              |
+| `CARD_API_BASE_URL`, `CARD_API_KEY`, `CARD_API_SECRET`                                          | Emisor que entrega los datos completos de la tarjeta |
 
 Se guardan cifradas en `integration_credentials`; solo administradores pueden
 escribirlas y nunca se exponen al navegador.

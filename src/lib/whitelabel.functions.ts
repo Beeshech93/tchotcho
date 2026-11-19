@@ -48,7 +48,16 @@ function rowToTenant(row: any): Tenant {
       privacyUrl: row.content?.privacyUrl || "",
     },
     settings: {
-      allowedOrigins: row.settings?.allowedOrigins || ["DO", "MX", "US", "CA", "BR", "CL", "ES", "FR"],
+      allowedOrigins: row.settings?.allowedOrigins || [
+        "DO",
+        "MX",
+        "US",
+        "CA",
+        "BR",
+        "CL",
+        "ES",
+        "FR",
+      ],
       allowedDestinations: row.settings?.allowedDestinations || ["HT"],
       feeMarkupPercent: Number(row.settings?.feeMarkupPercent || 0),
       feeMarkupFixed: Number(row.settings?.feeMarkupFixed || 0),
@@ -132,7 +141,7 @@ async function saveToFallback(supabaseAdmin: any, tenants: Tenant[]): Promise<vo
       value: JSON.stringify(tenants),
       updated_at: now,
     },
-    { onConflict: "name" }
+    { onConflict: "name" },
   );
 }
 
@@ -167,7 +176,7 @@ export const getWhiteLabelTenants = createServerFn({ method: "GET" }).handler(
       console.error("Error in getWhiteLabelTenants:", e?.message || e);
       return [DEFAULT_LAJAN_RAPID_TENANT];
     }
-  }
+  },
 );
 
 /**
@@ -204,7 +213,7 @@ export const getTenantBySlugOrDomain = createServerFn({ method: "GET" })
           t.isActive &&
           (t.slug.toLowerCase() === raw ||
             t.domain?.toLowerCase() === raw ||
-            t.subdomain?.toLowerCase() === raw)
+            t.subdomain?.toLowerCase() === raw),
       );
 
       return match || DEFAULT_LAJAN_RAPID_TENANT;
@@ -249,20 +258,28 @@ export const saveWhiteLabelTenant = createServerFn({ method: "POST" })
 
     const isLajanDefault = data.slug === "default" || data.isDefault === true;
     const cleanDomain = data.domain?.trim()
-      ? data.domain.trim().toLowerCase().replace(/^https?:\/\//, "").replace(/\/+$/, "")
+      ? data.domain
+          .trim()
+          .toLowerCase()
+          .replace(/^https?:\/\//, "")
+          .replace(/\/+$/, "")
       : null;
 
     if (!isLajanDefault && !cleanDomain) {
       throw new Error(
-        "El dominio personalizado es OBLIGATORIO para cada marca White Label para conectar su propio portal y posicionar en Google SEO sin mostrar el dominio nativo."
+        "El dominio personalizado es OBLIGATORIO para cada marca White Label para conectar su propio portal y posicionar en Google SEO sin mostrar el dominio nativo.",
       );
     }
 
-    const tenantId = data.id || (isLajanDefault ? DEFAULT_LAJAN_RAPID_TENANT.id : crypto.randomUUID());
+    const tenantId =
+      data.id || (isLajanDefault ? DEFAULT_LAJAN_RAPID_TENANT.id : crypto.randomUUID());
 
     const tenantToSave: Tenant = {
       id: tenantId,
-      slug: data.slug.toLowerCase().trim().replace(/[^a-z0-9_-]/g, "-"),
+      slug: data.slug
+        .toLowerCase()
+        .trim()
+        .replace(/[^a-z0-9_-]/g, "-"),
       name: data.name.trim(),
       legalName: data.legalName?.trim() || "",
       isDefault: isLajanDefault,
@@ -294,7 +311,16 @@ export const saveWhiteLabelTenant = createServerFn({ method: "POST" })
         privacyUrl: data.content?.privacyUrl || "",
       },
       settings: {
-        allowedOrigins: data.settings?.allowedOrigins || ["DO", "MX", "US", "CA", "BR", "CL", "ES", "FR"],
+        allowedOrigins: data.settings?.allowedOrigins || [
+          "DO",
+          "MX",
+          "US",
+          "CA",
+          "BR",
+          "CL",
+          "ES",
+          "FR",
+        ],
         allowedDestinations: data.settings?.allowedDestinations || ["HT"],
         feeMarkupPercent: Number(data.settings?.feeMarkupPercent || 0),
         feeMarkupFixed: Number(data.settings?.feeMarkupFixed || 0),
@@ -362,7 +388,9 @@ export const saveWhiteLabelTenant = createServerFn({ method: "POST" })
         updated_at: now,
       };
 
-      const res = await (supabaseAdmin as any).from("tenants").upsert(dbPayload, { onConflict: "id" });
+      const res = await (supabaseAdmin as any)
+        .from("tenants")
+        .upsert(dbPayload, { onConflict: "id" });
       tableError = res.error;
     } catch (err: any) {
       tableError = err;
@@ -371,7 +399,9 @@ export const saveWhiteLabelTenant = createServerFn({ method: "POST" })
     // Sincronizar siempre en el respaldo integration_credentials para máxima redundancia
     try {
       const currentList = await loadFromFallback(supabaseAdmin);
-      const filtered = currentList.filter((t) => t.id !== tenantToSave.id && t.slug !== tenantToSave.slug);
+      const filtered = currentList.filter(
+        (t) => t.id !== tenantToSave.id && t.slug !== tenantToSave.slug,
+      );
       filtered.push(tenantToSave);
       await saveToFallback(supabaseAdmin, filtered);
     } catch (err) {
@@ -379,7 +409,10 @@ export const saveWhiteLabelTenant = createServerFn({ method: "POST" })
     }
 
     if (tableError) {
-      console.warn("Notice: Saved to fallback storage. DB table reported:", tableError.message || tableError);
+      console.warn(
+        "Notice: Saved to fallback storage. DB table reported:",
+        tableError.message || tableError,
+      );
     }
 
     return { ok: true, tenant: tenantToSave };
@@ -400,7 +433,12 @@ export const deleteWhiteLabelTenant = createServerFn({ method: "POST" })
     }
 
     const target = data.tenantId?.trim();
-    if (!target || target === DEFAULT_LAJAN_RAPID_TENANT.id || target === "default" || target === "lajan-rapid") {
+    if (
+      !target ||
+      target === DEFAULT_LAJAN_RAPID_TENANT.id ||
+      target === "default" ||
+      target === "lajan-rapid"
+    ) {
       throw new Error("No es posible eliminar la marca principal Lajan Rapid.");
     }
 
@@ -421,7 +459,7 @@ export const deleteWhiteLabelTenant = createServerFn({ method: "POST" })
     try {
       const currentList = await loadFromFallback(supabaseAdmin);
       const updated = currentList.filter(
-        (t) => t.id !== target && t.slug !== target && !t.isDefault && t.slug !== "default"
+        (t) => t.id !== target && t.slug !== target && !t.isDefault && t.slug !== "default",
       );
       if (!updated.some((t) => t.isDefault || t.slug === "default")) {
         updated.unshift(DEFAULT_LAJAN_RAPID_TENANT);
@@ -472,8 +510,8 @@ export const uploadWhiteLabelAsset = createServerFn({ method: "POST" })
       (safeExt === "svg"
         ? "image/svg+xml"
         : safeExt === "ico"
-        ? "image/x-icon"
-        : `image/${safeExt}`);
+          ? "image/x-icon"
+          : `image/${safeExt}`);
 
     // Asegurar existencia del bucket whitelabel-assets si es posible
     try {
@@ -506,7 +544,7 @@ export const uploadWhiteLabelAsset = createServerFn({ method: "POST" })
 
       if (fbError) {
         throw new Error(
-          "Error al subir la imagen al almacenamiento: " + (uploadError.message || fbError.message)
+          "Error al subir la imagen al almacenamiento: " + (uploadError.message || fbError.message),
         );
       }
 

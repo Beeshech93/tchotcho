@@ -14,7 +14,8 @@ type Dict = Record<string, string>;
 
 const es: Dict = {
   "app.tagline": "Envíos rápidos a Haití y República Dominicana",
-  "services.disabled_alert": "Este servicio se encuentra temporalmente deshabilitado por mantenimiento.",
+  "services.disabled_alert":
+    "Este servicio se encuentra temporalmente deshabilitado por mantenimiento.",
   "services.disabled_btn": "Servicio en mantenimiento",
   "services.disabled_badge": "Mantenimiento",
   "nav.home": "Inicio",
@@ -93,7 +94,8 @@ const es: Dict = {
   "install.prompt_title": "Instalar Lajan Rapid",
   "install.prompt_desc": "Agrega Lajan Rapid a tu pantalla de inicio para acceso rápido.",
   "install.prompt_btn": "Instalar App",
-  "install.ios_instructions": "Toca el botón Compartir y selecciona 'Agregar a pantalla de inicio'.",
+  "install.ios_instructions":
+    "Toca el botón Compartir y selecciona 'Agregar a pantalla de inicio'.",
   "install.android_instructions": "Toca el menú (⋮) y selecciona 'Instalar aplicación'.",
   "dash.kyc_pending_title": "Verificación en revisión",
   "dash.kyc_rejected_title": "Verificación rechazada",

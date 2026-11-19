@@ -60,7 +60,12 @@ export function NotificationBell({ triggerClassName }: { triggerClassName?: stri
       .channel(`notifications-${user.id}-${instanceId}`)
       .on(
         "postgres_changes",
-        { event: "INSERT", schema: "public", table: "notifications", filter: `user_id=eq.${user.id}` },
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "notifications",
+          filter: `user_id=eq.${user.id}`,
+        },
         () => {
           playNotificationDing();
           void qc.invalidateQueries({ queryKey: ["notifications", user.id] });

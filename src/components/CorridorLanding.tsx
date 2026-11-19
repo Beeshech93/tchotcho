@@ -190,7 +190,11 @@ export function CorridorLanding({
                         }
                       />
                       <Row label={t("landing.fee")} value={money(q.fee, originCurrency)} />
-                      <Row label={t("landing.total")} value={money(q.total, originCurrency)} strong />
+                      <Row
+                        label={t("landing.total")}
+                        value={money(q.total, originCurrency)}
+                        strong
+                      />
                     </div>
                     <div className="relative overflow-hidden rounded-2xl bg-mint p-4 text-white shadow-lg shadow-emerald-950/25 border border-emerald-400/25">
                       <p className="text-xs font-semibold uppercase tracking-wider text-emerald-100/90">

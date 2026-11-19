@@ -62,7 +62,6 @@ export const resendSendTest = createServerFn({ method: "POST" })
     return resendSendEmail({ to: email, subject: "Prueba: correo de bienvenida", html });
   });
 
-
 /** Envía un anuncio a todos los usuarios con correo confirmado, uno por uno para no revelar destinatarios. */
 export const resendSendAnnouncement = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -84,8 +83,12 @@ export const resendSendAnnouncement = createServerFn({ method: "POST" })
     const { resendSendBulkEmails } = await import("@/lib/resend.server");
 
     const escapeHtml = (value: string) =>
-      value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+      value
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
     const html = `<div style="font-family:Arial,sans-serif;line-height:1.6;color:#222;max-width:640px;margin:0 auto">
       <h2 style="margin-bottom:20px">Lajan Rapid</h2>
       <div style="white-space:pre-wrap">${escapeHtml(data.message)}</div>
@@ -107,7 +110,13 @@ export const resendSendAnnouncement = createServerFn({ method: "POST" })
     }
 
     if (emails.length === 0) {
-      return { ok: true, total: 0, sent: 0, failed: 0, message: "No hay usuarios con correo confirmado." };
+      return {
+        ok: true,
+        total: 0,
+        sent: 0,
+        failed: 0,
+        message: "No hay usuarios con correo confirmado.",
+      };
     }
 
     const { sent, failed } = await resendSendBulkEmails(
@@ -119,8 +128,9 @@ export const resendSendAnnouncement = createServerFn({ method: "POST" })
       total: emails.length,
       sent,
       failed,
-      message: failed === 0
-        ? `Correo enviado a ${sent} usuarios.`
-        : `Envío terminado: ${sent} enviados y ${failed} fallidos.`,
+      message:
+        failed === 0
+          ? `Correo enviado a ${sent} usuarios.`
+          : `Envío terminado: ${sent} enviados y ${failed} fallidos.`,
     };
   });

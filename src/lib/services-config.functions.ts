@@ -144,4 +144,3 @@ export const updateServicesConfig = createServerFn({ method: "POST" })
 
     return { ok: true };
   });
-
