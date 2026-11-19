@@ -30,28 +30,27 @@ export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
       {
-        title: "Lajan Rapid | Send Money to Haiti from USA, Canada, Mexico, Brazil, Chile & France",
+        title: "Tcho-Tcho | AI Fintech & Digital Banking App",
       },
       {
         name: "description",
         content:
-          "Lajan Rapid makes international money transfers to Haiti simple, fast and secure. Send money to Haiti from the USA, Canada, Mexico, Brazil, Chile and France.",
+          "Tcho-Tcho es tu billetera digital inteligente. Envía dinero a Haití y República Dominicana, gestiona tarjetas virtuales y realiza recargas en minutos.",
       },
       {
         name: "keywords",
         content:
-          "Lajan Rapid, send money to Haiti, Haiti remittance, Haiti money transfer, USA Haiti money transfer, Canada Haiti money transfer, Mexico Haiti remittance, Brazil Haiti transfer, Chile Haiti remittance, France Haiti transfer, MonCash, NatCash",
+          "Tcho-Tcho, digital banking, AI fintech, enviar dinero a Haiti, remesas Haiti, MonCash, NatCash",
       },
       { name: "robots", content: "index, follow, max-image-preview:large" },
       {
         property: "og:title",
-        content:
-          "Lajan Rapid | Send Money to Haiti from USA, Canada, Mexico, Brazil, Chile & France",
+        content: "Tcho-Tcho | AI Fintech & Digital Banking App",
       },
       {
         property: "og:description",
         content:
-          "Lajan Rapid makes international money transfers to Haiti simple, fast and secure. Send money to Haiti from the USA, Canada, Mexico, Brazil, Chile and France.",
+          "Tcho-Tcho es tu billetera digital inteligente. Envía dinero a Haití y República Dominicana, gestiona tarjetas virtuales y realiza recargas en minutos.",
       },
     ],
     links: [
@@ -608,23 +607,10 @@ export function Landing() {
         <InstallAppCard />
       </section>
 
-      <footer className="border-t py-8 text-center text-sm text-muted-foreground space-y-3">
-        {isCustomBrand && (
-          <div className="pb-1">
-            <a
-              href="https://lajanrapid.app"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center justify-center gap-1.5 rounded-full border border-border/60 bg-card px-4 py-1.5 text-xs text-muted-foreground transition hover:border-primary/50 hover:text-foreground shadow-sm"
-            >
-              <span>Creado por</span>
-              <strong className="font-semibold text-primary underline underline-offset-2">lajanrapid.app</strong>
-            </a>
-          </div>
-        )}
-        <p>{isCustomBrand ? `© ${new Date().getFullYear()} ${currentBrand.name}. Operado con la infraestructura de Lajan Rapid.` : t("landing.footer")}</p>
-        <p className="mt-2">
-          <Link to="/privacidad" className="underline hover:text-foreground">
+      <footer className="border-t border-white/10 py-8 text-center text-xs text-slate-400 space-y-2">
+        <p>© {new Date().getFullYear()} Tcho-Tcho. Todos los derechos reservados.</p>
+        <p>
+          <Link to="/privacidad" className="underline hover:text-white transition-colors">
             Política de Privacidad
           </Link>
         </p>

@@ -24,8 +24,8 @@ export function InstallAppPrompt() {
   const [isIos, setIsIos] = useState(false);
   const [showInstructions, setShowInstructions] = useState(false);
 
-  const appLogo = currentBrand.branding.appIconUrl || currentBrand.branding.logoUrl || logoAsset;
-  const appName = isCustomBrand ? currentBrand.name : "Lajan Rapid";
+  const appLogo = logoAsset;
+  const appName = "Tcho-Tcho";
 
   useEffect(() => {
     if (typeof window === "undefined") return;

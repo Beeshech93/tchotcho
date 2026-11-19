@@ -178,20 +178,6 @@ export function AppShell({ children }: { children: ReactNode }) {
         >
           <AdBanner className="mb-5" />
           {children}
-
-          {isCustomBrand && (
-            <footer className="mt-12 pb-6 text-center">
-              <a
-                href="https://lajanrapid.app"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center justify-center gap-1.5 rounded-full border border-border/50 bg-card/60 px-3.5 py-1 text-xs text-muted-foreground transition hover:border-primary/50 hover:text-foreground shadow-sm"
-              >
-                <span>Tecnología y motor creado por</span>
-                <span className="font-semibold text-primary">lajanrapid.app</span>
-              </a>
-            </footer>
-          )}
         </main>
 
         <nav
