@@ -414,7 +414,7 @@ function Enviar() {
           <CardHeader className="pb-3">
             <CardTitle className="text-base flex items-center gap-2 text-white">
               <Banknote className="size-5 text-emerald-400" />
-              Envío Directo de Agente (Solo Efectivo)
+              Envío Directo de Agente (Bazik Payout)
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
@@ -423,7 +423,7 @@ function Enviar() {
                 <div className="flex items-center gap-2">
                   <ShieldCheck className="size-4 text-emerald-400" />
                   <span className="font-semibold text-white text-sm sm:text-base">
-                    Efectivo en Ventanilla (Directo)
+                    Directo a Bazik (MonCash / NatCash)
                   </span>
                 </div>
                 <Badge
@@ -434,9 +434,9 @@ function Enviar() {
                 </Badge>
               </div>
               <p className="text-xs text-muted-foreground leading-relaxed">
-                Como cuenta de agente, esta operación se envía directamente sin pasar por pasarelas
-                externas. El cobro físico en efectivo queda registrado bajo tu agencia y pasa a
-                entrega inmediata.
+                Como cuenta de agente, esta operación se procesa de forma directa con Bazik
+                descontando de tu saldo de agente o cobro en ventanilla, sin pasar por pasarelas externas
+                como Stripe o Mercado Pago.
               </p>
             </div>
           </CardContent>

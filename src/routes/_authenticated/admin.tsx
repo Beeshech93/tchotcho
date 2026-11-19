@@ -2,13 +2,14 @@ import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
-import { ArrowLeft, FileText, Shield } from "lucide-react";
+import { ArrowLeft, Coins, FileText, Shield } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useRealtimeInvalidate } from "@/hooks/useRealtimeInvalidate";
 import { useAdminPermissions } from "@/hooks/useAdminPermissions";
 import { getAllAdminsPermissionsMap, type AdminTabId } from "@/lib/admin-permissions.functions";
 import { AdminPermissionsModal } from "@/components/admin/AdminPermissionsModal";
+import { AgentBalanceModal } from "@/components/admin/AgentBalanceModal";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -370,6 +371,7 @@ function UsersPanel() {
   const qc = useQueryClient();
   const [userSearch, setUserSearch] = useState("");
   const [editingUser, setEditingUser] = useState<any>(null);
+  const [balanceUser, setBalanceUser] = useState<any>(null);
 
   const fetchAdminsMap = useServerFn(getAllAdminsPermissionsMap);
   const { data: adminsMap } = useQuery({
@@ -384,6 +386,10 @@ function UsersPanel() {
   const { data: roles } = useQuery({
     queryKey: ["admin-roles"],
     queryFn: async () => (await supabase.from("user_roles").select("*")).data ?? [],
+  });
+  const { data: allWallets } = useQuery({
+    queryKey: ["admin-all-wallets"],
+    queryFn: async () => (await supabase.from("wallets").select("user_id, currency, balance")).data ?? [],
   });
 
   return (
@@ -442,6 +448,17 @@ function UsersPanel() {
                     )}
                   </div>
                   <p className="text-xs text-muted-foreground">{p.phone || "sin teléfono"}</p>
+                  {(() => {
+                    const w = (allWallets ?? []).find(
+                      (item) => item.user_id === p.id && item.currency === "HTG",
+                    );
+                    const bal = w ? Number(w.balance) : 0;
+                    return (
+                      <p className="text-xs font-semibold text-emerald-400 mt-0.5">
+                        Saldo billetera: {bal.toLocaleString()} HTG
+                      </p>
+                    );
+                  })()}
                 </div>
                 <div className="flex flex-wrap items-center gap-1.5">
                   {isAdmin && (
@@ -480,21 +497,45 @@ function UsersPanel() {
                     {KYC_LABEL[p.kyc_status as KycStatus]}
                   </Badge>
                 </div>
-                <Button
-                  size="sm"
-                  variant={isAdmin ? "default" : "outline"}
-                  className={
-                    isAdmin ? "gap-1.5 bg-primary text-primary-foreground font-semibold" : "gap-1.5"
-                  }
-                  onClick={() => setEditingUser(p)}
-                >
-                  <Shield className="size-3.5" />
-                  {isAdmin ? "Gestionar Permisos" : "Hacer Admin / Rol"}
-                </Button>
+                <div className="flex flex-wrap items-center gap-2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="gap-1.5 border-emerald-500/40 text-emerald-400 hover:bg-emerald-500/10 font-semibold text-xs"
+                    onClick={() => setBalanceUser(p)}
+                  >
+                    <Coins className="size-3.5" />
+                    Adicionar Saldo
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant={isAdmin ? "default" : "outline"}
+                    className={
+                      isAdmin ? "gap-1.5 bg-primary text-primary-foreground font-semibold" : "gap-1.5"
+                    }
+                    onClick={() => setEditingUser(p)}
+                  >
+                    <Shield className="size-3.5" />
+                    {isAdmin ? "Gestionar Permisos" : "Hacer Admin / Rol"}
+                  </Button>
+                </div>
               </div>
             );
           })}
       </CardContent>
+
+      {/* Modal para adicionar saldo a agentes / usuarios */}
+      {balanceUser && (
+        <AgentBalanceModal
+          isOpen={Boolean(balanceUser)}
+          onClose={() => setBalanceUser(null)}
+          user={balanceUser}
+          onSuccess={() => {
+            qc.invalidateQueries({ queryKey: ["admin-all-wallets"] });
+            qc.invalidateQueries({ queryKey: ["admin-profiles"] });
+          }}
+        />
+      )}
 
       {/* Modal de edición de roles y permisos */}
       {editingUser && (

@@ -17,9 +17,12 @@ import {
   DollarSign,
   Send,
   Building,
+  Wallet,
+  Smartphone,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useProfile } from "@/hooks/useProfile";
+import { useWallets } from "@/hooks/useWallet";
 import {
   adminCancelTransfer,
   adminConfirmTransfer,
@@ -115,6 +118,15 @@ function Agente() {
   const confirmCashByRef = useServerFn(agentConfirmCashPayment);
 
   const { data: countries } = useCountries();
+  const { data: wallets } = useWallets();
+
+  const agentWallet = useMemo(
+    () => (wallets ?? []).find((w) => w.currency === "HTG") ?? (wallets ?? [])[0],
+    [wallets],
+  );
+  const agentBalanceLabel = agentWallet
+    ? `${Number(agentWallet.balance).toLocaleString()} ${agentWallet.currency}`
+    : "0.00 HTG";
 
   // Estados de control para modales
   const [openNewCashModal, setOpenNewCashModal] = useState(false);
@@ -401,6 +413,17 @@ function Agente() {
         {/* Botones de Acción Rápida */}
         <div className="flex flex-wrap items-center gap-2">
           <Button
+            asChild
+            variant="outline"
+            className="gap-2 border-emerald-500/30 hover:bg-emerald-500/10 text-xs sm:text-sm"
+          >
+            <Link to="/recargas">
+              <Smartphone className="size-4 text-emerald-400" />
+              <span>Recarga Directa (DingConnect)</span>
+            </Link>
+          </Button>
+
+          <Button
             onClick={() => setOpenClaimModal(true)}
             variant="outline"
             className="gap-2 border-emerald-500/30 hover:bg-emerald-500/10 text-xs sm:text-sm"
@@ -419,45 +442,57 @@ function Agente() {
         </div>
       </div>
 
-      {/* Regla y Aviso Oficial de Agentes: Solo Efectivo & Independencia */}
-      <div className="rounded-2xl border border-emerald-500/20 bg-emerald-950/20 p-4 text-emerald-200/90 shadow-sm flex items-start gap-3">
+      {/* Regla y Aviso Oficial de Agentes: Despacho Directo a Bazik y DingConnect */}
+      <div className="rounded-2xl border border-emerald-500/30 bg-emerald-950/25 p-4 text-emerald-200/90 shadow-sm flex items-start gap-3">
         <Banknote className="size-5 text-emerald-400 shrink-0 mt-0.5" />
         <div className="text-xs sm:text-sm leading-relaxed space-y-1">
-          <p className="font-semibold text-white">Operaciones Exclusivas en Efectivo</p>
+          <div className="flex items-center gap-2 flex-wrap">
+            <p className="font-semibold text-white">Despacho Directo · Bazik & DingConnect</p>
+            <Badge className="bg-emerald-500/20 text-emerald-300 border-emerald-500/40 text-[10px]">
+              Sin Pasarelas Externas
+            </Badge>
+          </div>
           <p className="text-emerald-200/80">
-            Cada agente opera de forma independiente y autónoma con sus servicios. Los agentes{" "}
-            <strong>solo reciben efectivo en mano</strong> para realizar o cobrar transacciones.
-            Todas las operaciones procesadas generan comisiones directas e independientes para tu
-            punto de servicio.
+            Tus transacciones de agente no pasan por Stripe ni Mercado Pago. Los envíos de remesas
+            se entregan directamente a <strong>Bazik (MonCash / NatCash)</strong> y las recargas móviles
+            se despachan en tiempo real por <strong>DingConnect</strong> contra tu saldo operativo de agente
+            adicionado por los administradores.
           </p>
         </div>
       </div>
 
       {/* Tarjetas KPI de Rendimiento del Agente */}
-      <div className="grid gap-3 sm:grid-cols-4">
+      <div className="grid gap-3 sm:grid-cols-5">
+        <StatCard
+          icon={Wallet}
+          label="Saldo Billetera Agente"
+          value={agentBalanceLabel}
+          tone="text-[#F2AC00] font-black"
+          hint="Saldo operativo asignado por admin"
+        />
         <StatCard
           icon={Banknote}
-          label="Efectivo Cobrado en Ventanilla"
+          label="Efectivo en Ventanilla"
           value={totalCashLabel}
-          tone="text-emerald-400"
-          hint="Monto total en efectivo recibido"
+          tone="text-emerald-400 font-bold"
+          hint="Total recaudado en mano"
         />
         <StatCard
           icon={Coins}
           label="Comisiones Ganadas"
           value={commissionsLabel}
           tone="text-primary font-bold"
-          hint="Ganancia acumulada por tus envíos"
+          hint="Ganancia neta acumulada"
         />
         <StatCard
           icon={Clock}
-          label="Operaciones en Curso"
+          label="En Proceso"
           value={String(activeOperations.length)}
-          hint="En proceso o entrega"
+          hint="En entrega o dispersión"
         />
         <StatCard
           icon={CheckCircle2}
-          label="Operaciones Completadas"
+          label="Completadas"
           value={String(completedOperations.length)}
           hint="Entregadas exitosamente"
         />

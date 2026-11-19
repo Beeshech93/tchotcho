@@ -425,6 +425,59 @@ export const agentCreateCashTransfer = createServerFn({ method: "POST" })
       message: `Pago en efectivo recibido en ventanilla por el agente. Cobrado: ${totalSend} ${oc.currency}. Comisión ganada: ${agentCommission} ${oc.currency}.`,
     });
 
+    // Descontar saldo de la billetera del agente si cuenta con saldo precargado
+    try {
+      let { data: agentWallet } = await supabaseAdmin
+        .from("wallets")
+        .select("*")
+        .eq("user_id", context.userId)
+        .eq("currency", dc.currency)
+        .maybeSingle();
+
+      if (!agentWallet) {
+        const { data: fallbackWallet } = await supabaseAdmin
+          .from("wallets")
+          .select("*")
+          .eq("user_id", context.userId)
+          .eq("currency", oc.currency)
+          .maybeSingle();
+        agentWallet = fallbackWallet;
+      }
+
+      if (agentWallet) {
+        const requiredAmount =
+          agentWallet.currency === dc.currency ? amountReceive : totalSend;
+        const currentBal = Number(agentWallet.balance) || 0;
+        if (currentBal < requiredAmount) {
+          throw new Error(
+            `Saldo insuficiente en tu billetera de agente (${currentBal.toLocaleString()} ${agentWallet.currency}). Esta operación requiere ${requiredAmount.toLocaleString()} ${agentWallet.currency}. Contacta a un administrador para adicionar saldo a tu cuenta.`,
+          );
+        }
+
+        const nextBal = Math.round((currentBal - requiredAmount) * 100) / 100;
+        await supabaseAdmin
+          .from("wallets")
+          .update({ balance: nextBal, updated_at: new Date().toISOString() })
+          .eq("id", agentWallet.id);
+
+        await supabaseAdmin.from("wallet_transactions").insert({
+          wallet_id: agentWallet.id,
+          user_id: context.userId,
+          kind: "agent_transfer_out",
+          amount: -requiredAmount,
+          currency: agentWallet.currency,
+          description: `Envío ${data.deliveryMethod.toUpperCase()} a ${data.recipientPhone} (Ref: ${newTransfer.reference})`,
+        });
+      }
+    } catch (balErr) {
+      if (balErr instanceof Error && balErr.message.includes("Saldo insuficiente")) {
+        // Revertir inserción de transferencia
+        await supabaseAdmin.from("transfers").delete().eq("id", newTransfer.id);
+        throw balErr;
+      }
+      console.error("Error al descontar saldo de agente:", balErr);
+    }
+
     // Si es MonCash y Bazik está activo, disparar pago automático al beneficiario
     if (data.deliveryMethod === "moncash" || data.deliveryMethod === "natcash") {
       try {
