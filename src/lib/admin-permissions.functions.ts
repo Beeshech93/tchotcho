@@ -363,90 +363,122 @@ export const getAdminUsersList = createServerFn({ method: "GET" })
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-    // 1. Probar RPC admin_get_all_users primero (la vía más rápida y completa con bypass RLS)
+    // 1. Obtener lista completa de usuarios directamente desde auth.users (Supabase Admin)
+    let authUsers: any[] = [];
     try {
-      const { data: rpcUsers, error: rpcErr } = await (context.supabase as any).rpc(
-        "admin_get_all_users",
-      );
-      if (!rpcErr && Array.isArray(rpcUsers) && rpcUsers.length > 0) {
-        return {
-          users: rpcUsers.map((u: any) => ({
-            id: u.id,
-            email: u.email || null,
-            full_name: u.full_name || "",
-            phone: u.phone || null,
-            country: u.country || "HT",
-            language: u.language || "es",
-            kyc_status: u.kyc_status || "none",
-            created_at: u.created_at,
-            roles: Array.isArray(u.roles) ? u.roles : [],
-            balanceHTG: Number(u.balance_htg || 0),
-          })),
-        };
+      const { data: authData, error: authErr } = await supabaseAdmin.auth.admin.listUsers({ perPage: 1000 });
+      if (!authErr && authData?.users) {
+        authUsers = authData.users;
       }
-    } catch {
-      // continuar con consulta directa de respaldo
+    } catch (e) {
+      console.warn("[getAdminUsersList] auth.admin.listUsers failed:", e);
     }
 
-    // 2. Consulta de respaldo sobre profiles, user_roles y wallets
-    const [{ data: pRows }, { data: rRows }, { data: wRows }] = await Promise.all([
-      context.supabase.from("profiles").select("*").order("created_at", { ascending: false }),
-      context.supabase.from("user_roles").select("*"),
-      context.supabase.from("wallets").select("user_id, currency, balance"),
-    ]);
+    // 2. Obtener datos complementarios de profiles, user_roles y wallets (con tolerancia a fallos)
+    let pRows: any[] = [];
+    let rRows: any[] = [];
+    let wRows: any[] = [];
 
-    // Obtener emails de auth.users si es posible
-    let emailMap: Record<string, string> = {};
     try {
-      const { data: authData } = await supabaseAdmin.auth.admin.listUsers({ perPage: 1000 });
-      if (authData?.users) {
-        for (const u of authData.users) {
-          if (u.id && u.email) {
-            emailMap[u.id] = u.email;
-          }
-        }
-      }
-    } catch {}
+      const { data } = await supabaseAdmin.from("profiles").select("*");
+      if (data) pRows = data;
+    } catch (e) {
+      console.warn("[getAdminUsersList] profiles fetch failed:", e);
+    }
+
+    try {
+      const { data } = await supabaseAdmin.from("user_roles").select("*");
+      if (data) rRows = data;
+    } catch (e) {
+      console.warn("[getAdminUsersList] user_roles fetch failed:", e);
+    }
+
+    try {
+      const { data } = await supabaseAdmin.from("wallets").select("user_id, currency, balance");
+      if (data) wRows = data;
+    } catch (e) {
+      console.warn("[getAdminUsersList] wallets fetch failed:", e);
+    }
 
     const usersMap = new Map<string, AdminUserListItem>();
 
-    for (const p of pRows ?? []) {
-      const userRoles = (rRows ?? []).filter((r) => r.user_id === p.id).map((r) => r.role);
-      const userWallets = (wRows ?? []).filter((w) => w.user_id === p.id);
+    // 3. Procesar todos los usuarios de auth.users como fuente primaria
+    for (const u of authUsers) {
+      if (!u.id) continue;
+      const email = String(u.email || "").toLowerCase().trim();
+      const p = pRows.find((row) => row.id === u.id);
+      const userRoles = rRows.filter((r) => r.user_id === u.id).map((r) => r.role);
+      const userWallets = wRows.filter((w) => w.user_id === u.id);
       const htgBal = userWallets.find((w) => w.currency === "HTG")?.balance ?? 0;
 
-      usersMap.set(p.id, {
-        id: p.id,
-        email: emailMap[p.id] || null,
-        full_name: p.full_name || emailMap[p.id]?.split("@")[0] || "",
-        phone: p.phone || null,
-        country: p.country || "HT",
-        language: p.language || "es",
-        kyc_status: p.kyc_status || "none",
-        created_at: p.created_at,
-        roles: userRoles,
+      // Asegurar que administradores principales siempre tengan rol 'admin'
+      const finalRoles = [...userRoles];
+      if (MASTER_ADMIN_EMAILS.includes(email) && !finalRoles.includes("admin")) {
+        finalRoles.unshift("admin");
+      }
+
+      usersMap.set(u.id, {
+        id: u.id,
+        email: u.email || null,
+        full_name:
+          p?.full_name ||
+          (u.user_metadata as any)?.full_name ||
+          (u.email ? u.email.split("@")[0] : "") ||
+          "Usuario",
+        phone: p?.phone || (u.user_metadata as any)?.phone || u.phone || null,
+        country: p?.country || "HT",
+        language: p?.language || "es",
+        kyc_status:
+          p?.kyc_status || (MASTER_ADMIN_EMAILS.includes(email) ? "approved" : "none"),
+        created_at: p?.created_at || u.created_at,
+        roles: finalRoles.length > 0 ? finalRoles : ["client"],
         balanceHTG: Number(htgBal),
       });
     }
 
-    for (const [uid, email] of Object.entries(emailMap)) {
-      if (!usersMap.has(uid)) {
-        const userRoles = (rRows ?? []).filter((r) => r.user_id === uid).map((r) => r.role);
-        const userWallets = (wRows ?? []).filter((w) => w.user_id === uid);
+    // 4. Si hay profiles que no estaban en authUsers (o si listUsers no estaba disponible)
+    for (const p of pRows) {
+      if (!usersMap.has(p.id)) {
+        const userRoles = rRows.filter((r) => r.user_id === p.id).map((r) => r.role);
+        const userWallets = wRows.filter((w) => w.user_id === p.id);
         const htgBal = userWallets.find((w) => w.currency === "HTG")?.balance ?? 0;
 
-        usersMap.set(uid, {
-          id: uid,
-          email,
-          full_name: email.split("@")[0] || "Usuario",
-          phone: null,
-          country: "HT",
-          language: "es",
-          kyc_status: "none",
-          roles: userRoles,
+        usersMap.set(p.id, {
+          id: p.id,
+          email: (p as any).email || null,
+          full_name: p.full_name || "Usuario",
+          phone: p.phone || null,
+          country: p.country || "HT",
+          language: p.language || "es",
+          kyc_status: p.kyc_status || "none",
+          created_at: p.created_at,
+          roles: userRoles.length > 0 ? userRoles : ["client"],
           balanceHTG: Number(htgBal),
         });
       }
+    }
+
+    // 5. Intentar RPC admin_get_all_users si por alguna razón no tenemos usuarios todavía
+    if (usersMap.size === 0) {
+      try {
+        const { data: rpcUsers } = await (supabaseAdmin as any).rpc("admin_get_all_users");
+        if (Array.isArray(rpcUsers) && rpcUsers.length > 0) {
+          for (const u of rpcUsers) {
+            usersMap.set(u.id, {
+              id: u.id,
+              email: u.email || null,
+              full_name: u.full_name || "",
+              phone: u.phone || null,
+              country: u.country || "HT",
+              language: u.language || "es",
+              kyc_status: u.kyc_status || "none",
+              created_at: u.created_at,
+              roles: Array.isArray(u.roles) ? u.roles : ["client"],
+              balanceHTG: Number(u.balance_htg || 0),
+            });
+          }
+        }
+      } catch {}
     }
 
     return {
