@@ -122,7 +122,7 @@ function AuthPage() {
         .max(72),
     });
     const parsed = credSchema.safeParse({
-      email: String(form.get("email") ?? ""),
+      email: String(form.get("email") ?? "").toLowerCase().trim(),
       password: String(form.get("password") ?? ""),
     });
     if (!parsed.success) {
@@ -163,8 +163,20 @@ function AuthPage() {
           toast.success(t("auth.check_email") || "Revisa tu correo para confirmar tu cuenta.");
         }
       } else {
-        const { error } = await supabase.auth.signInWithPassword(parsed.data);
-        if (error) throw error;
+        const { error } = await supabase.auth.signInWithPassword({
+          email: parsed.data.email,
+          password: parsed.data.password,
+        });
+        if (error) {
+          if (error.message.toLowerCase().includes("email not confirmed")) {
+            toast.error("Correo no confirmado en Supabase. Si eres admin, puedes confirmarlo en el panel o desactivar 'Confirm email' en Supabase.");
+          } else if (error.message.toLowerCase().includes("invalid login credentials")) {
+            toast.error("Credenciales inválidas: revisa el correo o contraseña.");
+          } else {
+            toast.error(error.message);
+          }
+          throw error;
+        }
         router.navigate({ to: "/dashboard", replace: true });
       }
     } catch (err) {

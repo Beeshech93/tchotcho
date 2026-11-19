@@ -497,3 +497,35 @@ export const getAdminUsersList = createServerFn({ method: "GET" })
       users: Array.from(usersMap.values()),
     };
   });
+
+/**
+ * Permite al Super Administrador establecer o resetear la contraseña de cualquier usuario
+ * y confirmar su email inmediatamente.
+ */
+export const adminSetUserPassword = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .validator((data: { userId: string; newPassword: string }) => data)
+  .handler(async ({ data, context }) => {
+    const { verifyIsAdmin } = await import("@/lib/admin.server");
+    const isAdmin = await verifyIsAdmin(context);
+    if (!isAdmin) {
+      throw new Error("No autorizado para cambiar contraseñas de usuarios.");
+    }
+
+    if (!data.userId || !data.newPassword || data.newPassword.length < 8) {
+      throw new Error("La contraseña debe tener al menos 8 caracteres.");
+    }
+
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error } = await supabaseAdmin.auth.admin.updateUserById(data.userId, {
+      password: data.newPassword,
+      email_confirm: true,
+    });
+
+    if (error) {
+      console.error("[adminSetUserPassword error]", error);
+      throw new Error(error.message || "Error al actualizar contraseña.");
+    }
+
+    return { ok: true };
+  });
