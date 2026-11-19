@@ -17,7 +17,8 @@ import {
   Download,
 } from "lucide-react";
 
-import logoAsset from "@/assets/tchotcho-icon.png";
+import logoAsset from "@/assets/tchotcho-logo.png";
+import iconAsset from "@/assets/tchotcho-icon.png";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -166,17 +167,22 @@ export function Landing() {
 
       {/* TOP HEADER ELEGANTE */}
       <header className="relative z-20 mx-auto flex max-w-7xl items-center justify-between px-5 py-6 sm:px-8">
-        {/* Logo en cápsula de cristal redondeada */}
+        {/* Logo Tcho-Tcho Oficial bien destacado */}
         <Link
           to="/"
-          className="inline-flex items-center gap-2.5 rounded-full bg-white/[0.08] border border-white/15 px-4 py-2 backdrop-blur-md shadow-sm hover:bg-white/[0.12] transition-all"
+          className="group inline-flex items-center gap-2.5 sm:gap-3 rounded-full bg-white px-3.5 sm:px-4 py-2 shadow-[0_0_28px_rgba(242,172,0,0.4),0_6px_20px_rgba(0,0,0,0.35)] border-2 border-white hover:scale-105 active:scale-95 transition-all"
+          aria-label="Tcho-Tcho — Ir a Inicio"
         >
-          <span className="grid size-6 place-items-center rounded-full bg-[#02531C] border border-[#F2AC00]/40 text-[#F2AC00] font-black text-xs shadow-sm">
-            T
-          </span>
-          <span className="font-display font-bold text-sm tracking-tight text-white">
-            Tcho-Tcho
-          </span>
+          <img
+            src={iconAsset}
+            alt="Tcho-Tcho"
+            className="size-7 sm:size-8 object-contain shrink-0 group-hover:rotate-6 transition-transform"
+          />
+          <img
+            src={logoAsset}
+            alt="Tcho-Tcho"
+            className="h-6 sm:h-7 w-auto object-contain shrink-0"
+          />
         </Link>
 
         {/* Acciones de cabecera: Idioma, Iniciar sesión y Crear cuenta */}
@@ -702,8 +708,8 @@ export function Landing() {
 
               {/* Mockup visual de la app en miniatura */}
               <div className="shrink-0 w-36 sm:w-44 rounded-2xl bg-gradient-to-tr from-black to-[#052B11] border-2 border-[#F2AC00]/50 p-3 shadow-2xl text-center space-y-2 rotate-2 hover:rotate-0 transition-transform">
-                <div className="grid size-10 mx-auto place-items-center rounded-xl bg-[#02531C] text-[#F2AC00] font-black border border-[#F2AC00]/40 shadow-md">
-                  T
+                <div className="size-11 mx-auto rounded-xl bg-white p-1 border border-white shadow-md flex items-center justify-center">
+                  <img src={iconAsset} alt="Tcho-Tcho" className="size-9 object-contain" />
                 </div>
                 <p className="text-xs font-bold text-white">Tcho-Tcho</p>
                 <div className="rounded-xl bg-black/60 p-2 space-y-1">
