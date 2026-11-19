@@ -1717,7 +1717,7 @@ BEGIN
 
     SELECT COALESCE(
       (SELECT value FROM public.integration_credentials WHERE name = 'APP_URL'),
-      'https://lajanrapid.app'
+      'https://tchotcho.app'
     ) INTO _base_url;
 
     IF _secret IS NOT NULL THEN
@@ -2042,7 +2042,7 @@ BEGIN
 
       SELECT COALESCE(
         (SELECT value FROM public.integration_credentials WHERE name = 'APP_URL'),
-        'https://lajanrapid.app'
+        'https://tchotcho.app'
       ) INTO _base_url;
 
       IF _secret IS NOT NULL THEN
@@ -2343,31 +2343,18 @@ $$;
 
 REVOKE ALL ON FUNCTION public.claim_bazik_payout(UUID, public.transfer_status) FROM PUBLIC;
 GRANT EXECUTE ON FUNCTION public.claim_bazik_payout(UUID, public.transfer_status) TO service_role;
--- Asignar rol admin a lajanrapid26@gmail.com si ya existe el usuario
-DO $$
-DECLARE
-  v_user_id uuid;
-BEGIN
-  SELECT id INTO v_user_id FROM auth.users WHERE lower(email) = 'lajanrapid26@gmail.com';
-  IF v_user_id IS NOT NULL THEN
-    -- Asegurar que tenga el rol admin
-    INSERT INTO public.user_roles (user_id, role)
-    VALUES (v_user_id, 'admin')
-    ON CONFLICT (user_id, role) DO NOTHING;
-
-    -- Eliminar rol client para no duplicar
-    DELETE FROM public.user_roles
-    WHERE user_id = v_user_id AND role = 'client';
-  END IF;
-END $$;
-
--- Actualizar trigger handle_new_user para que si se registra lajanrapid26@gmail.com sea admin automáticamente
+-- Configurar trigger handle_new_user para Tcho-Tcho:
+-- El primer usuario registrado se convierte automáticamente en administrador (o cualquier usuario con rol admin).
+-- Además crea las billeteras iniciales en HTG y USD automáticamente.
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS trigger LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
 DECLARE
   initial_role public.app_role := 'client';
+  admin_count int;
 BEGIN
-  IF lower(COALESCE(NEW.email, '')) = 'lajanrapid26@gmail.com' THEN
+  -- Si aún no hay administradores, el primer usuario obtiene rol admin
+  SELECT count(*) INTO admin_count FROM public.user_roles WHERE role = 'admin';
+  IF admin_count = 0 THEN
     initial_role := 'admin';
   END IF;
 
@@ -2378,6 +2365,11 @@ BEGIN
   INSERT INTO public.user_roles (user_id, role)
   VALUES (NEW.id, initial_role)
   ON CONFLICT (user_id, role) DO NOTHING;
+
+  -- Billeteras iniciales
+  INSERT INTO public.wallets (user_id, currency, balance)
+  VALUES (NEW.id, 'HTG', 0), (NEW.id, 'USD', 0)
+  ON CONFLICT (user_id, currency) DO NOTHING;
 
   RETURN NEW;
 END; $$;
@@ -2560,208 +2552,4 @@ BEGIN
     VALUES ('DOP', 'HTG', 2.20, 2.5, 50.0, 1.0, true);
   END IF;
 END $$;
-
--- Multi-tenant White Label schema
-CREATE TABLE IF NOT EXISTS public.tenants (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  slug TEXT NOT NULL UNIQUE,
-  name TEXT NOT NULL,
-  legal_name TEXT,
-  is_default BOOLEAN NOT NULL DEFAULT false,
-  is_active BOOLEAN NOT NULL DEFAULT true,
-  domain TEXT UNIQUE,
-  subdomain TEXT UNIQUE,
-  branding JSONB NOT NULL DEFAULT '{}'::jsonb,
-  content JSONB NOT NULL DEFAULT '{}'::jsonb,
-  settings JSONB NOT NULL DEFAULT '{}'::jsonb,
-  apis JSONB NOT NULL DEFAULT '{}'::jsonb,
-  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
-);
-
--- Ensure column apis exists if table was already created
-ALTER TABLE public.tenants ADD COLUMN IF NOT EXISTS apis JSONB NOT NULL DEFAULT '{}'::jsonb;
-
--- Seed default Lajan Rapid primary tenant
-INSERT INTO public.tenants (id, slug, name, legal_name, is_default, is_active, domain, subdomain, branding, content, settings)
-VALUES (
-  '00000000-0000-0000-0000-000000000001',
-  'default',
-  'Lajan Rapid',
-  'Lajan Rapid Financial Services S.R.L.',
-  true,
-  true,
-  'lajanrapid.com',
-  'app',
-  '{
-    "primaryColor": "#10b981",
-    "primaryDarkColor": "#059669",
-    "accentColor": "#34d399",
-    "backgroundColor": "#0b1426",
-    "surfaceColor": "#121d33",
-    "textColor": "#f8fafc",
-    "fontFamily": "Sora, sans-serif",
-    "borderRadius": "1.25rem"
-  }'::jsonb,
-  '{
-    "slogan": "Envía dinero y recarga a Haití en minutos",
-    "tagline": "El servicio más rápido y seguro de remesas directas a MonCash y NatCash",
-    "supportEmail": "lajanrapid26@gmail.com",
-    "supportPhone": "+1 (829) 341-7169",
-    "supportWhatsapp": "18293417169",
-    "address": "Santo Domingo, República Dominicana"
-  }'::jsonb,
-  '{
-    "allowedOrigins": ["DO", "MX", "US", "CA", "BR", "CL", "ES", "FR"],
-    "allowedDestinations": ["HT"],
-    "feeMarkupPercent": 0,
-    "feeMarkupFixed": 0,
-    "enabledServices": {
-      "transfers": true,
-      "topups": true,
-      "crypto": true,
-      "virtualCards": true
-    }
-  }'::jsonb
-)
-ON CONFLICT (slug) DO UPDATE
-SET is_default = true, name = 'Lajan Rapid';
-
--- Seed Empresa Piloto 1: VipPip Express
-INSERT INTO public.tenants (id, slug, name, legal_name, is_default, is_active, domain, subdomain, branding, content, settings)
-VALUES (
-  '00000000-0000-0000-0000-000000000002',
-  'vippip',
-  'VipPip Express',
-  'VipPip Global Remittance S.A.',
-  false,
-  true,
-  'vippip.lajanrapid.app',
-  'vippip',
-  '{
-    "primaryColor": "#2563eb",
-    "primaryDarkColor": "#1d4ed8",
-    "accentColor": "#60a5fa",
-    "backgroundColor": "#0a0f1d",
-    "surfaceColor": "#111827",
-    "textColor": "#f9fafb",
-    "fontFamily": "Sora, sans-serif",
-    "borderRadius": "1rem"
-  }'::jsonb,
-  '{
-    "slogan": "Transferencias directas y seguras a Haití",
-    "tagline": "Tu aliado confiable para enviar a MonCash y NatCash sin intermediarios",
-    "supportEmail": "soporte@vippip.com",
-    "supportPhone": "+1 (800) 847-7470",
-    "supportWhatsapp": "18008477470",
-    "address": "Miami, FL & Santo Domingo, RD"
-  }'::jsonb,
-  '{
-    "allowedOrigins": ["DO", "MX", "US", "CA", "BR", "CL", "ES", "FR"],
-    "allowedDestinations": ["HT"],
-    "feeMarkupPercent": 0.5,
-    "feeMarkupFixed": 0,
-    "enabledServices": {
-      "transfers": true,
-      "topups": true,
-      "crypto": true,
-      "virtualCards": true
-    }
-  }'::jsonb
-)
-ON CONFLICT (slug) DO UPDATE
-SET name = 'VipPip Express', is_active = true;
-
--- Seed Empresa Piloto 2: Kash Ayiti
-INSERT INTO public.tenants (id, slug, name, legal_name, is_default, is_active, domain, subdomain, branding, content, settings)
-VALUES (
-  '00000000-0000-0000-0000-000000000003',
-  'kash-ayiti',
-  'Kash Ayiti',
-  'Kash Ayiti Financial Services Ltd.',
-  false,
-  true,
-  'kashayiti.lajanrapid.app',
-  'kashayiti',
-  '{
-    "primaryColor": "#f59e0b",
-    "primaryDarkColor": "#d97706",
-    "accentColor": "#fbbf24",
-    "backgroundColor": "#120e09",
-    "surfaceColor": "#1c160e",
-    "textColor": "#fffbeb",
-    "fontFamily": "Sora, sans-serif",
-    "borderRadius": "1.25rem"
-  }'::jsonb,
-  '{
-    "slogan": "Voye lajan bay fanmi w an sekirite",
-    "tagline": "Sèvis transfè lajan ki pi rapid pou Ayiti depi tout peyi",
-    "supportEmail": "contact@kashayiti.com",
-    "supportPhone": "+1 (829) 555-0199",
-    "supportWhatsapp": "18295550199",
-    "address": "Pétion-Ville, Haïti & Santiago, RD"
-  }'::jsonb,
-  '{
-    "allowedOrigins": ["DO", "MX", "US", "CA", "BR", "CL", "ES", "FR"],
-    "allowedDestinations": ["HT"],
-    "feeMarkupPercent": 0.75,
-    "feeMarkupFixed": 1.0,
-    "enabledServices": {
-      "transfers": true,
-      "topups": true,
-      "crypto": true,
-      "virtualCards": true
-    }
-  }'::jsonb
-)
-ON CONFLICT (slug) DO UPDATE
-SET name = 'Kash Ayiti', is_active = true;
-
--- Add tenant_id to transfers and profiles if not already present
-DO $$
-BEGIN
-  IF NOT EXISTS (
-    SELECT 1 FROM information_schema.columns 
-    WHERE table_schema = 'public' AND table_name = 'transfers' AND column_name = 'tenant_id'
-  ) THEN
-    ALTER TABLE public.transfers ADD COLUMN tenant_id UUID REFERENCES public.tenants(id) ON DELETE SET NULL DEFAULT '00000000-0000-0000-0000-000000000001';
-  END IF;
-
-  IF NOT EXISTS (
-    SELECT 1 FROM information_schema.columns 
-    WHERE table_schema = 'public' AND table_name = 'profiles' AND column_name = 'tenant_id'
-  ) THEN
-    ALTER TABLE public.profiles ADD COLUMN tenant_id UUID REFERENCES public.tenants(id) ON DELETE SET NULL DEFAULT '00000000-0000-0000-0000-000000000001';
-  END IF;
-END $$;
-
--- Enable RLS on tenants table
-ALTER TABLE public.tenants ENABLE ROW LEVEL SECURITY;
-
-CREATE POLICY "tenants_public_read" ON public.tenants
-  FOR SELECT TO public
-  USING (is_active = true);
-
-CREATE POLICY "tenants_admin_manage" ON public.tenants
-  FOR ALL TO authenticated
-  USING (public.has_role(auth.uid(), 'admin'::public.app_role))
-  WITH CHECK (public.has_role(auth.uid(), 'admin'::public.app_role));
-
--- Storage público para logotipos y favicons de marcas White Label
-insert into storage.buckets (id, name, public)
-values ('whitelabel-assets', 'whitelabel-assets', true)
-on conflict (id) do nothing;
-
-CREATE POLICY "whitelabel_assets_insert_staff" ON storage.objects FOR INSERT TO authenticated
-  WITH CHECK (bucket_id = 'whitelabel-assets' AND public.is_staff(auth.uid()));
-
-CREATE POLICY "whitelabel_assets_update_staff" ON storage.objects FOR UPDATE TO authenticated
-  USING (bucket_id = 'whitelabel-assets' AND public.is_staff(auth.uid()));
-
-CREATE POLICY "whitelabel_assets_delete_staff" ON storage.objects FOR DELETE TO authenticated
-  USING (bucket_id = 'whitelabel-assets' AND public.is_staff(auth.uid()));
-
--- Bucket público: lectura libre para mostrar logos y favicons en la web y PWA
-CREATE POLICY "whitelabel_assets_select_public" ON storage.objects FOR SELECT TO authenticated, anon
-  USING (bucket_id = 'whitelabel-assets');
 
