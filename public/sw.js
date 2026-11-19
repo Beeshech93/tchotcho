@@ -1,5 +1,5 @@
-const CACHE_NAME = "lajan-rapid-v2";
-const OFFLINE_URLS = ["/", "/manifest.webmanifest", "/icon-192.png", "/icon-512.png"];
+const CACHE_NAME = "tcho-tcho-v3";
+const OFFLINE_URLS = ["/manifest.webmanifest", "/icon-192.png", "/icon-512.png"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
