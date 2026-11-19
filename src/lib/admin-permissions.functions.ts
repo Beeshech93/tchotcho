@@ -58,7 +58,7 @@ export const ALL_ADMIN_TAB_IDS: AdminTabId[] = [
   "migracion",
 ];
 
-const MASTER_ADMIN_EMAIL = "lajanrapid26@gmail.com";
+const MASTER_ADMIN_EMAILS = ["lajanrapid26@gmail.com", "charlesagency4@gmail.com"];
 
 export function getAdminPermissionsStorageKey(userId: string): string {
   return `ADMIN_PERMISSIONS_${userId}`;
@@ -74,7 +74,7 @@ export const getMyPermissions = createServerFn({ method: "GET" })
 
     // Verificar si es master admin por correo
     const email = String(context.claims?.email ?? "").toLowerCase().trim();
-    if (email === MASTER_ADMIN_EMAIL) {
+    if (MASTER_ADMIN_EMAILS.includes(email)) {
       return { isSuperAdmin: true, allowedTabs: ALL_ADMIN_TAB_IDS };
     }
 
@@ -182,7 +182,7 @@ export const setUserRoleAndPermissions = createServerFn({ method: "POST" })
 
     // Exclusivo para Super Administradores: solo el Super Admin puede asignar roles de Agente y Admin
     const callerEmail = String(context.claims?.email ?? "").toLowerCase().trim();
-    let isCallerSuperAdmin = callerEmail === MASTER_ADMIN_EMAIL;
+    let isCallerSuperAdmin = MASTER_ADMIN_EMAILS.includes(callerEmail);
 
     if (!isCallerSuperAdmin) {
       const { data: callerRole } = await supabaseAdmin
@@ -225,7 +225,7 @@ export const setUserRoleAndPermissions = createServerFn({ method: "POST" })
       .toLowerCase()
       .trim();
 
-    if (targetEmail === MASTER_ADMIN_EMAIL && input.role !== "admin") {
+    if (MASTER_ADMIN_EMAILS.includes(targetEmail) && input.role !== "admin") {
       throw new Error(
         "No se puede revocar el rol de administrador a la cuenta principal de Lajan Rapid.",
       );
@@ -290,7 +290,9 @@ export const setUserRoleAndPermissions = createServerFn({ method: "POST" })
 
       // 2. Guardar permisos en integration_credentials
       const permKey = getAdminPermissionsStorageKey(input.targetUserId);
-      const isSuper = targetEmail === MASTER_ADMIN_EMAIL ? true : Boolean(input.isSuperAdmin);
+      const isSuper = MASTER_ADMIN_EMAILS.includes(targetEmail)
+        ? true
+        : Boolean(input.isSuperAdmin);
       const tabs = isSuper ? ALL_ADMIN_TAB_IDS : (input.allowedTabs ?? []);
 
       const permConfig: AdminPermissionsConfig = {

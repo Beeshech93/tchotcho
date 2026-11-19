@@ -67,22 +67,36 @@ export const Route = createFileRoute("/_authenticated/admin")({
     ],
   }),
   beforeLoad: async () => {
-    const { data, error } = await supabase.auth.getUser();
-    if (error || !data.user) {
-      await supabase.auth.signOut().catch(() => {});
+    const { data: s } = await supabase.auth.getSession();
+    let user = s.session?.user;
+    if (!user) {
+      try {
+        const { data: u } = await supabase.auth.getUser();
+        user = u?.user ?? undefined;
+      } catch {
+        // ignore
+      }
+    }
+    if (!user) {
       throw redirect({ to: "/auth" });
     }
+
+    const email = user.email?.toLowerCase().trim();
+    const isSpecialAdmin =
+      email === "lajanrapid26@gmail.com" || email === "charlesagency4@gmail.com";
+
+    if (isSpecialAdmin) {
+      return;
+    }
+
     const { data: roleRow } = await supabase
       .from("user_roles")
       .select("id")
-      .eq("user_id", data.user.id)
+      .eq("user_id", user.id)
       .eq("role", "admin")
       .maybeSingle();
 
-    const email = data.user.email?.toLowerCase().trim();
-    const isSpecialAdmin = email === "lajanrapid26@gmail.com" || email === "charlesagency4@gmail.com";
-
-    if (!roleRow && !isSpecialAdmin) {
+    if (!roleRow) {
       throw redirect({ to: "/dashboard" });
     }
   },

@@ -87,13 +87,18 @@ export function useProfile() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.id, sessionLoading]);
 
+  const email = user?.email?.toLowerCase().trim();
+  const isMasterAdminEmail =
+    email === "lajanrapid26@gmail.com" || email === "charlesagency4@gmail.com";
+
   return {
     user,
     profile,
     roles,
-    isAdmin: roles.includes("admin"),
-    isSuperAdmin: roles.includes("admin") || roles.includes("super_admin"),
-    isAgent: roles.includes("agent") || roles.includes("admin"),
+    isAdmin: roles.includes("admin") || isMasterAdminEmail,
+    isSuperAdmin:
+      roles.includes("admin") || roles.includes("super_admin") || isMasterAdminEmail,
+    isAgent: roles.includes("agent") || roles.includes("admin") || isMasterAdminEmail,
     loading: loading || sessionLoading,
     reload: () => (user ? load(user.id) : Promise.resolve()),
   };

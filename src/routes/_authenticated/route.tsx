@@ -5,12 +5,21 @@ import { AppShell } from "@/components/AppShell";
 export const Route = createFileRoute("/_authenticated")({
   ssr: false,
   beforeLoad: async () => {
-    const { data, error } = await supabase.auth.getUser();
-    if (error || !data.user) {
-      await supabase.auth.signOut().catch(() => {});
-      throw redirect({ to: "/auth" });
+    // 1. Revisar si hay sesión activa en localStorage/memoria primero
+    const { data: s } = await supabase.auth.getSession();
+    if (s.session?.user) {
+      return { user: s.session.user };
     }
-    return { user: data.user };
+    // 2. Si no hay sesión local, intentar verificar con getUser()
+    try {
+      const { data: u } = await supabase.auth.getUser();
+      if (u?.user) {
+        return { user: u.user };
+      }
+    } catch {
+      // ignore
+    }
+    throw redirect({ to: "/auth" });
   },
   component: () => (
     <AppShell>
