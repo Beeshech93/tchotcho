@@ -26,6 +26,18 @@ export const adminAdjustAgentBalance = createServerFn({ method: "POST" })
     }
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    // Verificar que la cuenta de destino sea un agente o administrador (las cuentas clientes no llevan saldo)
+    const { data: roleRows } = await supabaseAdmin
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", input.agentUserId)
+      .in("role", ["agent", "admin"]);
+
+    if (!roleRows || roleRows.length === 0) {
+      throw new Error("Las cuentas de clientes no requieren saldo operativo. Solo los agentes pueden recibir asignación de saldo.");
+    }
+
     const currency = (input.currency || "HTG").toUpperCase();
 
     // 1. Obtener o crear billetera para el agente

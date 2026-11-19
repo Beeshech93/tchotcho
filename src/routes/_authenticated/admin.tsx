@@ -629,15 +629,17 @@ function UsersPanel() {
                   </Badge>
                 </div>
                 <div className="flex flex-wrap items-center gap-2">
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="gap-1.5 border-emerald-500/40 text-emerald-400 hover:bg-emerald-500/10 font-semibold text-xs"
-                    onClick={() => setBalanceUser(p)}
-                  >
-                    <Coins className="size-3.5" />
-                    Adicionar Saldo
-                  </Button>
+                  {(isAgent || isAdmin) && (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="gap-1.5 border-emerald-500/40 text-emerald-400 hover:bg-emerald-500/10 font-semibold text-xs"
+                      onClick={() => setBalanceUser(p)}
+                    >
+                      <Coins className="size-3.5" />
+                      Adicionar Saldo
+                    </Button>
+                  )}
                   {isSuperAdmin && (
                     <Button
                       size="sm"
