@@ -195,14 +195,6 @@ export function Dashboard() {
               {hideBalance ? <EyeOff className="size-5" /> : <Eye className="size-5" />}
             </button>
           </div>
-
-          {/* Tipo de cambio directo */}
-          <p className="text-xs font-semibold text-slate-300 pt-1">
-            Tipo de cambio en vivo:{" "}
-            <span className="text-[#F2AC00] font-bold">
-              1 USD ≈ {rate?.rate ? `${Number(rate.rate).toFixed(2)} HTG` : "132.50 HTG"}
-            </span>
-          </p>
         </div>
 
         {/* 4 BOTONES DE ACCIÓN DIRECTA */}
