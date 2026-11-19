@@ -1,6 +1,5 @@
 -- ==============================================================================
--- 1. PRIMERO: CREAR FUNCIONES BASE is_staff Y has_role
--- (Deben existir antes de cualquier política RLS que las invoque)
+-- 1. CREAR FUNCIONES BASE is_staff Y has_role (SIN DEPENDENCIAS EXTERNAS)
 -- ==============================================================================
 
 CREATE OR REPLACE FUNCTION public.is_staff(_user_id uuid)
@@ -73,11 +72,15 @@ $$;
 
 GRANT EXECUTE ON FUNCTION public.has_role(uuid, text) TO authenticated, anon, service_role;
 
--- Sobrecarga para compatibilidad con tipo app_role si existe
+-- Tipos app_role y kyc_status si no existen
 DO $$
 BEGIN
   IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'app_role') THEN
     CREATE TYPE public.app_role AS ENUM ('admin', 'agent', 'client');
+  END IF;
+
+  IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'kyc_status') THEN
+    CREATE TYPE public.kyc_status AS ENUM ('none', 'pending', 'approved', 'rejected');
   END IF;
 
   EXECUTE '
@@ -92,13 +95,6 @@ BEGIN
     $func$;
     GRANT EXECUTE ON FUNCTION public.has_role(uuid, public.app_role) TO authenticated, anon, service_role;
   ';
-END $$;
-
-DO $$
-BEGIN
-  IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'kyc_status') THEN
-    CREATE TYPE public.kyc_status AS ENUM ('none', 'pending', 'approved', 'rejected');
-  END IF;
 END $$;
 
 -- ==============================================================================
@@ -152,13 +148,11 @@ ALTER TABLE public.wallets ENABLE ROW LEVEL SECURITY;
 -- 3. POLÍTICAS RLS LIMPIAS SIN RECURSIÓN
 -- ==============================================================================
 
--- user_roles: lectura pública para autenticados (sin llamada a is_staff para evitar recursión)
 DROP POLICY IF EXISTS "roles_select_own" ON public.user_roles;
 CREATE POLICY "roles_select_own" ON public.user_roles
 FOR SELECT TO authenticated
 USING (true);
 
--- profiles
 DROP POLICY IF EXISTS "profiles_select_own" ON public.profiles;
 CREATE POLICY "profiles_select_own" ON public.profiles
 FOR SELECT TO authenticated
@@ -175,14 +169,61 @@ CREATE POLICY "profiles_insert_own" ON public.profiles
 FOR INSERT TO authenticated
 WITH CHECK (id = auth.uid());
 
--- wallets
 DROP POLICY IF EXISTS "wallets_select_own" ON public.wallets;
 CREATE POLICY "wallets_select_own" ON public.wallets
 FOR SELECT TO authenticated
 USING (user_id = auth.uid() OR public.is_staff(auth.uid()));
 
 -- ==============================================================================
--- 4. CONFIGURAR ADMINISTRADORES MAESTROS (charlesagency4 y lajanrapid26)
+-- 4. FUNCIÓN RPC admin_get_all_users INDEPENDIENTE Y SEGURA
+-- ==============================================================================
+
+CREATE OR REPLACE FUNCTION public.admin_get_all_users()
+RETURNS TABLE (
+  id uuid,
+  email text,
+  full_name text,
+  phone text,
+  country text,
+  language text,
+  kyc_status text,
+  created_at timestamptz,
+  roles text[],
+  balance_htg numeric
+)
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public, auth
+AS $$
+BEGIN
+  RETURN QUERY
+  SELECT 
+    u.id,
+    u.email::text,
+    COALESCE(NULLIF(p.full_name, ''), u.raw_user_meta_data->>'full_name', split_part(u.email::text, '@', 1))::text AS full_name,
+    COALESCE(p.phone, u.raw_user_meta_data->>'phone')::text AS phone,
+    COALESCE(p.country, 'HT')::text AS country,
+    COALESCE(p.language, 'es')::text AS language,
+    COALESCE(p.kyc_status::text, 'none')::text AS kyc_status,
+    u.created_at,
+    COALESCE(
+      (SELECT array_agg(ur.role::text) FROM public.user_roles ur WHERE ur.user_id = u.id),
+      ARRAY[]::text[]
+    ) AS roles,
+    COALESCE(
+      (SELECT w.balance FROM public.wallets w WHERE w.user_id = u.id AND w.currency = 'HTG' LIMIT 1),
+      0
+    )::numeric AS balance_htg
+  FROM auth.users u
+  LEFT JOIN public.profiles p ON p.id = u.id
+  ORDER BY u.created_at DESC;
+END;
+$$;
+
+GRANT EXECUTE ON FUNCTION public.admin_get_all_users() TO authenticated, service_role;
+
+-- ==============================================================================
+-- 5. CONFIGURAR ADMINISTRADORES MAESTROS (charlesagency4 y lajanrapid26)
 -- ==============================================================================
 
 DO $$
@@ -193,23 +234,19 @@ BEGIN
     SELECT id, email FROM auth.users 
     WHERE lower(email) IN ('lajanrapid26@gmail.com', 'charlesagency4@gmail.com')
   LOOP
-    -- Asignar rol admin
     INSERT INTO public.user_roles (user_id, role)
     VALUES (v_rec.id, 'admin'::public.app_role)
     ON CONFLICT (user_id, role) DO NOTHING;
 
-    -- Perfil con KYC aprobado
     INSERT INTO public.profiles (id, full_name, kyc_status)
     VALUES (v_rec.id, split_part(v_rec.email, '@', 1), 'approved'::public.kyc_status)
     ON CONFLICT (id) DO UPDATE
     SET kyc_status = 'approved'::public.kyc_status;
 
-    -- Billetera HTG
     INSERT INTO public.wallets (user_id, currency, balance, status)
     VALUES (v_rec.id, 'HTG', 0, 'active')
     ON CONFLICT (user_id, currency) DO NOTHING;
 
-    -- Permisos completos de Super Administrador en integration_credentials
     INSERT INTO public.integration_credentials (name, value, updated_at)
     VALUES (
       'ADMIN_PERMISSIONS_' || v_rec.id,
@@ -222,7 +259,7 @@ BEGIN
 END $$;
 
 -- ==============================================================================
--- 5. SINCRONIZAR RESTO DE USUARIOS REGISTRADOS
+-- 6. SINCRONIZAR RESTO DE USUARIOS REGISTRADOS
 -- ==============================================================================
 
 INSERT INTO public.profiles (id, full_name, phone, kyc_status)
@@ -251,7 +288,7 @@ WHERE ur.id IS NULL
 ON CONFLICT (user_id, role) DO NOTHING;
 
 -- ==============================================================================
--- 6. TRIGGER AUTOMÁTICO PARA NUEVOS REGISTROS
+-- 7. TRIGGER AUTOMÁTICO PARA NUEVOS REGISTROS
 -- ==============================================================================
 
 CREATE OR REPLACE FUNCTION public.handle_new_user()
@@ -301,62 +338,3 @@ DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
 CREATE TRIGGER on_auth_user_created
   AFTER INSERT ON auth.users
   FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
-
--- ==============================================================================
--- 7. FUNCIÓN RPC admin_get_all_users PARA EL PANEL ADMIN
--- ==============================================================================
-
-CREATE OR REPLACE FUNCTION public.admin_get_all_users()
-RETURNS TABLE (
-  id uuid,
-  email text,
-  full_name text,
-  phone text,
-  country text,
-  language text,
-  kyc_status text,
-  created_at timestamptz,
-  roles text[],
-  balance_htg numeric
-)
-LANGUAGE plpgsql
-SECURITY DEFINER
-SET search_path = public, auth
-AS $$
-BEGIN
-  IF NOT (
-    public.is_staff(auth.uid()) OR
-    EXISTS (
-      SELECT 1 FROM auth.users
-      WHERE auth.users.id = auth.uid()
-      AND lower(auth.users.email) IN ('lajanrapid26@gmail.com', 'charlesagency4@gmail.com')
-    )
-  ) THEN
-    RAISE EXCEPTION 'No autorizado';
-  END IF;
-
-  RETURN QUERY
-  SELECT 
-    u.id,
-    u.email::text,
-    COALESCE(NULLIF(p.full_name, ''), u.raw_user_meta_data->>'full_name', split_part(u.email, '@', 1))::text AS full_name,
-    COALESCE(p.phone, u.raw_user_meta_data->>'phone')::text AS phone,
-    COALESCE(p.country, 'HT')::text AS country,
-    COALESCE(p.language, 'es')::text AS language,
-    COALESCE(p.kyc_status::text, 'none')::text AS kyc_status,
-    u.created_at,
-    COALESCE(
-      (SELECT array_agg(ur.role::text) FROM public.user_roles ur WHERE ur.user_id = u.id),
-      ARRAY[]::text[]
-    ) AS roles,
-    COALESCE(
-      (SELECT w.balance FROM public.wallets w WHERE w.user_id = u.id AND w.currency = 'HTG' LIMIT 1),
-      0
-    )::numeric AS balance_htg
-  FROM auth.users u
-  LEFT JOIN public.profiles p ON p.id = u.id
-  ORDER BY u.created_at DESC;
-END;
-$$;
-
-GRANT EXECUTE ON FUNCTION public.admin_get_all_users() TO authenticated;
