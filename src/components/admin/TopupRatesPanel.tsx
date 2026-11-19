@@ -1,12 +1,22 @@
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { useCountries } from "@/hooks/useCorridors";
+import { adminSaveTopupRate } from "@/lib/exchange-rates.functions";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 type TopupRateRow = {
   id: string;
@@ -22,10 +32,19 @@ export function TopupRatesPanel() {
   const [from, setFrom] = useState("MXN");
   const [to, setTo] = useState("HTG");
 
+  const { data: countries } = useCountries();
+  const originCountries = (countries ?? []).filter((c) => c.is_origin);
+  const destCountries = (countries ?? []).filter(
+    (c) => c.is_destination || c.code === "HT" || c.currency === "HTG" || c.currency === "DOP" || c.currency === "USD",
+  );
+
+  const selectedOriginCountry = originCountries.find((c) => c.currency === from);
+  const selectedDestCountry = destCountries.find((c) => c.currency === to);
+
   const { data: rates } = useQuery({
     queryKey: ["all-topup-rates"],
     queryFn: async () =>
-      ((await supabase.from("topup_rates").select("*").order("from_currency")).data ??
+      ((await supabase.from("topup_rates").select("*").eq("is_active", true).order("from_currency")).data ??
         []) as TopupRateRow[],
   });
 
@@ -33,86 +52,155 @@ export function TopupRatesPanel() {
     (r) => r.from_currency === from.toUpperCase() && r.to_currency === to.toUpperCase(),
   );
 
+  const saveTopupRateFn = useServerFn(adminSaveTopupRate);
+
   const save = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const f = new FormData(e.currentTarget);
     const value = Number(f.get("rate"));
+
     if (!Number.isFinite(value) || value <= 0) {
-      toast.error("Tasa inválida");
+      toast.error("La tasa de recarga debe ser un número mayor a 0 (ej. 7.20)");
       return;
     }
+
     setSaving(true);
-    const { error } = rate
-      ? await supabase.from("topup_rates").update({ rate: value }).eq("id", rate.id)
-      : await supabase.from("topup_rates").insert({
+    try {
+      // 1. Guardar a través de la server function con service role
+      await saveTopupRateFn({
+        data: {
+          from_currency: from,
+          to_currency: to,
           rate: value,
-          is_active: true,
+        },
+      });
+      toast.success("Tasa de recarga DingConnect actualizada correctamente");
+    } catch (serverErr: any) {
+      console.warn("[TopupRatesPanel] Error en server fn, intentando cliente upsert:", serverErr);
+      // 2. Fallback cliente upsert
+      const { error } = await supabase.from("topup_rates").upsert(
+        {
+          ...(rate ? { id: rate.id } : {}),
           from_currency: from.toUpperCase(),
           to_currency: to.toUpperCase(),
-        });
-    setSaving(false);
-    if (error) {
-      console.error("[topup_rates error]", error);
-      toast.error(error.message || "No se pudo guardar la tasa");
-      return;
+          rate: value,
+          is_active: true,
+          updated_at: new Date().toISOString(),
+        },
+        { onConflict: "from_currency,to_currency" },
+      );
+      if (error) {
+        console.error("[topup_rates error]", error);
+        toast.error(error.message || serverErr?.message || "No se pudo guardar la tasa");
+        setSaving(false);
+        return;
+      }
+      toast.success("Tasa de recarga DingConnect actualizada correctamente");
+    } finally {
+      setSaving(false);
+      qc.invalidateQueries({ queryKey: ["all-topup-rates"] });
+      qc.invalidateQueries({ queryKey: ["topup_rate"] });
     }
-    toast.success("Tasa de recarga actualizada");
-    qc.invalidateQueries({ queryKey: ["all-topup-rates"] });
-    qc.invalidateQueries({ queryKey: ["topup_rate"] });
   };
 
   return (
     <div className="space-y-4">
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Tasas de recarga (DingConnect)</CardTitle>
+          <CardTitle className="text-base">Tasas de recarga por corredor (DingConnect)</CardTitle>
           <p className="text-xs text-muted-foreground">
-            Tasa manual específica para recargas móviles — de la moneda que paga el usuario a la
-            moneda que debe recibir el destinatario. Para Haití, configura MXN → HTG; no cambies
-            solo la etiqueta de una tasa USD existente. Separada de las tasas de envíos de dinero,
-            para poder ajustarlas sin afectarse entre sí.
+            Configuración de tipo de cambio para recargas móviles de DingConnect. Define cuánto
+            saldo recibe el número en la moneda de destino por cada unidad pagada en la moneda de origen.
+            Funciona de manera independiente a las tarifas de envíos de dinero.
           </p>
         </CardHeader>
         <CardContent className="space-y-4">
-          <form onSubmit={save} className="grid gap-4 sm:grid-cols-2">
+          <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-1.5">
-              <Label htmlFor="topup-from">Moneda de pago</Label>
-              <Input
-                id="topup-from"
-                value={from}
-                onChange={(e) => setFrom(e.target.value.toUpperCase())}
-                maxLength={6}
-                placeholder="MXN"
-              />
+              <Label>Moneda de origen (Pago del cliente)</Label>
+              <Select value={from} onValueChange={setFrom}>
+                <SelectTrigger>
+                  <SelectValue
+                    placeholder={
+                      selectedOriginCountry
+                        ? `${selectedOriginCountry.flag} ${selectedOriginCountry.name} · ${selectedOriginCountry.currency}`
+                        : "Seleccionar país de origen"
+                    }
+                  >
+                    {selectedOriginCountry
+                      ? `${selectedOriginCountry.flag} ${selectedOriginCountry.name} · ${selectedOriginCountry.currency}`
+                      : from}
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  {originCountries.map((c) => (
+                    <SelectItem key={`${c.code}-${c.currency}`} value={c.currency}>
+                      {c.flag} {c.name} · {c.currency}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
+
             <div className="space-y-1.5">
-              <Label htmlFor="topup-to">Moneda del operador</Label>
-              <Input
-                id="topup-to"
-                value={to}
-                onChange={(e) => setTo(e.target.value.toUpperCase())}
-                maxLength={6}
-                placeholder="HTG"
-              />
+              <Label>Moneda de destino (Operador telefónico)</Label>
+              <Select value={to} onValueChange={setTo}>
+                <SelectTrigger>
+                  <SelectValue
+                    placeholder={
+                      selectedDestCountry
+                        ? `${selectedDestCountry.flag} ${selectedDestCountry.name} · ${selectedDestCountry.currency}`
+                        : "Seleccionar país de destino"
+                    }
+                  >
+                    {selectedDestCountry
+                      ? `${selectedDestCountry.flag} ${selectedDestCountry.name} · ${selectedDestCountry.currency}`
+                      : to}
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  {destCountries.map((c) => (
+                    <SelectItem key={`${c.code}-${c.currency}`} value={c.currency}>
+                      {c.flag} {c.name} · {c.currency}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
-            <div className="space-y-1.5 sm:col-span-2">
+          </div>
+
+          <form
+            onSubmit={save}
+            className="space-y-4"
+            key={`${from}-${to}-${rate?.id ?? "new"}-${rate?.rate ?? ""}`}
+          >
+            <div className="space-y-1.5">
               <Label htmlFor="topup-rate">
-                Tasa (1 {from || "?"} = ? {to || "?"})
+                Tasa de recarga ({to} recibidos por cada 1 {from} pagado)
               </Label>
               <Input
                 id="topup-rate"
                 name="rate"
                 type="number"
                 step="0.0001"
-                min="0"
-                defaultValue={rate?.rate ?? ""}
-                key={rate?.id ?? `${from}-${to}`}
-                placeholder="0.5000"
+                min="0.0001"
+                defaultValue={
+                  rate && Number(rate.rate) > 0
+                    ? Number(rate.rate)
+                    : from === "MXN" && to === "HTG"
+                      ? 7.2
+                      : undefined
+                }
+                placeholder="Ej. 7.20"
+                required
               />
-              {rate && <p className="text-xs text-muted-foreground">Ya configurada: {rate.rate}</p>}
+              <p className="text-xs text-muted-foreground">
+                Define cuánto recibe el saldo del teléfono en {to} por cada 1 {from} pagado.
+              </p>
             </div>
-            <Button type="submit" disabled={saving} className="sm:col-span-2">
-              {saving ? "Guardando..." : "Guardar tasa"}
+
+            <Button type="submit" disabled={saving} className="w-full">
+              {saving ? "Guardando…" : rate ? "Actualizar tasa Ding" : "Crear tasa Ding"}
             </Button>
           </form>
         </CardContent>
@@ -120,32 +208,55 @@ export function TopupRatesPanel() {
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Tasas configuradas</CardTitle>
+          <CardTitle className="text-base">Tasas DingConnect configuradas</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-2">
+        <CardContent className="grid gap-2 sm:grid-cols-2">
           {(rates ?? []).length === 0 && (
-            <p className="py-4 text-sm text-muted-foreground">Sin tasas configuradas todavía.</p>
+            <p className="py-4 text-sm text-muted-foreground sm:col-span-2">
+              Sin tasas configuradas todavía.
+            </p>
           )}
-          {(rates ?? []).map((r) => (
-            <div
-              key={r.id}
-              className="flex items-center justify-between rounded-lg border p-3 text-sm"
-            >
+          {(rates ?? []).map((r) => {
+            const originC = originCountries.find((c) => c.currency === r.from_currency);
+            const destC = destCountries.find((c) => c.currency === r.to_currency);
+            const isSelected = from === r.from_currency && to === r.to_currency;
+
+            return (
               <button
+                key={r.id}
                 type="button"
-                className="text-left hover:underline"
                 onClick={() => {
                   setFrom(r.from_currency);
                   setTo(r.to_currency);
                 }}
+                className={`flex flex-col gap-1.5 rounded-xl border p-3.5 text-left transition-all ${
+                  isSelected
+                    ? "border-emerald-500 bg-emerald-500/10 shadow-sm ring-1 ring-emerald-500/30"
+                    : "border-border hover:bg-secondary/60 hover:border-border/80"
+                }`}
               >
-                1 {r.from_currency} = {r.rate} {r.to_currency}
+                <div className="flex items-center justify-between gap-2">
+                  <span className="font-semibold text-sm flex items-center gap-1.5">
+                    <span>
+                      {originC?.flag ?? "🌐"} {r.from_currency}
+                    </span>
+                    <span className="text-muted-foreground">→</span>
+                    <span>
+                      {destC?.flag ?? "🌐"} {r.to_currency}
+                    </span>
+                  </span>
+                  <Badge variant={r.is_active ? "default" : "secondary"} className="text-[10px]">
+                    {r.is_active ? "Activa" : "Inactiva"}
+                  </Badge>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  1 {r.from_currency} ={" "}
+                  <strong className="text-foreground">{Number(r.rate).toFixed(4)}</strong>{" "}
+                  {r.to_currency}
+                </p>
               </button>
-              <Badge variant={r.is_active ? "default" : "secondary"}>
-                {r.is_active ? "Activa" : "Inactiva"}
-              </Badge>
-            </div>
-          ))}
+            );
+          })}
         </CardContent>
       </Card>
     </div>

@@ -56,3 +56,51 @@ export const adminSaveExchangeRate = createServerFn({ method: "POST" })
 
     return { ok: true, rate: saved };
   });
+
+export type SaveTopupRateInput = {
+  from_currency: string;
+  to_currency: string;
+  rate: number;
+};
+
+export const adminSaveTopupRate = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .validator((data: SaveTopupRateInput) => data)
+  .handler(async ({ data, context }) => {
+    const isAdmin = await verifyIsAdmin(context);
+    if (!isAdmin) {
+      throw new Error("No autorizado para modificar tasas Ding.");
+    }
+
+    const { from_currency, to_currency, rate } = data;
+
+    if (!from_currency || !to_currency) {
+      throw new Error("Moneda de origen y destino requeridas.");
+    }
+    if (!Number.isFinite(rate) || rate <= 0) {
+      throw new Error("La tasa debe ser un número mayor a 0.");
+    }
+
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const payload = {
+      from_currency: from_currency.toUpperCase().trim(),
+      to_currency: to_currency.toUpperCase().trim(),
+      rate: Number(rate),
+      is_active: true,
+      updated_at: new Date().toISOString(),
+    };
+
+    const { data: saved, error } = await supabaseAdmin
+      .from("topup_rates")
+      .upsert(payload, { onConflict: "from_currency,to_currency" })
+      .select()
+      .single();
+
+    if (error) {
+      console.error("[adminSaveTopupRate] Error saving topup rate:", error);
+      throw new Error(error.message || "Error al guardar la tasa de recarga.");
+    }
+
+    return { ok: true, rate: saved };
+  });
