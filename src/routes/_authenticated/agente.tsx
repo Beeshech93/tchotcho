@@ -442,25 +442,6 @@ function Agente() {
         </div>
       </div>
 
-      {/* Regla y Aviso Oficial de Agentes: Despacho Directo a Bazik y DingConnect */}
-      <div className="rounded-2xl border border-emerald-500/30 bg-emerald-950/25 p-4 text-emerald-200/90 shadow-sm flex items-start gap-3">
-        <Banknote className="size-5 text-emerald-400 shrink-0 mt-0.5" />
-        <div className="text-xs sm:text-sm leading-relaxed space-y-1">
-          <div className="flex items-center gap-2 flex-wrap">
-            <p className="font-semibold text-white">Despacho Directo · Bazik & DingConnect</p>
-            <Badge className="bg-emerald-500/20 text-emerald-300 border-emerald-500/40 text-[10px]">
-              Sin Pasarelas Externas
-            </Badge>
-          </div>
-          <p className="text-emerald-200/80">
-            Tus transacciones de agente no pasan por Stripe ni Mercado Pago. Los envíos de remesas
-            se entregan directamente a <strong>Bazik (MonCash / NatCash)</strong> y las recargas móviles
-            se despachan en tiempo real por <strong>DingConnect</strong> contra tu saldo operativo de agente
-            adicionado por los administradores.
-          </p>
-        </div>
-      </div>
-
       {/* Tarjetas KPI de Rendimiento del Agente */}
       <div className="grid gap-3 sm:grid-cols-5">
         <StatCard
