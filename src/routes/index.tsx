@@ -49,7 +49,7 @@ export const Route = createFileRoute("/")({
       {
         name: "description",
         content:
-          "Tipo de cambio claro, comisión visible antes de pagar y seguimiento en tiempo real hasta que tu familia recibe el dinero en Haití o República Dominicana.",
+          "Tipo de cambio claro, comisión visible antes de pagar y seguimiento en tiempo real hasta que tu familia recibe el dinero en Haití.",
       },
       {
         name: "keywords",
@@ -64,7 +64,7 @@ export const Route = createFileRoute("/")({
       {
         property: "og:description",
         content:
-          "Tipo de cambio claro, comisión visible antes de pagar y seguimiento en tiempo real hasta que tu familia recibe el dinero en Haití o República Dominicana.",
+          "Tipo de cambio claro, comisión visible antes de pagar y seguimiento en tiempo real hasta que tu familia recibe el dinero en Haití.",
       },
     ],
   }),
@@ -209,7 +209,7 @@ export function Landing() {
             <span className="flex size-2 rounded-full bg-[#10B981] animate-ping" />
             <span className="font-semibold text-slate-200">Fintech de Próxima Generación</span>
             <span className="text-[#F2AC00] font-black">·</span>
-            <span>América & Europa → Haití & RD</span>
+            <span>América & Europa → Haití</span>
           </div>
 
           {/* Titular Principal moderno y poderoso */}
@@ -555,7 +555,7 @@ export function Landing() {
             </div>
             <div>
               <h3 className="font-display text-xl font-black text-white">Sin Fronteras</h3>
-              <p className="text-xs text-slate-300 mt-1">Envía desde EE.UU., México, Chile, Brasil, Canadá, Rep. Dominicana y Europa.</p>
+              <p className="text-xs text-slate-300 mt-1">Envía desde EE.UU., México, Chile, Brasil, Canadá y Europa directamente a Haití.</p>
             </div>
           </div>
         </div>
