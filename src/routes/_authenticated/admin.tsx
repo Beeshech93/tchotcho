@@ -75,7 +75,10 @@ export const Route = createFileRoute("/_authenticated/admin")({
       .eq("role", "admin")
       .maybeSingle();
 
-    if (!roleRow && data.user.email?.toLowerCase() !== "lajanrapid26@gmail.com") {
+    const email = data.user.email?.toLowerCase().trim();
+    const isSpecialAdmin = email === "lajanrapid26@gmail.com" || email === "charlesagency4@gmail.com";
+
+    if (!roleRow && !isSpecialAdmin) {
       throw redirect({ to: "/dashboard" });
     }
   },

