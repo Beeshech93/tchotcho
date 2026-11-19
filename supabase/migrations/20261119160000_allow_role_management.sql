@@ -48,6 +48,7 @@ $$;
 GRANT EXECUTE ON FUNCTION public.is_staff(uuid) TO authenticated, anon, service_role;
 
 -- 2. Actualizar admin_get_all_users para reflejar fielmente los roles de user_roles
+DROP FUNCTION IF EXISTS public.admin_get_all_users() CASCADE;
 CREATE OR REPLACE FUNCTION public.admin_get_all_users()
 RETURNS TABLE (
   id uuid,
