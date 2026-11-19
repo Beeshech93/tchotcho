@@ -114,7 +114,7 @@ function Enviar() {
 
   const changeOrigin = (code: string) => {
     setOrigin(code);
-    setPayment(paymentMethods(code)[0]?.value ?? "bank_transfer");
+    setPayment(paymentMethods(code)[0]?.value ?? "card");
   };
 
   const changeDestination = (code: string) => {

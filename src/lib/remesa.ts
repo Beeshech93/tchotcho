@@ -86,13 +86,13 @@ export const PAYMENT_CATALOG: Record<string, Method> = {
   },
 };
 
-// México paga con Mercado Pago (oxxo, spei, tarjeta vía Mercado Pago o Stripe).
-// El resto de los países admite tarjeta, transferencia o efectivo con agente según el país.
+// México procesa exclusivamente mediante Mercado Pago (tarjeta, SPEI, OXXO, saldo MP).
+// Todos los demás países procesan exclusivamente mediante Stripe (tarjeta Visa / Mastercard).
 const DEFAULT_PAYMENTS = ["card"];
 
 const PAYMENTS_BY_COUNTRY: Record<string, string[]> = {
-  MX: ["oxxo", "spei", "mercado_pago", "card", "cash_agent"],
-  DO: ["cash_agent", "card", "bank_transfer"],
+  MX: ["card", "spei", "oxxo", "mercado_pago", "cash_agent"],
+  DO: ["card", "cash_agent"],
   US: ["card", "cash_agent"],
   CA: ["card"],
   BR: ["card"],
@@ -105,6 +105,7 @@ const PAYMENTS_BY_COUNTRY: Record<string, string[]> = {
   BE: ["card"],
   CH: ["card"],
   GB: ["card"],
+  CL: ["card"],
 };
 
 export function paymentMethods(countryCode: string | undefined): Method[] {

@@ -84,6 +84,12 @@ export const mercadoPagoInitiatePayment = createServerFn({ method: "POST" })
       throw new Error("Transferencia no encontrada");
     }
 
+    if (transfer.origin_country !== "MX") {
+      throw new Error(
+        "Mercado Pago solo está disponible para transacciones en México. Los demás países procesan vía Stripe.",
+      );
+    }
+
     if (!CARD_METHODS.includes(transfer.payment_method)) {
       throw new Error("Este método de pago no usa Mercado Pago");
     }
@@ -120,6 +126,9 @@ export const mercadoPagoSpeiReference = createServerFn({ method: "POST" })
     const transfer = await getAuthorizedTransfer(data.transferId, context);
 
     if (!transfer) throw new Error("Transferencia no encontrada");
+    if (transfer.origin_country !== "MX") {
+      throw new Error("SPEI solo está disponible para pagos originados en México.");
+    }
     if (transfer.payment_method !== "spei") throw new Error("Este envío no se paga por SPEI");
     if (transfer.status !== "awaiting_payment" && transfer.status !== "created") {
       throw new Error("Este envío ya no está pendiente de pago");
@@ -157,6 +166,9 @@ export const mercadoPagoOxxoVoucher = createServerFn({ method: "POST" })
     const transfer = await getAuthorizedTransfer(data.transferId, context);
 
     if (!transfer) throw new Error("Transferencia no encontrada");
+    if (transfer.origin_country !== "MX") {
+      throw new Error("OXXO solo está disponible para pagos originados en México.");
+    }
     if (transfer.payment_method !== "oxxo") throw new Error("Este envío no se paga en OXXO");
     if (transfer.status !== "awaiting_payment" && transfer.status !== "created") {
       throw new Error("Este envío ya no está pendiente de pago");

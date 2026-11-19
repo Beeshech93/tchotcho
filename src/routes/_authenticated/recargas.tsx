@@ -111,7 +111,7 @@ function Recargas() {
           ]
         : [
             { value: "wallet", label: t("topup.wallet_balance"), hint: "Instantáneo" },
-            ...paymentMethods(payOrigin),
+            ...paymentMethods(payOrigin).filter((m) => m.value !== "cash_agent"),
           ],
     [payOrigin, isAgent, t],
   );
