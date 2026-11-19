@@ -89,7 +89,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     ...(transfersEnabled ? [{ to: "/enviar", label: "Enviar Dinero", icon: Send }] : []),
     ...(topupsEnabled ? [{ to: "/recargas", label: "Recargas Haití", icon: Smartphone }] : []),
     { to: "/historial", label: "Transacciones", icon: History },
-    { to: "/perfil", label: "Mi Billetera", icon: Wallet },
+    { to: "/perfil", label: "Mi Cuenta", icon: User },
   ];
 
   const workflowNav = [
