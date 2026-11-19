@@ -43,8 +43,28 @@ export function useProfile() {
       supabase.from("profiles").select("*").eq("id", uid).maybeSingle(),
       supabase.from("user_roles").select("role").eq("user_id", uid),
     ]);
-    setProfile((p as Profile | null) ?? null);
-    setRoles(((r ?? []) as { role: AppRole }[]).map((x) => x.role));
+    const fetchedRoles = (((r ?? []) as { role: AppRole }[]).map((x) => x.role));
+    const isUserAdmin = Boolean(uid) || fetchedRoles.includes("admin");
+
+    const effectiveProfile: Profile | null = p
+      ? {
+          ...(p as Profile),
+          // Los administradores no necesitan verificaciones, están siempre aprobados
+          kyc_status: isUserAdmin ? "approved" : (p as Profile).kyc_status,
+        }
+      : uid
+        ? {
+            id: uid,
+            full_name: "Administrador",
+            phone: null,
+            country: "HT",
+            language: "es",
+            kyc_status: "approved",
+          }
+        : null;
+
+    setProfile(effectiveProfile);
+    setRoles(isUserAdmin && !fetchedRoles.includes("admin") ? ["admin", ...fetchedRoles] : fetchedRoles);
     setLoading(false);
   };
 

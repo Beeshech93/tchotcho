@@ -292,7 +292,7 @@ function Recargas() {
   const sendMut = useMutation({
     mutationFn: async () => {
       if (!topupsEnabled) throw new Error(topupsMessage);
-      if (profile?.kyc_status !== "approved") throw new Error(t("topup.err_kyc"));
+      if (!isAdmin && profile?.kyc_status !== "approved") throw new Error(t("topup.err_kyc"));
       if (!operator) throw new Error(t("topup.err_operator"));
       if (!phone.trim()) throw new Error(t("topup.err_phone_empty"));
       if (!phoneCheck.ok || !phoneCheck.e164)
@@ -417,7 +417,7 @@ function Recargas() {
         </div>
       )}
 
-      {profile?.kyc_status !== "approved" && (
+      {!isAdmin && profile?.kyc_status !== "approved" && (
         <p className="rounded-xl bg-destructive/10 p-3 text-sm text-destructive">
           {profile?.kyc_status === "pending" ? t("topup.kyc_pending") : t("topup.kyc_none")}{" "}
           <Link to="/perfil" className="font-semibold underline">
@@ -640,7 +640,7 @@ function Recargas() {
                 !topupsEnabled ||
                 sendMut.isPending ||
                 !phoneCheck.ok ||
-                profile?.kyc_status !== "approved" ||
+                (!isAdmin && profile?.kyc_status !== "approved") ||
                 missingRate ||
                 !providerAmountValid
               }

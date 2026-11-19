@@ -37,7 +37,7 @@ export const Route = createFileRoute("/_authenticated/dashboard")({
 });
 
 export function Dashboard() {
-  const { profile, user } = useProfile();
+  const { profile, user, isAdmin } = useProfile();
   const { t } = useI18n();
   const { data: countries } = useCountries();
   const [hideBalance, setHideBalance] = useState(false);
@@ -124,8 +124,8 @@ export function Dashboard() {
 
   return (
     <div className="mx-auto max-w-3xl space-y-6 pb-24 md:pb-12 text-white selection:bg-[#02531C] selection:text-[#F2AC00]">
-      {/* Alerta KYC solo si está pendiente */}
-      {profile && profile.kyc_status !== "approved" && (
+      {/* Alerta KYC solo si está pendiente y no es admin */}
+      {profile && !isAdmin && profile.kyc_status !== "approved" && (
         <div className="flex items-center justify-between gap-3 rounded-2xl bg-[#111713] border border-[#F2AC00]/40 p-4 shadow-lg">
           <div className="flex items-center gap-3 min-w-0">
             <div className="grid size-9 shrink-0 place-items-center rounded-xl bg-[#F2AC00]/15 text-[#F2AC00]">

@@ -41,7 +41,7 @@ export const Route = createFileRoute("/_authenticated/perfil")({
 });
 
 function Perfil() {
-  const { user, profile, roles, reload } = useProfile();
+  const { user, profile, roles, reload, isAdmin } = useProfile();
   const { t } = useI18n();
   const qc = useQueryClient();
   const [savingProfile, setSavingProfile] = useState(false);
@@ -95,7 +95,7 @@ function Perfil() {
 
   const saveProfile = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (profile?.kyc_status === "approved") {
+    if (!isAdmin && profile?.kyc_status === "approved") {
       toast.error("Tu perfil está bloqueado porque tu identidad ya fue verificada.");
       return;
     }
@@ -228,7 +228,7 @@ function Perfil() {
                 name="full_name"
                 defaultValue={profile?.full_name ?? ""}
                 maxLength={100}
-                disabled={profile?.kyc_status === "approved"}
+                disabled={!isAdmin && profile?.kyc_status === "approved"}
               />
             </div>
             <div className="space-y-1.5">
@@ -238,7 +238,7 @@ function Perfil() {
                 name="phone"
                 defaultValue={profile?.phone ?? ""}
                 maxLength={25}
-                disabled={profile?.kyc_status === "approved"}
+                disabled={!isAdmin && profile?.kyc_status === "approved"}
               />
             </div>
             <div className="space-y-1.5 sm:col-span-2">
@@ -247,13 +247,13 @@ function Perfil() {
             </div>
             <Button
               type="submit"
-              disabled={savingProfile || profile?.kyc_status === "approved"}
+              disabled={savingProfile || (!isAdmin && profile?.kyc_status === "approved")}
               className="sm:col-span-2"
             >
               {savingProfile ? t("profile.saving") : t("profile.save_changes")}
             </Button>
           </form>
-          {profile?.kyc_status === "approved" && (
+          {!isAdmin && profile?.kyc_status === "approved" && (
             <p className="mt-3 text-sm text-muted-foreground">
               Tu identidad fue aprobada; los datos personales están bloqueados. Contacta al soporte
               si necesitas corregirlos.
@@ -288,107 +288,128 @@ function Perfil() {
       <Card>
         <CardHeader className="flex-row items-center justify-between space-y-0">
           <CardTitle className="text-base">{t("profile.kyc_title")}</CardTitle>
-          <Badge className={KYC_TONE[kyc]} variant="secondary">
-            {KYC_LABEL[kyc]}
+          <Badge
+            className={isAdmin ? "bg-primary/10 text-primary border-primary/20" : KYC_TONE[kyc]}
+            variant="secondary"
+          >
+            {isAdmin ? "Verificado · Administrador" : KYC_LABEL[kyc]}
           </Badge>
         </CardHeader>
         <CardContent className="space-y-4">
-          <ol className="flex items-center gap-2">
-            {kyc === "rejected" ? (
-              <li className="flex items-center gap-1.5 text-sm font-medium text-destructive">
-                <span className="grid size-6 shrink-0 place-items-center rounded-full bg-destructive/15">
-                  <X className="size-3.5" />
+          {isAdmin ? (
+            <div className="rounded-xl border border-primary/20 bg-primary/5 p-4">
+              <div className="flex items-center gap-3">
+                <span className="grid size-9 shrink-0 place-items-center rounded-full bg-primary text-primary-foreground">
+                  <Check className="size-5" />
                 </span>
-                {t("profile.step_rejected")}
-              </li>
-            ) : (
-              [
-                { key: "sent", label: t("profile.step_sent"), done: kyc !== "none" },
-                {
-                  key: "review",
-                  label: t("profile.step_review"),
-                  done: kyc === "pending" || kyc === "approved",
-                },
-                { key: "approved", label: t("profile.step_approved"), done: kyc === "approved" },
-              ].map((s, i, arr) => (
-                <li key={s.key} className="flex flex-1 items-center gap-1.5">
-                  <span
-                    className={`grid size-6 shrink-0 place-items-center rounded-full ${
-                      s.done ? "bg-accent text-accent-foreground" : "bg-muted text-muted-foreground"
-                    }`}
-                  >
-                    {s.done ? <Check className="size-3.5" /> : <Circle className="size-2.5" />}
-                  </span>
-                  <span className={`text-xs font-medium ${s.done ? "" : "text-muted-foreground"}`}>
-                    {s.label}
-                  </span>
-                  {i < arr.length - 1 && <span className="h-px flex-1 bg-border" />}
-                </li>
-              ))
-            )}
-          </ol>
-
-          {kyc === "approved" ? (
-            <p className="text-sm text-muted-foreground">{t("profile.kyc_approved_desc")}</p>
-          ) : kyc === "pending" ? (
-            <p className="text-sm text-muted-foreground">{t("profile.kyc_pending_desc")}</p>
+                <div>
+                  <h4 className="font-semibold text-foreground">Cuenta Administrador Verificada</h4>
+                  <p className="mt-0.5 text-sm text-muted-foreground">
+                    Los administradores cuentan con acceso ilimitado y están exentos de comprobaciones y envío de documentos de identidad (KYC).
+                  </p>
+                </div>
+              </div>
+            </div>
           ) : (
-            <form onSubmit={saveKyc} className="grid gap-4 sm:grid-cols-2">
-              {submission?.review_notes && (
-                <p className="rounded-lg bg-destructive/10 p-3 text-sm text-destructive sm:col-span-2">
-                  {submission.review_notes}
-                </p>
+            <>
+              <ol className="flex items-center gap-2">
+                {kyc === "rejected" ? (
+                  <li className="flex items-center gap-1.5 text-sm font-medium text-destructive">
+                    <span className="grid size-6 shrink-0 place-items-center rounded-full bg-destructive/15">
+                      <X className="size-3.5" />
+                    </span>
+                    {t("profile.step_rejected")}
+                  </li>
+                ) : (
+                  [
+                    { key: "sent", label: t("profile.step_sent"), done: kyc !== "none" },
+                    {
+                      key: "review",
+                      label: t("profile.step_review"),
+                      done: kyc === "pending" || kyc === "approved",
+                    },
+                    { key: "approved", label: t("profile.step_approved"), done: kyc === "approved" },
+                  ].map((s, i, arr) => (
+                    <li key={s.key} className="flex flex-1 items-center gap-1.5">
+                      <span
+                        className={`grid size-6 shrink-0 place-items-center rounded-full ${
+                          s.done ? "bg-accent text-accent-foreground" : "bg-muted text-muted-foreground"
+                        }`}
+                      >
+                        {s.done ? <Check className="size-3.5" /> : <Circle className="size-2.5" />}
+                      </span>
+                      <span className={`text-xs font-medium ${s.done ? "" : "text-muted-foreground"}`}>
+                        {s.label}
+                      </span>
+                      {i < arr.length - 1 && <span className="h-px flex-1 bg-border" />}
+                    </li>
+                  ))
+                )}
+              </ol>
+
+              {kyc === "approved" ? (
+                <p className="text-sm text-muted-foreground">{t("profile.kyc_approved_desc")}</p>
+              ) : kyc === "pending" ? (
+                <p className="text-sm text-muted-foreground">{t("profile.kyc_pending_desc")}</p>
+              ) : (
+                <form onSubmit={saveKyc} className="grid gap-4 sm:grid-cols-2">
+                  {submission?.review_notes && (
+                    <p className="rounded-lg bg-destructive/10 p-3 text-sm text-destructive sm:col-span-2">
+                      {submission.review_notes}
+                    </p>
+                  )}
+                  <div className="space-y-1.5">
+                    <Label>{t("profile.doc_type")}</Label>
+                    <Select value={docType} onValueChange={setDocType}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="ine">{t("profile.doc_ine")}</SelectItem>
+                        <SelectItem value="passport">{t("profile.doc_passport")}</SelectItem>
+                        <SelectItem value="residency">{t("profile.doc_residency")}</SelectItem>
+                        <SelectItem value="license">{t("profile.doc_license")}</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="document_number">{t("profile.doc_number")}</Label>
+                    <Input id="document_number" name="document_number" maxLength={40} />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="birth_date">{t("profile.birth_date")}</Label>
+                    <Input id="birth_date" name="birth_date" type="date" />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="address">{t("profile.address")}</Label>
+                    <Input id="address" name="address" maxLength={200} />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="doc-front">{t("profile.doc_front")}</Label>
+                    <Input
+                      id="doc-front"
+                      type="file"
+                      accept="image/*"
+                      capture="environment"
+                      onChange={(e) => setFrontFile(e.target.files?.[0] ?? null)}
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="doc-back">{t("profile.doc_back")}</Label>
+                    <Input
+                      id="doc-back"
+                      type="file"
+                      accept="image/*"
+                      capture="environment"
+                      onChange={(e) => setBackFile(e.target.files?.[0] ?? null)}
+                    />
+                  </div>
+                  <Button type="submit" disabled={savingKyc} className="sm:col-span-2">
+                    {savingKyc ? t("profile.sending") : t("profile.send_verification")}
+                  </Button>
+                </form>
               )}
-              <div className="space-y-1.5">
-                <Label>{t("profile.doc_type")}</Label>
-                <Select value={docType} onValueChange={setDocType}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="ine">{t("profile.doc_ine")}</SelectItem>
-                    <SelectItem value="passport">{t("profile.doc_passport")}</SelectItem>
-                    <SelectItem value="residency">{t("profile.doc_residency")}</SelectItem>
-                    <SelectItem value="license">{t("profile.doc_license")}</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="document_number">{t("profile.doc_number")}</Label>
-                <Input id="document_number" name="document_number" maxLength={40} />
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="birth_date">{t("profile.birth_date")}</Label>
-                <Input id="birth_date" name="birth_date" type="date" />
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="address">{t("profile.address")}</Label>
-                <Input id="address" name="address" maxLength={200} />
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="doc-front">{t("profile.doc_front")}</Label>
-                <Input
-                  id="doc-front"
-                  type="file"
-                  accept="image/*"
-                  capture="environment"
-                  onChange={(e) => setFrontFile(e.target.files?.[0] ?? null)}
-                />
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="doc-back">{t("profile.doc_back")}</Label>
-                <Input
-                  id="doc-back"
-                  type="file"
-                  accept="image/*"
-                  capture="environment"
-                  onChange={(e) => setBackFile(e.target.files?.[0] ?? null)}
-                />
-              </div>
-              <Button type="submit" disabled={savingKyc} className="sm:col-span-2">
-                {savingKyc ? t("profile.sending") : t("profile.send_verification")}
-              </Button>
-            </form>
+            </>
           )}
         </CardContent>
       </Card>

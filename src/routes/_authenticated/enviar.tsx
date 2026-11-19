@@ -130,7 +130,7 @@ function Enviar() {
       toast.error(transfersMessage);
       return;
     }
-    if (profile?.kyc_status !== "approved") {
+    if (!isAdmin && profile?.kyc_status !== "approved") {
       toast.error(t("send.kyc_none"));
       return;
     }
@@ -259,7 +259,7 @@ function Enviar() {
         </div>
       )}
 
-      {profile?.kyc_status !== "approved" && (
+      {!isAdmin && profile?.kyc_status !== "approved" && (
         <p className="rounded-xl bg-destructive/10 p-3 text-sm text-destructive">
           {profile?.kyc_status === "pending" ? t("send.kyc_pending") : t("send.kyc_none")}{" "}
           <Link to="/perfil" className="font-semibold underline">
@@ -468,7 +468,7 @@ function Enviar() {
         type="submit"
         size="lg"
         className="w-full text-base font-semibold"
-        disabled={saving || !cfg || profile?.kyc_status !== "approved" || !transfersEnabled}
+        disabled={saving || !cfg || (!isAdmin && profile?.kyc_status !== "approved") || !transfersEnabled}
       >
         {!transfersEnabled
           ? t("services.disabled_btn")
