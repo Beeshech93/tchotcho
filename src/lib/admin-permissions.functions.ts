@@ -334,3 +334,120 @@ export const setUserRoleAndPermissions = createServerFn({ method: "POST" })
 
     return { ok: true };
   });
+
+export interface AdminUserListItem {
+  id: string;
+  email: string | null;
+  full_name: string;
+  phone: string | null;
+  country: string;
+  language: string;
+  kyc_status: string;
+  created_at?: string;
+  roles: string[];
+  balanceHTG: number;
+}
+
+/**
+ * Retorna todos los usuarios registrados para el panel de administración y Super Admin.
+ */
+export const getAdminUsersList = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }): Promise<{ users: AdminUserListItem[] }> => {
+    const { verifyIsStaff } = await import("@/lib/admin.server");
+    if (!(await verifyIsStaff(context))) {
+      throw new Error("No autorizado");
+    }
+
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    // 1. Probar RPC admin_get_all_users primero (la vía más rápida y completa con bypass RLS)
+    try {
+      const { data: rpcUsers, error: rpcErr } = await (context.supabase as any).rpc(
+        "admin_get_all_users",
+      );
+      if (!rpcErr && Array.isArray(rpcUsers) && rpcUsers.length > 0) {
+        return {
+          users: rpcUsers.map((u: any) => ({
+            id: u.id,
+            email: u.email || null,
+            full_name: u.full_name || "",
+            phone: u.phone || null,
+            country: u.country || "HT",
+            language: u.language || "es",
+            kyc_status: u.kyc_status || "none",
+            created_at: u.created_at,
+            roles: Array.isArray(u.roles) ? u.roles : [],
+            balanceHTG: Number(u.balance_htg || 0),
+          })),
+        };
+      }
+    } catch {
+      // continuar con consulta directa de respaldo
+    }
+
+    // 2. Consulta de respaldo sobre profiles, user_roles y wallets
+    const [{ data: pRows }, { data: rRows }, { data: wRows }] = await Promise.all([
+      context.supabase.from("profiles").select("*").order("created_at", { ascending: false }),
+      context.supabase.from("user_roles").select("*"),
+      context.supabase.from("wallets").select("user_id, currency, balance"),
+    ]);
+
+    // Obtener emails de auth.users si es posible
+    let emailMap: Record<string, string> = {};
+    try {
+      const { data: authData } = await supabaseAdmin.auth.admin.listUsers({ perPage: 1000 });
+      if (authData?.users) {
+        for (const u of authData.users) {
+          if (u.id && u.email) {
+            emailMap[u.id] = u.email;
+          }
+        }
+      }
+    } catch {}
+
+    const usersMap = new Map<string, AdminUserListItem>();
+
+    for (const p of pRows ?? []) {
+      const userRoles = (rRows ?? []).filter((r) => r.user_id === p.id).map((r) => r.role);
+      const userWallets = (wRows ?? []).filter((w) => w.user_id === p.id);
+      const htgBal = userWallets.find((w) => w.currency === "HTG")?.balance ?? 0;
+
+      usersMap.set(p.id, {
+        id: p.id,
+        email: emailMap[p.id] || null,
+        full_name: p.full_name || emailMap[p.id]?.split("@")[0] || "",
+        phone: p.phone || null,
+        country: p.country || "HT",
+        language: p.language || "es",
+        kyc_status: p.kyc_status || "none",
+        created_at: p.created_at,
+        roles: userRoles,
+        balanceHTG: Number(htgBal),
+      });
+    }
+
+    for (const [uid, email] of Object.entries(emailMap)) {
+      if (!usersMap.has(uid)) {
+        const userRoles = (rRows ?? []).filter((r) => r.user_id === uid).map((r) => r.role);
+        const userWallets = (wRows ?? []).filter((w) => w.user_id === uid);
+        const htgBal = userWallets.find((w) => w.currency === "HTG")?.balance ?? 0;
+
+        usersMap.set(uid, {
+          id: uid,
+          email,
+          full_name: email.split("@")[0] || "Usuario",
+          phone: null,
+          country: "HT",
+          language: "es",
+          kyc_status: "none",
+          roles: userRoles,
+          balanceHTG: Number(htgBal),
+        });
+      }
+    }
+
+    return {
+      users: Array.from(usersMap.values()),
+    };
+  });

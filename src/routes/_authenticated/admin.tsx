@@ -7,7 +7,11 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useRealtimeInvalidate } from "@/hooks/useRealtimeInvalidate";
 import { useAdminPermissions } from "@/hooks/useAdminPermissions";
-import { getAllAdminsPermissionsMap, type AdminTabId } from "@/lib/admin-permissions.functions";
+import {
+  getAllAdminsPermissionsMap,
+  getAdminUsersList,
+  type AdminTabId,
+} from "@/lib/admin-permissions.functions";
 import { AdminPermissionsModal } from "@/components/admin/AdminPermissionsModal";
 import { AgentBalanceModal } from "@/components/admin/AgentBalanceModal";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -391,18 +395,13 @@ function UsersPanel() {
     queryFn: () => fetchAdminsMap(),
   });
 
-  const { data: profiles } = useQuery({
-    queryKey: ["admin-profiles"],
-    queryFn: async () => (await supabase.from("profiles").select("*")).data ?? [],
+  const fetchUsers = useServerFn(getAdminUsersList);
+  const { data: usersData, isLoading: isLoadingUsers } = useQuery({
+    queryKey: ["admin-users-list"],
+    queryFn: () => fetchUsers(),
   });
-  const { data: roles } = useQuery({
-    queryKey: ["admin-roles"],
-    queryFn: async () => (await supabase.from("user_roles").select("*")).data ?? [],
-  });
-  const { data: allWallets } = useQuery({
-    queryKey: ["admin-all-wallets"],
-    queryFn: async () => (await supabase.from("wallets").select("user_id, currency, balance")).data ?? [],
-  });
+
+  const usersList = usersData?.users ?? [];
 
   return (
     <Card>
@@ -420,26 +419,39 @@ function UsersPanel() {
         </div>
         <Input
           className="mt-3"
-          placeholder="Buscar por nombre o teléfono..."
+          placeholder="Buscar por nombre, correo o teléfono..."
           value={userSearch}
           onChange={(e) => setUserSearch(e.target.value)}
         />
       </CardHeader>
       <CardContent className="space-y-2">
-        {(profiles ?? [])
+        {isLoadingUsers && (
+          <div className="py-8 text-center text-xs text-muted-foreground">
+            Cargando usuarios registrados...
+          </div>
+        )}
+
+        {!isLoadingUsers && usersList.length === 0 && (
+          <div className="py-8 text-center text-xs text-muted-foreground border border-dashed rounded-xl">
+            No se encontraron usuarios registrados en la base de datos.
+          </div>
+        )}
+
+        {usersList
           .filter((p) => {
             const q = userSearch.trim().toLowerCase();
             if (!q) return true;
-            return [p.full_name, p.phone]
+            return [p.full_name, p.phone, p.email]
               .filter(Boolean)
               .some((v) => String(v).toLowerCase().includes(q));
           })
           .map((p) => {
-            const mine = (roles ?? []).filter((r) => r.user_id === p.id).map((r) => r.role);
-            const isAdmin = mine.includes("admin");
-            const isAgent = mine.includes("agent");
+            const isAdmin = p.roles.includes("admin");
+            const isAgent = p.roles.includes("agent");
             const adminPerms = adminsMap?.[p.id];
-            const isSuper = adminPerms ? adminPerms.isSuperAdmin : true;
+            const isSuper = adminPerms
+              ? adminPerms.isSuperAdmin
+              : p.email?.toLowerCase() === "lajanrapid26@gmail.com";
 
             return (
               <div
@@ -450,7 +462,7 @@ function UsersPanel() {
               >
                 <div>
                   <div className="flex items-center gap-2">
-                    <p className="font-semibold text-sm">{p.full_name || "Sin nombre"}</p>
+                    <p className="font-semibold text-sm">{p.full_name || p.email || "Sin nombre"}</p>
                     {isAdmin && (
                       <span
                         className="size-2 rounded-full bg-primary"
@@ -458,18 +470,13 @@ function UsersPanel() {
                       />
                     )}
                   </div>
-                  <p className="text-xs text-muted-foreground">{p.phone || "sin teléfono"}</p>
-                  {(() => {
-                    const w = (allWallets ?? []).find(
-                      (item) => item.user_id === p.id && item.currency === "HTG",
-                    );
-                    const bal = w ? Number(w.balance) : 0;
-                    return (
-                      <p className="text-xs font-semibold text-emerald-400 mt-0.5">
-                        Saldo billetera: {bal.toLocaleString()} HTG
-                      </p>
-                    );
-                  })()}
+                  <div className="flex flex-col text-xs text-muted-foreground">
+                    {p.email && <span className="font-mono text-[11px] text-slate-300">{p.email}</span>}
+                    <span>{p.phone || "sin teléfono"}</span>
+                  </div>
+                  <p className="text-xs font-semibold text-emerald-400 mt-0.5">
+                    Saldo billetera: {p.balanceHTG.toLocaleString()} HTG
+                  </p>
                 </div>
                 <div className="flex flex-wrap items-center gap-1.5">
                   {isAdmin && (
@@ -504,8 +511,11 @@ function UsersPanel() {
                       Cliente
                     </Badge>
                   )}
-                  <Badge className={KYC_TONE[p.kyc_status as KycStatus]} variant="secondary">
-                    {KYC_LABEL[p.kyc_status as KycStatus]}
+                  <Badge
+                    className={KYC_TONE[p.kyc_status as KycStatus] || "bg-muted text-muted-foreground"}
+                    variant="secondary"
+                  >
+                    {KYC_LABEL[p.kyc_status as KycStatus] || p.kyc_status}
                   </Badge>
                 </div>
                 <div className="flex flex-wrap items-center gap-2">
@@ -544,8 +554,7 @@ function UsersPanel() {
           onClose={() => setBalanceUser(null)}
           user={balanceUser}
           onSuccess={() => {
-            qc.invalidateQueries({ queryKey: ["admin-all-wallets"] });
-            qc.invalidateQueries({ queryKey: ["admin-profiles"] });
+            qc.invalidateQueries({ queryKey: ["admin-users-list"] });
           }}
         />
       )}
@@ -557,9 +566,9 @@ function UsersPanel() {
           onClose={() => setEditingUser(null)}
           user={editingUser}
           currentRole={
-            roles?.some((r) => r.user_id === editingUser.id && r.role === "admin")
+            editingUser.roles?.includes("admin")
               ? "admin"
-              : roles?.some((r) => r.user_id === editingUser.id && r.role === "agent")
+              : editingUser.roles?.includes("agent")
                 ? "agent"
                 : "client"
           }
