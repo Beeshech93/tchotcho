@@ -44,30 +44,27 @@ export function useProfile() {
       supabase.from("user_roles").select("role").eq("user_id", uid),
     ]);
     const fetchedRoles = (((r ?? []) as { role: AppRole }[]).map((x) => x.role));
-    const isUserAdmin = Boolean(uid) || fetchedRoles.includes("admin");
+    const isUserAdmin = fetchedRoles.includes("admin");
 
     const effectiveProfile: Profile | null = p
       ? {
           ...(p as Profile),
-          // Los administradores no necesitan verificaciones, están siempre aprobados
+          // Los administradores confirmados están exentos de verificaciones
           kyc_status: isUserAdmin ? "approved" : (p as Profile).kyc_status,
         }
       : uid
         ? {
             id: uid,
-            full_name: "Administrador",
+            full_name: "",
             phone: null,
             country: "HT",
             language: "es",
-            kyc_status: "approved",
+            kyc_status: isUserAdmin ? "approved" : "none",
           }
         : null;
 
     setProfile(effectiveProfile);
-    const assignedRoles: AppRole[] = isUserAdmin
-      ? Array.from(new Set(["admin", "super_admin", ...fetchedRoles])) as AppRole[]
-      : fetchedRoles;
-    setRoles(assignedRoles);
+    setRoles(fetchedRoles);
     setLoading(false);
   };
 
@@ -87,9 +84,9 @@ export function useProfile() {
     user,
     profile,
     roles,
-    isAdmin: Boolean(user) || roles.includes("admin"),
-    isSuperAdmin: Boolean(user) || roles.includes("admin") || roles.includes("super_admin"),
-    isAgent: Boolean(user) || roles.includes("agent") || roles.includes("admin"),
+    isAdmin: roles.includes("admin"),
+    isSuperAdmin: roles.includes("admin") || roles.includes("super_admin"),
+    isAgent: roles.includes("agent") || roles.includes("admin"),
     loading: loading || sessionLoading,
     reload: () => (user ? load(user.id) : Promise.resolve()),
   };

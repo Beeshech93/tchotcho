@@ -70,11 +70,59 @@ export function getAdminPermissionsStorageKey(userId: string): string {
 export const getMyPermissions = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }): Promise<AdminPermissionsConfig> => {
-    // Si el usuario está registrado y autenticado, se le otorgan permisos de Super Admin
-    if (context.userId) {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    // Verificar si es master admin por correo
+    const email = String(context.claims?.email ?? "").toLowerCase().trim();
+    if (email === MASTER_ADMIN_EMAIL) {
       return { isSuperAdmin: true, allowedTabs: ALL_ADMIN_TAB_IDS };
     }
-    return { isSuperAdmin: false, allowedTabs: [] };
+
+    // Verificar si tiene rol admin en user_roles
+    const { data: roleRow } = await supabaseAdmin
+      .from("user_roles")
+      .select("id")
+      .eq("user_id", context.userId)
+      .eq("role", "admin")
+      .maybeSingle();
+
+    if (!roleRow) {
+      return { isSuperAdmin: false, allowedTabs: [] };
+    }
+
+    // Leer restricciones de integration_credentials
+    const key = getAdminPermissionsStorageKey(context.userId);
+    const { data: permRow } = await supabaseAdmin
+      .from("integration_credentials")
+      .select("value")
+      .eq("name", key)
+      .maybeSingle();
+
+    if (!permRow?.value) {
+      // Si no tiene restricciones guardadas pero es admin, es Super Admin
+      return { isSuperAdmin: true, allowedTabs: ALL_ADMIN_TAB_IDS };
+    }
+
+    try {
+      const parsed = JSON.parse(permRow.value) as Partial<AdminPermissionsConfig>;
+      if (parsed.isSuperAdmin) {
+        return { isSuperAdmin: true, allowedTabs: ALL_ADMIN_TAB_IDS };
+      }
+      const allowed = Array.isArray(parsed.allowedTabs)
+        ? (parsed.allowedTabs.filter((t) => ALL_ADMIN_TAB_IDS.includes(t as AdminTabId)) as AdminTabId[])
+        : [];
+      return {
+        isSuperAdmin: false,
+        allowedTabs: allowed,
+        tenantId: parsed.tenantId,
+        tenantSlug: parsed.tenantSlug,
+        tenantName: parsed.tenantName,
+        updatedAt: parsed.updatedAt,
+        updatedBy: parsed.updatedBy,
+      };
+    } catch {
+      return { isSuperAdmin: true, allowedTabs: ALL_ADMIN_TAB_IDS };
+    }
   });
 
 /**

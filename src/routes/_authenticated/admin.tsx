@@ -68,8 +68,16 @@ export const Route = createFileRoute("/_authenticated/admin")({
       await supabase.auth.signOut().catch(() => {});
       throw redirect({ to: "/auth" });
     }
-    // Toda cuenta registrada tiene acceso habilitado al panel de administración
-    return;
+    const { data: roleRow } = await supabase
+      .from("user_roles")
+      .select("id")
+      .eq("user_id", data.user.id)
+      .eq("role", "admin")
+      .maybeSingle();
+
+    if (!roleRow && data.user.email?.toLowerCase() !== "lajanrapid26@gmail.com") {
+      throw redirect({ to: "/dashboard" });
+    }
   },
   component: Admin,
 });
