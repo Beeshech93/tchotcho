@@ -419,7 +419,7 @@ function Agente() {
           >
             <Link to="/recargas">
               <Smartphone className="size-4 text-emerald-400" />
-              <span>Recarga Directa (DingConnect)</span>
+              <span>Enviar Recarga</span>
             </Link>
           </Button>
 
