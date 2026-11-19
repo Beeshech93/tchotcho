@@ -47,31 +47,21 @@ export const Route = createFileRoute("/_authenticated/dashboard")({
 
 function VisaLogo() {
   return (
-    <span className="font-black italic text-lg tracking-wider text-white select-none">
+    <span className="font-black italic text-xl tracking-wider text-white select-none">
       VISA
     </span>
   );
 }
 
-function ChipIcon() {
+function FinflowWingsLogo() {
   return (
-    <div className="size-8 rounded-lg bg-gradient-to-br from-amber-200 via-amber-400 to-amber-600 p-0.5 shadow-sm">
-      <div className="h-full w-full rounded border border-amber-800/40 bg-amber-400/90 grid grid-cols-2 gap-0.5 p-0.5">
-        <div className="border-r border-b border-amber-900/30" />
-        <div className="border-b border-amber-900/30" />
-        <div className="border-r border-amber-900/30" />
-        <div />
-      </div>
-    </div>
-  );
-}
-
-function ContactlessIcon() {
-  return (
-    <svg className="size-5 text-white/80 rotate-90" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-      <path d="M8.5 16.5a5 5 0 0 1 0-9" strokeLinecap="round" />
-      <path d="M12 19a8.5 8.5 0 0 1 0-14" strokeLinecap="round" />
-      <path d="M15.5 21.5a12 12 0 0 1 0-19" strokeLinecap="round" />
+    <svg className="h-6 w-9 text-white/90 drop-shadow-sm select-none" viewBox="0 0 36 24" fill="none">
+      <path d="M2 4 L16 4 L12 9 L2 9 Z" fill="currentColor" />
+      <path d="M20 4 L34 4 L34 9 L24 9 Z" fill="currentColor" />
+      <path d="M5 11 L16 11 L13 16 L5 16 Z" fill="currentColor" opacity="0.85" />
+      <path d="M20 11 L31 11 L31 16 L23 16 Z" fill="currentColor" opacity="0.85" />
+      <path d="M9 18 L16 18 L14 22 L9 22 Z" fill="currentColor" opacity="0.7" />
+      <path d="M20 18 L27 18 L27 22 L22 22 Z" fill="currentColor" opacity="0.7" />
     </svg>
   );
 }
@@ -240,75 +230,60 @@ function Dashboard() {
         </button>
       </div>
 
-      {/* Hero Virtual Card — Fiel réplica de Behance Finflow */}
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#02531C] via-[#056B27] to-[#043314] p-6 text-white shadow-2xl border border-[#F2AC00]/30 shadow-[#02531C]/35">
-        {/* Curvas sutiles de fondo */}
-        <div className="pointer-events-none absolute -right-12 -top-12 size-48 rounded-full bg-white/10 blur-2xl" />
-        <div className="pointer-events-none absolute -left-8 -bottom-8 size-40 rounded-full bg-[#200847] blur-xl opacity-60" />
+      {/* Hero Virtual Card — Fiel réplica de Behance Finflow (Módulo 1486849441) */}
+      <div className="relative overflow-hidden rounded-[28px] bg-gradient-to-br from-[#02531C] via-[#056824] to-[#042810] p-6 text-white shadow-2xl border border-[#F2AC00]/30 shadow-[#02531C]/35">
+        {/* Sutil resplandor de fondo */}
+        <div className="pointer-events-none absolute -left-10 -top-10 size-48 rounded-full bg-white/10 blur-2xl" />
 
-        {/* Fila superior: Chip + Contactless + Visa */}
-        <div className="relative flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <ChipIcon />
-            <ContactlessIcon />
-          </div>
-          <VisaLogo />
-        </div>
+        {/* 3D Glass Layer Overlays idénticos al diseño de Behance */}
+        <div className="pointer-events-none absolute -right-6 -bottom-10 size-44 rounded-3xl bg-white/[0.08] backdrop-blur-sm border border-white/15 rotate-[22deg]" />
+        <div className="pointer-events-none absolute -right-2 -bottom-6 size-44 rounded-3xl bg-white/[0.09] backdrop-blur-md border border-white/20 rotate-[12deg]" />
 
-        {/* Fila de balances */}
-        <div className="relative mt-6 space-y-1">
-          <div className="flex items-center justify-between">
-            <p className="text-[11px] font-medium text-white/70">Total Balance</p>
-            <button
-              onClick={() => setHideBalance((v) => !v)}
-              className="text-white/70 hover:text-white transition-colors"
-              title={hideBalance ? "Mostrar saldo" : "Ocultar saldo"}
-            >
-              {hideBalance ? <Eye className="size-4" /> : <EyeOff className="size-4" />}
-            </button>
-          </div>
-          <p className="text-3xl font-extrabold tracking-tight text-white">
-            {hideBalance
-              ? "••••••••"
-              : totalHtg > 0
-                ? money(totalHtg, "HTG")
-                : totalUsd > 0
-                  ? `$${totalUsd.toLocaleString("en-US", { minimumFractionDigits: 2 })}`
-                  : "$12,458.90"}
-          </p>
-          <p className="text-xs text-white/60">
-            Available Balance:{" "}
-            <span className="font-semibold text-white/90">
-              {hideBalance ? "••••••" : "$8,458.90"}
-            </span>
-          </p>
-        </div>
-
-        {/* Fila inferior: Número de tarjeta + Nombre + Expiración */}
-        <div className="relative mt-6 flex items-end justify-between text-xs text-white/80">
+        {/* Fila superior: Total Balance + Finflow Wings Logo */}
+        <div className="relative z-10 flex items-start justify-between">
           <div>
-            <p className="font-mono text-xs tracking-wider">•••• •••• •••• 4568</p>
-            <p className="mt-1 font-semibold text-white uppercase text-[11px] tracking-wide">
-              {profile?.full_name || "TCHO-TCHO MEMBER"}
+            <div className="flex items-center gap-2">
+              <p className="text-xs font-medium text-white/70">Total Balance</p>
+              <button
+                onClick={() => setHideBalance((v) => !v)}
+                className="text-white/60 hover:text-white transition-colors"
+                title={hideBalance ? "Mostrar saldo" : "Ocultar saldo"}
+              >
+                {hideBalance ? <Eye className="size-3.5" /> : <EyeOff className="size-3.5" />}
+              </button>
+            </div>
+            <p className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white mt-1">
+              {hideBalance
+                ? "••••••••"
+                : totalHtg > 0
+                  ? money(totalHtg, "HTG")
+                  : totalUsd > 0
+                    ? `$${totalUsd.toLocaleString("en-US", { minimumFractionDigits: 2 })}`
+                    : "$12,458.90"}
             </p>
           </div>
-          <div className="text-right">
-            <p className="text-[10px] text-white/60">Expires</p>
-            <p className="font-semibold text-white">12/26</p>
+
+          <FinflowWingsLogo />
+        </div>
+
+        {/* Fila inferior: Available Balance + VISA Logo */}
+        <div className="relative z-10 mt-8 flex items-end justify-between">
+          <div>
+            <p className="text-xs font-medium text-white/70">Available Balance</p>
+            <p className="text-base font-semibold text-white/95 mt-0.5">
+              {hideBalance ? "••••••" : "$8,458.90"}
+            </p>
           </div>
+
+          <VisaLogo />
         </div>
       </div>
 
-      {/* Frequently Used — Cuadrícula 2x2 estilo Behance Finflow */}
+      {/* Frequently Used — Cuadrícula 2x2 exacta de Behance */}
       <div>
-        <div className="flex items-center justify-between mb-3">
-          <h3 className="text-xs font-bold uppercase tracking-wider text-slate-300">
-            Frequently Used
-          </h3>
-          <Link to="/enviar" className="text-xs text-[#C4B5FD] hover:underline">
-            See All &gt;
-          </Link>
-        </div>
+        <h3 className="text-sm font-semibold text-white mb-3">
+          Frequently Used
+        </h3>
 
         <div className="grid grid-cols-2 gap-3">
           {/* Top Up */}
@@ -316,13 +291,10 @@ function Dashboard() {
             to="/recargas"
             className="group flex items-center gap-3 rounded-2xl bg-[#112417]/90 border border-white/10 p-3.5 hover:border-[#02531C] transition-all active:scale-[0.98]"
           >
-            <div className="grid size-10 place-items-center rounded-xl bg-white/[0.06] text-[#F2AC00] group-hover:bg-[#02531C] group-hover:text-white transition-colors">
-              <Plus className="size-5" />
+            <div className="grid size-9 place-items-center rounded-xl bg-white/[0.06] text-[#F2AC00] group-hover:bg-[#02531C] group-hover:text-white transition-colors">
+              <Plus className="size-4" />
             </div>
-            <div>
-              <p className="text-xs font-bold text-white">Top Up</p>
-              <p className="text-[10px] text-slate-400">Recargar saldo</p>
-            </div>
+            <span className="text-xs font-semibold text-white">Top Up</span>
           </Link>
 
           {/* Transfer */}
@@ -330,13 +302,10 @@ function Dashboard() {
             to="/enviar"
             className="group flex items-center gap-3 rounded-2xl bg-[#112417]/90 border border-white/10 p-3.5 hover:border-[#02531C] transition-all active:scale-[0.98]"
           >
-            <div className="grid size-10 place-items-center rounded-xl bg-white/[0.06] text-[#F2AC00] group-hover:bg-[#02531C] group-hover:text-white transition-colors">
+            <div className="grid size-9 place-items-center rounded-xl bg-white/[0.06] text-[#F2AC00] group-hover:bg-[#02531C] group-hover:text-white transition-colors">
               <Repeat className="size-4" />
             </div>
-            <div>
-              <p className="text-xs font-bold text-white">Transfer</p>
-              <p className="text-[10px] text-slate-400">P2P & Cuentas</p>
-            </div>
+            <span className="text-xs font-semibold text-white">Transfer</span>
           </Link>
 
           {/* Send */}
@@ -344,72 +313,90 @@ function Dashboard() {
             to="/enviar"
             className="group flex items-center gap-3 rounded-2xl bg-[#112417]/90 border border-white/10 p-3.5 hover:border-[#02531C] transition-all active:scale-[0.98]"
           >
-            <div className="grid size-10 place-items-center rounded-xl bg-white/[0.06] text-[#F2AC00] group-hover:bg-[#02531C] group-hover:text-white transition-colors">
+            <div className="grid size-9 place-items-center rounded-xl bg-white/[0.06] text-[#F2AC00] group-hover:bg-[#02531C] group-hover:text-white transition-colors">
               <Send className="size-4" />
             </div>
-            <div>
-              <p className="text-xs font-bold text-white">Send</p>
-              <p className="text-[10px] text-slate-400">A Haití & RD</p>
-            </div>
+            <span className="text-xs font-semibold text-white">Send</span>
           </Link>
 
-          {/* Analytics / Cripto */}
+          {/* Analytics */}
           <Link
             to="/cripto"
             className="group flex items-center gap-3 rounded-2xl bg-[#112417]/90 border border-white/10 p-3.5 hover:border-[#02531C] transition-all active:scale-[0.98]"
           >
-            <div className="grid size-10 place-items-center rounded-xl bg-white/[0.06] text-[#F2AC00] group-hover:bg-[#02531C] group-hover:text-white transition-colors">
-              <Coins className="size-4" />
+            <div className="grid size-9 place-items-center rounded-xl bg-white/[0.06] text-[#F2AC00] group-hover:bg-[#02531C] group-hover:text-white transition-colors">
+              <TrendingUp className="size-4" />
             </div>
-            <div>
-              <p className="text-xs font-bold text-white">Analytics</p>
-              <p className="text-[10px] text-slate-400">Cripto & Balance</p>
-            </div>
+            <span className="text-xs font-semibold text-white">Analytics</span>
           </Link>
         </div>
       </div>
 
-      {/* Quick Access: Statement & Savings Goals Widget (Módulo 1486849451) */}
-      <div className="rounded-3xl bg-[#112417]/90 border border-white/10 p-4 space-y-3">
+      {/* Quick Access — Con Statement & Metas */}
+      <div className="space-y-3">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <span className="grid size-8 place-items-center rounded-xl bg-[#02531C]/40 text-[#F2AC00]">
-              <Sparkles className="size-4" />
-            </span>
-            <div>
-              <p className="text-xs font-bold text-white">Budget Goals</p>
-              <p className="text-[10px] text-slate-400">Ahorros y Metas Inteligentes</p>
-            </div>
-          </div>
-          <span className="text-[11px] font-bold text-[#F2AC00]">48%</span>
+          <h3 className="text-sm font-semibold text-white">Quick Access</h3>
+          <Link to="/historial" className="text-xs text-slate-400 hover:text-[#F2AC00] flex items-center gap-0.5">
+            <span>See All</span>
+            <ChevronRight className="size-3.5" />
+          </Link>
         </div>
 
-        <div className="flex items-center justify-between rounded-2xl bg-[#0C1A10] p-3 border border-white/5">
-          <div>
-            <p className="text-[10px] text-slate-400">Total saved</p>
-            <p className="text-sm font-bold text-white">$2,450 <span className="text-xs font-normal text-slate-400">of $55,000</span></p>
+        {/* Statement Row */}
+        <Link
+          to="/historial"
+          className="group flex items-center justify-between rounded-2xl bg-[#112417]/90 border border-white/10 p-3.5 hover:border-[#02531C] transition-all active:scale-[0.98]"
+        >
+          <div className="flex items-center gap-3">
+            <div className="grid size-10 place-items-center rounded-xl bg-white/[0.06] text-[#F2AC00] group-hover:bg-[#02531C] group-hover:text-white transition-colors">
+              <FileText className="size-5" />
+            </div>
+            <div>
+              <p className="text-xs font-bold text-white">Statement</p>
+              <p className="text-[10px] text-slate-400">View your account statement</p>
+            </div>
           </div>
-          {/* Anillo de progreso SVG */}
-          <div className="relative size-10 grid place-items-center">
-            <svg className="size-10 -rotate-90" viewBox="0 0 36 36">
-              <path
-                className="text-white/10"
-                strokeWidth="3.5"
-                stroke="currentColor"
-                fill="none"
-                d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-              />
-              <path
-                className="text-[#F2AC00]"
-                strokeDasharray="48, 100"
-                strokeWidth="3.5"
-                strokeLinecap="round"
-                stroke="currentColor"
-                fill="none"
-                d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-              />
-            </svg>
-            <span className="absolute text-[9px] font-bold text-white">48%</span>
+          <ChevronRight className="size-4 text-slate-400 group-hover:text-white transition-colors" />
+        </Link>
+
+        {/* Budget Goals Widget */}
+        <div className="rounded-2xl bg-[#112417]/90 border border-white/10 p-3.5 space-y-2.5">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="grid size-7 place-items-center rounded-lg bg-[#02531C]/40 text-[#F2AC00]">
+                <Sparkles className="size-3.5" />
+              </span>
+              <p className="text-xs font-bold text-white">Budget Goals</p>
+            </div>
+            <span className="text-[11px] font-bold text-[#F2AC00]">48%</span>
+          </div>
+
+          <div className="flex items-center justify-between rounded-xl bg-[#0C1A10] p-2.5 border border-white/5">
+            <div>
+              <p className="text-[10px] text-slate-400">Total saved</p>
+              <p className="text-xs font-bold text-white">$2,450 <span className="font-normal text-slate-400">of $55,000</span></p>
+            </div>
+            <div className="relative size-8 grid place-items-center">
+              <svg className="size-8 -rotate-90" viewBox="0 0 36 36">
+                <path
+                  className="text-white/10"
+                  strokeWidth="4"
+                  stroke="currentColor"
+                  fill="none"
+                  d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                />
+                <path
+                  className="text-[#F2AC00]"
+                  strokeDasharray="48, 100"
+                  strokeWidth="4"
+                  strokeLinecap="round"
+                  stroke="currentColor"
+                  fill="none"
+                  d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                />
+              </svg>
+              <span className="absolute text-[8px] font-bold text-white">48%</span>
+            </div>
           </div>
         </div>
       </div>
