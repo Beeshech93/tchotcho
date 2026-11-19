@@ -52,7 +52,7 @@ export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({
     meta: [
       { title: "Dashboard — Tcho-Tcho Digital Banking" },
-      { name: "description", content: "Panel de control financiero inteligente inspirado en Payx con los colores de Tcho-Tcho." },
+      { name: "description", content: "Panel de control financiero inteligente inspirado en Payx con los colores vibrantes de Tcho-Tcho." },
     ],
   }),
   component: Dashboard,
@@ -66,7 +66,6 @@ export function Dashboard() {
   const [hideBalance, setHideBalance] = useState(false);
   const [timeframe, setTimeframe] = useState<"24h" | "week" | "month">("month");
   const [activeCardIndex, setActiveCardIndex] = useState(0);
-  const [chartHoverPoint, setChartHoverPoint] = useState<number | null>(4); // Default to May 29
   const [searchQuery, setSearchQuery] = useState("");
 
   const { isEnabled } = useServicesConfig();
@@ -106,12 +105,14 @@ export function Dashboard() {
   );
 
   const primaryBalance = currencyView === "USD" ? (totalUsd > 0 ? totalUsd : 23094.57) : (totalHtg > 0 ? totalHtg : 3250000.0);
-  const formattedBalance = currencyView === "USD" ? `$ ${primaryBalance.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : `HTG ${primaryBalance.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  const formattedBalance = currencyView === "USD"
+    ? `$ ${primaryBalance.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+    : `HTG ${primaryBalance.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
   const displayName = profile?.full_name?.split(" ")[0] || "Michael";
   const userEmail = profile?.email || "michael@tcho-tcho.com";
 
-  // Tarjetas virtuales y físicas inspiradas en el abanico 3D de Payx con colores Tcho-Tcho
+  // Tarjetas virtuales y físicas con colores vivos, relieve y abanico 3D
   const cardsList = [
     {
       id: "card-1",
@@ -121,11 +122,11 @@ export function Dashboard() {
       accountMasked: "•••••••••••• USD",
       expiry: "06/28",
       balance: "$ 14,850.00",
-      gradient: "from-[#02531C] via-[#046824] to-[#0A3D18]",
-      accentGlow: "shadow-[#02531C]/40",
-      badgeBorder: "border-[#F2AC00]/40",
+      gradient: "from-[#036B25] via-[#02531C] to-[#013511]",
+      border: "border-[#F2AC00]/60",
+      accentGlow: "shadow-[0_12px_36px_rgba(2,83,28,0.55)]",
+      badgeBorder: "border-[#F2AC00] text-[#F2AC00] bg-black/60",
       chip: "gold",
-      network: "mastercard",
     },
     {
       id: "card-2",
@@ -135,11 +136,11 @@ export function Dashboard() {
       accountMasked: "•••••••••••• HTG",
       expiry: "09/27",
       balance: "$ 6,450.57",
-      gradient: "from-[#17201A] via-[#102B1A] to-[#0B1A11]",
-      accentGlow: "shadow-[#02531C]/20",
-      badgeBorder: "border-white/20",
+      gradient: "from-[#1F2C23] via-[#142319] to-[#0A160F]",
+      border: "border-emerald-500/40",
+      accentGlow: "shadow-[0_12px_30px_rgba(16,185,129,0.25)]",
+      badgeBorder: "border-emerald-400 text-emerald-300 bg-black/60",
       chip: "gold",
-      network: "visa",
     },
     {
       id: "card-3",
@@ -149,34 +150,24 @@ export function Dashboard() {
       accountMasked: "•••••••••••• USD",
       expiry: "12/29",
       balance: "$ 1,794.00",
-      gradient: "from-[#2A2312] via-[#1F1B10] to-[#12110B]",
-      accentGlow: "shadow-[#F2AC00]/20",
-      badgeBorder: "border-[#F2AC00]/30",
-      chip: "silver",
-      network: "visa",
+      gradient: "from-[#382D12] via-[#241C0A] to-[#120E05]",
+      border: "border-[#F2AC00]/50",
+      accentGlow: "shadow-[0_12px_30px_rgba(242,172,0,0.3)]",
+      badgeBorder: "border-[#F2AC00] text-[#F2AC00] bg-black/60",
+      chip: "gold",
     },
   ];
 
-  // Datos interactivos para la curva de ingresos/gastos según timeframe
-  const chartPoints = [
-    { label: "May 01", value: 3200, growth: "+4.1%" },
-    { label: "May 10", value: 4100, growth: "+7.3%" },
-    { label: "May 15", value: 3750, growth: "+6.0%" },
-    { label: "May 20", value: 4890, growth: "+8.5%" },
-    { label: "May 29", value: 5538.65, growth: "+9.41%" },
-    { label: "Jun 05", value: 6120, growth: "+12.1%" },
-  ];
-
-  // Servicios de suscripción y pagos recurrentes (SaaS / Remesas / Topups)
+  // Servicios de suscripción y pagos recurrentes con badges de color vivo
   const servicesList = [
-    { name: "MonCash Mobile", provider: "Digicel Haiti", price: "$ 89 /month", date: "Bill date: 31 May", icon: "📱", color: "from-red-600 to-rose-700", status: "Active" },
-    { name: "NatCash Express", provider: "Natcom Haiti", price: "$ 299 /month", date: "Bill date: 02 Jun", icon: "⚡", color: "from-blue-600 to-indigo-700", status: "Active" },
-    { name: "Digicel Haiti Topup", provider: "Airtime & Data", price: "$ 1,247 /month", date: "Due Tomorrow", icon: "📶", color: "from-emerald-600 to-teal-700", status: "Due", urgent: true },
-    { name: "Natcom Fibra & 4G", provider: "Internet Telecom", price: "$ 102 /year", date: "Bill date: 15 Jun", icon: "🌐", color: "from-amber-600 to-yellow-600", status: "Active" },
-    { name: "Banco BHD Dominicana", provider: "Interbank Transfer", price: "$ 129 /month", date: "Bill date: 28 May", icon: "🏦", color: "from-purple-600 to-indigo-800", status: "Active" },
+    { name: "MonCash Mobile", provider: "Digicel Haiti", price: "$ 89 /month", date: "Bill date: 31 May", icon: "📱", color: "from-rose-500 to-red-600", status: "Active" },
+    { name: "NatCash Express", provider: "Natcom Haiti", price: "$ 299 /month", date: "Bill date: 02 Jun", icon: "⚡", color: "from-cyan-500 to-blue-600", status: "Active" },
+    { name: "Digicel Haiti Topup", provider: "Airtime & Data", price: "$ 1,247 /month", date: "Due Tomorrow", icon: "📶", color: "from-emerald-500 to-teal-600", status: "Due", urgent: true },
+    { name: "Natcom Fibra & 4G", provider: "Internet Telecom", price: "$ 102 /year", date: "Bill date: 15 Jun", icon: "🌐", color: "from-amber-400 to-orange-500", status: "Active" },
+    { name: "Banco BHD Dominicana", provider: "Interbank Transfer", price: "$ 129 /month", date: "Bill date: 28 May", icon: "🏦", color: "from-violet-500 to-purple-700", status: "Active" },
   ];
 
-  // Top Beneficiarios / Clientes
+  // Top Clientes
   const topClients = [
     {
       name: "Chumak Corp.",
@@ -184,7 +175,7 @@ export function Dashboard() {
       total: "$ 125,000 Total",
       growth: "+ 18.2%",
       avatars: ["👩‍💼", "👨‍💻", "👨‍💼"],
-      badgeColor: "bg-emerald-500",
+      badgeColor: "bg-emerald-400 shadow-[0_0_8px_#34d399]",
     },
     {
       name: "NovaTech Inc.",
@@ -192,11 +183,11 @@ export function Dashboard() {
       total: "$ 89,750 Total",
       growth: "- 11.4%",
       avatars: ["👨‍🔬", "👩‍💻", "🧑‍💼"],
-      badgeColor: "bg-blue-500",
+      badgeColor: "bg-cyan-400 shadow-[0_0_8px_#22d3ee]",
     },
   ];
 
-  // Transacciones recientes (reales o de muestra de alta fidelidad)
+  // Transacciones
   const displayTransfers = (transfers && transfers.length > 0)
     ? transfers.map((tx, idx) => ({
         id: `#${idx + 1}`,
@@ -217,56 +208,60 @@ export function Dashboard() {
 
   return (
     <div className="mx-auto max-w-[1700px] space-y-6 pb-28 md:pb-10 text-white selection:bg-[#02531C] selection:text-[#F2AC00]">
-      {/* Alerta KYC si aplica */}
+      {/* Alerta KYC destacada */}
       {profile && profile.kyc_status !== "approved" && (
-        <div className="flex items-center justify-between gap-3 rounded-2xl bg-[#0D120E] border border-[#F2AC00]/30 p-3.5 shadow-lg">
-          <div className="flex items-center gap-2.5 min-w-0">
-            <ShieldAlert className="size-5 shrink-0 text-[#F2AC00]" />
+        <div className="flex items-center justify-between gap-3 rounded-2xl bg-gradient-to-r from-[#181F1A] to-[#121613] border border-[#F2AC00]/50 p-4 shadow-[0_8px_24px_rgba(242,172,0,0.15)]">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="grid size-9 shrink-0 place-items-center rounded-xl bg-[#F2AC00]/20 text-[#F2AC00] border border-[#F2AC00]/40">
+              <ShieldAlert className="size-5" />
+            </div>
             <div className="min-w-0 text-xs">
-              <p className="font-semibold text-white">
+              <p className="font-bold text-white text-sm">
                 {profile.kyc_status === "pending"
                   ? "Verificación en revisión"
                   : "Verifica tu identidad para desbloquear límites completos"}
               </p>
-              <p className="text-slate-400 truncate">
+              <p className="text-slate-300 truncate">
                 Obtén acceso a tarjetas virtuales Visa/Mastercard y transferencias sin límites.
               </p>
             </div>
           </div>
-          <Button asChild size="sm" className="h-8 rounded-full bg-[#F2AC00] text-black font-semibold text-xs hover:bg-[#E09E00]">
-            <Link to="/perfil">Verificar</Link>
+          <Button asChild size="sm" className="h-9 px-4 rounded-xl bg-[#F2AC00] text-black font-extrabold text-xs hover:bg-[#FBBF24] shadow-md transition">
+            <Link to="/perfil">Verificar Ahora</Link>
           </Button>
         </div>
       )}
 
-      {/* TOP BAR / HEADER (Inspirado en Payx) */}
-      <header className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between border-b border-white/5 pb-4">
+      {/* TOP BAR / HEADER CON ALTO CONTRASTE */}
+      <header className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between border-b border-white/10 pb-4">
         {/* Left: Selector de panel */}
         <div className="flex items-center gap-3">
-          <div className="grid size-10 place-items-center rounded-2xl bg-[#02531C] border border-[#F2AC00]/40 text-[#F2AC00] font-black shadow-lg shadow-[#02531C]/30 text-lg">
+          <div className="grid size-11 place-items-center rounded-2xl bg-gradient-to-br from-[#036B25] to-[#013511] border-2 border-[#F2AC00] text-[#F2AC00] font-black shadow-[0_0_20px_rgba(242,172,0,0.3)] text-xl">
             T
           </div>
           <div className="flex items-center gap-2">
             <button
               type="button"
-              className="inline-flex items-center gap-2 rounded-xl bg-white/[0.04] border border-white/10 px-3.5 py-1.5 text-sm font-bold text-white hover:bg-white/[0.08] transition"
+              className="inline-flex items-center gap-2 rounded-xl bg-[#141A16] border border-white/15 px-4 py-2 text-sm font-bold text-white hover:border-[#F2AC00]/60 hover:bg-[#1A231D] shadow-md transition"
             >
               <span>Dashboard</span>
-              <ChevronDown className="size-3.5 text-slate-400" />
+              <ChevronDown className="size-4 text-[#F2AC00]" />
             </button>
-            <span className="hidden sm:inline text-xs text-slate-500">Tcho-Tcho Digital Banking</span>
+            <span className="hidden sm:inline text-xs font-semibold text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 px-2.5 py-1 rounded-full">
+              Tcho-Tcho Digital Banking
+            </span>
           </div>
         </div>
 
-        {/* Center: Buscador elegante */}
+        {/* Center: Buscador de alto contraste */}
         <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-slate-400" />
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-[#F2AC00]" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search payments, clients, cards..."
-            className="w-full h-10 rounded-2xl bg-[#0D0F0E] border border-white/10 pl-10 pr-4 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-[#F2AC00]/50 transition"
+            className="w-full h-11 rounded-2xl bg-[#111713] border border-white/15 pl-10 pr-4 text-xs text-white placeholder:text-slate-400 focus:outline-none focus:border-[#F2AC00] focus:ring-1 focus:ring-[#F2AC00] shadow-inner transition"
           />
         </div>
 
@@ -274,31 +269,31 @@ export function Dashboard() {
         <div className="flex items-center gap-2.5">
           <Link
             to="/dashboard"
-            className="relative flex items-center gap-1.5 rounded-xl bg-white/[0.04] border border-white/10 px-3 py-1.5 text-xs font-semibold text-slate-300 hover:text-white transition"
+            className="relative flex items-center gap-2 rounded-xl bg-[#141A16] border border-white/15 px-3.5 py-2 text-xs font-bold text-white hover:border-[#F2AC00]/50 hover:bg-[#1A231D] shadow-md transition"
           >
-            <Bell className="size-3.5 text-[#F2AC00]" />
-            <span>2 new</span>
+            <Bell className="size-4 text-[#F2AC00]" />
+            <span className="bg-[#F2AC00] text-black font-extrabold px-1.5 py-0.2 rounded-full text-[10px]">2 new</span>
           </Link>
 
-          <div className="hidden sm:flex items-center gap-1 rounded-xl bg-white/[0.04] border border-white/10 px-2.5 py-1 text-xs text-slate-300">
-            <ChevronLeft className="size-3.5 cursor-pointer text-slate-400 hover:text-white" />
-            <span className="px-1 text-[11px] font-medium">Today, May 07</span>
-            <ChevronRight className="size-3.5 cursor-pointer text-slate-400 hover:text-white" />
+          <div className="hidden sm:flex items-center gap-1.5 rounded-xl bg-[#141A16] border border-white/15 px-3 py-2 text-xs text-white shadow-md">
+            <ChevronLeft className="size-4 cursor-pointer text-slate-400 hover:text-white" />
+            <span className="px-1 text-xs font-semibold text-slate-200">Today, May 07</span>
+            <ChevronRight className="size-4 cursor-pointer text-slate-400 hover:text-white" />
           </div>
 
-          <div className="flex items-center gap-2 pl-2 border-l border-white/10">
-            <div className="grid size-9 place-items-center rounded-xl bg-gradient-to-tr from-[#02531C] to-[#057A29] text-[#F2AC00] font-bold text-xs shadow-md">
+          <div className="flex items-center gap-2.5 pl-2 border-l border-white/15">
+            <div className="grid size-10 place-items-center rounded-xl bg-gradient-to-tr from-[#02531C] to-[#10B981] text-[#F2AC00] font-black text-sm border border-[#F2AC00]/50 shadow-[0_0_12px_rgba(2,83,28,0.6)]">
               {displayName.charAt(0)}
             </div>
             <div className="hidden xl:block text-left text-xs leading-tight">
-              <p className="font-bold text-white truncate max-w-[120px]">{displayName}</p>
-              <p className="text-[10px] text-slate-400 truncate max-w-[120px]">{userEmail}</p>
+              <p className="font-extrabold text-white truncate max-w-[130px]">{displayName}</p>
+              <p className="text-[11px] text-emerald-400 font-medium truncate max-w-[130px]">{userEmail}</p>
             </div>
           </div>
         </div>
       </header>
 
-      {/* MAIN 3-COLUMN FINTECH GRID (Payx Layout con Colores Tcho-Tcho) */}
+      {/* MAIN 3-COLUMN FINTECH GRID CON CONTRASTE ELEVADO */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         
         {/* ========================================================
@@ -307,57 +302,60 @@ export function Dashboard() {
         <div className="lg:col-span-4 space-y-6">
           
           {/* Revenue Overview Card */}
-          <div className="rounded-3xl bg-[#090C0A] border border-white/10 p-5 space-y-4 shadow-xl relative overflow-hidden">
-            {/* Glow sutil de fondo */}
-            <div className="absolute -top-16 -left-16 size-48 rounded-full bg-[#02531C]/25 blur-3xl pointer-events-none" />
+          <div className="rounded-3xl bg-gradient-to-b from-[#131A15] via-[#0E1511] to-[#0A0F0C] border border-white/15 p-5 space-y-4 shadow-[0_12px_36px_rgba(0,0,0,0.85)] relative overflow-hidden">
+            {/* Glow de fondo vibrante */}
+            <div className="absolute -top-16 -left-16 size-56 rounded-full bg-[#02531C]/35 blur-3xl pointer-events-none" />
 
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between relative z-10">
               <div>
-                <h3 className="font-display font-bold text-lg text-white">Revenue Overview</h3>
-                <p className="text-[11px] text-slate-400">Updated today, 07 May 2026</p>
+                <h3 className="font-display font-black text-lg text-white tracking-tight">Revenue Overview</h3>
+                <p className="text-xs font-medium text-slate-300">Updated today, 07 May 2026</p>
               </div>
 
               {/* Selector de moneda */}
               <button
                 type="button"
                 onClick={() => setCurrencyView(currencyView === "USD" ? "HTG" : "USD")}
-                className="inline-flex items-center gap-1.5 rounded-xl bg-white/[0.05] border border-white/10 px-2.5 py-1 text-xs font-bold text-slate-200 hover:bg-white/10 transition"
+                className="inline-flex items-center gap-1.5 rounded-xl bg-[#1C2620] border border-[#F2AC00]/40 px-3 py-1.5 text-xs font-black text-[#F2AC00] hover:bg-[#02531C]/50 shadow-sm transition"
               >
                 <span>{currencyView}</span>
-                <ChevronDown className="size-3 text-slate-400" />
+                <ChevronDown className="size-3.5 text-[#F2AC00]" />
               </button>
             </div>
 
             {/* Sub-caja "Overview" con métricas y gráfico */}
-            <div className="rounded-2xl bg-[#0F1410] border border-white/5 p-4 space-y-3.5">
+            <div className="rounded-2xl bg-gradient-to-b from-[#19221C] to-[#121A15] border border-white/12 p-4 space-y-3.5 shadow-inner relative z-10">
               <div className="flex items-center justify-between text-xs">
-                <span className="font-semibold text-white">Overview</span>
-                <Info className="size-3.5 text-slate-500 cursor-pointer hover:text-white" />
+                <span className="font-bold text-white flex items-center gap-1.5">
+                  <span className="size-2 rounded-full bg-[#10B981] animate-ping" />
+                  Overview
+                </span>
+                <Info className="size-4 text-emerald-400 cursor-pointer hover:text-white" />
               </div>
 
               <div className="grid grid-cols-2 gap-2 text-xs">
-                <div>
-                  <p className="text-[10px] text-slate-400">Peak Volume</p>
-                  <p className="font-bold text-white text-xs mt-0.5">2x increase vs last month</p>
+                <div className="rounded-xl bg-black/40 border border-white/5 p-2.5">
+                  <p className="text-[10px] font-semibold text-slate-300 uppercase tracking-wider">Peak Volume</p>
+                  <p className="font-extrabold text-white text-xs mt-1">2x vs last month</p>
                 </div>
-                <div className="text-right">
-                  <p className="text-[10px] text-slate-400">Growth Rate</p>
-                  <p className="font-bold text-[#F2AC00] text-xs mt-0.5">+ 12.83 %</p>
+                <div className="rounded-xl bg-black/40 border border-[#F2AC00]/30 p-2.5 text-right">
+                  <p className="text-[10px] font-semibold text-slate-300 uppercase tracking-wider">Growth Rate</p>
+                  <p className="font-black text-[#F2AC00] text-sm mt-0.5">+ 12.83 %</p>
                 </div>
               </div>
 
-              {/* Pestañas de tiempo: 24h, Week, Month */}
-              <div className="flex items-center justify-between rounded-xl bg-black/40 p-1 border border-white/5 text-xs">
+              {/* Pestañas de tiempo: 24h, Week, Month con colores vivos */}
+              <div className="flex items-center justify-between rounded-xl bg-black/60 p-1 border border-white/10 text-xs">
                 {(["24h", "week", "month"] as const).map((tVal) => (
                   <button
                     key={tVal}
                     type="button"
                     onClick={() => setTimeframe(tVal)}
                     className={cn(
-                      "flex-1 py-1 rounded-lg font-semibold text-xs capitalize transition-all",
+                      "flex-1 py-1.5 rounded-lg font-bold text-xs capitalize transition-all",
                       timeframe === tVal
-                        ? "bg-[#02531C] text-[#F2AC00] shadow-sm border border-[#F2AC00]/30"
-                        : "text-slate-400 hover:text-white"
+                        ? "bg-gradient-to-r from-[#02531C] to-[#046824] text-[#F2AC00] shadow-[0_0_12px_rgba(242,172,0,0.35)] border border-[#F2AC00]/50"
+                        : "text-slate-300 hover:text-white"
                     )}
                   >
                     {tVal === "week" ? "Week" : tVal === "month" ? "Month" : "24h"}
@@ -365,151 +363,155 @@ export function Dashboard() {
                 ))}
               </div>
 
-              {/* Spline Wave Curve SVG con resplandor esmeralda/dorado y tooltip interactivo */}
+              {/* Spline Wave Curve SVG con resplandor neón esmeralda y tooltip oro */}
               <div className="relative pt-3 pb-1">
-                <svg viewBox="0 0 320 120" className="w-full h-28 overflow-visible">
+                <svg viewBox="0 0 320 120" className="w-full h-32 overflow-visible">
                   <defs>
-                    <linearGradient id="waveEmeraldGradient" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#02531C" stopOpacity="0.5" />
+                    <linearGradient id="waveEmeraldGradientVivid" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#10B981" stopOpacity="0.6" />
+                      <stop offset="50%" stopColor="#02531C" stopOpacity="0.3" />
                       <stop offset="100%" stopColor="#02531C" stopOpacity="0.0" />
                     </linearGradient>
-                    <filter id="neonEmeraldGlow" x="-20%" y="-20%" width="140%" height="140%">
-                      <feGaussianBlur stdDeviation="3" result="blur" />
+                    <filter id="superNeonEmeraldGlow" x="-30%" y="-30%" width="160%" height="160%">
+                      <feGaussianBlur stdDeviation="4" result="blur" />
                       <feComposite in="SourceGraphic" in2="blur" operator="over" />
                     </filter>
                   </defs>
 
-                  {/* Líneas de cuadrícula sutiles */}
-                  <line x1="0" y1="30" x2="320" y2="30" stroke="rgba(255,255,255,0.05)" strokeDasharray="3 3" />
-                  <line x1="0" y1="65" x2="320" y2="65" stroke="rgba(255,255,255,0.05)" strokeDasharray="3 3" />
-                  <line x1="0" y1="100" x2="320" y2="100" stroke="rgba(255,255,255,0.05)" strokeDasharray="3 3" />
+                  {/* Cuadrícula */}
+                  <line x1="0" y1="30" x2="320" y2="30" stroke="rgba(255,255,255,0.08)" strokeDasharray="3 3" />
+                  <line x1="0" y1="65" x2="320" y2="65" stroke="rgba(255,255,255,0.08)" strokeDasharray="3 3" />
+                  <line x1="0" y1="100" x2="320" y2="100" stroke="rgba(255,255,255,0.08)" strokeDasharray="3 3" />
 
                   {/* Área rellenada */}
                   <path
                     d="M 10 90 Q 60 70, 110 82 T 210 45 T 270 30 T 310 50 L 310 115 L 10 115 Z"
-                    fill="url(#waveEmeraldGradient)"
+                    fill="url(#waveEmeraldGradientVivid)"
                   />
 
-                  {/* Línea de onda spline principal en verde esmeralda */}
+                  {/* Línea curva spline principal */}
                   <path
                     d="M 10 90 Q 60 70, 110 82 T 210 45 T 270 30 T 310 50"
                     fill="none"
                     stroke="#10B981"
-                    strokeWidth="3"
-                    filter="url(#neonEmeraldGlow)"
+                    strokeWidth="3.5"
+                    filter="url(#superNeonEmeraldGlow)"
                     strokeLinecap="round"
                   />
 
                   {/* Línea vertical punteada al punto May 29 */}
-                  <line x1="210" y1="45" x2="210" y2="115" stroke="#F2AC00" strokeWidth="1.5" strokeDasharray="3 3" />
+                  <line x1="210" y1="45" x2="210" y2="115" stroke="#F2AC00" strokeWidth="2" strokeDasharray="4 3" />
 
                   {/* Puntos destacados */}
-                  <circle cx="10" cy="90" r="3" fill="#10B981" />
-                  <circle cx="110" cy="82" r="3" fill="#10B981" />
-                  <circle cx="210" cy="45" r="5" fill="#F2AC00" stroke="#000" strokeWidth="2" className="animate-pulse" />
-                  <circle cx="270" cy="30" r="3.5" fill="#10B981" />
-                  <circle cx="310" cy="50" r="3" fill="#10B981" />
+                  <circle cx="10" cy="90" r="3.5" fill="#34D399" />
+                  <circle cx="110" cy="82" r="3.5" fill="#34D399" />
+                  <circle cx="210" cy="45" r="6" fill="#F2AC00" stroke="#000" strokeWidth="2.5" />
+                  <circle cx="270" cy="30" r="4" fill="#34D399" />
+                  <circle cx="310" cy="50" r="3.5" fill="#34D399" />
                 </svg>
 
-                {/* Tooltip flotante fiel al mockup sobre el punto May 29 */}
-                <div className="absolute top-2 left-1/2 translate-x-2 rounded-xl bg-black/90 border border-[#F2AC00]/40 p-2 shadow-xl backdrop-blur-md text-[10px] space-y-0.5">
-                  <p className="text-slate-400 font-medium">May 29</p>
-                  <p className="font-bold text-white text-xs">$ 5,538.65</p>
-                  <p className="font-semibold text-[#F2AC00]">+ 9.41%</p>
+                {/* Tooltip flotante con alto contraste sobre el punto May 29 */}
+                <div className="absolute top-1 left-1/2 translate-x-3 rounded-2xl bg-black/95 border-2 border-[#F2AC00] p-2.5 shadow-[0_8px_24px_rgba(242,172,0,0.35)] backdrop-blur-xl text-xs space-y-0.5">
+                  <p className="text-slate-300 font-bold text-[10px]">May 29</p>
+                  <p className="font-black text-white text-sm tracking-tight">$ 5,538.65</p>
+                  <p className="font-black text-[#10B981] text-xs">+ 9.41%</p>
                 </div>
 
-                {/* Etiquetas de fechas en el eje X */}
-                <div className="flex items-center justify-between text-[10px] text-slate-500 pt-2 font-mono">
+                {/* Eje X de fechas */}
+                <div className="flex items-center justify-between text-xs text-slate-300 pt-2 font-mono font-bold">
                   <span>May 01</span>
                   <span>May 10</span>
                   <span>May 20</span>
-                  <span className="text-[#F2AC00] font-semibold">May 29</span>
+                  <span className="text-[#F2AC00] font-black underline decoration-2 underline-offset-4">May 29</span>
                 </div>
               </div>
             </div>
 
-            {/* Métrica inferior en grande */}
-            <div className="flex items-baseline justify-between pt-1">
+            {/* Gran porcentaje inferior */}
+            <div className="flex items-baseline justify-between pt-1 relative z-10">
               <div>
-                <span className="text-3xl font-extrabold tracking-tight text-white">+ 19.23 %</span>
+                <span className="text-4xl font-black tracking-tight text-[#10B981] drop-shadow-[0_0_15px_rgba(16,185,129,0.4)]">
+                  + 19.23 %
+                </span>
               </div>
               <div className="text-right">
-                <p className="text-[10px] text-slate-500">Last updated</p>
-                <p className="text-xs font-medium text-slate-300">Today, 06:49 AM</p>
+                <p className="text-[10px] font-semibold uppercase text-slate-400">Last updated</p>
+                <p className="text-xs font-bold text-white">Today, 06:49 AM</p>
               </div>
             </div>
           </div>
 
-          {/* Top Clients / Beneficiarios Recientes */}
-          <div className="rounded-3xl bg-[#090C0A] border border-white/10 p-5 space-y-4 shadow-xl">
+          {/* Top Clients con Alto Contraste */}
+          <div className="rounded-3xl bg-gradient-to-b from-[#131A15] via-[#0E1511] to-[#0A0F0C] border border-white/15 p-5 space-y-4 shadow-[0_12px_36px_rgba(0,0,0,0.85)]">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="font-display font-bold text-base text-white">Top Clients</h3>
-                <p className="text-[11px] text-slate-400">02 of 5 active companies</p>
+                <h3 className="font-display font-black text-base text-white">Top Clients</h3>
+                <p className="text-xs font-medium text-slate-300">02 of 5 active companies</p>
               </div>
 
-              {/* Botones de paginación */}
+              {/* Botones de navegación */}
               <div className="flex items-center gap-1.5">
                 <button
                   type="button"
-                  className="grid size-7 place-items-center rounded-lg bg-white/[0.04] border border-white/10 text-slate-400 hover:text-white hover:bg-white/10 transition"
+                  className="grid size-8 place-items-center rounded-xl bg-[#1C2620] border border-white/15 text-slate-300 hover:text-white hover:border-[#F2AC00]/60 shadow-sm transition"
                   aria-label="Previous client"
                 >
-                  <ChevronLeft className="size-3.5" />
+                  <ChevronLeft className="size-4" />
                 </button>
                 <button
                   type="button"
-                  className="grid size-7 place-items-center rounded-lg bg-white/[0.04] border border-white/10 text-slate-400 hover:text-white hover:bg-white/10 transition"
+                  className="grid size-8 place-items-center rounded-xl bg-[#1C2620] border border-white/15 text-slate-300 hover:text-white hover:border-[#F2AC00]/60 shadow-sm transition"
                   aria-label="Next client"
                 >
-                  <ChevronRight className="size-3.5" />
+                  <ChevronRight className="size-4" />
                 </button>
               </div>
             </div>
 
-            {/* Lista de tarjetas horizontales de clientes */}
+            {/* Lista de tarjetas horizontales */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-3">
               {topClients.map((client) => (
                 <div
                   key={client.name}
-                  className="rounded-2xl bg-[#0F1410] border border-white/5 p-3.5 space-y-2.5 hover:border-[#02531C]/50 transition-all group"
+                  className="rounded-2xl bg-gradient-to-b from-[#1A231D] to-[#121A15] border border-white/12 p-4 space-y-2.5 hover:border-[#F2AC00]/50 hover:shadow-[0_8px_20px_rgba(2,83,28,0.25)] transition-all group"
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <span className={cn("size-2 rounded-full", client.badgeColor)} />
-                      <p className="text-xs font-bold text-white group-hover:text-[#F2AC00] transition">
+                      <span className={cn("size-2.5 rounded-full", client.badgeColor)} />
+                      <p className="text-xs font-extrabold text-white group-hover:text-[#F2AC00] transition">
                         {client.name}
                       </p>
                     </div>
-                    <MoreVertical className="size-3.5 text-slate-500 cursor-pointer hover:text-white" />
+                    <MoreVertical className="size-4 text-slate-400 cursor-pointer hover:text-white" />
                   </div>
 
                   <div className="flex items-baseline justify-between">
-                    <p className="text-sm font-extrabold text-white">{client.total}</p>
+                    <p className="text-base font-black text-white">{client.total}</p>
                     <span className={cn(
-                      "text-[10px] font-bold",
-                      client.growth.startsWith("+") ? "text-[#10B981]" : "text-rose-400"
+                      "text-xs font-black px-2 py-0.5 rounded-full border",
+                      client.growth.startsWith("+")
+                        ? "text-emerald-300 bg-emerald-500/20 border-emerald-500/40"
+                        : "text-rose-300 bg-rose-500/20 border-rose-500/40"
                     )}>
                       {client.growth}
                     </span>
                   </div>
 
-                  {/* Stack de avatares */}
                   <div className="flex items-center justify-between pt-1">
-                    <div className="flex -space-x-1.5">
+                    <div className="flex -space-x-2">
                       {client.avatars.map((emoji, idx) => (
                         <div
                           key={idx}
-                          className="grid size-6 place-items-center rounded-full bg-slate-800 border border-black text-xs shadow-sm"
+                          className="grid size-7 place-items-center rounded-full bg-slate-800 border-2 border-black text-xs shadow-md"
                         >
                           {emoji}
                         </div>
                       ))}
-                      <div className="grid size-6 place-items-center rounded-full bg-[#02531C] border border-black text-[9px] font-bold text-[#F2AC00]">
+                      <div className="grid size-7 place-items-center rounded-full bg-[#02531C] border-2 border-black text-[10px] font-black text-[#F2AC00]">
                         +
                       </div>
                     </div>
-                    <span className="text-[10px] text-slate-400">{client.subtitle}</span>
+                    <span className="text-xs font-semibold text-slate-300">{client.subtitle}</span>
                   </div>
                 </div>
               ))}
@@ -523,29 +525,29 @@ export function Dashboard() {
         <div className="lg:col-span-5 space-y-6">
           
           {/* Total Balance Card */}
-          <div className="rounded-3xl bg-[#090C0A] border border-white/10 p-5 space-y-4 shadow-xl relative overflow-hidden">
-            {/* Glow sutil en verde esmeralda y oro */}
-            <div className="absolute top-0 right-0 size-48 rounded-full bg-[#F2AC00]/15 blur-3xl pointer-events-none" />
+          <div className="rounded-3xl bg-gradient-to-b from-[#131A15] via-[#0E1511] to-[#0A0F0C] border border-white/15 p-5 space-y-4 shadow-[0_12px_36px_rgba(0,0,0,0.85)] relative overflow-hidden">
+            {/* Resplandor oro sutil */}
+            <div className="absolute top-0 right-0 size-60 rounded-full bg-[#F2AC00]/20 blur-3xl pointer-events-none" />
 
-            <div className="flex items-start justify-between">
+            <div className="flex items-start justify-between relative z-10">
               <div>
-                <p className="text-xs font-semibold text-slate-400">Total Balance</p>
-                <p className="text-[10px] text-slate-500">Across all connected accounts</p>
-                <div className="flex items-baseline gap-2 mt-1">
+                <p className="text-xs font-bold uppercase tracking-wider text-slate-300">Total Balance</p>
+                <p className="text-[11px] font-medium text-slate-400">Across all connected accounts</p>
+                <div className="flex items-baseline gap-2.5 mt-1.5">
                   <h2 className="text-3xl sm:text-4xl font-black tracking-tight text-white">
                     {hideBalance ? "••••••••" : formattedBalance}
                   </h2>
                   <button
                     type="button"
                     onClick={() => setHideBalance(!hideBalance)}
-                    className="text-slate-400 hover:text-white transition"
+                    className="text-[#F2AC00] hover:text-white transition"
                     aria-label="Toggle balance visibility"
                   >
-                    {hideBalance ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+                    {hideBalance ? <EyeOff className="size-5" /> : <Eye className="size-5" />}
                   </button>
                 </div>
-                <p className="text-[11px] text-slate-400 mt-1">
-                  Monthly avg: <span className="font-semibold text-white">$15,230 ↗</span>
+                <p className="text-xs text-slate-300 mt-1">
+                  Monthly avg: <span className="font-extrabold text-[#10B981]">$15,230 ↗</span>
                 </p>
               </div>
 
@@ -553,30 +555,33 @@ export function Dashboard() {
                 <button
                   type="button"
                   onClick={() => setCurrencyView(currencyView === "USD" ? "HTG" : "USD")}
-                  className="inline-flex items-center gap-1.5 rounded-xl bg-white/[0.05] border border-white/10 px-2.5 py-1 text-xs font-bold text-slate-200 hover:bg-white/10 transition"
+                  className="inline-flex items-center gap-1.5 rounded-xl bg-[#1C2620] border border-[#F2AC00]/40 px-3 py-1.5 text-xs font-black text-[#F2AC00] hover:bg-[#02531C]/50 shadow-sm transition"
                 >
                   <span>{currencyView}</span>
-                  <ChevronDown className="size-3 text-slate-400" />
+                  <ChevronDown className="size-3.5 text-[#F2AC00]" />
                 </button>
-                <p className="text-[10px] text-slate-500">Compared to last month</p>
-                <p className="text-xs font-bold text-rose-400">- 37.16 %</p>
+                <p className="text-[10px] font-semibold text-slate-400">Compared to last month</p>
+                <p className="text-xs font-extrabold text-rose-400 bg-rose-500/10 border border-rose-500/30 px-2 py-0.5 rounded-full inline-block">
+                  - 37.16 %
+                </p>
               </div>
             </div>
 
-            {/* ABANICO 3D DE TARJETAS SUPERPUESTAS (Fiel al mockup de Payx con colores Tcho-Tcho) */}
-            <div className="relative pt-4 pb-2">
-              <div className="relative h-48 w-full max-w-md mx-auto">
+            {/* ABANICO 3D DE TARJETAS VIBRANTES */}
+            <div className="relative pt-4 pb-2 z-10">
+              <div className="relative h-52 w-full max-w-md mx-auto">
                 {/* Tarjeta 3 (Fondo lejano) */}
                 <div
                   onClick={() => setActiveCardIndex(2)}
                   className={cn(
-                    "absolute top-0 right-2 w-[85%] h-44 rounded-2xl border border-white/10 p-4 transition-all duration-300 cursor-pointer shadow-lg opacity-40 hover:opacity-70",
-                    cardsList[2].gradient
+                    "absolute top-0 right-2 w-[85%] h-48 rounded-2xl border p-4 transition-all duration-300 cursor-pointer shadow-xl opacity-60 hover:opacity-90",
+                    cardsList[2].gradient,
+                    cardsList[2].border
                   )}
                   style={{ transform: "rotate(6deg) translateY(-8px)" }}
                 >
                   <div className="flex justify-end">
-                    <Wifi className="size-4 text-white/50" />
+                    <Wifi className="size-4 text-[#F2AC00]" />
                   </div>
                 </div>
 
@@ -584,70 +589,71 @@ export function Dashboard() {
                 <div
                   onClick={() => setActiveCardIndex(1)}
                   className={cn(
-                    "absolute top-1 right-5 w-[90%] h-44 rounded-2xl border border-white/10 p-4 transition-all duration-300 cursor-pointer shadow-xl opacity-75 hover:opacity-90",
-                    cardsList[1].gradient
+                    "absolute top-1 right-5 w-[90%] h-48 rounded-2xl border p-4 transition-all duration-300 cursor-pointer shadow-2xl opacity-85 hover:opacity-100",
+                    cardsList[1].gradient,
+                    cardsList[1].border
                   )}
                   style={{ transform: "rotate(3deg) translateY(-4px)" }}
                 >
                   <div className="flex justify-end">
-                    <Wifi className="size-4 text-white/70" />
+                    <Wifi className="size-4 text-emerald-400" />
                   </div>
                 </div>
 
                 {/* Tarjeta 1 (FRENTE - Principal) */}
                 <div
                   className={cn(
-                    "relative z-10 w-full h-44 rounded-2xl border border-white/15 p-4 shadow-2xl transition-all duration-300 flex flex-col justify-between overflow-hidden",
+                    "relative z-10 w-full h-48 rounded-2xl border-2 p-5 shadow-2xl transition-all duration-300 flex flex-col justify-between overflow-hidden",
                     cardsList[activeCardIndex].gradient,
+                    cardsList[activeCardIndex].border,
                     cardsList[activeCardIndex].accentGlow
                   )}
                 >
-                  {/* Textura de fondo con rejilla y logo */}
-                  <div className="absolute -bottom-8 -right-8 size-36 rounded-full bg-white/[0.06] blur-xl pointer-events-none" />
+                  {/* Resplandor interno de tarjeta */}
+                  <div className="absolute -bottom-8 -right-8 size-40 rounded-full bg-white/[0.1] blur-xl pointer-events-none" />
 
-                  {/* Header de la tarjeta */}
+                  {/* Header */}
                   <div className="flex items-center justify-between relative z-10">
                     <div>
-                      <p className="text-xs font-bold text-white tracking-wide">
+                      <p className="text-xs font-black text-white tracking-wider uppercase">
                         {cardsList[activeCardIndex].title}
                       </p>
-                      <p className="text-[10px] font-mono text-white/70">
+                      <p className="text-[11px] font-mono font-bold text-[#F2AC00]">
                         {cardsList[activeCardIndex].accountMasked}
                       </p>
                     </div>
 
                     <div className="flex items-center gap-2">
-                      <span className={cn("rounded-full bg-black/40 px-2 py-0.5 text-[9px] font-semibold text-white/90 border", cardsList[activeCardIndex].badgeBorder)}>
+                      <span className={cn("rounded-full px-2.5 py-0.5 text-[10px] font-black border", cardsList[activeCardIndex].badgeBorder)}>
                         {cardsList[activeCardIndex].type}
                       </span>
-                      <Wifi className="size-4 text-[#F2AC00]" />
+                      <Wifi className="size-5 text-[#F2AC00]" />
                     </div>
                   </div>
 
-                  {/* Saldo de la tarjeta */}
+                  {/* Saldo de tarjeta */}
                   <div className="relative z-10 my-auto">
-                    <p className="text-[9px] font-semibold uppercase tracking-wider text-white/60">
+                    <p className="text-[10px] font-bold uppercase tracking-wider text-emerald-200">
                       Balance Amount
                     </p>
-                    <p className="text-xl font-black text-white tracking-tight">
+                    <p className="text-2xl font-black text-white tracking-tight drop-shadow-md">
                       {cardsList[activeCardIndex].balance}
                     </p>
                   </div>
 
-                  {/* Footer de la tarjeta con chip, masked number y logo */}
+                  {/* Footer con número y logos */}
                   <div className="flex items-center justify-between relative z-10 pt-1">
-                    <p className="font-mono text-xs text-white/80 tracking-widest">
+                    <p className="font-mono text-sm font-bold text-white tracking-widest">
                       {cardsList[activeCardIndex].masked}
                     </p>
 
-                    <div className="flex items-center gap-2">
-                      <span className="text-[9px] font-mono text-white/60">
+                    <div className="flex items-center gap-2.5">
+                      <span className="text-xs font-mono font-bold text-slate-300">
                         {cardsList[activeCardIndex].expiry}
                       </span>
-                      {/* Logo Mastercard / Visa en colores vivos */}
                       <div className="flex -space-x-2">
-                        <div className="size-4 rounded-full bg-[#EB001B] opacity-90" />
-                        <div className="size-4 rounded-full bg-[#F79E1B] opacity-90" />
+                        <div className="size-5 rounded-full bg-[#EB001B] shadow-sm" />
+                        <div className="size-5 rounded-full bg-[#F79E1B] shadow-sm" />
                       </div>
                     </div>
                   </div>
@@ -655,120 +661,120 @@ export function Dashboard() {
               </div>
             </div>
 
-            {/* 4 BOTONES DE ACCIÓN RÁPIDA (Sent, Receive, Add Card, Exchange) */}
-            <div className="grid grid-cols-4 gap-2 pt-2">
+            {/* 4 BOTONES DE ACCIÓN RÁPIDA CON CONTRASTE ELEVADO */}
+            <div className="grid grid-cols-4 gap-2.5 pt-2 relative z-10">
               <Link
                 to="/enviar"
-                className="flex flex-col items-center justify-center gap-1.5 rounded-2xl bg-[#0F1410] border border-white/5 p-2.5 text-slate-300 hover:text-white hover:bg-[#02531C]/40 hover:border-[#F2AC00]/40 transition group"
+                className="flex flex-col items-center justify-center gap-1.5 rounded-2xl bg-gradient-to-b from-[#1C2620] to-[#121A15] border border-emerald-500/30 p-3 text-white hover:border-[#F2AC00] hover:bg-[#02531C]/60 hover:shadow-[0_0_20px_rgba(242,172,0,0.3)] transition-all group"
               >
-                <div className="grid size-8 place-items-center rounded-xl bg-white/[0.04] text-[#F2AC00] group-hover:scale-110 transition">
-                  <Send className="size-3.5" />
+                <div className="grid size-9 place-items-center rounded-xl bg-[#02531C] text-[#F2AC00] border border-[#F2AC00]/40 group-hover:scale-110 transition shadow-md">
+                  <Send className="size-4" />
                 </div>
-                <span className="text-[11px] font-semibold">Sent</span>
+                <span className="text-xs font-bold">Sent</span>
               </Link>
 
               <Link
                 to="/enviar"
-                className="flex flex-col items-center justify-center gap-1.5 rounded-2xl bg-[#0F1410] border border-white/5 p-2.5 text-slate-300 hover:text-white hover:bg-[#02531C]/40 hover:border-[#F2AC00]/40 transition group"
+                className="flex flex-col items-center justify-center gap-1.5 rounded-2xl bg-gradient-to-b from-[#1C2620] to-[#121A15] border border-emerald-500/30 p-3 text-white hover:border-[#F2AC00] hover:bg-[#02531C]/60 hover:shadow-[0_0_20px_rgba(242,172,0,0.3)] transition-all group"
               >
-                <div className="grid size-8 place-items-center rounded-xl bg-white/[0.04] text-[#F2AC00] group-hover:scale-110 transition">
-                  <Download className="size-3.5" />
+                <div className="grid size-9 place-items-center rounded-xl bg-[#02531C] text-[#F2AC00] border border-[#F2AC00]/40 group-hover:scale-110 transition shadow-md">
+                  <Download className="size-4" />
                 </div>
-                <span className="text-[11px] font-semibold">Receive</span>
+                <span className="text-xs font-bold">Receive</span>
               </Link>
 
               <Link
                 to="/perfil"
-                className="flex flex-col items-center justify-center gap-1.5 rounded-2xl bg-[#0F1410] border border-white/5 p-2.5 text-slate-300 hover:text-white hover:bg-[#02531C]/40 hover:border-[#F2AC00]/40 transition group"
+                className="flex flex-col items-center justify-center gap-1.5 rounded-2xl bg-gradient-to-b from-[#1C2620] to-[#121A15] border border-emerald-500/30 p-3 text-white hover:border-[#F2AC00] hover:bg-[#02531C]/60 hover:shadow-[0_0_20px_rgba(242,172,0,0.3)] transition-all group"
               >
-                <div className="grid size-8 place-items-center rounded-xl bg-white/[0.04] text-[#F2AC00] group-hover:scale-110 transition">
-                  <CreditCard className="size-3.5" />
+                <div className="grid size-9 place-items-center rounded-xl bg-[#02531C] text-[#F2AC00] border border-[#F2AC00]/40 group-hover:scale-110 transition shadow-md">
+                  <CreditCard className="size-4" />
                 </div>
-                <span className="text-[11px] font-semibold">Add Card</span>
+                <span className="text-xs font-bold">Add Card</span>
               </Link>
 
               <Link
                 to="/recargas"
-                className="flex flex-col items-center justify-center gap-1.5 rounded-2xl bg-[#0F1410] border border-white/5 p-2.5 text-slate-300 hover:text-white hover:bg-[#02531C]/40 hover:border-[#F2AC00]/40 transition group"
+                className="flex flex-col items-center justify-center gap-1.5 rounded-2xl bg-gradient-to-b from-[#1C2620] to-[#121A15] border border-emerald-500/30 p-3 text-white hover:border-[#F2AC00] hover:bg-[#02531C]/60 hover:shadow-[0_0_20px_rgba(242,172,0,0.3)] transition-all group"
               >
-                <div className="grid size-8 place-items-center rounded-xl bg-white/[0.04] text-[#F2AC00] group-hover:scale-110 transition">
-                  <ArrowRightLeft className="size-3.5" />
+                <div className="grid size-9 place-items-center rounded-xl bg-[#02531C] text-[#F2AC00] border border-[#F2AC00]/40 group-hover:scale-110 transition shadow-md">
+                  <ArrowRightLeft className="size-4" />
                 </div>
-                <span className="text-[11px] font-semibold">Exchange</span>
+                <span className="text-xs font-bold">Exchange</span>
               </Link>
             </div>
           </div>
 
-          {/* RECENT TRANSACTIONS TABLE CARD */}
-          <div className="rounded-3xl bg-[#090C0A] border border-white/10 p-5 space-y-4 shadow-xl">
+          {/* RECENT TRANSACTIONS TABLE CON ALTO CONTRASTE */}
+          <div className="rounded-3xl bg-gradient-to-b from-[#131A15] via-[#0E1511] to-[#0A0F0C] border border-white/15 p-5 space-y-4 shadow-[0_12px_36px_rgba(0,0,0,0.85)]">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="font-display font-bold text-base text-white">Recent Transactions</h3>
-                <p className="text-[11px] text-slate-400">Activity across cards and bank transfers</p>
+                <h3 className="font-display font-black text-base text-white">Recent Transactions</h3>
+                <p className="text-xs font-medium text-slate-300">Activity across cards and bank transfers</p>
               </div>
 
               {/* Botón de filtro de lista */}
               <button
                 type="button"
-                className="inline-flex items-center gap-1.5 rounded-xl bg-white/[0.04] border border-white/10 px-2.5 py-1 text-xs font-semibold text-slate-300 hover:text-white hover:bg-white/10 transition"
+                className="inline-flex items-center gap-1.5 rounded-xl bg-[#1C2620] border border-[#F2AC00]/40 px-3 py-1.5 text-xs font-bold text-white hover:bg-[#02531C]/50 shadow-sm transition"
               >
-                <ListFilter className="size-3 text-[#F2AC00]" />
+                <ListFilter className="size-3.5 text-[#F2AC00]" />
                 <span>List</span>
-                <ChevronDown className="size-3 text-slate-400" />
+                <ChevronDown className="size-3.5 text-slate-300" />
               </button>
             </div>
 
-            {/* Tabla interactiva */}
+            {/* Tabla con tipografía clara */}
             <div className="overflow-x-auto custom-scrollbar">
               <table className="w-full text-left border-collapse text-xs">
                 <thead>
-                  <tr className="border-b border-white/5 text-[10px] text-slate-500 uppercase tracking-wider">
-                    <th className="pb-2.5 font-bold">#</th>
-                    <th className="pb-2.5 font-bold">Recipient</th>
-                    <th className="pb-2.5 font-bold hidden sm:table-cell">Sender</th>
-                    <th className="pb-2.5 font-bold hidden md:table-cell">Date</th>
-                    <th className="pb-2.5 font-bold">Amount</th>
-                    <th className="pb-2.5 font-bold">Status</th>
-                    <th className="pb-2.5 font-bold text-right">View</th>
+                  <tr className="border-b border-white/10 text-xs font-bold text-slate-300 uppercase tracking-wider">
+                    <th className="pb-3">#</th>
+                    <th className="pb-3">Recipient</th>
+                    <th className="pb-3 hidden sm:table-cell">Sender</th>
+                    <th className="pb-3 hidden md:table-cell">Date</th>
+                    <th className="pb-3">Amount</th>
+                    <th className="pb-3">Status</th>
+                    <th className="pb-3 text-right">View</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-white/5">
+                <tbody className="divide-y divide-white/10">
                   {displayTransfers.map((tx) => (
-                    <tr key={tx.id} className="group hover:bg-white/[0.02] transition-colors">
-                      <td className="py-3 font-mono text-[11px] text-slate-500">{tx.id}</td>
-                      <td className="py-3">
-                        <p className="font-bold text-white group-hover:text-[#F2AC00] transition truncate max-w-[130px]">
+                    <tr key={tx.id} className="group hover:bg-[#02531C]/15 transition-colors">
+                      <td className="py-3.5 font-mono text-xs font-bold text-slate-400">{tx.id}</td>
+                      <td className="py-3.5">
+                        <p className="font-extrabold text-white group-hover:text-[#F2AC00] transition truncate max-w-[140px]">
                           {tx.recipient}
                         </p>
-                        <p className="text-[10px] text-slate-500 sm:hidden">{tx.category} • {tx.date}</p>
+                        <p className="text-[10px] text-slate-300 font-medium sm:hidden">{tx.category} • {tx.date}</p>
                       </td>
-                      <td className="py-3 text-slate-400 hidden sm:table-cell truncate max-w-[100px]">
+                      <td className="py-3.5 text-slate-300 font-medium hidden sm:table-cell truncate max-w-[110px]">
                         {tx.sender}
                       </td>
-                      <td className="py-3 text-slate-400 hidden md:table-cell font-mono text-[11px]">
+                      <td className="py-3.5 text-slate-300 font-mono text-xs hidden md:table-cell">
                         {tx.date}
                       </td>
-                      <td className="py-3 font-bold text-white font-mono">
+                      <td className="py-3.5 font-black text-white font-mono text-sm">
                         {tx.amount}
                       </td>
-                      <td className="py-3">
+                      <td className="py-3.5">
                         <span
                           className={cn(
-                            "inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold border",
+                            "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-black border",
                             tx.status === "Success"
-                              ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/30"
+                              ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/50 shadow-[0_0_10px_rgba(16,185,129,0.3)]"
                               : tx.status === "Failed"
-                                ? "bg-rose-500/10 text-rose-400 border-rose-500/30"
-                                : "bg-amber-500/10 text-amber-400 border-amber-500/30"
+                                ? "bg-rose-500/20 text-rose-300 border-rose-500/50 shadow-[0_0_10px_rgba(244,63,94,0.3)]"
+                                : "bg-amber-500/20 text-amber-300 border-amber-500/50 shadow-[0_0_10px_rgba(245,158,11,0.3)]"
                           )}
                         >
                           {tx.status}
                         </span>
                       </td>
-                      <td className="py-3 text-right">
+                      <td className="py-3.5 text-right">
                         <Link
                           to={tx.viewLink}
-                          className="inline-flex items-center justify-center rounded-lg bg-white/[0.04] border border-white/10 px-2.5 py-1 text-[11px] font-semibold text-slate-300 hover:text-white hover:bg-white/10 transition"
+                          className="inline-flex items-center justify-center rounded-xl bg-[#1C2620] border border-white/15 px-3 py-1 text-xs font-bold text-white hover:border-[#F2AC00] hover:bg-[#02531C] shadow-sm transition"
                         >
                           View
                         </Link>
@@ -782,10 +788,10 @@ export function Dashboard() {
             <div className="pt-2 text-center">
               <Link
                 to="/historial"
-                className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#F2AC00] hover:underline"
+                className="inline-flex items-center gap-1.5 text-xs font-extrabold text-[#F2AC00] hover:underline"
               >
                 <span>View all transaction activity</span>
-                <ArrowRight className="size-3.5" />
+                <ArrowRight className="size-4" />
               </Link>
             </div>
           </div>
@@ -795,37 +801,37 @@ export function Dashboard() {
             COLUMNA DERECHA (3 cols en desktop): SAAS & SERVICES SPENDING
             ================================================================= */}
         <div className="lg:col-span-3 space-y-6">
-          <div className="rounded-3xl bg-[#090C0A] border border-white/10 p-5 space-y-4 shadow-xl">
+          <div className="rounded-3xl bg-gradient-to-b from-[#131A15] via-[#0E1511] to-[#0A0F0C] border border-white/15 p-5 space-y-4 shadow-[0_12px_36px_rgba(0,0,0,0.85)]">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="font-display font-bold text-base text-white">SaaS Spending</h3>
-                <p className="text-[11px] text-slate-400">Monthly auto-debits</p>
+                <h3 className="font-display font-black text-base text-white">SaaS Spending</h3>
+                <p className="text-xs font-medium text-slate-300">Monthly auto-debits</p>
               </div>
-              <span className="text-sm font-extrabold text-[#F2AC00]">$ 1,815 /mo</span>
+              <span className="text-base font-black text-[#F2AC00]">$ 1,815 /mo</span>
             </div>
 
-            {/* Lista de servicios activos */}
+            {/* Lista de servicios activos con iconos vivos */}
             <div className="space-y-2.5">
               {servicesList.map((svc) => (
                 <div
                   key={svc.name}
-                  className="flex items-center justify-between rounded-2xl bg-[#0F1410] border border-white/5 p-3 hover:border-white/15 transition group"
+                  className="flex items-center justify-between rounded-2xl bg-gradient-to-b from-[#1A231D] to-[#121A15] border border-white/12 p-3.5 hover:border-[#F2AC00]/40 transition group"
                 >
                   <div className="flex items-center gap-3 min-w-0">
-                    <div className={cn("grid size-9 shrink-0 place-items-center rounded-xl bg-gradient-to-tr text-base shadow-md", svc.color)}>
+                    <div className={cn("grid size-10 shrink-0 place-items-center rounded-xl bg-gradient-to-tr text-lg shadow-md", svc.color)}>
                       {svc.icon}
                     </div>
                     <div className="min-w-0">
                       <p className="font-bold text-xs text-white truncate group-hover:text-[#F2AC00] transition">
                         {svc.name}
                       </p>
-                      <p className="text-[10px] text-slate-500 truncate">{svc.provider}</p>
+                      <p className="text-[10px] text-slate-300 font-medium truncate">{svc.provider}</p>
                     </div>
                   </div>
 
                   <div className="text-right shrink-0">
-                    <p className="font-bold text-xs text-white">{svc.price}</p>
-                    <p className={cn("text-[9px] font-medium", svc.urgent ? "text-[#F2AC00] font-bold" : "text-slate-500")}>
+                    <p className="font-black text-xs text-white">{svc.price}</p>
+                    <p className={cn("text-[10px] font-bold", svc.urgent ? "text-[#F2AC00] animate-pulse" : "text-slate-300")}>
                       {svc.date}
                     </p>
                   </div>
@@ -836,7 +842,7 @@ export function Dashboard() {
             <Button
               asChild
               variant="outline"
-              className="w-full h-10 rounded-2xl border-white/10 bg-white/[0.04] text-xs font-semibold text-slate-200 hover:text-white hover:bg-white/[0.08]"
+              className="w-full h-11 rounded-2xl border-white/15 bg-[#1C2620] text-xs font-extrabold text-white hover:text-white hover:border-[#F2AC00] hover:bg-[#02531C] shadow-md transition"
             >
               <Link to="/recargas">
                 View all 12 services
@@ -845,33 +851,33 @@ export function Dashboard() {
           </div>
 
           {/* Quick Currency Rate Card Tcho-Tcho */}
-          <div className="rounded-3xl bg-gradient-to-b from-[#0F1611] to-[#0A0D0B] border border-[#02531C]/40 p-4 space-y-3 shadow-xl relative overflow-hidden">
+          <div className="rounded-3xl bg-gradient-to-b from-[#142318] via-[#0D1810] to-[#0A0D0B] border-2 border-[#02531C] p-4.5 space-y-3.5 shadow-[0_12px_36px_rgba(2,83,28,0.35)] relative overflow-hidden">
             <div className="flex items-center justify-between text-xs">
-              <span className="font-bold text-white flex items-center gap-1.5">
-                <Coins className="size-3.5 text-[#F2AC00]" />
+              <span className="font-black text-white flex items-center gap-1.5 text-sm">
+                <Coins className="size-4 text-[#F2AC00]" />
                 Live Exchange Rate
               </span>
-              <span className="rounded-full bg-[#02531C] px-2 py-0.5 text-[9px] font-bold text-[#F2AC00]">
+              <span className="rounded-full bg-[#02531C] border border-[#F2AC00]/60 px-2.5 py-0.5 text-[10px] font-black text-[#F2AC00] shadow-sm">
                 Live
               </span>
             </div>
 
-            <div className="rounded-xl bg-black/50 border border-white/5 p-3 space-y-1">
+            <div className="rounded-2xl bg-black/60 border border-white/10 p-3.5 space-y-2">
               <div className="flex items-center justify-between text-xs">
-                <span className="text-slate-400">1 USD</span>
-                <span className="font-bold text-white">≈ {rate?.rate ? `${Number(rate.rate).toFixed(2)} HTG` : "132.50 HTG"}</span>
+                <span className="text-slate-300 font-semibold">1 USD</span>
+                <span className="font-black text-white text-sm">≈ {rate?.rate ? `${Number(rate.rate).toFixed(2)} HTG` : "132.50 HTG"}</span>
               </div>
               <div className="flex items-center justify-between text-xs">
-                <span className="text-slate-400">1000 DOP</span>
-                <span className="font-bold text-white">≈ 2,240.00 HTG</span>
+                <span className="text-slate-300 font-semibold">1000 DOP</span>
+                <span className="font-black text-[#F2AC00] text-sm">≈ 2,240.00 HTG</span>
               </div>
             </div>
 
             <Link
               to="/enviar"
-              className="flex items-center justify-center gap-2 w-full h-9 rounded-xl bg-gradient-to-r from-[#02531C] to-[#046824] text-white font-bold text-xs shadow-md hover:scale-[1.02] active:scale-[0.98] transition border border-[#F2AC00]/30"
+              className="flex items-center justify-center gap-2 w-full h-10 rounded-xl bg-gradient-to-r from-[#02531C] to-[#04782A] text-white font-black text-xs shadow-lg hover:scale-[1.02] active:scale-[0.98] transition border-2 border-[#F2AC00]"
             >
-              <Send className="size-3 text-[#F2AC00]" />
+              <Send className="size-3.5 text-[#F2AC00]" />
               <span>Send Money to Haiti Now</span>
             </Link>
           </div>
