@@ -1,4 +1,4 @@
-const CACHE_NAME = "tcho-tcho-v26";
+const CACHE_NAME = "tcho-tcho-v27";
 const OFFLINE_URLS = ["/manifest.webmanifest", "/icon-192.png", "/icon-512.png"];
 
 self.addEventListener("install", (event) => {

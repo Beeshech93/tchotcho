@@ -466,8 +466,8 @@ function UsersPanel() {
           const bal = uWallets.find((w) => w.currency === "HTG")?.balance ?? 0;
           map.set(p.id, {
             id: p.id,
-            email: null,
-            full_name: p.full_name || "Usuario",
+            email: (p as any).email || null,
+            full_name: p.full_name || (p as any).email?.split("@")[0] || "Usuario",
             phone: p.phone || null,
             country: p.country || "HT",
             language: p.language || "es",
@@ -494,6 +494,9 @@ function UsersPanel() {
             <CardTitle className="text-base flex items-center gap-2">
               <Shield className="size-4 text-primary" />
               Gestión de Usuarios, Roles y Permisos
+              <span className="ml-1 text-xs font-normal text-muted-foreground">
+                ({usersList.length} registrados)
+              </span>
             </CardTitle>
             <p className="text-xs text-muted-foreground mt-0.5">
               Los nuevos usuarios se registran como clientes. Solo el Super Administrador puede asignar roles de Agente y Administrador.
@@ -536,7 +539,7 @@ function UsersPanel() {
           .filter((p) => {
             const q = userSearch.trim().toLowerCase();
             if (!q) return true;
-            return [p.full_name, p.phone, p.email]
+            return [p.full_name, p.phone, p.email, p.id]
               .filter(Boolean)
               .some((v) => String(v).toLowerCase().includes(q));
           })
