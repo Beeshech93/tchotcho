@@ -1,7 +1,15 @@
 -- ROLES
-CREATE TYPE public.app_role AS ENUM ('client', 'agent', 'admin');
-CREATE TYPE public.kyc_status AS ENUM ('none', 'pending', 'approved', 'rejected');
-CREATE TYPE public.transfer_status AS ENUM ('created', 'awaiting_payment', 'paid', 'processing', 'ready_for_pickup', 'completed', 'cancelled');
+DO $$ BEGIN
+  CREATE TYPE public.app_role AS ENUM ('client', 'agent', 'admin');
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+
+DO $$ BEGIN
+  CREATE TYPE public.kyc_status AS ENUM ('none', 'pending', 'approved', 'rejected');
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+
+DO $$ BEGIN
+  CREATE TYPE public.transfer_status AS ENUM ('created', 'awaiting_payment', 'paid', 'processing', 'ready_for_pickup', 'completed', 'cancelled');
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 
 CREATE TABLE public.profiles (
   id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
