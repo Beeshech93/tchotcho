@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { useI18n } from "@/lib/i18n";
 import { ContentPage, type ContentSection } from "@/components/ContentPage";
 
-const BASE = "https://lajanrapid.app";
+const BASE = "https://tchotcho.app";
 
 export function hreflangLinks(path: string) {
   const p = path ? `/${path}` : "";

@@ -55,7 +55,7 @@ export const resendSendTest = createServerFn({ method: "POST" })
     const { resendSendEmail } = await import("@/lib/resend.server");
     const { render } = await import("@react-email/render");
     const { AccountReadyEmail } = await import("@/lib/email-templates/account-ready");
-    const base = process.env["PUBLIC_URL"] || "https://lajanrapid.app";
+    const base = process.env["PUBLIC_URL"] || "https://tchotcho.app";
     const html = await render(
       AccountReadyEmail({ siteName: "Lajan Rapid", siteUrl: base, fullName: "Prueba" }),
     );

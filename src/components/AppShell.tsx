@@ -225,14 +225,14 @@ export function AppShell({ children }: { children: ReactNode }) {
           {isCustomBrand && (
             <div className="pt-2 text-center border-t border-white/10">
               <a
-                href="https://lajanrapid.app"
+                href="https://tchotcho.app"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center justify-center gap-1 text-[10px] text-slate-400 transition hover:text-slate-200"
               >
                 <span>Creado por</span>
                 <span className="font-bold text-[#F2AC00] underline underline-offset-2">
-                  lajanrapid.app
+                  tchotcho.app
                 </span>
               </a>
             </div>

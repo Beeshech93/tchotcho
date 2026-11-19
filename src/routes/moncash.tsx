@@ -32,7 +32,7 @@ export const Route = createFileRoute("/moncash")({
       { property: "og:description", content: CONTENT.description },
     ],
     links: [
-      { rel: "canonical", href: "https://lajanrapid.app/moncash" },
+      { rel: "canonical", href: "https://tchotcho.app/moncash" },
       ...hreflangLinks("moncash"),
     ],
   }),

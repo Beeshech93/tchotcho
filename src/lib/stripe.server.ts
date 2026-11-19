@@ -171,7 +171,7 @@ export async function createStripeCheckoutSession(opts: {
     };
   }
 
-  const base = process.env["PUBLIC_URL"] || "https://lajanrapid.app";
+  const base = process.env["PUBLIC_URL"] || "https://tchotcho.app";
   const successUrl = opts.successUrl ?? `${base}/transferencia/${opts.transferId}?payment=success`;
   const cancelUrl = opts.cancelUrl ?? `${base}/transferencia/${opts.transferId}?payment=failure`;
 

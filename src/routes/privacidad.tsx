@@ -19,10 +19,10 @@ export const Route = createFileRoute("/privacidad")({
         content:
           "Conoce cómo Lajan Rapid recopila, utiliza, almacena y protege tus datos personales en México, Haití y República Dominicana.",
       },
-      { property: "og:url", content: "https://lajanrapid.app/privacidad" },
+      { property: "og:url", content: "https://tchotcho.app/privacidad" },
       { property: "og:type", content: "article" },
     ],
-    links: [{ rel: "canonical", href: "https://lajanrapid.app/privacidad" }],
+    links: [{ rel: "canonical", href: "https://tchotcho.app/privacidad" }],
   }),
   component: PrivacyPage,
 });
@@ -108,7 +108,7 @@ function PrivacyPage() {
                 "Domicilio: CIUDAD DE MÉXICO",
                 "Correo de privacidad: privacy@lajanrapide.com",
                 "Correo de soporte: support@lajanrapide.com",
-                "Sitio web: lajanrapid.app",
+                "Sitio web: tchotcho.app",
               ]}
             />
             <p>
@@ -671,7 +671,7 @@ function PrivacyPage() {
                 "LAJAN RAPIDE — Privacy Department",
                 "Correo: privacy@lajanrapide.com",
                 "Soporte: support@lajanrapide.com",
-                "Sitio web: lajanrapid.app",
+                "Sitio web: tchotcho.app",
               ]}
             />
           </Section>

@@ -99,7 +99,7 @@ export const Route = createFileRoute("/$lang/sobre-nosotros")({
         { property: "og:description", content: c.description },
       ],
       links: [
-        { rel: "canonical", href: `https://lajanrapid.app/${lang}/sobre-nosotros` },
+        { rel: "canonical", href: `https://tchotcho.app/${lang}/sobre-nosotros` },
         ...hreflangLinks("sobre-nosotros"),
       ],
     };

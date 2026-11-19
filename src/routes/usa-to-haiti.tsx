@@ -18,7 +18,7 @@ export const Route = createFileRoute("/usa-to-haiti")({
           "Send money from the United States to Haiti with Lajan Rapid. Fast and secure international remittances to Haiti.",
       },
     ],
-    links: [{ rel: "canonical", href: "https://lajanrapid.app/usa-to-haiti" }],
+    links: [{ rel: "canonical", href: "https://tchotcho.app/usa-to-haiti" }],
   }),
   component: () => (
     <CorridorLanding

@@ -78,7 +78,7 @@ export const Route = createFileRoute("/$lang/natcash")({
         { property: "og:description", content: c.description },
       ],
       links: [
-        { rel: "canonical", href: `https://lajanrapid.app/${lang}/natcash` },
+        { rel: "canonical", href: `https://tchotcho.app/${lang}/natcash` },
         ...hreflangLinks("natcash"),
       ],
     };

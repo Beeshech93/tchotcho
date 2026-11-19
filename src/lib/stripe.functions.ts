@@ -81,7 +81,7 @@ export const stripeInitiatePayment = createServerFn({ method: "POST" })
     }
 
     const email = context.claims?.email as string | undefined;
-    const base = process.env["PUBLIC_URL"] || "https://lajanrapid.app";
+    const base = process.env["PUBLIC_URL"] || "https://tchotcho.app";
 
     const { createStripeCheckoutSession } = await import("@/lib/stripe.server");
     const result = await createStripeCheckoutSession({

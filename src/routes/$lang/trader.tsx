@@ -80,7 +80,7 @@ export const Route = createFileRoute("/$lang/trader")({
   head: ({ params }) => {
     const lang = params.lang as "es" | "fr" | "ht";
     const c = CONTENT[lang];
-    const base = "https://lajanrapid.app";
+    const base = "https://tchotcho.app";
     return {
       meta: [
         { title: c.title },

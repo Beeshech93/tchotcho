@@ -274,7 +274,7 @@ function splitName(fullName: string): { firstName: string; lastName: string } {
 }
 
 function bazikWebhookUrl(): string {
-  const base = process.env["PUBLIC_URL"] || "https://lajanrapid.app";
+  const base = process.env["PUBLIC_URL"] || "https://tchotcho.app";
   return `${base}/api/public/bazik/payout`;
 }
 

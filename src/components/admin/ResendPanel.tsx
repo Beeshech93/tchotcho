@@ -142,7 +142,7 @@ export function ResendPanel() {
             <Input
               id="resend-from"
               type="email"
-              placeholder="Lajan Rapid <bienvenida@lajanrapid.app>"
+              placeholder="Lajan Rapid <bienvenida@tchotcho.app>"
               value={creds.RESEND_FROM_EMAIL}
               onChange={(e) => setCred("RESEND_FROM_EMAIL", e.target.value)}
             />
@@ -158,7 +158,7 @@ export function ResendPanel() {
             <Input
               id="resend-alert"
               type="email"
-              placeholder="admin@lajanrapid.app"
+              placeholder="admin@tchotcho.app"
               value={creds.ADMIN_ALERT_EMAIL}
               onChange={(e) => setCred("ADMIN_ALERT_EMAIL", e.target.value)}
             />

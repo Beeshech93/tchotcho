@@ -404,7 +404,7 @@ export async function createOxxoVoucher(opts: {
     payment_method_id: "oxxo",
     external_reference: opts.reference,
     date_of_expiration: expires.toISOString().replace("Z", "+00:00"),
-    notification_url: `${process.env["PUBLIC_URL"] || "https://lajanrapid.app"}/api/public/mercadopago/webhook`,
+    notification_url: `${process.env["PUBLIC_URL"] || "https://tchotcho.app"}/api/public/mercadopago/webhook`,
     payer: {
       email: opts.payerEmail,
       first_name: opts.payerFirstName ?? "Cliente",
@@ -521,7 +521,7 @@ export async function createSpeiReference(opts: {
     payment_method_id: "clabe",
     external_reference: opts.reference,
     date_of_expiration: expires.toISOString().replace("Z", "+00:00"),
-    notification_url: `${process.env["PUBLIC_URL"] || "https://lajanrapid.app"}/api/public/mercadopago/webhook`,
+    notification_url: `${process.env["PUBLIC_URL"] || "https://tchotcho.app"}/api/public/mercadopago/webhook`,
     payer: {
       email: opts.payerEmail,
       first_name: opts.payerFirstName ?? "Cliente",

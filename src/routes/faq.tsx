@@ -42,7 +42,7 @@ export const Route = createFileRoute("/faq")({
           "Answers to common questions about Lajan Rapid: sending money to Haiti from the USA, Canada, Mexico and other countries.",
       },
     ],
-    links: [{ rel: "canonical", href: "https://lajanrapid.app/faq" }],
+    links: [{ rel: "canonical", href: "https://tchotcho.app/faq" }],
     scripts: [
       {
         type: "application/ld+json",

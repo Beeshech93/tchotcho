@@ -247,7 +247,7 @@ export const PILOT_VIPPIP_TENANT: Tenant = {
   legalName: "VipPip Global Remittance S.A.",
   isDefault: false,
   isActive: true,
-  domain: "vippip.lajanrapid.app",
+  domain: "vippip.tchotcho.app",
   subdomain: "vippip",
   branding: {
     primaryColor: "#2563eb",
@@ -291,7 +291,7 @@ export const PILOT_KASH_AYITI_TENANT: Tenant = {
   legalName: "Kash Ayiti Financial Services Ltd.",
   isDefault: false,
   isActive: true,
-  domain: "kashayiti.lajanrapid.app",
+  domain: "kashayiti.tchotcho.app",
   subdomain: "kashayiti",
   branding: {
     primaryColor: "#f59e0b",

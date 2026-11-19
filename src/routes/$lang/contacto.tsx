@@ -39,7 +39,7 @@ export const Route = createFileRoute("/$lang/contacto")({
         { name: "robots", content: "index, follow" },
       ],
       links: [
-        { rel: "canonical", href: `https://lajanrapid.app/${lang}/contacto` },
+        { rel: "canonical", href: `https://tchotcho.app/${lang}/contacto` },
         ...hreflangLinks("contacto"),
       ],
     };

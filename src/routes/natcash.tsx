@@ -32,7 +32,7 @@ export const Route = createFileRoute("/natcash")({
       { property: "og:description", content: CONTENT.description },
     ],
     links: [
-      { rel: "canonical", href: "https://lajanrapid.app/natcash" },
+      { rel: "canonical", href: "https://tchotcho.app/natcash" },
       ...hreflangLinks("natcash"),
     ],
   }),

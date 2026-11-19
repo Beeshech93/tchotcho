@@ -44,7 +44,7 @@ export const Route = createFileRoute("/$lang/")({
   head: ({ params }) => {
     const lang = params.lang as "es" | "fr" | "ht";
     const meta = SEO_META[lang];
-    const base = "https://lajanrapid.app";
+    const base = "https://tchotcho.app";
     return {
       meta: [
         { title: meta.title },

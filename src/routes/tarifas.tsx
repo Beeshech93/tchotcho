@@ -38,7 +38,7 @@ export const Route = createFileRoute("/tarifas")({
       { property: "og:description", content: CONTENT.description },
     ],
     links: [
-      { rel: "canonical", href: "https://lajanrapid.app/tarifas" },
+      { rel: "canonical", href: "https://tchotcho.app/tarifas" },
       ...hreflangLinks("tarifas"),
     ],
   }),

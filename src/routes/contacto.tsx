@@ -19,7 +19,7 @@ export const Route = createFileRoute("/contacto")({
       { property: "og:title", content: "Contact Us | Lajan Rapid" },
     ],
     links: [
-      { rel: "canonical", href: "https://lajanrapid.app/contacto" },
+      { rel: "canonical", href: "https://tchotcho.app/contacto" },
       ...hreflangLinks("contacto"),
     ],
   }),

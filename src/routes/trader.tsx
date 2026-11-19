@@ -22,12 +22,12 @@ export const Route = createFileRoute("/trader")({
       },
     ],
     links: [
-      { rel: "canonical", href: "https://lajanrapid.app/trader" },
-      { rel: "alternate", hreflang: "en", href: "https://lajanrapid.app/trader" },
-      { rel: "alternate", hreflang: "es", href: "https://lajanrapid.app/es/trader" },
-      { rel: "alternate", hreflang: "fr", href: "https://lajanrapid.app/fr/trader" },
-      { rel: "alternate", hreflang: "ht", href: "https://lajanrapid.app/ht/trader" },
-      { rel: "alternate", hreflang: "x-default", href: "https://lajanrapid.app/trader" },
+      { rel: "canonical", href: "https://tchotcho.app/trader" },
+      { rel: "alternate", hreflang: "en", href: "https://tchotcho.app/trader" },
+      { rel: "alternate", hreflang: "es", href: "https://tchotcho.app/es/trader" },
+      { rel: "alternate", hreflang: "fr", href: "https://tchotcho.app/fr/trader" },
+      { rel: "alternate", hreflang: "ht", href: "https://tchotcho.app/ht/trader" },
+      { rel: "alternate", hreflang: "x-default", href: "https://tchotcho.app/trader" },
     ],
   }),
   component: () => (

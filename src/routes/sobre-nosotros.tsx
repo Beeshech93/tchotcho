@@ -39,7 +39,7 @@ export const Route = createFileRoute("/sobre-nosotros")({
       { property: "og:description", content: CONTENT.description },
     ],
     links: [
-      { rel: "canonical", href: "https://lajanrapid.app/sobre-nosotros" },
+      { rel: "canonical", href: "https://tchotcho.app/sobre-nosotros" },
       ...hreflangLinks("sobre-nosotros"),
     ],
   }),

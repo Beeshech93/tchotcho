@@ -95,7 +95,7 @@ export const mercadoPagoInitiatePayment = createServerFn({ method: "POST" })
     }
 
     const email = (context.claims?.email as string | undefined) || "cliente@lajanrapid.com";
-    const base = process.env["PUBLIC_URL"] || "https://lajanrapid.app";
+    const base = process.env["PUBLIC_URL"] || "https://tchotcho.app";
 
     const { createMpPreference } = await import("@/lib/mercadopago.server");
     const result = await createMpPreference({

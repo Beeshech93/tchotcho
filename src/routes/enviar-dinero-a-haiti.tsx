@@ -41,7 +41,7 @@ export const Route = createFileRoute("/enviar-dinero-a-haiti")({
       { property: "og:description", content: CONTENT.description },
     ],
     links: [
-      { rel: "canonical", href: "https://lajanrapid.app/enviar-dinero-a-haiti" },
+      { rel: "canonical", href: "https://tchotcho.app/enviar-dinero-a-haiti" },
       ...hreflangLinks("enviar-dinero-a-haiti"),
     ],
     scripts: [
