@@ -226,7 +226,7 @@ function AuthPage() {
   };
 
   return (
-    <div className="relative min-h-screen bg-[#060F09] text-white selection:bg-[#02531C] selection:text-white overflow-hidden">
+    <div className="relative min-h-screen bg-[#000000] text-white selection:bg-[#02531C] selection:text-white overflow-hidden">
       {/* Glow radial superior que recrea la iluminación del logo Tcho-Tcho */}
       <div
         className="pointer-events-none absolute -top-40 left-1/2 -translate-x-1/2 w-[600px] h-[500px] rounded-full blur-[140px] opacity-35"
@@ -307,7 +307,7 @@ function AuthPage() {
                     type="email"
                     required
                     placeholder="Enter your email address"
-                    className="h-12 w-full rounded-2xl bg-[#112417]/90 border border-white/10 pl-11 pr-4 text-xs text-white placeholder:text-slate-500 focus-visible:border-[#02531C] focus-visible:ring-1 focus-visible:ring-[#02531C]"
+                    className="h-12 w-full rounded-2xl bg-[#121212]/90 border border-white/10 pl-11 pr-4 text-xs text-white placeholder:text-slate-500 focus-visible:border-[#02531C] focus-visible:ring-1 focus-visible:ring-[#02531C]"
                   />
                 </div>
 
@@ -321,7 +321,7 @@ function AuthPage() {
                       type="checkbox"
                       checked={rememberMe}
                       onChange={(e) => setRememberMe(e.target.checked)}
-                      className="size-3.5 rounded border-white/20 bg-[#112417] text-[#02531C] focus:ring-0 focus:ring-offset-0"
+                      className="size-3.5 rounded border-white/20 bg-[#121212] text-[#02531C] focus:ring-0 focus:ring-offset-0"
                     />
                     <span>Remember me</span>
                   </label>
@@ -367,7 +367,7 @@ function AuthPage() {
                     type="text"
                     required
                     placeholder="Enter Your Name"
-                    className="h-12 w-full rounded-2xl bg-[#112417]/90 border border-white/10 pl-11 pr-4 text-xs text-white placeholder:text-slate-500 focus-visible:border-[#02531C] focus-visible:ring-1 focus-visible:ring-[#02531C]"
+                    className="h-12 w-full rounded-2xl bg-[#121212]/90 border border-white/10 pl-11 pr-4 text-xs text-white placeholder:text-slate-500 focus-visible:border-[#02531C] focus-visible:ring-1 focus-visible:ring-[#02531C]"
                   />
                 </div>
 
@@ -382,10 +382,10 @@ function AuthPage() {
                       setPhoneInput(formatNational(v, phoneInput, c?.dial));
                     }}
                   >
-                    <SelectTrigger className="h-12 w-[110px] rounded-2xl bg-[#112417]/90 border-white/10 text-xs text-white">
+                    <SelectTrigger className="h-12 w-[110px] rounded-2xl bg-[#121212]/90 border-white/10 text-xs text-white">
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent className="max-h-72 bg-[#112417] border-white/10 text-white">
+                    <SelectContent className="max-h-72 bg-[#121212] border-white/10 text-white">
                       {DIAL_COUNTRIES.map((c) => (
                         <SelectItem key={c.code} value={c.code} className="text-xs">
                           {c.flag} {c.dial}
@@ -404,7 +404,7 @@ function AuthPage() {
                       setPhoneInput(formatNational(dial, e.target.value, country?.dial));
                       setPhoneError(null);
                     }}
-                    className="h-12 flex-1 rounded-2xl bg-[#112417]/90 border border-white/10 text-xs text-white placeholder:text-slate-500"
+                    className="h-12 flex-1 rounded-2xl bg-[#121212]/90 border border-white/10 text-xs text-white placeholder:text-slate-500"
                   />
                 </div>
                 {phoneError && <p className="text-[11px] text-red-400 pl-1">{phoneError}</p>}
@@ -417,7 +417,7 @@ function AuthPage() {
                     type="email"
                     required
                     placeholder="Enter your email address"
-                    className="h-12 w-full rounded-2xl bg-[#112417]/90 border border-white/10 pl-11 pr-4 text-xs text-white placeholder:text-slate-500 focus-visible:border-[#02531C] focus-visible:ring-1 focus-visible:ring-[#02531C]"
+                    className="h-12 w-full rounded-2xl bg-[#121212]/90 border border-white/10 pl-11 pr-4 text-xs text-white placeholder:text-slate-500 focus-visible:border-[#02531C] focus-visible:ring-1 focus-visible:ring-[#02531C]"
                   />
                 </div>
 
@@ -470,7 +470,7 @@ function AuthPage() {
               <button
                 type="button"
                 onClick={handleGoogleAuth}
-                className="flex h-11 w-full items-center justify-center gap-2.5 rounded-full bg-[#112417]/80 border border-white/10 text-xs font-medium text-white transition-all hover:bg-[#162E1E] active:scale-[0.98]"
+                className="flex h-11 w-full items-center justify-center gap-2.5 rounded-full bg-[#121212]/80 border border-white/10 text-xs font-medium text-white transition-all hover:bg-[#1C1C1C] active:scale-[0.98]"
               >
                 <GoogleIcon />
                 <span>Continue with Google</span>
@@ -573,7 +573,7 @@ function PasswordInput({ name, placeholder }: { name: string; placeholder: strin
         type={show ? "text" : "password"}
         required
         placeholder={placeholder}
-        className="h-12 w-full rounded-2xl bg-[#112417]/90 border border-white/10 pl-11 pr-11 text-xs text-white placeholder:text-slate-500 focus-visible:border-[#02531C] focus-visible:ring-1 focus-visible:ring-[#02531C]"
+        className="h-12 w-full rounded-2xl bg-[#121212]/90 border border-white/10 pl-11 pr-11 text-xs text-white placeholder:text-slate-500 focus-visible:border-[#02531C] focus-visible:ring-1 focus-visible:ring-[#02531C]"
       />
       <button
         type="button"

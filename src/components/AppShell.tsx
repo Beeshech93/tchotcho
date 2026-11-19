@@ -181,7 +181,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         </main>
 
         <nav
-          className="fixed bottom-4 inset-x-4 z-40 mx-auto max-w-sm rounded-[28px] bg-[#0C1A10]/95 backdrop-blur-2xl border border-[#02531C]/30 px-3 py-2 shadow-[0_12px_32px_rgba(0,0,0,0.8)] md:hidden"
+          className="fixed bottom-4 inset-x-4 z-40 mx-auto max-w-sm rounded-[28px] bg-[#0D0D0D]/95 backdrop-blur-2xl border border-white/10 px-3 py-2 shadow-[0_12px_32px_rgba(0,0,0,0.9)] md:hidden"
           style={{ marginBottom: "env(safe-area-inset-bottom, 0px)" }}
         >
           <ul className="flex items-center justify-between">

@@ -75,15 +75,15 @@
 :root {
   --radius: 1.25rem;
 
-  /* ---- Tcho-Tcho Design System: Forest Emerald (#02531C) + Sun Amber Gold (#F2AC00) ---- */
+  /* ---- Tcho-Tcho Design System: Pure Black (#000000) + Forest Emerald (#02531C) + Sun Amber Gold (#F2AC00) ---- */
   --primary: #02531C; /* Brand Forest Emerald */
   --primary-dark: #013813; /* Deep Pine */
   --primary-light: #0E742C; /* Vibrant Emerald Glow */
 
-  --background: #060F09; /* Deep Obsidian Emerald */
-  --surface: #0C1A10; /* Dark Forest Cards */
-  --surface-secondary: #112417; /* Inner cards & inputs */
-  --surface-elevated: #162E1E; /* Modals, popovers & docks */
+  --background: #000000; /* Pure OLED Black */
+  --surface: #0D0D0D; /* Sleek Dark Cards */
+  --surface-secondary: #141414; /* Inner cards & inputs */
+  --surface-elevated: #1A1A1A; /* Modals, popovers & docks */
   --logo-surface: transparent;
 
   --text-primary: #FFFFFF;
@@ -117,14 +117,14 @@
   --muted-foreground: var(--text-muted);
 
   --accent: #F2AC00;
-  --accent-foreground: #060F09;
+  --accent-foreground: #000000;
 
   --destructive: var(--error);
   --destructive-foreground: #FFFFFF;
-  --success-foreground: #060F09;
-  --warning-foreground: #060F09;
+  --success-foreground: #000000;
+  --warning-foreground: #000000;
 
-  --input: #112417;
+  --input: #141414;
   --ring: #02531C;
 
   --chart-1: #02531C;
@@ -133,11 +133,11 @@
   --chart-4: #FBBF24;
   --chart-5: var(--error);
 
-  --sidebar: #07130B;
+  --sidebar: #000000;
   --sidebar-foreground: #FFFFFF;
   --sidebar-primary: var(--primary);
   --sidebar-primary-foreground: #FFFFFF;
-  --sidebar-accent: #112417;
+  --sidebar-accent: #141414;
   --sidebar-accent-foreground: #FFFFFF;
   --sidebar-border: var(--border);
   --sidebar-ring: var(--primary);
@@ -208,10 +208,10 @@
 }
 
 @utility glass-panel {
-  background: rgba(12, 26, 16, 0.8);
+  background: rgba(13, 13, 13, 0.85);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(2, 83, 28, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 @utility glass-pill {

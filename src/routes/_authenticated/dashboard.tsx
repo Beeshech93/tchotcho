@@ -141,7 +141,7 @@ function Dashboard() {
       <header className="flex items-center justify-between pt-1">
         <div className="flex items-center gap-3">
           <div className="relative grid size-11 place-items-center rounded-full bg-gradient-to-br from-[#02531C] to-[#10B981] p-0.5 shadow-md shadow-[#02531C]/40">
-            <div className="grid size-full place-items-center rounded-full bg-[#0C1A10] text-[#F2AC00] font-bold text-sm">
+            <div className="grid size-full place-items-center rounded-full bg-[#000000] text-[#F2AC00] font-bold text-sm">
               {displayName.slice(0, 1).toUpperCase()}
             </div>
           </div>
@@ -154,18 +154,18 @@ function Dashboard() {
         <div className="flex items-center gap-2">
           <button
             type="button"
-            className="grid size-9 place-items-center rounded-full bg-[#112417] border border-white/10 text-slate-300 hover:text-[#F2AC00] transition-colors"
+            className="grid size-9 place-items-center rounded-full bg-[#121212] border border-white/10 text-slate-300 hover:text-[#F2AC00] transition-colors"
             title="Scan QR"
           >
             <QrCode className="size-4" />
           </button>
           <button
             type="button"
-            className="relative grid size-9 place-items-center rounded-full bg-[#112417] border border-white/10 text-slate-300 hover:text-[#F2AC00] transition-colors"
+            className="relative grid size-9 place-items-center rounded-full bg-[#121212] border border-white/10 text-slate-300 hover:text-[#F2AC00] transition-colors"
             title="Notifications"
           >
             <Bell className="size-4" />
-            <span className="absolute top-2 right-2 size-2 rounded-full bg-[#F2AC00] ring-2 ring-[#112417]" />
+            <span className="absolute top-2 right-2 size-2 rounded-full bg-[#F2AC00] ring-2 ring-[#121212]" />
           </button>
         </div>
       </header>
@@ -178,7 +178,7 @@ function Dashboard() {
           placeholder="Search here..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="h-11 w-full rounded-2xl bg-[#112417]/90 border border-white/10 pl-11 pr-11 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-[#02531C]"
+          className="h-11 w-full rounded-2xl bg-[#121212]/90 border border-white/10 pl-11 pr-11 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-[#02531C]"
         />
         <button
           type="button"
@@ -289,7 +289,7 @@ function Dashboard() {
           {/* Top Up */}
           <Link
             to="/recargas"
-            className="group flex items-center gap-3 rounded-2xl bg-[#112417]/90 border border-white/10 p-3.5 hover:border-[#02531C] transition-all active:scale-[0.98]"
+            className="group flex items-center gap-3 rounded-2xl bg-[#121212]/90 border border-white/10 p-3.5 hover:border-[#02531C] transition-all active:scale-[0.98]"
           >
             <div className="grid size-9 place-items-center rounded-xl bg-white/[0.06] text-[#F2AC00] group-hover:bg-[#02531C] group-hover:text-white transition-colors">
               <Plus className="size-4" />
@@ -300,7 +300,7 @@ function Dashboard() {
           {/* Transfer */}
           <Link
             to="/enviar"
-            className="group flex items-center gap-3 rounded-2xl bg-[#112417]/90 border border-white/10 p-3.5 hover:border-[#02531C] transition-all active:scale-[0.98]"
+            className="group flex items-center gap-3 rounded-2xl bg-[#121212]/90 border border-white/10 p-3.5 hover:border-[#02531C] transition-all active:scale-[0.98]"
           >
             <div className="grid size-9 place-items-center rounded-xl bg-white/[0.06] text-[#F2AC00] group-hover:bg-[#02531C] group-hover:text-white transition-colors">
               <Repeat className="size-4" />
@@ -311,7 +311,7 @@ function Dashboard() {
           {/* Send */}
           <Link
             to="/enviar"
-            className="group flex items-center gap-3 rounded-2xl bg-[#112417]/90 border border-white/10 p-3.5 hover:border-[#02531C] transition-all active:scale-[0.98]"
+            className="group flex items-center gap-3 rounded-2xl bg-[#121212]/90 border border-white/10 p-3.5 hover:border-[#02531C] transition-all active:scale-[0.98]"
           >
             <div className="grid size-9 place-items-center rounded-xl bg-white/[0.06] text-[#F2AC00] group-hover:bg-[#02531C] group-hover:text-white transition-colors">
               <Send className="size-4" />
@@ -322,7 +322,7 @@ function Dashboard() {
           {/* Analytics */}
           <Link
             to="/cripto"
-            className="group flex items-center gap-3 rounded-2xl bg-[#112417]/90 border border-white/10 p-3.5 hover:border-[#02531C] transition-all active:scale-[0.98]"
+            className="group flex items-center gap-3 rounded-2xl bg-[#121212]/90 border border-white/10 p-3.5 hover:border-[#02531C] transition-all active:scale-[0.98]"
           >
             <div className="grid size-9 place-items-center rounded-xl bg-white/[0.06] text-[#F2AC00] group-hover:bg-[#02531C] group-hover:text-white transition-colors">
               <TrendingUp className="size-4" />
@@ -345,7 +345,7 @@ function Dashboard() {
         {/* Statement Row */}
         <Link
           to="/historial"
-          className="group flex items-center justify-between rounded-2xl bg-[#112417]/90 border border-white/10 p-3.5 hover:border-[#02531C] transition-all active:scale-[0.98]"
+          className="group flex items-center justify-between rounded-2xl bg-[#121212]/90 border border-white/10 p-3.5 hover:border-[#02531C] transition-all active:scale-[0.98]"
         >
           <div className="flex items-center gap-3">
             <div className="grid size-10 place-items-center rounded-xl bg-white/[0.06] text-[#F2AC00] group-hover:bg-[#02531C] group-hover:text-white transition-colors">
@@ -360,7 +360,7 @@ function Dashboard() {
         </Link>
 
         {/* Budget Goals Widget */}
-        <div className="rounded-2xl bg-[#112417]/90 border border-white/10 p-3.5 space-y-2.5">
+        <div className="rounded-2xl bg-[#121212]/90 border border-white/10 p-3.5 space-y-2.5">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <span className="grid size-7 place-items-center rounded-lg bg-[#02531C]/40 text-[#F2AC00]">
@@ -371,7 +371,7 @@ function Dashboard() {
             <span className="text-[11px] font-bold text-[#F2AC00]">48%</span>
           </div>
 
-          <div className="flex items-center justify-between rounded-xl bg-[#0C1A10] p-2.5 border border-white/5">
+          <div className="flex items-center justify-between rounded-xl bg-[#0A0A0A] p-2.5 border border-white/5">
             <div>
               <p className="text-[10px] text-slate-400">Total saved</p>
               <p className="text-xs font-bold text-white">$2,450 <span className="font-normal text-slate-400">of $55,000</span></p>
@@ -403,7 +403,7 @@ function Dashboard() {
 
       {/* Tipo de Cambio en Vivo */}
       {rate && (
-        <div className="flex items-center justify-between rounded-2xl bg-[#112417]/80 border border-white/10 px-4 py-3">
+        <div className="flex items-center justify-between rounded-2xl bg-[#121212]/80 border border-white/10 px-4 py-3">
           <div className="flex items-center gap-2">
             <TrendingUp className="size-4 text-emerald-400" />
             <span className="text-xs text-slate-300">Tipo de cambio hoy</span>
@@ -433,7 +433,7 @@ function Dashboard() {
                 <Link
                   key={tx.id}
                   to={`/transferencia/${tx.id}` as any}
-                  className="flex items-center justify-between rounded-2xl bg-[#161228]/90 border border-white/10 p-3 hover:border-white/20 transition-all"
+                  className="flex items-center justify-between rounded-2xl bg-[#121212]/90 border border-white/10 p-3 hover:border-white/20 transition-all"
                 >
                   <div className="flex items-center gap-3 min-w-0">
                     <div
@@ -496,7 +496,7 @@ function Dashboard() {
                 </div>
               </div>
 
-              <div className="flex items-center justify-between rounded-2xl bg-[#112417]/90 border border-white/10 p-3">
+              <div className="flex items-center justify-between rounded-2xl bg-[#121212]/90 border border-white/10 p-3">
                 <div className="flex items-center gap-3">
                   <div className="grid size-10 place-items-center rounded-xl bg-emerald-500/10 text-emerald-400">
                     <ArrowDownLeft className="size-4" />
