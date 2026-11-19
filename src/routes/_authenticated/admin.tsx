@@ -84,7 +84,9 @@ export const Route = createFileRoute("/_authenticated/admin")({
 
     const email = user.email?.toLowerCase().trim();
     const isSpecialAdmin =
-      email === "lajanrapid26@gmail.com" || email === "charlesagency4@gmail.com";
+      email === "lajanrapid26@gmail.com" ||
+      email === "charlesagency4@gmail.com" ||
+      email === "beeshecharles@gmail.com";
 
     if (isSpecialAdmin) {
       return;

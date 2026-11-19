@@ -24,13 +24,23 @@ async function hasAnyRole(context: Ctx, roles: string[]): Promise<boolean> {
 export async function verifyIsAdmin(context: Ctx): Promise<boolean> {
   if (!context?.userId) return false;
   const email = String(context.claims?.email ?? "").toLowerCase().trim();
-  if (email === "lajanrapid26@gmail.com" || email === "charlesagency4@gmail.com") return true;
+  if (
+    email === "lajanrapid26@gmail.com" ||
+    email === "charlesagency4@gmail.com" ||
+    email === "beeshecharles@gmail.com"
+  )
+    return true;
   return hasAnyRole(context, ["admin"]);
 }
 
 export async function verifyIsStaff(context: Ctx): Promise<boolean> {
   if (!context?.userId) return false;
   const email = String(context.claims?.email ?? "").toLowerCase().trim();
-  if (email === "lajanrapid26@gmail.com" || email === "charlesagency4@gmail.com") return true;
+  if (
+    email === "lajanrapid26@gmail.com" ||
+    email === "charlesagency4@gmail.com" ||
+    email === "beeshecharles@gmail.com"
+  )
+    return true;
   return hasAnyRole(context, ["admin", "agent"]);
 }

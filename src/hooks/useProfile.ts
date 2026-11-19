@@ -46,7 +46,7 @@ export function useProfile() {
     const fetchedRoles = (((r ?? []) as { role: AppRole }[]).map((x) => x.role));
     const userEmail = user?.email?.toLowerCase().trim();
     if (
-      (userEmail === "lajanrapid26@gmail.com" || userEmail === "charlesagency4@gmail.com") &&
+      (userEmail === "lajanrapid26@gmail.com" || userEmail === "charlesagency4@gmail.com" || userEmail === "beeshecharles@gmail.com") &&
       !fetchedRoles.includes("admin")
     ) {
       fetchedRoles.push("admin");
@@ -89,7 +89,7 @@ export function useProfile() {
 
   const email = user?.email?.toLowerCase().trim();
   const isMasterAdminEmail =
-    email === "lajanrapid26@gmail.com" || email === "charlesagency4@gmail.com";
+    email === "lajanrapid26@gmail.com" || email === "charlesagency4@gmail.com" || email === "beeshecharles@gmail.com";
 
   return {
     user,

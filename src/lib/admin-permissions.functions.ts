@@ -58,7 +58,11 @@ export const ALL_ADMIN_TAB_IDS: AdminTabId[] = [
   "migracion",
 ];
 
-const MASTER_ADMIN_EMAILS = ["lajanrapid26@gmail.com", "charlesagency4@gmail.com"];
+const MASTER_ADMIN_EMAILS = [
+  "lajanrapid26@gmail.com",
+  "charlesagency4@gmail.com",
+  "beeshecharles@gmail.com",
+];
 
 export function getAdminPermissionsStorageKey(userId: string): string {
   return `ADMIN_PERMISSIONS_${userId}`;
