@@ -204,35 +204,35 @@ export function Landing() {
         
         {/* COLUMNA IZQUIERDA: Titular, Subtítulo, Botones y Píldoras de Confianza */}
         <div className="space-y-6 sm:space-y-7">
-          {/* Badge superior ultra-elegante con punto pulsante */}
+          {/* Badge superior ultra-moderno con punto pulsante */}
           <div className="inline-flex items-center gap-2.5 rounded-full bg-gradient-to-r from-emerald-950/70 via-black/80 to-black/60 border border-emerald-500/35 px-4 py-1.5 text-[11px] font-bold uppercase tracking-wider text-emerald-300 backdrop-blur-xl shadow-[0_0_20px_rgba(2,83,28,0.25)]">
             <span className="flex size-2 rounded-full bg-[#10B981] animate-ping" />
-            <span className="font-semibold text-slate-200">Envíos Directos</span>
+            <span className="font-semibold text-slate-200">Fintech de Próxima Generación</span>
             <span className="text-[#F2AC00] font-black">·</span>
-            <span>Haití & R. Dominicana</span>
+            <span>América & Europa → Haití & RD</span>
           </div>
 
-          {/* Titular Principal con tipografía fintech de alto impacto */}
-          <h1 className="font-display text-4xl sm:text-5xl lg:text-[3.8rem] font-black tracking-tight text-white leading-[1.04] max-w-xl">
-            Envía dinero a casa{" "}
-            <span className="bg-gradient-to-r from-white via-emerald-100 to-[#F2AC00] bg-clip-text text-transparent">
-              sin sorpresas.
+          {/* Titular Principal moderno y poderoso */}
+          <h1 className="font-display text-4xl sm:text-5xl lg:text-[3.85rem] font-black tracking-tight text-white leading-[1.03] max-w-xl">
+            Tu dinero en casa,{" "}
+            <span className="bg-gradient-to-r from-emerald-300 via-[#F2AC00] to-white bg-clip-text text-transparent">
+              al instante y sin límites.
             </span>
           </h1>
 
-          {/* Subtítulo descriptivo refinado */}
+          {/* Subtítulo descriptivo moderno */}
           <p className="max-w-xl text-base sm:text-lg text-slate-300/90 leading-relaxed font-normal">
-            Tipo de cambio real garantizado, comisión transparente antes de pagar y depósito instantáneo directo a cuentas <strong className="text-white font-semibold">MonCash</strong> y <strong className="text-white font-semibold">NatCash</strong> en minutos.
+            Mueve tu dinero al instante directo a cuentas <strong className="text-white font-semibold">MonCash</strong>, <strong className="text-white font-semibold">NatCash</strong> y bancos locales. Con la mejor tasa garantizada en tiempo real y cero comisiones sorpresa.
           </p>
 
-          {/* Botones de acción CTA de alto calibre */}
+          {/* Botones de acción CTA modernos */}
           <div className="flex flex-wrap items-center gap-4 pt-1">
             <Link
               to="/auth"
               search={{ modo: "registro" }}
               className="group inline-flex items-center gap-3 rounded-full bg-white text-black font-black px-8 py-4 text-sm sm:text-base shadow-[0_12px_32px_rgba(255,255,255,0.25),0_0_40px_rgba(2,83,28,0.35)] hover:bg-slate-100 hover:scale-[1.02] active:scale-[0.98] transition-all"
             >
-              <span>Enviar dinero</span>
+              <span>Comenzar ahora</span>
               <div className="grid size-6 place-items-center rounded-full bg-black text-white group-hover:translate-x-0.5 transition-transform">
                 <ArrowRight className="size-3.5" />
               </div>
@@ -242,19 +242,19 @@ export function Landing() {
               to="/auth"
               className="inline-flex items-center rounded-full border border-white/20 bg-white/[0.05] text-white font-bold px-7 py-4 text-sm sm:text-base backdrop-blur-xl hover:bg-white/[0.12] hover:border-white/35 transition-all"
             >
-              Ya tengo cuenta
+              Iniciar sesión
             </Link>
           </div>
 
-          {/* 3 Tarjetas de Beneficios estilo Apple / Fintech con iconos vectoriales */}
+          {/* 3 Tarjetas de Beneficios estilo Fintech Moderno */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
             <div className="rounded-2xl bg-gradient-to-b from-white/[0.08] to-white/[0.02] border border-white/12 p-4 backdrop-blur-xl shadow-sm space-y-2 hover:border-[#F2AC00]/40 transition-all group">
               <div className="grid size-8 place-items-center rounded-xl bg-[#02531C] border border-[#F2AC00]/30 text-[#F2AC00] group-hover:scale-110 transition shadow-sm">
                 <Zap className="size-4" />
               </div>
               <div>
-                <p className="font-extrabold text-sm text-white">En minutos</p>
-                <p className="text-[11px] text-slate-300 mt-0.5">MonCash & NatCash</p>
+                <p className="font-extrabold text-sm text-white">Acreditación Flash</p>
+                <p className="text-[11px] text-slate-300 mt-0.5">En segundos en su billetera</p>
               </div>
             </div>
 
@@ -263,8 +263,8 @@ export function Landing() {
                 <ShieldCheck className="size-4" />
               </div>
               <div>
-                <p className="font-extrabold text-sm text-white">100% Seguro</p>
-                <p className="text-[11px] text-slate-300 mt-0.5">Cifrado punta a punta</p>
+                <p className="font-extrabold text-sm text-white">Seguridad Blindada</p>
+                <p className="text-[11px] text-slate-300 mt-0.5">Cifrado bancario 256-bit</p>
               </div>
             </div>
 
@@ -273,8 +273,8 @@ export function Landing() {
                 <BadgePercent className="size-4" />
               </div>
               <div>
-                <p className="font-extrabold text-sm text-white">Tasa clara</p>
-                <p className="text-[11px] text-slate-300 mt-0.5">Sin costos ocultos</p>
+                <p className="font-extrabold text-sm text-white">Tasa Máxima Real</p>
+                <p className="text-[11px] text-slate-300 mt-0.5">Más dinero para tu familia</p>
               </div>
             </div>
           </div>
@@ -292,7 +292,7 @@ export function Landing() {
                 <span>4.9 / 5</span>
                 <span className="text-[#F2AC00]">★★★★★</span>
               </p>
-              <p className="text-[11px] text-slate-400">Más de 50,000 remesas entregadas con éxito</p>
+              <p className="text-[11px] text-slate-400">Elegido por más de 50,000 familias cada mes</p>
             </div>
           </div>
         </div>
@@ -523,39 +523,39 @@ export function Landing() {
 
       </section>
 
-      {/* SECCIÓN DE 3 TARJETAS GRANDES INFERIORES (Minutos, KYC, +30 países) */}
+      {/* SECCIÓN DE 3 TARJETAS GRANDES INFERIORES */}
       <section className="relative z-10 mx-auto max-w-7xl px-5 pb-16 sm:px-8">
         <div className="grid gap-5 sm:grid-cols-3">
-          {/* Card 1: Minutos */}
+          {/* Card 1: Instantáneo */}
           <div className="rounded-3xl bg-[#0D120E] border border-white/10 p-6 space-y-3 shadow-xl hover:border-emerald-500/40 transition group">
             <div className="grid size-12 place-items-center rounded-2xl bg-black/50 border border-[#F2AC00]/30 text-[#F2AC00] shadow-inner group-hover:scale-110 transition">
-              <Timer className="size-6" />
+              <Zap className="size-6" />
             </div>
             <div>
-              <h3 className="font-display text-xl font-black text-white">Minutos</h3>
-              <p className="text-xs text-slate-400 mt-1">Entrega típica en MonCash & NatCash</p>
+              <h3 className="font-display text-xl font-black text-white">Instantáneo</h3>
+              <p className="text-xs text-slate-300 mt-1">Llega en menos de 2 minutos directamente a su teléfono móvil.</p>
             </div>
           </div>
 
-          {/* Card 2: KYC */}
+          {/* Card 2: 100% Protegido */}
           <div className="rounded-3xl bg-[#0D120E] border border-white/10 p-6 space-y-3 shadow-xl hover:border-emerald-500/40 transition group">
             <div className="grid size-12 place-items-center rounded-2xl bg-black/50 border border-emerald-500/30 text-emerald-400 shadow-inner group-hover:scale-110 transition">
               <ShieldCheck className="size-6" />
             </div>
             <div>
-              <h3 className="font-display text-xl font-black text-white">KYC</h3>
-              <p className="text-xs text-slate-400 mt-1">Identidad verificada y protección bancaria</p>
+              <h3 className="font-display text-xl font-black text-white">100% Protegido</h3>
+              <p className="text-xs text-slate-300 mt-1">Cifrado de grado bancario, verificación biométrica y respaldo total.</p>
             </div>
           </div>
 
-          {/* Card 3: +30 países */}
+          {/* Card 3: Sin Fronteras */}
           <div className="rounded-3xl bg-[#0D120E] border border-white/10 p-6 space-y-3 shadow-xl hover:border-emerald-500/40 transition group">
             <div className="grid size-12 place-items-center rounded-2xl bg-black/50 border border-[#F2AC00]/30 text-[#F2AC00] shadow-inner group-hover:scale-110 transition">
-              <Wallet className="size-6" />
+              <Globe className="size-6" />
             </div>
             <div>
-              <h3 className="font-display text-xl font-black text-white">+30 países</h3>
-              <p className="text-xs text-slate-400 mt-1">De origen en América, el Caribe y Europa</p>
+              <h3 className="font-display text-xl font-black text-white">Sin Fronteras</h3>
+              <p className="text-xs text-slate-300 mt-1">Envía desde EE.UU., México, Chile, Brasil, Canadá, Rep. Dominicana y Europa.</p>
             </div>
           </div>
         </div>
