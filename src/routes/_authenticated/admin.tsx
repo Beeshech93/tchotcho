@@ -377,6 +377,7 @@ function TxPanel() {
 
 function UsersPanel() {
   const qc = useQueryClient();
+  const { isSuperAdmin } = useAdminPermissions();
   const [userSearch, setUserSearch] = useState("");
   const [editingUser, setEditingUser] = useState<any>(null);
   const [balanceUser, setBalanceUser] = useState<any>(null);
@@ -410,8 +411,7 @@ function UsersPanel() {
               Gestión de Usuarios, Roles y Permisos
             </CardTitle>
             <p className="text-xs text-muted-foreground mt-0.5">
-              Transforma cualquier usuario en Administrador con acceso total o restricciones
-              modulares.
+              Los nuevos usuarios se registran como clientes. Solo el Super Administrador puede asignar roles de Agente y Administrador.
             </p>
           </div>
         </div>
@@ -515,17 +515,19 @@ function UsersPanel() {
                     <Coins className="size-3.5" />
                     Adicionar Saldo
                   </Button>
-                  <Button
-                    size="sm"
-                    variant={isAdmin ? "default" : "outline"}
-                    className={
-                      isAdmin ? "gap-1.5 bg-primary text-primary-foreground font-semibold" : "gap-1.5"
-                    }
-                    onClick={() => setEditingUser(p)}
-                  >
-                    <Shield className="size-3.5" />
-                    {isAdmin ? "Gestionar Permisos" : "Hacer Admin / Rol"}
-                  </Button>
+                  {isSuperAdmin && (
+                    <Button
+                      size="sm"
+                      variant={isAdmin ? "default" : "outline"}
+                      className={
+                        isAdmin ? "gap-1.5 bg-primary text-primary-foreground font-semibold" : "gap-1.5"
+                      }
+                      onClick={() => setEditingUser(p)}
+                    >
+                      <Shield className="size-3.5" />
+                      {isAdmin ? "Gestionar Permisos" : "Hacer Admin / Rol"}
+                    </Button>
+                  )}
                 </div>
               </div>
             );

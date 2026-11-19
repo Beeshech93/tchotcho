@@ -178,10 +178,46 @@ export const setUserRoleAndPermissions = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((input: SetUserRoleAndPermissionsInput) => input)
   .handler(async ({ data: input, context }) => {
-    const { verifyIsAdmin } = await import("@/lib/admin.server");
-    if (!(await verifyIsAdmin(context))) throw new Error("No autorizado");
-
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    // Exclusivo para Super Administradores: solo el Super Admin puede asignar roles de Agente y Admin
+    const callerEmail = String(context.claims?.email ?? "").toLowerCase().trim();
+    let isCallerSuperAdmin = callerEmail === MASTER_ADMIN_EMAIL;
+
+    if (!isCallerSuperAdmin) {
+      const { data: callerRole } = await supabaseAdmin
+        .from("user_roles")
+        .select("id")
+        .eq("user_id", context.userId)
+        .eq("role", "admin")
+        .maybeSingle();
+
+      if (callerRole) {
+        const callerPermKey = getAdminPermissionsStorageKey(context.userId);
+        const { data: callerPermRow } = await supabaseAdmin
+          .from("integration_credentials")
+          .select("value")
+          .eq("name", callerPermKey)
+          .maybeSingle();
+
+        if (!callerPermRow?.value) {
+          isCallerSuperAdmin = true;
+        } else {
+          try {
+            const parsed = JSON.parse(callerPermRow.value);
+            isCallerSuperAdmin = Boolean(parsed.isSuperAdmin);
+          } catch {
+            isCallerSuperAdmin = true;
+          }
+        }
+      }
+    }
+
+    if (!isCallerSuperAdmin) {
+      throw new Error(
+        "Acceso denegado: Solo el Super Administrador puede asignar roles de Agente y Administrador.",
+      );
+    }
 
     // Proteger al administrador principal
     const { data: targetUser } = await supabaseAdmin.auth.admin.getUserById(input.targetUserId);
