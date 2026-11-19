@@ -162,14 +162,15 @@ function Detalle() {
     <div className="mx-auto max-w-3xl space-y-5 text-white">
       {/* Finflow Confirmation Hero (Módulo 1486849455 / 1486849441) */}
       {(definiteStatus === "completed" || definiteStatus === "paid") && (
-        <div className="relative overflow-hidden rounded-3xl bg-[#130E26]/95 border border-white/10 p-6 text-center space-y-4 shadow-2xl">
-          <div className="pointer-events-none absolute -top-24 left-1/2 -translate-x-1/2 size-48 rounded-full bg-[#6938F8]/30 blur-3xl" />
+        <div className="relative overflow-hidden rounded-3xl bg-[#0C1A10]/95 border border-[#02531C]/40 p-6 text-center space-y-4 shadow-2xl">
+          <div className="pointer-events-none absolute -top-24 left-1/2 -translate-x-1/2 size-48 rounded-full bg-[#02531C]/40 blur-3xl" />
+          <div className="pointer-events-none absolute top-0 right-1/4 size-32 rounded-full bg-[#F2AC00]/15 blur-2xl" />
 
           {/* Badge festoneado brillante */}
           <div className="relative mx-auto size-20 grid place-items-center">
-            <div className="absolute inset-0 rounded-full bg-[#6938F8]/20 animate-ping opacity-30" />
-            <div className="absolute inset-1 rounded-full bg-gradient-to-tr from-[#6938F8] to-[#9333EA] opacity-80" />
-            <div className="relative z-10 grid size-12 place-items-center rounded-2xl bg-white text-[#6938F8] shadow-lg shadow-purple-500/40">
+            <div className="absolute inset-0 rounded-full bg-[#F2AC00]/25 animate-ping opacity-30" />
+            <div className="absolute inset-1 rounded-full bg-gradient-to-tr from-[#02531C] to-[#10B981] opacity-90 shadow-md shadow-[#02531C]/40" />
+            <div className="relative z-10 grid size-12 place-items-center rounded-2xl bg-white text-[#02531C] shadow-lg shadow-black/40">
               <Check className="size-7 stroke-[3]" />
             </div>
           </div>
@@ -186,7 +187,7 @@ function Detalle() {
             <p className="text-xs text-slate-400 mt-1">To {t.recipient_name}</p>
           </div>
 
-          <div className="rounded-2xl bg-[#1B1536]/80 border border-white/5 p-3.5 text-xs text-slate-300 space-y-1.5 text-left">
+          <div className="rounded-2xl bg-[#112417]/80 border border-white/5 p-3.5 text-xs text-slate-300 space-y-1.5 text-left">
             <div className="flex justify-between">
               <span className="text-slate-400">Request Statement</span>
               <span className="text-white font-medium">{shortDate(t.created_at)}</span>
@@ -212,7 +213,7 @@ function Detalle() {
                     (ch) =>
                       (({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[ch] ?? ch),
                   );
-                w.document.write(`<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Recibo ${safe(t.reference)}</title><style>body{font:16px Arial;max-width:720px;margin:40px auto;padding:24px;color:#172033;background:#fff}h1{color:#6938F8}.row{display:flex;justify-content:space-between;border-bottom:1px solid #ddd;padding:13px 0}span{color:#667085}@media print{button{display:none}}</style></head><body><h1>TCHO-TCHO</h1><h2>Recibo de transacción</h2><p>Referencia: ${safe(t.reference)} · Fecha: ${safe(shortDate(t.created_at))}</p><div class="row"><span>Estado</span><strong>${safe(STATUS_LABEL[t.status as TransferStatus] ?? t.status)}</strong></div><div class="row"><span>Destinatario</span><strong>${safe(t.recipient_name)}</strong></div><div class="row"><span>Origen</span><strong>${safe(t.origin_country)}</strong></div><div class="row"><span>Destino</span><strong>${safe(t.destination_country)}</strong></div><div class="row"><span>Método de pago</span><strong>${safe(paymentName)}</strong></div><div class="row"><span>Monto enviado</span><strong>${safe(money(Number(t.amount_send), t.send_currency))}</strong></div><div class="row"><span>Monto a recibir</span><strong>${safe(money(Number(t.amount_receive), t.receive_currency))}</strong></div><p>Recibo informativo de Tcho-Tcho Digital Banking.</p><button onclick="window.print()">Imprimir / Guardar como PDF</button></body></html>`);
+                w.document.write(`<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Recibo ${safe(t.reference)}</title><style>body{font:16px Arial;max-width:720px;margin:40px auto;padding:24px;color:#172033;background:#fff}h1{color:#02531C}.row{display:flex;justify-content:space-between;border-bottom:1px solid #ddd;padding:13px 0}span{color:#667085}@media print{button{display:none}}</style></head><body><h1>TCHO-TCHO</h1><h2>Recibo de transacción</h2><p>Referencia: ${safe(t.reference)} · Fecha: ${safe(shortDate(t.created_at))}</p><div class="row"><span>Estado</span><strong>${safe(STATUS_LABEL[t.status as TransferStatus] ?? t.status)}</strong></div><div class="row"><span>Destinatario</span><strong>${safe(t.recipient_name)}</strong></div><div class="row"><span>Origen</span><strong>${safe(t.origin_country)}</strong></div><div class="row"><span>Destino</span><strong>${safe(t.destination_country)}</strong></div><div class="row"><span>Método de pago</span><strong>${safe(paymentName)}</strong></div><div class="row"><span>Monto enviado</span><strong>${safe(money(Number(t.amount_send), t.send_currency))}</strong></div><div class="row"><span>Monto a recibir</span><strong>${safe(money(Number(t.amount_receive), t.receive_currency))}</strong></div><p>Recibo informativo de Tcho-Tcho Digital Banking.</p><button onclick="window.print()">Imprimir / Guardar como PDF</button></body></html>`);
                 w.document.close();
               }}
               className="flex items-center justify-center gap-2 rounded-full bg-white/[0.06] border border-white/10 py-3 text-xs font-semibold text-white hover:bg-white/10 transition-colors"

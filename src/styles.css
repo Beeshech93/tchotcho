@@ -5,9 +5,9 @@
 @custom-variant dark (&:is(.dark *));
 
 /*
- * Tcho-Tcho Design System — Finflow AI Fintech & Digital Banking
- * Electric Purple (#6938F8) + Bright Lavender (#C4B5FD) + Deep Midnight Obsidian (#0B0813)
- * Inspired by Behance AI Fintech & Digital Banking App UI
+ * Tcho-Tcho Design System — Adapted from official brand logo
+ * Forest Emerald (#02531C) + Sun Amber Gold (#F2AC00) + Deep Obsidian Green (#060F09)
+ * High-performance Fintech & Digital Banking App UI
  */
 
 @theme inline {
@@ -75,15 +75,15 @@
 :root {
   --radius: 1.25rem;
 
-  /* ---- Finflow Design System: Deep Obsidian + Electric Purple ---- */
-  --primary: #6938F8; /* Electric Purple */
-  --primary-dark: #5221DE; /* Deep Purple */
-  --primary-light: #8D65FF; /* Lavender Glow */
+  /* ---- Tcho-Tcho Design System: Forest Emerald (#02531C) + Sun Amber Gold (#F2AC00) ---- */
+  --primary: #02531C; /* Brand Forest Emerald */
+  --primary-dark: #013813; /* Deep Pine */
+  --primary-light: #0E742C; /* Vibrant Emerald Glow */
 
-  --background: #0B0813; /* Deep Obsidian */
-  --surface: #130E26; /* Dark Purple Cards */
-  --surface-secondary: #1B1536; /* Inner cards & inputs */
-  --surface-elevated: #221B45; /* Modals & popovers */
+  --background: #060F09; /* Deep Obsidian Emerald */
+  --surface: #0C1A10; /* Dark Forest Cards */
+  --surface-secondary: #112417; /* Inner cards & inputs */
+  --surface-elevated: #162E1E; /* Modals, popovers & docks */
   --logo-surface: transparent;
 
   --text-primary: #FFFFFF;
@@ -91,14 +91,14 @@
   --text-muted: #64748B;
 
   --success: #10B981; /* Emerald Green */
-  --warning: #F59E0B; /* Amber Gold */
+  --warning: #F2AC00; /* Tcho-Tcho Sun Gold */
   --error: #EF4444; /* Rose Red */
 
   --border: rgba(255, 255, 255, 0.08);
-  --border-strong: rgba(255, 255, 255, 0.18);
+  --border-strong: rgba(2, 83, 28, 0.4);
 
-  --card-gradient-start: #6938F8;
-  --card-gradient-end: #3B1578;
+  --card-gradient-start: #02531C;
+  --card-gradient-end: #082B12;
 
   /* ---- Mapeo a tokens de componentes (shadcn) ---- */
   --foreground: var(--text-primary);
@@ -116,36 +116,37 @@
   --muted: var(--surface-secondary);
   --muted-foreground: var(--text-muted);
 
-  --accent: #C4B5FD;
-  --accent-foreground: #0B0813;
+  --accent: #F2AC00;
+  --accent-foreground: #060F09;
 
   --destructive: var(--error);
   --destructive-foreground: #FFFFFF;
-  --success-foreground: #0B0813;
-  --warning-foreground: #0B0813;
+  --success-foreground: #060F09;
+  --warning-foreground: #060F09;
 
-  --input: #161228;
-  --ring: #6938F8;
+  --input: #112417;
+  --ring: #02531C;
 
-  --chart-1: #6938F8;
-  --chart-2: #A78BFA;
+  --chart-1: #02531C;
+  --chart-2: #F2AC00;
   --chart-3: #10B981;
-  --chart-4: var(--warning);
+  --chart-4: #FBBF24;
   --chart-5: var(--error);
 
-  --sidebar: #0E0A1A;
+  --sidebar: #07130B;
   --sidebar-foreground: #FFFFFF;
   --sidebar-primary: var(--primary);
   --sidebar-primary-foreground: #FFFFFF;
-  --sidebar-accent: #1B1536;
+  --sidebar-accent: #112417;
   --sidebar-accent-foreground: #FFFFFF;
   --sidebar-border: var(--border);
   --sidebar-ring: var(--primary);
 
-  --gradient-brand: linear-gradient(135deg, #6938F8 0%, #4F22B8 55%, #2B0E63 100%);
+  --gradient-brand: linear-gradient(135deg, #02531C 0%, #086B27 50%, #033913 100%);
+  --gradient-gold: linear-gradient(135deg, #F2AC00 0%, #FBBF24 50%, #D97706 100%);
   --gradient-mint: linear-gradient(135deg, #10B981 0%, #059669 100%);
-  --shadow-soft: 0 4px 20px -2px rgba(0, 0, 0, 0.5), 0 0 25px -5px rgba(105, 56, 248, 0.15);
-  --shadow-lift: 0 10px 30px -5px rgba(0, 0, 0, 0.7), 0 0 40px -10px rgba(105, 56, 248, 0.35);
+  --shadow-soft: 0 4px 20px -2px rgba(0, 0, 0, 0.5), 0 0 25px -5px rgba(2, 83, 28, 0.2);
+  --shadow-lift: 0 10px 30px -5px rgba(0, 0, 0, 0.7), 0 0 40px -10px rgba(2, 83, 28, 0.4);
 }
 
 .dark {
@@ -207,10 +208,10 @@
 }
 
 @utility glass-panel {
-  background: rgba(19, 14, 38, 0.75);
+  background: rgba(12, 26, 16, 0.8);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(2, 83, 28, 0.3);
 }
 
 @utility glass-pill {
@@ -221,21 +222,35 @@
 }
 
 @utility finflow-card-hero {
-  background: linear-gradient(135deg, #6938F8 0%, #4D1EBA 50%, #200847 100%);
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  box-shadow: 0 16px 36px -10px rgba(105, 56, 248, 0.45);
+  background: linear-gradient(135deg, #02531C 0%, #086B27 50%, #042E11 100%);
+  border: 1px solid rgba(242, 172, 0, 0.3);
+  box-shadow: 0 16px 36px -10px rgba(2, 83, 28, 0.45);
 }
 
 @utility finflow-btn-white {
   background-color: #FFFFFF;
-  color: #0B0813;
+  color: #02531C;
   font-weight: 600;
   border-radius: 9999px;
   box-shadow: 0 8px 24px -4px rgba(255, 255, 255, 0.2);
   transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
 
   &:hover {
-    background-color: #F1F5F9;
+    background-color: #F0FDF4;
+    transform: translateY(-1px);
+  }
+}
+
+@utility finflow-btn-gold {
+  background: linear-gradient(135deg, #F2AC00 0%, #FBBF24 100%);
+  color: #060F09;
+  font-weight: 600;
+  border-radius: 9999px;
+  box-shadow: 0 8px 24px -4px rgba(242, 172, 0, 0.35);
+  transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
+
+  &:hover {
+    background: #E09E00;
     transform: translateY(-1px);
   }
 }

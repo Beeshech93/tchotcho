@@ -150,8 +150,8 @@ function Dashboard() {
       {/* Top Bar estilo Behance Finflow: Avatar + Welcome Back + Notification + Scanner */}
       <header className="flex items-center justify-between pt-1">
         <div className="flex items-center gap-3">
-          <div className="relative grid size-11 place-items-center rounded-full bg-gradient-to-br from-[#6938F8] to-[#9333EA] p-0.5 shadow-md shadow-purple-500/20">
-            <div className="grid size-full place-items-center rounded-full bg-[#130E26] text-white font-bold text-sm">
+          <div className="relative grid size-11 place-items-center rounded-full bg-gradient-to-br from-[#02531C] to-[#10B981] p-0.5 shadow-md shadow-[#02531C]/40">
+            <div className="grid size-full place-items-center rounded-full bg-[#0C1A10] text-[#F2AC00] font-bold text-sm">
               {displayName.slice(0, 1).toUpperCase()}
             </div>
           </div>
@@ -164,18 +164,18 @@ function Dashboard() {
         <div className="flex items-center gap-2">
           <button
             type="button"
-            className="grid size-9 place-items-center rounded-full bg-[#161228] border border-white/10 text-slate-300 hover:text-white transition-colors"
+            className="grid size-9 place-items-center rounded-full bg-[#112417] border border-white/10 text-slate-300 hover:text-[#F2AC00] transition-colors"
             title="Scan QR"
           >
             <QrCode className="size-4" />
           </button>
           <button
             type="button"
-            className="relative grid size-9 place-items-center rounded-full bg-[#161228] border border-white/10 text-slate-300 hover:text-white transition-colors"
+            className="relative grid size-9 place-items-center rounded-full bg-[#112417] border border-white/10 text-slate-300 hover:text-[#F2AC00] transition-colors"
             title="Notifications"
           >
             <Bell className="size-4" />
-            <span className="absolute top-2 right-2 size-2 rounded-full bg-[#6938F8] ring-2 ring-[#161228]" />
+            <span className="absolute top-2 right-2 size-2 rounded-full bg-[#F2AC00] ring-2 ring-[#112417]" />
           </button>
         </div>
       </header>
@@ -188,7 +188,7 @@ function Dashboard() {
           placeholder="Search here..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="h-11 w-full rounded-2xl bg-[#161228]/90 border border-white/10 pl-11 pr-11 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-[#6938F8]"
+          className="h-11 w-full rounded-2xl bg-[#112417]/90 border border-white/10 pl-11 pr-11 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-[#02531C]"
         />
         <button
           type="button"
@@ -209,7 +209,7 @@ function Dashboard() {
         >
           <span>Card</span>
           {activeCategory === "card" && (
-            <span className="absolute -bottom-2 inset-x-0 h-0.5 rounded-full bg-[#6938F8]" />
+            <span className="absolute -bottom-2 inset-x-0 h-0.5 rounded-full bg-[#F2AC00]" />
           )}
         </button>
 
@@ -222,7 +222,7 @@ function Dashboard() {
         >
           <span>Bank</span>
           {activeCategory === "bank" && (
-            <span className="absolute -bottom-2 inset-x-0 h-0.5 rounded-full bg-[#6938F8]" />
+            <span className="absolute -bottom-2 inset-x-0 h-0.5 rounded-full bg-[#F2AC00]" />
           )}
         </button>
 
@@ -235,13 +235,13 @@ function Dashboard() {
         >
           <span>Mobile Banking</span>
           {activeCategory === "mobile" && (
-            <span className="absolute -bottom-2 inset-x-0 h-0.5 rounded-full bg-[#6938F8]" />
+            <span className="absolute -bottom-2 inset-x-0 h-0.5 rounded-full bg-[#F2AC00]" />
           )}
         </button>
       </div>
 
       {/* Hero Virtual Card — Fiel réplica de Behance Finflow */}
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#6938F8] via-[#5221DE] to-[#250856] p-6 text-white shadow-2xl border border-white/20">
+      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#02531C] via-[#056B27] to-[#043314] p-6 text-white shadow-2xl border border-[#F2AC00]/30 shadow-[#02531C]/35">
         {/* Curvas sutiles de fondo */}
         <div className="pointer-events-none absolute -right-12 -top-12 size-48 rounded-full bg-white/10 blur-2xl" />
         <div className="pointer-events-none absolute -left-8 -bottom-8 size-40 rounded-full bg-[#200847] blur-xl opacity-60" />
@@ -314,9 +314,9 @@ function Dashboard() {
           {/* Top Up */}
           <Link
             to="/recargas"
-            className="group flex items-center gap-3 rounded-2xl bg-[#161228]/90 border border-white/10 p-3.5 hover:border-[#6938F8]/50 transition-all active:scale-[0.98]"
+            className="group flex items-center gap-3 rounded-2xl bg-[#112417]/90 border border-white/10 p-3.5 hover:border-[#02531C] transition-all active:scale-[0.98]"
           >
-            <div className="grid size-10 place-items-center rounded-xl bg-white/[0.06] text-white group-hover:bg-[#6938F8] transition-colors">
+            <div className="grid size-10 place-items-center rounded-xl bg-white/[0.06] text-[#F2AC00] group-hover:bg-[#02531C] group-hover:text-white transition-colors">
               <Plus className="size-5" />
             </div>
             <div>
@@ -328,9 +328,9 @@ function Dashboard() {
           {/* Transfer */}
           <Link
             to="/enviar"
-            className="group flex items-center gap-3 rounded-2xl bg-[#161228]/90 border border-white/10 p-3.5 hover:border-[#6938F8]/50 transition-all active:scale-[0.98]"
+            className="group flex items-center gap-3 rounded-2xl bg-[#112417]/90 border border-white/10 p-3.5 hover:border-[#02531C] transition-all active:scale-[0.98]"
           >
-            <div className="grid size-10 place-items-center rounded-xl bg-white/[0.06] text-white group-hover:bg-[#6938F8] transition-colors">
+            <div className="grid size-10 place-items-center rounded-xl bg-white/[0.06] text-[#F2AC00] group-hover:bg-[#02531C] group-hover:text-white transition-colors">
               <Repeat className="size-4" />
             </div>
             <div>
@@ -342,9 +342,9 @@ function Dashboard() {
           {/* Send */}
           <Link
             to="/enviar"
-            className="group flex items-center gap-3 rounded-2xl bg-[#161228]/90 border border-white/10 p-3.5 hover:border-[#6938F8]/50 transition-all active:scale-[0.98]"
+            className="group flex items-center gap-3 rounded-2xl bg-[#112417]/90 border border-white/10 p-3.5 hover:border-[#02531C] transition-all active:scale-[0.98]"
           >
-            <div className="grid size-10 place-items-center rounded-xl bg-white/[0.06] text-white group-hover:bg-[#6938F8] transition-colors">
+            <div className="grid size-10 place-items-center rounded-xl bg-white/[0.06] text-[#F2AC00] group-hover:bg-[#02531C] group-hover:text-white transition-colors">
               <Send className="size-4" />
             </div>
             <div>
@@ -356,9 +356,9 @@ function Dashboard() {
           {/* Analytics / Cripto */}
           <Link
             to="/cripto"
-            className="group flex items-center gap-3 rounded-2xl bg-[#161228]/90 border border-white/10 p-3.5 hover:border-[#6938F8]/50 transition-all active:scale-[0.98]"
+            className="group flex items-center gap-3 rounded-2xl bg-[#112417]/90 border border-white/10 p-3.5 hover:border-[#02531C] transition-all active:scale-[0.98]"
           >
-            <div className="grid size-10 place-items-center rounded-xl bg-white/[0.06] text-white group-hover:bg-[#6938F8] transition-colors">
+            <div className="grid size-10 place-items-center rounded-xl bg-white/[0.06] text-[#F2AC00] group-hover:bg-[#02531C] group-hover:text-white transition-colors">
               <Coins className="size-4" />
             </div>
             <div>
@@ -370,10 +370,10 @@ function Dashboard() {
       </div>
 
       {/* Quick Access: Statement & Savings Goals Widget (Módulo 1486849451) */}
-      <div className="rounded-3xl bg-[#161228]/90 border border-white/10 p-4 space-y-3">
+      <div className="rounded-3xl bg-[#112417]/90 border border-white/10 p-4 space-y-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <span className="grid size-8 place-items-center rounded-xl bg-[#6938F8]/20 text-[#C4B5FD]">
+            <span className="grid size-8 place-items-center rounded-xl bg-[#02531C]/40 text-[#F2AC00]">
               <Sparkles className="size-4" />
             </span>
             <div>
@@ -381,10 +381,10 @@ function Dashboard() {
               <p className="text-[10px] text-slate-400">Ahorros y Metas Inteligentes</p>
             </div>
           </div>
-          <span className="text-[11px] font-bold text-[#A78BFA]">48%</span>
+          <span className="text-[11px] font-bold text-[#F2AC00]">48%</span>
         </div>
 
-        <div className="flex items-center justify-between rounded-2xl bg-[#130E26] p-3 border border-white/5">
+        <div className="flex items-center justify-between rounded-2xl bg-[#0C1A10] p-3 border border-white/5">
           <div>
             <p className="text-[10px] text-slate-400">Total saved</p>
             <p className="text-sm font-bold text-white">$2,450 <span className="text-xs font-normal text-slate-400">of $55,000</span></p>
@@ -400,7 +400,7 @@ function Dashboard() {
                 d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
               />
               <path
-                className="text-[#6938F8]"
+                className="text-[#F2AC00]"
                 strokeDasharray="48, 100"
                 strokeWidth="3.5"
                 strokeLinecap="round"
@@ -416,7 +416,7 @@ function Dashboard() {
 
       {/* Tipo de Cambio en Vivo */}
       {rate && (
-        <div className="flex items-center justify-between rounded-2xl bg-[#161228]/80 border border-white/10 px-4 py-3">
+        <div className="flex items-center justify-between rounded-2xl bg-[#112417]/80 border border-white/10 px-4 py-3">
           <div className="flex items-center gap-2">
             <TrendingUp className="size-4 text-emerald-400" />
             <span className="text-xs text-slate-300">Tipo de cambio hoy</span>
@@ -454,7 +454,7 @@ function Dashboard() {
                         "grid size-10 place-items-center rounded-xl text-xs font-bold",
                         isReceived
                           ? "bg-emerald-500/10 text-emerald-400"
-                          : "bg-purple-500/10 text-[#C4B5FD]"
+                          : "bg-[#02531C]/30 text-[#F2AC00]"
                       )}
                     >
                       {isReceived ? (
@@ -493,9 +493,9 @@ function Dashboard() {
           ) : (
             // Items de ejemplo cuando no hay transacciones aún
             <>
-              <div className="flex items-center justify-between rounded-2xl bg-[#161228]/90 border border-white/10 p-3">
+              <div className="flex items-center justify-between rounded-2xl bg-[#112417]/90 border border-white/10 p-3">
                 <div className="flex items-center gap-3">
-                  <div className="grid size-10 place-items-center rounded-xl bg-purple-500/10 text-[#C4B5FD]">
+                  <div className="grid size-10 place-items-center rounded-xl bg-[#02531C]/30 text-[#F2AC00]">
                     <CreditCard className="size-4" />
                   </div>
                   <div>
@@ -509,7 +509,7 @@ function Dashboard() {
                 </div>
               </div>
 
-              <div className="flex items-center justify-between rounded-2xl bg-[#161228]/90 border border-white/10 p-3">
+              <div className="flex items-center justify-between rounded-2xl bg-[#112417]/90 border border-white/10 p-3">
                 <div className="flex items-center gap-3">
                   <div className="grid size-10 place-items-center rounded-xl bg-emerald-500/10 text-emerald-400">
                     <ArrowDownLeft className="size-4" />

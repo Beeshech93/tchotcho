@@ -37,15 +37,15 @@ export function LogoIntro() {
   return (
     <div
       aria-hidden
-      className={`fixed inset-0 z-[200] grid place-items-center bg-[#0B0813] ${
+      className={`fixed inset-0 z-[200] grid place-items-center bg-[#060F09] ${
         leaving ? "logo-veil-out" : ""
       }`}
     >
       <div className="flex flex-col items-center gap-4">
-        <span className="logo-pop grid size-28 place-items-center overflow-hidden rounded-3xl bg-[#130E26] border border-white/10 p-3 shadow-2xl">
+        <span className="logo-pop grid size-28 place-items-center overflow-hidden rounded-3xl bg-[#0C1A10] border border-[#02531C]/40 p-3 shadow-2xl">
           <img src={logoAsset} alt="" className="h-full w-full object-contain filter drop-shadow-[0_2px_12px_rgba(255,255,255,0.1)]" />
         </span>
-        <span className="logo-shine h-1 w-24 rounded-full bg-[#6938F8]" />
+        <span className="logo-shine h-1 w-24 rounded-full bg-gradient-to-r from-[#02531C] via-[#F2AC00] to-[#02531C]" />
       </div>
     </div>
   );
@@ -69,9 +69,9 @@ export function LogoCelebration() {
   return (
     <div aria-hidden className="pointer-events-none fixed inset-0 z-[190] grid place-items-center">
       <div className="relative grid place-items-center">
-        <span className="logo-ring absolute size-32 rounded-full border-2 border-[#6938F8]" />
-        <span className="logo-ring logo-ring-delay absolute size-32 rounded-full border-2 border-[#A78BFA]" />
-        <span className="logo-celebrate grid size-24 place-items-center overflow-hidden rounded-3xl bg-[#130E26] border border-white/10 p-3 shadow-2xl">
+        <span className="logo-ring absolute size-32 rounded-full border-2 border-[#02531C]" />
+        <span className="logo-ring logo-ring-delay absolute size-32 rounded-full border-2 border-[#F2AC00]" />
+        <span className="logo-celebrate grid size-24 place-items-center overflow-hidden rounded-3xl bg-[#0C1A10] border border-[#02531C]/40 p-3 shadow-2xl">
           <img src={logoAsset} alt="" className="h-full w-full object-contain filter drop-shadow-[0_2px_12px_rgba(255,255,255,0.1)]" />
         </span>
       </div>

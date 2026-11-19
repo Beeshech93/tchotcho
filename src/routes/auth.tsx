@@ -226,11 +226,15 @@ function AuthPage() {
   };
 
   return (
-    <div className="relative min-h-screen bg-[#0B0813] text-white selection:bg-[#6938F8] selection:text-white overflow-hidden">
-      {/* Glow radial superior que recrea la iluminación violeta de Behance Finflow */}
+    <div className="relative min-h-screen bg-[#060F09] text-white selection:bg-[#02531C] selection:text-white overflow-hidden">
+      {/* Glow radial superior que recrea la iluminación del logo Tcho-Tcho */}
       <div
-        className="pointer-events-none absolute -top-40 left-1/2 -translate-x-1/2 w-[600px] h-[500px] rounded-full blur-[140px] opacity-40"
-        style={{ background: "radial-gradient(circle, #6938F8 0%, #3B1578 70%, transparent 100%)" }}
+        className="pointer-events-none absolute -top-40 left-1/2 -translate-x-1/2 w-[600px] h-[500px] rounded-full blur-[140px] opacity-35"
+        style={{ background: "radial-gradient(circle, #02531C 0%, #06260E 65%, transparent 100%)" }}
+      />
+      <div
+        className="pointer-events-none absolute top-10 right-0 w-[260px] h-[260px] rounded-full blur-[120px] opacity-15"
+        style={{ background: "radial-gradient(circle, #F2AC00 0%, transparent 70%)" }}
       />
 
       <div className="relative z-10 mx-auto flex min-h-screen w-full max-w-sm flex-col justify-between px-5 py-6">
@@ -303,7 +307,7 @@ function AuthPage() {
                     type="email"
                     required
                     placeholder="Enter your email address"
-                    className="h-12 w-full rounded-2xl bg-[#161228]/90 border border-white/10 pl-11 pr-4 text-xs text-white placeholder:text-slate-500 focus-visible:border-[#6938F8] focus-visible:ring-1 focus-visible:ring-[#6938F8]"
+                    className="h-12 w-full rounded-2xl bg-[#112417]/90 border border-white/10 pl-11 pr-4 text-xs text-white placeholder:text-slate-500 focus-visible:border-[#02531C] focus-visible:ring-1 focus-visible:ring-[#02531C]"
                   />
                 </div>
 
@@ -317,7 +321,7 @@ function AuthPage() {
                       type="checkbox"
                       checked={rememberMe}
                       onChange={(e) => setRememberMe(e.target.checked)}
-                      className="size-3.5 rounded border-white/20 bg-[#161228] text-[#6938F8] focus:ring-0 focus:ring-offset-0"
+                      className="size-3.5 rounded border-white/20 bg-[#112417] text-[#02531C] focus:ring-0 focus:ring-offset-0"
                     />
                     <span>Remember me</span>
                   </label>
@@ -338,17 +342,17 @@ function AuthPage() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="mt-2 flex h-12 w-full items-center justify-center gap-2 rounded-full bg-white text-xs font-bold text-black transition-all hover:bg-slate-200 active:scale-[0.98] disabled:opacity-50 shadow-lg shadow-white/10"
+                  className="mt-2 flex h-12 w-full items-center justify-center gap-2 rounded-full bg-white text-xs font-bold text-[#02531C] transition-all hover:bg-emerald-50 active:scale-[0.98] disabled:opacity-50 shadow-lg shadow-white/10"
                 >
                   {loading ? (
                     <>
-                      <Loader2 className="size-4 animate-spin text-black" />
+                      <Loader2 className="size-4 animate-spin text-[#02531C]" />
                       <span>Entering...</span>
                     </>
                   ) : (
                     <>
                       <span>Login</span>
-                      <ArrowRight className="size-4 text-black" />
+                      <ArrowRight className="size-4 text-[#02531C]" />
                     </>
                   )}
                 </button>
@@ -363,7 +367,7 @@ function AuthPage() {
                     type="text"
                     required
                     placeholder="Enter Your Name"
-                    className="h-12 w-full rounded-2xl bg-[#161228]/90 border border-white/10 pl-11 pr-4 text-xs text-white placeholder:text-slate-500 focus-visible:border-[#6938F8] focus-visible:ring-1 focus-visible:ring-[#6938F8]"
+                    className="h-12 w-full rounded-2xl bg-[#112417]/90 border border-white/10 pl-11 pr-4 text-xs text-white placeholder:text-slate-500 focus-visible:border-[#02531C] focus-visible:ring-1 focus-visible:ring-[#02531C]"
                   />
                 </div>
 
@@ -378,10 +382,10 @@ function AuthPage() {
                       setPhoneInput(formatNational(v, phoneInput, c?.dial));
                     }}
                   >
-                    <SelectTrigger className="h-12 w-[110px] rounded-2xl bg-[#161228]/90 border-white/10 text-xs text-white">
+                    <SelectTrigger className="h-12 w-[110px] rounded-2xl bg-[#112417]/90 border-white/10 text-xs text-white">
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent className="max-h-72 bg-[#161228] border-white/10 text-white">
+                    <SelectContent className="max-h-72 bg-[#112417] border-white/10 text-white">
                       {DIAL_COUNTRIES.map((c) => (
                         <SelectItem key={c.code} value={c.code} className="text-xs">
                           {c.flag} {c.dial}
@@ -400,7 +404,7 @@ function AuthPage() {
                       setPhoneInput(formatNational(dial, e.target.value, country?.dial));
                       setPhoneError(null);
                     }}
-                    className="h-12 flex-1 rounded-2xl bg-[#161228]/90 border border-white/10 text-xs text-white placeholder:text-slate-500"
+                    className="h-12 flex-1 rounded-2xl bg-[#112417]/90 border border-white/10 text-xs text-white placeholder:text-slate-500"
                   />
                 </div>
                 {phoneError && <p className="text-[11px] text-red-400 pl-1">{phoneError}</p>}
@@ -413,7 +417,7 @@ function AuthPage() {
                     type="email"
                     required
                     placeholder="Enter your email address"
-                    className="h-12 w-full rounded-2xl bg-[#161228]/90 border border-white/10 pl-11 pr-4 text-xs text-white placeholder:text-slate-500 focus-visible:border-[#6938F8] focus-visible:ring-1 focus-visible:ring-[#6938F8]"
+                    className="h-12 w-full rounded-2xl bg-[#112417]/90 border border-white/10 pl-11 pr-4 text-xs text-white placeholder:text-slate-500 focus-visible:border-[#02531C] focus-visible:ring-1 focus-visible:ring-[#02531C]"
                   />
                 </div>
 
@@ -424,24 +428,24 @@ function AuthPage() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="mt-2 flex h-12 w-full items-center justify-center gap-2 rounded-full bg-white text-xs font-bold text-black transition-all hover:bg-slate-200 active:scale-[0.98] disabled:opacity-50 shadow-lg shadow-white/10"
+                  className="mt-2 flex h-12 w-full items-center justify-center gap-2 rounded-full bg-white text-xs font-bold text-[#02531C] transition-all hover:bg-emerald-50 active:scale-[0.98] disabled:opacity-50 shadow-lg shadow-white/10"
                 >
                   {loading ? (
                     <>
-                      <Loader2 className="size-4 animate-spin text-black" />
+                      <Loader2 className="size-4 animate-spin text-[#02531C]" />
                       <span>Creating...</span>
                     </>
                   ) : (
                     <>
                       <span>Sing Up</span>
-                      <ArrowRight className="size-4 text-black" />
+                      <ArrowRight className="size-4 text-[#02531C]" />
                     </>
                   )}
                 </button>
               </form>
             )}
 
-            {/* Icono de Huella Dactilar (Biometría) exacta de Behance */}
+            {/* Icono de Huella Dactilar (Biometría) adaptada a Tcho-Tcho */}
             <div className="mt-5 flex flex-col items-center justify-center">
               <button
                 type="button"
@@ -449,10 +453,10 @@ function AuthPage() {
                 disabled={biometricLoading}
                 className="group relative flex flex-col items-center justify-center transition-all hover:scale-105 active:scale-95"
               >
-                <div className="relative grid size-14 place-items-center rounded-2xl bg-gradient-to-b from-[#6938F8]/20 to-transparent border border-[#6938F8]/40 shadow-[0_0_25px_rgba(105,56,248,0.3)] group-hover:border-[#6938F8]">
-                  <Fingerprint className="size-8 text-[#A78BFA] transition-transform group-hover:scale-110" />
+                <div className="relative grid size-14 place-items-center rounded-2xl bg-gradient-to-b from-[#02531C]/30 to-transparent border border-[#02531C]/60 shadow-[0_0_25px_rgba(2,83,28,0.4)] group-hover:border-[#F2AC00]">
+                  <Fingerprint className="size-8 text-[#10B981] transition-transform group-hover:scale-110" />
                   {biometricLoading && (
-                    <span className="absolute inset-0 rounded-2xl border-2 border-[#6938F8] animate-ping opacity-40" />
+                    <span className="absolute inset-0 rounded-2xl border-2 border-[#F2AC00] animate-ping opacity-40" />
                   )}
                 </div>
                 <span className="mt-2 text-[11px] text-slate-400 group-hover:text-slate-200">
@@ -466,7 +470,7 @@ function AuthPage() {
               <button
                 type="button"
                 onClick={handleGoogleAuth}
-                className="flex h-11 w-full items-center justify-center gap-2.5 rounded-full bg-[#161228]/80 border border-white/10 text-xs font-medium text-white transition-all hover:bg-[#1E1738] active:scale-[0.98]"
+                className="flex h-11 w-full items-center justify-center gap-2.5 rounded-full bg-[#112417]/80 border border-white/10 text-xs font-medium text-white transition-all hover:bg-[#162E1E] active:scale-[0.98]"
               >
                 <GoogleIcon />
                 <span>Continue with Google</span>
@@ -569,7 +573,7 @@ function PasswordInput({ name, placeholder }: { name: string; placeholder: strin
         type={show ? "text" : "password"}
         required
         placeholder={placeholder}
-        className="h-12 w-full rounded-2xl bg-[#161228]/90 border border-white/10 pl-11 pr-11 text-xs text-white placeholder:text-slate-500 focus-visible:border-[#6938F8] focus-visible:ring-1 focus-visible:ring-[#6938F8]"
+        className="h-12 w-full rounded-2xl bg-[#112417]/90 border border-white/10 pl-11 pr-11 text-xs text-white placeholder:text-slate-500 focus-visible:border-[#02531C] focus-visible:ring-1 focus-visible:ring-[#02531C]"
       />
       <button
         type="button"

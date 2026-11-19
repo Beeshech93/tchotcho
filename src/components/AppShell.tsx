@@ -181,7 +181,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         </main>
 
         <nav
-          className="fixed bottom-4 inset-x-4 z-40 mx-auto max-w-sm rounded-[28px] bg-[#140F29]/95 backdrop-blur-2xl border border-white/10 px-3 py-2 shadow-[0_12px_32px_rgba(0,0,0,0.8)] md:hidden"
+          className="fixed bottom-4 inset-x-4 z-40 mx-auto max-w-sm rounded-[28px] bg-[#0C1A10]/95 backdrop-blur-2xl border border-[#02531C]/30 px-3 py-2 shadow-[0_12px_32px_rgba(0,0,0,0.8)] md:hidden"
           style={{ marginBottom: "env(safe-area-inset-bottom, 0px)" }}
         >
           <ul className="flex items-center justify-between">
@@ -191,7 +191,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                 className={cn(
                   "flex items-center justify-center rounded-2xl p-2.5 transition-all",
                   pathname === "/dashboard"
-                    ? "bg-[#6938F8] text-white shadow-lg shadow-[#6938F8]/40"
+                    ? "bg-[#02531C] text-[#F2AC00] shadow-lg shadow-[#02531C]/40 border border-[#F2AC00]/30"
                     : "text-slate-400 hover:text-white"
                 )}
                 aria-label={t("nav.home")}
@@ -207,7 +207,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                   className={cn(
                     "flex items-center justify-center rounded-2xl p-2.5 transition-all",
                     pathname === "/recargas"
-                      ? "bg-[#6938F8] text-white shadow-lg shadow-[#6938F8]/40"
+                      ? "bg-[#02531C] text-[#F2AC00] shadow-lg shadow-[#02531C]/40 border border-[#F2AC00]/30"
                       : "text-slate-400 hover:text-white"
                   )}
                   aria-label={t("nav.topups")}
@@ -224,7 +224,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                   className={cn(
                     "flex items-center justify-center rounded-2xl p-2.5 transition-all",
                     pathname === "/enviar"
-                      ? "bg-[#6938F8] text-white shadow-lg shadow-[#6938F8]/40"
+                      ? "bg-[#02531C] text-[#F2AC00] shadow-lg shadow-[#02531C]/40 border border-[#F2AC00]/30"
                       : "text-slate-400 hover:text-white"
                   )}
                   aria-label={t("nav.send")}
@@ -240,7 +240,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                 className={cn(
                   "flex items-center justify-center rounded-2xl p-2.5 transition-all",
                   pathname === "/historial"
-                    ? "bg-[#6938F8] text-white shadow-lg shadow-[#6938F8]/40"
+                    ? "bg-[#02531C] text-[#F2AC00] shadow-lg shadow-[#02531C]/40 border border-[#F2AC00]/30"
                     : "text-slate-400 hover:text-white"
                 )}
                 aria-label={t("nav.history")}
@@ -255,7 +255,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                 className={cn(
                   "flex items-center justify-center rounded-2xl p-2.5 transition-all",
                   pathname === "/perfil"
-                    ? "bg-[#6938F8] text-white shadow-lg shadow-[#6938F8]/40"
+                    ? "bg-[#02531C] text-[#F2AC00] shadow-lg shadow-[#02531C]/40 border border-[#F2AC00]/30"
                     : "text-slate-400 hover:text-white"
                 )}
                 aria-label={t("nav.profile")}
