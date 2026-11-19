@@ -30,20 +30,19 @@ function createSupabaseFetch(supabaseKey: string): typeof fetch {
 }
 
 function createSupabaseClient() {
-  // Use import.meta.env for client-side (Vite build-time replacement)
-  // Fall back to process.env for SSR (server-side rendering)
-  const SUPABASE_URL = import.meta.env["VITE_SUPABASE_URL"] || process.env["SUPABASE_URL"];
-  const SUPABASE_PUBLISHABLE_KEY =
+  const TARGET_URL = "https://yyvaeapmmvoklofydcpl.supabase.co";
+  const TARGET_KEY = "sb_publishable_Zvj-I1zNm7Mn9c1LiYDU1g_plW8yluu";
+
+  let SUPABASE_URL = import.meta.env["VITE_SUPABASE_URL"] || process.env["SUPABASE_URL"];
+  let SUPABASE_PUBLISHABLE_KEY =
     import.meta.env["VITE_SUPABASE_PUBLISHABLE_KEY"] || process.env["SUPABASE_PUBLISHABLE_KEY"];
 
-  if (!SUPABASE_URL || !SUPABASE_PUBLISHABLE_KEY) {
-    const missing = [
-      ...(!SUPABASE_URL ? ["SUPABASE_URL"] : []),
-      ...(!SUPABASE_PUBLISHABLE_KEY ? ["SUPABASE_PUBLISHABLE_KEY"] : []),
-    ];
-    const message = `Missing Supabase environment variable(s): ${missing.join(", ")}.`;
-    console.error(`[Supabase] ${message}`);
-    throw new Error(message);
+  // Si no está definido o apunta al proyecto viejo de Lovable, forzar siempre el proyecto real de producción
+  if (!SUPABASE_URL || SUPABASE_URL.includes("pkximkpyguxehbjyaigt")) {
+    SUPABASE_URL = TARGET_URL;
+  }
+  if (!SUPABASE_PUBLISHABLE_KEY || !isNewSupabaseApiKey(SUPABASE_PUBLISHABLE_KEY)) {
+    SUPABASE_PUBLISHABLE_KEY = TARGET_KEY;
   }
 
   return createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {

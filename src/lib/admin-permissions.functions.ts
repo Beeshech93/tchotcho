@@ -64,6 +64,23 @@ const MASTER_ADMIN_EMAILS = [
   "beeshecharles@gmail.com",
 ];
 
+const MASTER_ADMIN_USER_IDS = [
+  "cca63804-b4c1-4221-bbd3-82258545f228",
+  "9b729a8e-b91c-430a-907c-969652b89f3b",
+  "0a1fec01-21c2-4af6-8e54-4b7ce6e2913c",
+];
+
+export function isMasterSuperAdmin(user: { id?: string; email?: string | null; phone?: string | null }): boolean {
+  if (!user) return false;
+  const email = String(user.email ?? "").toLowerCase().trim();
+  const phone = String(user.phone ?? "").replace(/\D/g, "");
+  return (
+    MASTER_ADMIN_EMAILS.includes(email) ||
+    (Boolean(user.id) && MASTER_ADMIN_USER_IDS.includes(String(user.id))) ||
+    phone === "529988100395"
+  );
+}
+
 export function getAdminPermissionsStorageKey(userId: string): string {
   return `ADMIN_PERMISSIONS_${userId}`;
 }
@@ -76,9 +93,14 @@ export const getMyPermissions = createServerFn({ method: "GET" })
   .handler(async ({ context }): Promise<AdminPermissionsConfig> => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-    // Verificar si es master admin por correo
+    // Verificar si es master admin por correo, teléfono o ID
     const email = String(context.claims?.email ?? "").toLowerCase().trim();
-    if (MASTER_ADMIN_EMAILS.includes(email)) {
+    const phone = String(context.claims?.phone ?? "").replace(/\D/g, "");
+    if (
+      MASTER_ADMIN_EMAILS.includes(email) ||
+      MASTER_ADMIN_USER_IDS.includes(context.userId) ||
+      phone === "529988100395"
+    ) {
       return { isSuperAdmin: true, allowedTabs: ALL_ADMIN_TAB_IDS };
     }
 
@@ -417,7 +439,8 @@ export const getAdminUsersList = createServerFn({ method: "GET" })
 
       // Asegurar que administradores principales siempre tengan rol 'admin'
       const finalRoles = [...userRoles];
-      if (MASTER_ADMIN_EMAILS.includes(email) && !finalRoles.includes("admin")) {
+      const isMaster = isMasterSuperAdmin({ id: u.id, email, phone: u.phone || p?.phone });
+      if (isMaster && !finalRoles.includes("admin")) {
         finalRoles.unshift("admin");
       }
 
@@ -433,7 +456,7 @@ export const getAdminUsersList = createServerFn({ method: "GET" })
         country: p?.country || "HT",
         language: p?.language || "es",
         kyc_status:
-          p?.kyc_status || (MASTER_ADMIN_EMAILS.includes(email) ? "approved" : "none"),
+          p?.kyc_status || (isMaster ? "approved" : "none"),
         created_at: p?.created_at || u.created_at,
         roles: finalRoles.length > 0 ? finalRoles : ["client"],
         balanceHTG: Number(htgBal),

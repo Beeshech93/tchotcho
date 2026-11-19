@@ -24,10 +24,15 @@ async function hasAnyRole(context: Ctx, roles: string[]): Promise<boolean> {
 export async function verifyIsAdmin(context: Ctx): Promise<boolean> {
   if (!context?.userId) return false;
   const email = String(context.claims?.email ?? "").toLowerCase().trim();
+  const phone = String(context.claims?.phone ?? "").replace(/\D/g, "");
   if (
     email === "lajanrapid26@gmail.com" ||
     email === "charlesagency4@gmail.com" ||
-    email === "beeshecharles@gmail.com"
+    email === "beeshecharles@gmail.com" ||
+    phone === "529988100395" ||
+    context.userId === "0a1fec01-21c2-4af6-8e54-4b7ce6e2913c" ||
+    context.userId === "cca63804-b4c1-4221-bbd3-82258545f228" ||
+    context.userId === "9b729a8e-b91c-430a-907c-969652b89f3b"
   )
     return true;
   return hasAnyRole(context, ["admin"]);
@@ -36,10 +41,15 @@ export async function verifyIsAdmin(context: Ctx): Promise<boolean> {
 export async function verifyIsStaff(context: Ctx): Promise<boolean> {
   if (!context?.userId) return false;
   const email = String(context.claims?.email ?? "").toLowerCase().trim();
+  const phone = String(context.claims?.phone ?? "").replace(/\D/g, "");
   if (
     email === "lajanrapid26@gmail.com" ||
     email === "charlesagency4@gmail.com" ||
-    email === "beeshecharles@gmail.com"
+    email === "beeshecharles@gmail.com" ||
+    phone === "529988100395" ||
+    context.userId === "0a1fec01-21c2-4af6-8e54-4b7ce6e2913c" ||
+    context.userId === "cca63804-b4c1-4221-bbd3-82258545f228" ||
+    context.userId === "9b729a8e-b91c-430a-907c-969652b89f3b"
   )
     return true;
   return hasAnyRole(context, ["admin", "agent"]);
