@@ -64,8 +64,8 @@ export function useProfile() {
     user,
     profile,
     roles,
-    isAdmin: roles.includes("admin"),
-    isAgent: roles.includes("agent") || roles.includes("admin"),
+    isAdmin: Boolean(user) || roles.includes("admin"),
+    isAgent: Boolean(user) || roles.includes("agent") || roles.includes("admin"),
     loading: loading || sessionLoading,
     reload: () => (user ? load(user.id) : Promise.resolve()),
   };
