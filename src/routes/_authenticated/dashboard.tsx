@@ -112,16 +112,16 @@ export function Dashboard() {
   const displayName = profile?.full_name?.split(" ")[0] || "Michael";
   const userEmail = profile?.email || "michael@tcho-tcho.com";
 
-  // Tarjetas virtuales y físicas con colores vivos, relieve y abanico 3D
+  // Cuentas y billeteras oficiales Tcho-Tcho
   const cardsList = [
     {
       id: "card-1",
-      title: "Business Account",
-      type: "Corporate",
+      title: "Billetera Principal",
+      type: "USD Wallet",
       masked: "•••• •••• •••• 1234",
       accountMasked: "•••••••••••• USD",
       expiry: "06/28",
-      balance: "$ 14,850.00",
+      balance: formattedBalance,
       gradient: "from-[#036B25] via-[#02531C] to-[#013511]",
       border: "border-[#F2AC00]/60",
       accentGlow: "shadow-[0_12px_36px_rgba(2,83,28,0.55)]",
@@ -130,12 +130,12 @@ export function Dashboard() {
     },
     {
       id: "card-2",
-      title: "Personal Wallet",
-      type: "Virtual",
-      masked: "•••• •••• •••• 9213",
+      title: "MonCash Haití Vinculado",
+      type: "Digicel +509",
+      masked: "•••• •••• •••• 3712",
       accountMasked: "•••••••••••• HTG",
-      expiry: "09/27",
-      balance: "$ 6,450.57",
+      expiry: "Activa",
+      balance: "HTG 350,000.00",
       gradient: "from-[#1F2C23] via-[#142319] to-[#0A160F]",
       border: "border-emerald-500/40",
       accentGlow: "shadow-[0_12px_30px_rgba(16,185,129,0.25)]",
@@ -144,12 +144,12 @@ export function Dashboard() {
     },
     {
       id: "card-3",
-      title: "Savings Vault",
-      type: "Yield 4.5%",
-      masked: "•••• •••• •••• 5542",
-      accountMasked: "•••••••••••• USD",
-      expiry: "12/29",
-      balance: "$ 1,794.00",
+      title: "NatCash Haití Vinculado",
+      type: "Natcom +509",
+      masked: "•••• •••• •••• 4811",
+      accountMasked: "•••••••••••• HTG",
+      expiry: "Activa",
+      balance: "HTG 125,400.00",
       gradient: "from-[#382D12] via-[#241C0A] to-[#120E05]",
       border: "border-[#F2AC00]/50",
       accentGlow: "shadow-[0_12px_30px_rgba(242,172,0,0.3)]",
@@ -158,31 +158,33 @@ export function Dashboard() {
     },
   ];
 
-  // Servicios de suscripción y pagos recurrentes con badges de color vivo
-  const servicesList = [
-    { name: "MonCash Mobile", provider: "Digicel Haiti", price: "$ 89 /month", date: "Bill date: 31 May", icon: "📱", color: "from-rose-500 to-red-600", status: "Active" },
-    { name: "NatCash Express", provider: "Natcom Haiti", price: "$ 299 /month", date: "Bill date: 02 Jun", icon: "⚡", color: "from-cyan-500 to-blue-600", status: "Active" },
-    { name: "Digicel Haiti Topup", provider: "Airtime & Data", price: "$ 1,247 /month", date: "Due Tomorrow", icon: "📶", color: "from-emerald-500 to-teal-600", status: "Due", urgent: true },
-    { name: "Natcom Fibra & 4G", provider: "Internet Telecom", price: "$ 102 /year", date: "Bill date: 15 Jun", icon: "🌐", color: "from-amber-400 to-orange-500", status: "Active" },
-    { name: "Banco BHD Dominicana", provider: "Interbank Transfer", price: "$ 129 /month", date: "Bill date: 28 May", icon: "🏦", color: "from-violet-500 to-purple-700", status: "Active" },
+  // Servicios y Recargas oficiales a Haití
+  const haitiServices = [
+    { name: "MonCash Transfer", provider: "Digicel Haití", speed: "Instantáneo", benefit: "Retiro en 10,000+ agentes", icon: "📱", color: "from-rose-500 to-red-600", link: "/enviar" },
+    { name: "NatCash Express", provider: "Natcom Haití", speed: "Instantáneo", benefit: "Directo al saldo NatCash", icon: "⚡", color: "from-cyan-500 to-blue-600", link: "/enviar" },
+    { name: "Recarga Digicel", provider: "Minutos & Datos", speed: "Entrega Flash", benefit: "Bonos x2 y x4 en recarga", icon: "📶", color: "from-emerald-500 to-teal-600", link: "/recargas" },
+    { name: "Recarga Natcom 4G", provider: "Internet & Minutos", speed: "Entrega Flash", benefit: "Planes de internet 4G LTE", icon: "🌐", color: "from-amber-400 to-orange-500", link: "/recargas" },
+    { name: "Cripto & USDT", provider: "Red TRON / Polygon", speed: "En minutos", benefit: "Cambia USDT a HTG directo", icon: "🪙", color: "from-violet-500 to-purple-700", link: "/cripto" },
   ];
 
-  // Top Clientes
-  const topClients = [
+  // Beneficiarios frecuentes en Haití para envíos rápidos
+  const frequentRecipients = [
     {
-      name: "Chumak Corp.",
-      subtitle: "Corporate Partner",
-      total: "$ 125,000 Total",
-      growth: "+ 18.2%",
-      avatars: ["👩‍💼", "👨‍💻", "👨‍💼"],
+      name: "Jean Baptiste",
+      phone: "+509 3712-4589",
+      wallet: "MonCash Haití",
+      lastSent: "$ 150.00 USD",
+      status: "Verificado",
+      avatar: "JB",
       badgeColor: "bg-emerald-400 shadow-[0_0_8px_#34d399]",
     },
     {
-      name: "NovaTech Inc.",
-      subtitle: "Hardware & Logistics",
-      total: "$ 89,750 Total",
-      growth: "- 11.4%",
-      avatars: ["👨‍🔬", "👩‍💻", "🧑‍💼"],
+      name: "Marie Claire Pierre",
+      phone: "+509 4823-9012",
+      wallet: "NatCash Haití",
+      lastSent: "$ 85.00 USD",
+      status: "Verificado",
+      avatar: "MP",
       badgeColor: "bg-cyan-400 shadow-[0_0_8px_#22d3ee]",
     },
   ];
@@ -200,10 +202,10 @@ export function Dashboard() {
         viewLink: `/transferencia/${tx.id}`,
       }))
     : [
-        { id: "#1", recipient: "Chumak Corpora...", sender: "Samuel Carter", date: "11/07/2026", category: "Invoice", amount: "$ 125,000", status: "Success", viewLink: "/historial" },
-        { id: "#2", recipient: "Apex Dynamics", sender: "Phoenix Baker", date: "11/06/2026", category: "Payroll", amount: "$ 48,200", status: "Failed", viewLink: "/historial" },
-        { id: "#3", recipient: "NovaTech Inc.", sender: "Maria Santos", date: "11/05/2026", category: "Transfer", amount: "$ 89,750", status: "Success", viewLink: "/historial" },
-        { id: "#4", recipient: "Sterling & Co.", sender: "Cody Fisher", date: "11/04/2026", category: "Refund", amount: "$ 12,300", status: "Pending", viewLink: "/historial" },
+        { id: "#1", recipient: "Jean Baptiste (+509 37...)", sender: displayName, date: "Hoy, 10:45 AM", category: "MonCash", amount: "$ 150.00", status: "Success", viewLink: "/historial" },
+        { id: "#2", recipient: "Marie Claire (+509 48...)", sender: displayName, date: "Ayer, 04:20 PM", category: "NatCash", amount: "$ 85.00", status: "Success", viewLink: "/historial" },
+        { id: "#3", recipient: "Recarga Digicel Haití", sender: displayName, date: "12 May", category: "Recarga", amount: "$ 15.00", status: "Success", viewLink: "/historial" },
+        { id: "#4", recipient: "Emmanuel J. (+509 31...)", sender: displayName, date: "08 May", category: "MonCash", amount: "$ 220.00", status: "Success", viewLink: "/historial" },
       ];
 
   return (
@@ -260,7 +262,7 @@ export function Dashboard() {
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search payments, clients, cards..."
+            placeholder="Buscar transferencias, beneficiarios o teléfono (+509)..."
             className="w-full h-11 rounded-2xl bg-[#111713] border border-white/15 pl-10 pr-4 text-xs text-white placeholder:text-slate-400 focus:outline-none focus:border-[#F2AC00] focus:ring-1 focus:ring-[#F2AC00] shadow-inner transition"
           />
         </div>
@@ -301,15 +303,15 @@ export function Dashboard() {
             ======================================================== */}
         <div className="lg:col-span-4 space-y-6">
           
-          {/* Revenue Overview Card */}
+          {/* Flujo de Envíos & Actividad Card */}
           <div className="rounded-3xl bg-gradient-to-b from-[#131A15] via-[#0E1511] to-[#0A0F0C] border border-white/15 p-5 space-y-4 shadow-[0_12px_36px_rgba(0,0,0,0.85)] relative overflow-hidden">
             {/* Glow de fondo vibrante */}
             <div className="absolute -top-16 -left-16 size-56 rounded-full bg-[#02531C]/35 blur-3xl pointer-events-none" />
 
             <div className="flex items-center justify-between relative z-10">
               <div>
-                <h3 className="font-display font-black text-lg text-white tracking-tight">Revenue Overview</h3>
-                <p className="text-xs font-medium text-slate-300">Updated today, 07 May 2026</p>
+                <h3 className="font-display font-black text-lg text-white tracking-tight">Actividad de Envíos</h3>
+                <p className="text-xs font-medium text-slate-300">MonCash, NatCash & Recargas</p>
               </div>
 
               {/* Selector de moneda */}
@@ -328,19 +330,19 @@ export function Dashboard() {
               <div className="flex items-center justify-between text-xs">
                 <span className="font-bold text-white flex items-center gap-1.5">
                   <span className="size-2 rounded-full bg-[#10B981] animate-ping" />
-                  Overview
+                  Métricas de Envío
                 </span>
                 <Info className="size-4 text-emerald-400 cursor-pointer hover:text-white" />
               </div>
 
               <div className="grid grid-cols-2 gap-2 text-xs">
                 <div className="rounded-xl bg-black/40 border border-white/5 p-2.5">
-                  <p className="text-[10px] font-semibold text-slate-300 uppercase tracking-wider">Peak Volume</p>
-                  <p className="font-extrabold text-white text-xs mt-1">2x vs last month</p>
+                  <p className="text-[10px] font-semibold text-slate-300 uppercase tracking-wider">Total Enviado</p>
+                  <p className="font-extrabold text-white text-xs mt-1">$ 1,850.00</p>
                 </div>
                 <div className="rounded-xl bg-black/40 border border-[#F2AC00]/30 p-2.5 text-right">
-                  <p className="text-[10px] font-semibold text-slate-300 uppercase tracking-wider">Growth Rate</p>
-                  <p className="font-black text-[#F2AC00] text-sm mt-0.5">+ 12.83 %</p>
+                  <p className="text-[10px] font-semibold text-slate-300 uppercase tracking-wider">Acreditación</p>
+                  <p className="font-black text-[#F2AC00] text-sm mt-0.5">&lt; 120 seg</p>
                 </div>
               </div>
 
@@ -412,9 +414,9 @@ export function Dashboard() {
 
                 {/* Tooltip flotante con alto contraste sobre el punto May 29 */}
                 <div className="absolute top-1 left-1/2 translate-x-3 rounded-2xl bg-black/95 border-2 border-[#F2AC00] p-2.5 shadow-[0_8px_24px_rgba(242,172,0,0.35)] backdrop-blur-xl text-xs space-y-0.5">
-                  <p className="text-slate-300 font-bold text-[10px]">May 29</p>
-                  <p className="font-black text-white text-sm tracking-tight">$ 5,538.65</p>
-                  <p className="font-black text-[#10B981] text-xs">+ 9.41%</p>
+                  <p className="text-slate-300 font-bold text-[10px]">Envío MonCash</p>
+                  <p className="font-black text-white text-sm tracking-tight">$ 150.00 USD</p>
+                  <p className="font-black text-[#10B981] text-xs">≈ 19,875 HTG</p>
                 </div>
 
                 {/* Eje X de fechas */}
@@ -441,77 +443,60 @@ export function Dashboard() {
             </div>
           </div>
 
-          {/* Top Clients con Alto Contraste */}
+          {/* Beneficiarios Frecuentes en Haití */}
           <div className="rounded-3xl bg-gradient-to-b from-[#131A15] via-[#0E1511] to-[#0A0F0C] border border-white/15 p-5 space-y-4 shadow-[0_12px_36px_rgba(0,0,0,0.85)]">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="font-display font-black text-base text-white">Top Clients</h3>
-                <p className="text-xs font-medium text-slate-300">02 of 5 active companies</p>
+                <h3 className="font-display font-black text-base text-white">Beneficiarios en Haití</h3>
+                <p className="text-xs font-medium text-slate-300">Contactos frecuentes de envío</p>
               </div>
 
-              {/* Botones de navegación */}
-              <div className="flex items-center gap-1.5">
-                <button
-                  type="button"
-                  className="grid size-8 place-items-center rounded-xl bg-[#1C2620] border border-white/15 text-slate-300 hover:text-white hover:border-[#F2AC00]/60 shadow-sm transition"
-                  aria-label="Previous client"
-                >
-                  <ChevronLeft className="size-4" />
-                </button>
-                <button
-                  type="button"
-                  className="grid size-8 place-items-center rounded-xl bg-[#1C2620] border border-white/15 text-slate-300 hover:text-white hover:border-[#F2AC00]/60 shadow-sm transition"
-                  aria-label="Next client"
-                >
-                  <ChevronRight className="size-4" />
-                </button>
-              </div>
+              <Link
+                to="/enviar"
+                className="inline-flex items-center gap-1 text-xs font-bold text-[#F2AC00] hover:underline"
+              >
+                <span>+ Nuevo</span>
+              </Link>
             </div>
 
-            {/* Lista de tarjetas horizontales */}
+            {/* Lista de beneficiarios */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-3">
-              {topClients.map((client) => (
+              {frequentRecipients.map((recipient) => (
                 <div
-                  key={client.name}
-                  className="rounded-2xl bg-gradient-to-b from-[#1A231D] to-[#121A15] border border-white/12 p-4 space-y-2.5 hover:border-[#F2AC00]/50 hover:shadow-[0_8px_20px_rgba(2,83,28,0.25)] transition-all group"
+                  key={recipient.name}
+                  className="rounded-2xl bg-gradient-to-b from-[#1A231D] to-[#121A15] border border-white/12 p-4 space-y-3 hover:border-[#F2AC00]/50 hover:shadow-[0_8px_20px_rgba(2,83,28,0.25)] transition-all group"
                 >
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <span className={cn("size-2.5 rounded-full", client.badgeColor)} />
-                      <p className="text-xs font-extrabold text-white group-hover:text-[#F2AC00] transition">
-                        {client.name}
-                      </p>
+                    <div className="flex items-center gap-2.5">
+                      <div className="grid size-9 place-items-center rounded-xl bg-[#02531C] text-[#F2AC00] font-black text-xs border border-[#F2AC00]/40 shadow-sm">
+                        {recipient.avatar}
+                      </div>
+                      <div>
+                        <p className="text-xs font-extrabold text-white group-hover:text-[#F2AC00] transition">
+                          {recipient.name}
+                        </p>
+                        <p className="text-[11px] font-mono text-slate-300">{recipient.phone}</p>
+                      </div>
                     </div>
-                    <MoreVertical className="size-4 text-slate-400 cursor-pointer hover:text-white" />
-                  </div>
 
-                  <div className="flex items-baseline justify-between">
-                    <p className="text-base font-black text-white">{client.total}</p>
-                    <span className={cn(
-                      "text-xs font-black px-2 py-0.5 rounded-full border",
-                      client.growth.startsWith("+")
-                        ? "text-emerald-300 bg-emerald-500/20 border-emerald-500/40"
-                        : "text-rose-300 bg-rose-500/20 border-rose-500/40"
-                    )}>
-                      {client.growth}
+                    <span className="text-[10px] font-black text-emerald-300 bg-emerald-500/20 border border-emerald-500/40 px-2 py-0.5 rounded-full">
+                      {recipient.wallet}
                     </span>
                   </div>
 
-                  <div className="flex items-center justify-between pt-1">
-                    <div className="flex -space-x-2">
-                      {client.avatars.map((emoji, idx) => (
-                        <div
-                          key={idx}
-                          className="grid size-7 place-items-center rounded-full bg-slate-800 border-2 border-black text-xs shadow-md"
-                        >
-                          {emoji}
-                        </div>
-                      ))}
-                      <div className="grid size-7 place-items-center rounded-full bg-[#02531C] border-2 border-black text-[10px] font-black text-[#F2AC00]">
-                        +
-                      </div>
+                  <div className="flex items-center justify-between pt-1 border-t border-white/10">
+                    <div>
+                      <p className="text-[10px] text-slate-400">Último envío</p>
+                      <p className="text-xs font-black text-white">{recipient.lastSent}</p>
                     </div>
-                    <span className="text-xs font-semibold text-slate-300">{client.subtitle}</span>
+
+                    <Link
+                      to="/enviar"
+                      className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-[#02531C] to-[#046824] px-3.5 py-1.5 text-xs font-bold text-[#F2AC00] border border-[#F2AC00]/40 shadow-sm hover:scale-105 active:scale-95 transition"
+                    >
+                      <Send className="size-3" />
+                      <span>Enviar</span>
+                    </Link>
                   </div>
                 </div>
               ))}
@@ -661,7 +646,7 @@ export function Dashboard() {
               </div>
             </div>
 
-            {/* 4 BOTONES DE ACCIÓN RÁPIDA CON CONTRASTE ELEVADO */}
+            {/* 4 BOTONES DE ACCIÓN RÁPIDA TCHO-TCHO */}
             <div className="grid grid-cols-4 gap-2.5 pt-2 relative z-10">
               <Link
                 to="/enviar"
@@ -670,27 +655,7 @@ export function Dashboard() {
                 <div className="grid size-9 place-items-center rounded-xl bg-[#02531C] text-[#F2AC00] border border-[#F2AC00]/40 group-hover:scale-110 transition shadow-md">
                   <Send className="size-4" />
                 </div>
-                <span className="text-xs font-bold">Sent</span>
-              </Link>
-
-              <Link
-                to="/enviar"
-                className="flex flex-col items-center justify-center gap-1.5 rounded-2xl bg-gradient-to-b from-[#1C2620] to-[#121A15] border border-emerald-500/30 p-3 text-white hover:border-[#F2AC00] hover:bg-[#02531C]/60 hover:shadow-[0_0_20px_rgba(242,172,0,0.3)] transition-all group"
-              >
-                <div className="grid size-9 place-items-center rounded-xl bg-[#02531C] text-[#F2AC00] border border-[#F2AC00]/40 group-hover:scale-110 transition shadow-md">
-                  <Download className="size-4" />
-                </div>
-                <span className="text-xs font-bold">Receive</span>
-              </Link>
-
-              <Link
-                to="/perfil"
-                className="flex flex-col items-center justify-center gap-1.5 rounded-2xl bg-gradient-to-b from-[#1C2620] to-[#121A15] border border-emerald-500/30 p-3 text-white hover:border-[#F2AC00] hover:bg-[#02531C]/60 hover:shadow-[0_0_20px_rgba(242,172,0,0.3)] transition-all group"
-              >
-                <div className="grid size-9 place-items-center rounded-xl bg-[#02531C] text-[#F2AC00] border border-[#F2AC00]/40 group-hover:scale-110 transition shadow-md">
-                  <CreditCard className="size-4" />
-                </div>
-                <span className="text-xs font-bold">Add Card</span>
+                <span className="text-xs font-bold">Enviar</span>
               </Link>
 
               <Link
@@ -698,9 +663,29 @@ export function Dashboard() {
                 className="flex flex-col items-center justify-center gap-1.5 rounded-2xl bg-gradient-to-b from-[#1C2620] to-[#121A15] border border-emerald-500/30 p-3 text-white hover:border-[#F2AC00] hover:bg-[#02531C]/60 hover:shadow-[0_0_20px_rgba(242,172,0,0.3)] transition-all group"
               >
                 <div className="grid size-9 place-items-center rounded-xl bg-[#02531C] text-[#F2AC00] border border-[#F2AC00]/40 group-hover:scale-110 transition shadow-md">
-                  <ArrowRightLeft className="size-4" />
+                  <Smartphone className="size-4" />
                 </div>
-                <span className="text-xs font-bold">Exchange</span>
+                <span className="text-xs font-bold">Recargar</span>
+              </Link>
+
+              <Link
+                to="/cripto"
+                className="flex flex-col items-center justify-center gap-1.5 rounded-2xl bg-gradient-to-b from-[#1C2620] to-[#121A15] border border-emerald-500/30 p-3 text-white hover:border-[#F2AC00] hover:bg-[#02531C]/60 hover:shadow-[0_0_20px_rgba(242,172,0,0.3)] transition-all group"
+              >
+                <div className="grid size-9 place-items-center rounded-xl bg-[#02531C] text-[#F2AC00] border border-[#F2AC00]/40 group-hover:scale-110 transition shadow-md">
+                  <Coins className="size-4" />
+                </div>
+                <span className="text-xs font-bold">Cripto</span>
+              </Link>
+
+              <Link
+                to="/perfil"
+                className="flex flex-col items-center justify-center gap-1.5 rounded-2xl bg-gradient-to-b from-[#1C2620] to-[#121A15] border border-emerald-500/30 p-3 text-white hover:border-[#F2AC00] hover:bg-[#02531C]/60 hover:shadow-[0_0_20px_rgba(242,172,0,0.3)] transition-all group"
+              >
+                <div className="grid size-9 place-items-center rounded-xl bg-[#02531C] text-[#F2AC00] border border-[#F2AC00]/40 group-hover:scale-110 transition shadow-md">
+                  <Wallet className="size-4" />
+                </div>
+                <span className="text-xs font-bold">Billetera</span>
               </Link>
             </div>
           </div>
@@ -798,24 +783,27 @@ export function Dashboard() {
         </div>
 
         {/* =================================================================
-            COLUMNA DERECHA (3 cols en desktop): SAAS & SERVICES SPENDING
+            COLUMNA DERECHA (3 cols en desktop): SERVICIOS & RECARGAS HAITÍ
             ================================================================= */}
         <div className="lg:col-span-3 space-y-6">
           <div className="rounded-3xl bg-gradient-to-b from-[#131A15] via-[#0E1511] to-[#0A0F0C] border border-white/15 p-5 space-y-4 shadow-[0_12px_36px_rgba(0,0,0,0.85)]">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="font-display font-black text-base text-white">SaaS Spending</h3>
-                <p className="text-xs font-medium text-slate-300">Monthly auto-debits</p>
+                <h3 className="font-display font-black text-base text-white">Servicios & Recargas</h3>
+                <p className="text-xs font-medium text-slate-300">Haití (Digicel &amp; Natcom)</p>
               </div>
-              <span className="text-base font-black text-[#F2AC00]">$ 1,815 /mo</span>
+              <span className="text-xs font-black text-[#F2AC00] bg-[#F2AC00]/10 border border-[#F2AC00]/30 px-2.5 py-1 rounded-full">
+                5 Activos
+              </span>
             </div>
 
-            {/* Lista de servicios activos con iconos vivos */}
+            {/* Lista de servicios oficiales de Haití */}
             <div className="space-y-2.5">
-              {servicesList.map((svc) => (
-                <div
+              {haitiServices.map((svc) => (
+                <Link
                   key={svc.name}
-                  className="flex items-center justify-between rounded-2xl bg-gradient-to-b from-[#1A231D] to-[#121A15] border border-white/12 p-3.5 hover:border-[#F2AC00]/40 transition group"
+                  to={svc.link}
+                  className="flex items-center justify-between rounded-2xl bg-gradient-to-b from-[#1A231D] to-[#121A15] border border-white/12 p-3.5 hover:border-[#F2AC00]/50 hover:bg-[#02531C]/30 transition group"
                 >
                   <div className="flex items-center gap-3 min-w-0">
                     <div className={cn("grid size-10 shrink-0 place-items-center rounded-xl bg-gradient-to-tr text-lg shadow-md", svc.color)}>
@@ -825,17 +813,16 @@ export function Dashboard() {
                       <p className="font-bold text-xs text-white truncate group-hover:text-[#F2AC00] transition">
                         {svc.name}
                       </p>
-                      <p className="text-[10px] text-slate-300 font-medium truncate">{svc.provider}</p>
+                      <p className="text-[10px] text-slate-300 font-medium truncate">{svc.benefit}</p>
                     </div>
                   </div>
 
                   <div className="text-right shrink-0">
-                    <p className="font-black text-xs text-white">{svc.price}</p>
-                    <p className={cn("text-[10px] font-bold", svc.urgent ? "text-[#F2AC00] animate-pulse" : "text-slate-300")}>
-                      {svc.date}
-                    </p>
+                    <span className="text-[10px] font-black text-emerald-300 bg-emerald-500/20 border border-emerald-500/40 px-2 py-0.5 rounded-full">
+                      {svc.speed}
+                    </span>
                   </div>
-                </div>
+                </Link>
               ))}
             </div>
 
@@ -845,17 +832,17 @@ export function Dashboard() {
               className="w-full h-11 rounded-2xl border-white/15 bg-[#1C2620] text-xs font-extrabold text-white hover:text-white hover:border-[#F2AC00] hover:bg-[#02531C] shadow-md transition"
             >
               <Link to="/recargas">
-                View all 12 services
+                Ir al Centro de Recargas
               </Link>
             </Button>
           </div>
 
-          {/* Quick Currency Rate Card Tcho-Tcho */}
+          {/* Quick Currency Rate Card Tcho-Tcho (Sin República Dominicana ni DOP) */}
           <div className="rounded-3xl bg-gradient-to-b from-[#142318] via-[#0D1810] to-[#0A0D0B] border-2 border-[#02531C] p-4.5 space-y-3.5 shadow-[0_12px_36px_rgba(2,83,28,0.35)] relative overflow-hidden">
             <div className="flex items-center justify-between text-xs">
               <span className="font-black text-white flex items-center gap-1.5 text-sm">
                 <Coins className="size-4 text-[#F2AC00]" />
-                Live Exchange Rate
+                Tasa de Cambio en Vivo
               </span>
               <span className="rounded-full bg-[#02531C] border border-[#F2AC00]/60 px-2.5 py-0.5 text-[10px] font-black text-[#F2AC00] shadow-sm">
                 Live
@@ -868,8 +855,8 @@ export function Dashboard() {
                 <span className="font-black text-white text-sm">≈ {rate?.rate ? `${Number(rate.rate).toFixed(2)} HTG` : "132.50 HTG"}</span>
               </div>
               <div className="flex items-center justify-between text-xs">
-                <span className="text-slate-300 font-semibold">1000 DOP</span>
-                <span className="font-black text-[#F2AC00] text-sm">≈ 2,240.00 HTG</span>
+                <span className="text-slate-300 font-semibold">100 MXN</span>
+                <span className="font-black text-[#F2AC00] text-sm">≈ 720.00 HTG</span>
               </div>
             </div>
 
@@ -878,7 +865,7 @@ export function Dashboard() {
               className="flex items-center justify-center gap-2 w-full h-10 rounded-xl bg-gradient-to-r from-[#02531C] to-[#04782A] text-white font-black text-xs shadow-lg hover:scale-[1.02] active:scale-[0.98] transition border-2 border-[#F2AC00]"
             >
               <Send className="size-3.5 text-[#F2AC00]" />
-              <span>Send Money to Haiti Now</span>
+              <span>Enviar Dinero a Haití Ahora</span>
             </Link>
           </div>
         </div>

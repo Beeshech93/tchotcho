@@ -16,6 +16,7 @@ import {
   ChevronDown,
   Sparkles,
   ArrowRight,
+  Coins,
 } from "lucide-react";
 import type { ReactNode } from "react";
 import logoAsset from "@/assets/lajan-rapid-logo.png";
@@ -83,19 +84,18 @@ export function AppShell({ children }: { children: ReactNode }) {
   const topupsEnabled = isEnabled("topups");
 
   const coreNav = [
-    { to: "/dashboard", label: "Home", icon: Home },
-    { to: "/historial", label: "Transactions", icon: History },
-    ...(transfersEnabled ? [{ to: "/enviar", label: "Payments", icon: Send }] : []),
-    { to: "/dashboard", label: "Cards", icon: CreditCard },
-    { to: "/perfil", label: "Accounts", icon: Wallet },
+    { to: "/dashboard", label: "Dashboard", icon: Home },
+    ...(transfersEnabled ? [{ to: "/enviar", label: "Enviar Dinero", icon: Send }] : []),
+    ...(topupsEnabled ? [{ to: "/recargas", label: "Recargas Haití", icon: Smartphone }] : []),
+    { to: "/historial", label: "Transacciones", icon: History },
+    { to: "/perfil", label: "Mi Billetera", icon: Wallet },
   ];
 
   const workflowNav = [
-    ...(topupsEnabled ? [{ to: "/recargas", label: "Bill Pay", icon: Smartphone }] : []),
-    ...(transfersEnabled ? [{ to: "/enviar", label: "Invoicing", icon: Receipt }] : []),
-    { to: "/soporte", label: "Reimbursements", icon: LifeBuoy },
-    ...(isAdmin ? [{ to: "/admin", label: "Accounting", icon: Shield }] : []),
-    ...(isAgent ? [{ to: "/agente", label: "Agent Portal", icon: Briefcase }] : []),
+    { to: "/cripto", label: "Cripto & USDT", icon: Coins },
+    { to: "/soporte", label: "Centro de Ayuda", icon: LifeBuoy },
+    ...(isAdmin ? [{ to: "/admin", label: "Panel Admin", icon: Shield }] : []),
+    ...(isAgent ? [{ to: "/agente", label: "Portal de Agente", icon: Briefcase }] : []),
   ];
 
   const signOut = async () => {
@@ -144,10 +144,10 @@ export function AppShell({ children }: { children: ReactNode }) {
             })}
           </nav>
 
-          {/* Workflows Sub-Group */}
+          {/* Servicios Adicionales */}
           <div className="mt-6">
             <p className="px-3.5 pb-2 text-[11px] font-black uppercase tracking-wider text-emerald-400">
-              Workflows
+              Más Opciones
             </p>
             <nav className="flex flex-col gap-1.5">
               {workflowNav.map((item) => {
@@ -171,20 +171,19 @@ export function AppShell({ children }: { children: ReactNode }) {
             </nav>
           </div>
 
-          {/* Promotional Bottom Widget ("Accept credit cards and bank payment") */}
+          {/* Widget inferior enfocado 100% en envíos a Haití */}
           <div className="mt-8 rounded-2xl bg-gradient-to-b from-[#18241C] to-[#0F1611] border border-emerald-500/30 p-4 text-center shadow-lg relative overflow-hidden group">
             <div className="absolute -top-10 -right-10 size-28 rounded-full bg-[#F2AC00]/15 blur-xl pointer-events-none" />
-            <div className="mx-auto mb-2.5 flex h-14 w-24 items-center justify-between rounded-xl bg-gradient-to-tr from-black to-[#0A2613] p-2.5 border border-[#F2AC00]/40 shadow-inner">
-              <div className="size-4 rounded-sm bg-[#F2AC00] border border-white/40 shadow-sm" />
-              <span className="text-[9px] font-mono font-black text-emerald-300">Tcho-Tcho</span>
+            <div className="mx-auto mb-2.5 flex h-11 w-24 items-center justify-center rounded-xl bg-gradient-to-tr from-black to-[#0A2613] p-2 border border-[#F2AC00]/40 shadow-inner">
+              <span className="text-xs font-black text-[#F2AC00]">Tcho-Tcho</span>
             </div>
-            <p className="text-xs font-black text-white">Accept credit cards and bank payment</p>
-            <p className="text-[10px] text-slate-300 mt-0.5">Instant deposits in HTG & USD</p>
+            <p className="text-xs font-black text-white">MonCash & NatCash Directo</p>
+            <p className="text-[10px] text-slate-300 mt-0.5">Acreditación flash en &lt; 2 minutos</p>
             <Link
               to="/enviar"
               className="mt-3 inline-flex w-full items-center justify-center gap-1.5 rounded-xl bg-[#F2AC00] px-3.5 py-2 text-xs font-black text-black shadow-[0_0_15px_rgba(242,172,0,0.4)] hover:bg-[#FBBF24] transition"
             >
-              Set up now
+              Enviar Dinero
               <ArrowRight className="size-3.5" />
             </Link>
           </div>
