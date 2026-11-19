@@ -92,7 +92,6 @@ export function AppShell({ children }: { children: ReactNode }) {
   ];
 
   const workflowNav = [
-    { to: "/cripto", label: "Cripto & USDT", icon: Coins },
     { to: "/soporte", label: "Centro de Ayuda", icon: LifeBuoy },
     ...(isAdmin ? [{ to: "/admin", label: "Panel Admin", icon: Shield }] : []),
     ...(isAgent ? [{ to: "/agente", label: "Portal de Agente", icon: Briefcase }] : []),

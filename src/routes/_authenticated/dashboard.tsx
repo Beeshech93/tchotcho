@@ -3,10 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import {
   ArrowRight,
-  ArrowUpRight,
   ChevronDown,
-  Coins,
-  CreditCard,
   Eye,
   EyeOff,
   History,
@@ -14,29 +11,22 @@ import {
   Send,
   ShieldAlert,
   Smartphone,
-  Sparkles,
-  Wallet,
-  Wifi,
-  Copy,
-  Check,
+  User,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useProfile } from "@/hooks/useProfile";
 import { useCountries, useRate } from "@/hooks/useCorridors";
 import { useWallets } from "@/hooks/useWallet";
 import { Button } from "@/components/ui/button";
-import { money, shortDate } from "@/lib/remesa";
+import { shortDate } from "@/lib/remesa";
 import { useI18n } from "@/lib/i18n";
-import { useServicesConfig } from "@/hooks/useServicesConfig";
 import { cn } from "@/lib/utils";
-import logoAsset from "@/assets/tchotcho-logo.png";
-import iconAsset from "@/assets/tchotcho-icon.png";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({
     meta: [
       { title: "Dashboard — Tcho-Tcho" },
-      { name: "description", content: "Panel de control simple y rápido para enviar dinero y recargas a Haití." },
+      { name: "description", content: "Panel de control simple para enviar dinero y recargas a Haití." },
     ],
   }),
   component: Dashboard,
@@ -48,11 +38,6 @@ export function Dashboard() {
   const { data: countries } = useCountries();
   const [currencyView, setCurrencyView] = useState<"USD" | "HTG">("USD");
   const [hideBalance, setHideBalance] = useState(false);
-  const [copied, setCopied] = useState(false);
-
-  const { isEnabled } = useServicesConfig();
-  const transfersEnabled = isEnabled("transfers");
-  const topupsEnabled = isEnabled("topups");
 
   const origins = (countries ?? []).filter((c) => c.is_origin);
   const destinations = (countries ?? []).filter((c) => c.is_destination && c.code !== "DO");
@@ -95,14 +80,14 @@ export function Dashboard() {
 
   // Beneficiarios directos para envío en 1 clic
   const quickContacts = [
-    { name: "Jean B.", phone: "+509 3712-4589", wallet: "MonCash", color: "bg-red-500/20 text-red-400 border-red-500/40" },
-    { name: "Marie P.", phone: "+509 4823-9012", wallet: "NatCash", color: "bg-cyan-500/20 text-cyan-400 border-cyan-500/40" },
-    { name: "Emmanuel J.", phone: "+509 3144-5566", wallet: "MonCash", color: "bg-red-500/20 text-red-400 border-red-500/40" },
+    { name: "Jean Baptiste", phone: "+509 3712-4589", wallet: "MonCash", color: "bg-red-500/20 text-red-400 border-red-500/40" },
+    { name: "Marie Claire", phone: "+509 4823-9012", wallet: "NatCash", color: "bg-cyan-500/20 text-cyan-400 border-cyan-500/40" },
+    { name: "Emmanuel Joseph", phone: "+509 3144-5566", wallet: "MonCash", color: "bg-red-500/20 text-red-400 border-red-500/40" },
   ];
 
   // Transacciones
   const displayTransfers = (transfers && transfers.length > 0)
-    ? transfers.map((tx, idx) => ({
+    ? transfers.map((tx) => ({
         id: tx.id,
         recipient: tx.recipient_name || "Destinatario en Haití",
         service: tx.service_type === "moncash" ? "MonCash Haití" : tx.service_type === "natcash" ? "NatCash Haití" : "Remesa",
@@ -119,18 +104,10 @@ export function Dashboard() {
         { id: "4", recipient: "Emmanuel Joseph", service: "MonCash Haití (+509 34...)", date: "08 May", amount: "$ 220.00", status: "Completado", statusColor: "text-emerald-400 bg-emerald-500/15 border-emerald-500/30", viewLink: "/historial" },
       ];
 
-  const handleCopyCard = () => {
-    if (typeof navigator !== "undefined") {
-      navigator.clipboard.writeText("5421 9812 3712 1234");
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    }
-  };
-
   return (
-    <div className="mx-auto max-w-4xl space-y-6 pb-24 md:pb-12 text-white selection:bg-[#02531C] selection:text-[#F2AC00]">
+    <div className="mx-auto max-w-3xl space-y-6 pb-24 md:pb-12 text-white selection:bg-[#02531C] selection:text-[#F2AC00]">
       
-      {/* Alerta KYC solo si es necesaria */}
+      {/* Alerta KYC solo si está pendiente */}
       {profile && profile.kyc_status !== "approved" && (
         <div className="flex items-center justify-between gap-3 rounded-2xl bg-[#111713] border border-[#F2AC00]/40 p-4 shadow-lg">
           <div className="flex items-center gap-3 min-w-0">
@@ -141,10 +118,10 @@ export function Dashboard() {
               <p className="font-bold text-white text-sm">
                 {profile.kyc_status === "pending"
                   ? "Verificación en revisión"
-                  : "Verifica tu identidad"}
+                  : "Verifica tu cuenta"}
               </p>
               <p className="text-slate-300 truncate">
-                Desbloquea transferencias de mayor monto a Haití.
+                Desbloquea límites más altos de envío a Haití.
               </p>
             </div>
           </div>
@@ -154,7 +131,7 @@ export function Dashboard() {
         </div>
       )}
 
-      {/* SALUDO Y BALANCE PRINCIPAL (ULTRA-LIMPIO) */}
+      {/* SALUDO Y SALDO PRINCIPAL */}
       <div className="rounded-[32px] bg-gradient-to-b from-[#131B15] to-[#0A0E0C] border border-white/12 p-6 sm:p-8 space-y-6 shadow-2xl relative overflow-hidden">
         <div className="absolute top-0 right-0 size-72 rounded-full bg-[#02531C]/30 blur-3xl pointer-events-none" />
 
@@ -163,30 +140,28 @@ export function Dashboard() {
           <div className="space-y-0.5">
             <p className="text-xs font-semibold text-emerald-400 flex items-center gap-1.5">
               <span className="size-2 rounded-full bg-emerald-400 animate-pulse" />
-              Tcho-Tcho Digital Banking
+              Tcho-Tcho
             </p>
             <h1 className="text-xl sm:text-2xl font-black text-white">
               Hola, {displayName} 👋
             </h1>
           </div>
 
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() => setCurrencyView(currencyView === "USD" ? "HTG" : "USD")}
-              className="inline-flex items-center gap-1.5 rounded-full bg-[#1C2620] border border-[#F2AC00]/40 px-3.5 py-1.5 text-xs font-black text-[#F2AC00] hover:bg-[#02531C]/60 shadow-sm transition"
-            >
-              <span>{currencyView}</span>
-              <ChevronDown className="size-3.5" />
-            </button>
-          </div>
+          <button
+            type="button"
+            onClick={() => setCurrencyView(currencyView === "USD" ? "HTG" : "USD")}
+            className="inline-flex items-center gap-1.5 rounded-full bg-[#1C2620] border border-[#F2AC00]/40 px-3.5 py-1.5 text-xs font-black text-[#F2AC00] hover:bg-[#02531C]/60 shadow-sm transition"
+          >
+            <span>{currencyView}</span>
+            <ChevronDown className="size-3.5" />
+          </button>
         </div>
 
         {/* Saldo Central Grande */}
         <div className="space-y-1 relative z-10">
-          <p className="text-xs font-bold uppercase tracking-wider text-slate-400">Saldo Total Disponible</p>
+          <p className="text-xs font-bold uppercase tracking-wider text-slate-400">Saldo Disponible</p>
           <div className="flex items-center gap-3">
-            <span className="text-3xl sm:text-5xl font-black tracking-tight text-white">
+            <span className="text-4xl sm:text-5xl font-black tracking-tight text-white">
               {hideBalance ? "••••••••" : formattedBalance}
             </span>
             <button
@@ -208,7 +183,7 @@ export function Dashboard() {
           </p>
         </div>
 
-        {/* 4 BOTONES DE ACCIÓN RÁPIDA (GRANDES & CLAROS) */}
+        {/* 4 BOTONES DE ACCIÓN DIRECTA */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2 relative z-10">
           <Link
             to="/enviar"
@@ -237,15 +212,15 @@ export function Dashboard() {
           </Link>
 
           <Link
-            to="/cripto"
+            to="/historial"
             className="flex flex-col items-center justify-center gap-2 rounded-2xl bg-gradient-to-b from-[#18231C] to-[#0F1712] border border-emerald-500/30 p-4 text-white hover:border-[#F2AC00] hover:bg-[#1E2C23] shadow-md hover:scale-[1.02] active:scale-[0.98] transition-all group"
           >
             <div className="grid size-10 place-items-center rounded-xl bg-[#02531C] text-[#F2AC00] border border-[#F2AC00]/30 group-hover:scale-110 transition">
-              <Coins className="size-5" />
+              <History className="size-5" />
             </div>
             <div className="text-center">
-              <p className="text-sm font-black text-white">Cripto &amp; USDT</p>
-              <p className="text-[10px] text-slate-300">TRON &amp; Polygon</p>
+              <p className="text-sm font-black text-white">Historial</p>
+              <p className="text-[10px] text-slate-300">Movimientos</p>
             </div>
           </Link>
 
@@ -254,119 +229,65 @@ export function Dashboard() {
             className="flex flex-col items-center justify-center gap-2 rounded-2xl bg-gradient-to-b from-[#18231C] to-[#0F1712] border border-emerald-500/30 p-4 text-white hover:border-[#F2AC00] hover:bg-[#1E2C23] shadow-md hover:scale-[1.02] active:scale-[0.98] transition-all group"
           >
             <div className="grid size-10 place-items-center rounded-xl bg-[#02531C] text-[#F2AC00] border border-[#F2AC00]/30 group-hover:scale-110 transition">
-              <Wallet className="size-5" />
+              <User className="size-5" />
             </div>
             <div className="text-center">
-              <p className="text-sm font-black text-white">Mi Billetera</p>
-              <p className="text-[10px] text-slate-300">Cuentas &amp; Límites</p>
+              <p className="text-sm font-black text-white">Mi Cuenta</p>
+              <p className="text-[10px] text-slate-300">Perfil &amp; Ajustes</p>
             </div>
           </Link>
         </div>
       </div>
 
-      {/* FILA DE 2 TARJETAS SIMPLES: TARJETA VIRTUAL + BENEFICIARIOS RÁPIDOS */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
-        
-        {/* Tarjeta Digital Tcho-Tcho */}
-        <div className="rounded-[28px] bg-gradient-to-br from-[#02531C] via-[#013813] to-[#001D09] border-2 border-[#F2AC00]/60 p-6 flex flex-col justify-between shadow-[0_12px_36px_rgba(2,83,28,0.4)] relative overflow-hidden min-h-[220px]">
-          <div className="absolute top-0 right-0 size-48 rounded-full bg-[#F2AC00]/15 blur-2xl pointer-events-none" />
-
-          {/* Header de tarjeta */}
-          <div className="flex items-center justify-between relative z-10">
-            <div className="flex items-center gap-2">
-              <div className="size-7 rounded-full bg-white p-0.5 flex items-center justify-center shadow-sm">
-                <img src={iconAsset} alt="Tcho-Tcho" className="size-6 object-contain" />
-              </div>
-              <span className="font-display font-black text-sm text-white tracking-wide">Tcho-Tcho Virtual</span>
-            </div>
-            <Wifi className="size-5 text-[#F2AC00]" />
+      {/* BENEFICIARIOS RÁPIDOS EN HAITÍ */}
+      <div className="rounded-[28px] bg-gradient-to-b from-[#131B15] to-[#0A0E0C] border border-white/12 p-6 space-y-4 shadow-xl">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="font-display font-black text-base text-white">Beneficiarios en Haití</h2>
+            <p className="text-xs text-slate-300">Envío directo en 1 clic</p>
           </div>
-
-          {/* Saldo de la tarjeta */}
-          <div className="my-auto py-3 relative z-10">
-            <p className="text-[10px] font-bold uppercase tracking-wider text-emerald-300">Balance en cuenta</p>
-            <p className="text-2xl font-black text-white tracking-tight">{formattedBalance}</p>
-          </div>
-
-          {/* Número y Fecha */}
-          <div className="flex items-center justify-between relative z-10 pt-2 border-t border-emerald-500/20">
-            <div>
-              <p className="font-mono text-xs font-bold text-white tracking-widest">•••• •••• •••• 1234</p>
-              <p className="text-[10px] font-mono text-emerald-300">EXP: 06/28</p>
-            </div>
-
-            <button
-              type="button"
-              onClick={handleCopyCard}
-              className="inline-flex items-center gap-1 rounded-xl bg-black/50 border border-white/20 px-2.5 py-1 text-[11px] font-bold text-[#F2AC00] hover:bg-black transition"
-            >
-              {copied ? <Check className="size-3 text-emerald-400" /> : <Copy className="size-3" />}
-              <span>{copied ? "Copiado" : "Copiar"}</span>
-            </button>
-          </div>
-        </div>
-
-        {/* Beneficiarios Frecuentes en Haití */}
-        <div className="rounded-[28px] bg-gradient-to-b from-[#131B15] to-[#0A0E0C] border border-white/12 p-6 flex flex-col justify-between shadow-xl space-y-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="font-display font-black text-base text-white">Beneficiarios en Haití</h2>
-              <p className="text-xs text-slate-300">Envío express con 1 clic</p>
-            </div>
-            <Link
-              to="/enviar"
-              className="inline-flex items-center gap-1 text-xs font-bold text-[#F2AC00] hover:underline"
-            >
-              <Plus className="size-3.5" />
-              <span>Nuevo</span>
-            </Link>
-          </div>
-
-          <div className="space-y-2.5">
-            {quickContacts.map((contact) => (
-              <Link
-                key={contact.name}
-                to="/enviar"
-                className="flex items-center justify-between rounded-2xl bg-black/40 border border-white/10 p-3 hover:border-[#F2AC00]/60 hover:bg-[#02531C]/30 transition group"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="grid size-9 place-items-center rounded-xl bg-[#02531C] text-[#F2AC00] font-black text-xs border border-[#F2AC00]/40">
-                    {contact.name.charAt(0)}
-                  </div>
-                  <div>
-                    <p className="text-xs font-bold text-white group-hover:text-[#F2AC00] transition">
-                      {contact.name}
-                    </p>
-                    <p className="text-[11px] font-mono text-slate-400">{contact.phone}</p>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <span className={cn("text-[10px] font-bold px-2 py-0.5 rounded-full border", contact.color)}>
-                    {contact.wallet}
-                  </span>
-                  <ArrowRight className="size-3.5 text-slate-400 group-hover:text-[#F2AC00] transition" />
-                </div>
-              </Link>
-            ))}
-          </div>
-
           <Link
             to="/enviar"
-            className="inline-flex items-center justify-center w-full py-2 rounded-xl bg-white/[0.05] border border-white/10 text-xs font-bold text-slate-200 hover:text-white hover:bg-white/[0.1] transition"
+            className="inline-flex items-center gap-1 text-xs font-bold text-[#F2AC00] hover:underline"
           >
-            Ver todos los contactos de Haití
+            <Plus className="size-3.5" />
+            <span>Nuevo envío</span>
           </Link>
         </div>
 
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          {quickContacts.map((contact) => (
+            <Link
+              key={contact.name}
+              to="/enviar"
+              className="flex items-center justify-between rounded-2xl bg-black/40 border border-white/10 p-3.5 hover:border-[#F2AC00]/60 hover:bg-[#02531C]/30 transition group"
+            >
+              <div className="flex items-center gap-3">
+                <div className="grid size-9 place-items-center rounded-xl bg-[#02531C] text-[#F2AC00] font-black text-xs border border-[#F2AC00]/40">
+                  {contact.name.charAt(0)}
+                </div>
+                <div>
+                  <p className="text-xs font-bold text-white group-hover:text-[#F2AC00] transition">
+                    {contact.name}
+                  </p>
+                  <p className="text-[11px] font-mono text-slate-400">{contact.phone}</p>
+                </div>
+              </div>
+
+              <span className={cn("text-[10px] font-bold px-2 py-0.5 rounded-full border", contact.color)}>
+                {contact.wallet}
+              </span>
+            </Link>
+          ))}
+        </div>
       </div>
 
-      {/* ÚLTIMAS TRANSACCIONES (LISTA LIMPIA Y FÁCIL DE LEER) */}
+      {/* ÚLTIMAS TRANSACCIONES */}
       <div className="rounded-[28px] bg-gradient-to-b from-[#131B15] to-[#0A0E0C] border border-white/12 p-6 space-y-4 shadow-xl">
         <div className="flex items-center justify-between">
           <div>
             <h2 className="font-display font-black text-base text-white">Últimos Movimientos</h2>
-            <p className="text-xs text-slate-300">Historial reciente de remesas y recargas</p>
+            <p className="text-xs text-slate-300">Historial reciente de remesas</p>
           </div>
 
           <Link
