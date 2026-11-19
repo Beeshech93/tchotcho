@@ -12,7 +12,7 @@ function parseInput(input: PayWithdrawalInput): PayWithdrawalInput {
 /** Paga un retiro a MonCash / NatCash usando Bazik (solo staff). */
 export const payCryptoWithdrawal = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator(parseInput)
+  .validator(parseInput)
   .handler(async ({ data, context }) => {
     const { verifyIsStaff } = await import("@/lib/admin.server");
     const isStaff = await verifyIsStaff(context);

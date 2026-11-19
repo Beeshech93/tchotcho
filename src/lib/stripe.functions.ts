@@ -15,7 +15,7 @@ export const stripeStatus = createServerFn({ method: "POST" })
 /** Guardar manualmente las credenciales de Stripe (solo administradores). */
 export const stripeSaveCredentials = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: StripeCredentialsInput) => parseStripeCredentialsInput(input))
+  .validator((input: StripeCredentialsInput) => parseStripeCredentialsInput(input))
   .handler(async ({ data, context }) => {
     const { verifyIsAdmin } = await import("@/lib/admin.server");
     if (!(await verifyIsAdmin(context))) throw new Error("No autorizado");
@@ -29,19 +29,50 @@ export const stripeSaveCredentials = createServerFn({ method: "POST" })
 
 const CARD_METHODS = ["card", "tarjeta", "mercado_pago", "mercadopago"];
 
+async function getAuthorizedTransfer(
+  transferId: string,
+  context: { supabase: any; userId: string; claims?: any },
+) {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { verifyIsAdmin } = await import("@/lib/admin.server");
+  const isAdmin = await verifyIsAdmin(context);
+
+  let t: any = null;
+  try {
+    const { data: tClient } = await context.supabase
+      .from("transfers")
+      .select("*")
+      .eq("id", transferId)
+      .maybeSingle();
+    if (tClient && (tClient.user_id === context.userId || isAdmin)) {
+      t = tClient;
+    }
+  } catch {}
+
+  if (!t) {
+    try {
+      const { data: tAdmin } = await supabaseAdmin
+        .from("transfers")
+        .select("*")
+        .eq("id", transferId)
+        .maybeSingle();
+      if (tAdmin && (tAdmin.user_id === context.userId || isAdmin)) {
+        t = tAdmin;
+      }
+    } catch {}
+  }
+
+  return t;
+}
+
 /** Inicia el pago con Stripe (países fuera de México) y retorna la URL de checkout. */
 export const stripeInitiatePayment = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { transferId: string }) => input)
+  .validator((input: { transferId: string }) => input)
   .handler(async ({ data, context }) => {
-    const { data: transfer, error } = await context.supabase
-      .from("transfers")
-      .select("*")
-      .eq("id", data.transferId)
-      .eq("user_id", context.userId)
-      .maybeSingle();
+    const transfer = await getAuthorizedTransfer(data.transferId, context);
 
-    if (error || !transfer) throw new Error("Transferencia no encontrada");
+    if (!transfer) throw new Error("Transferencia no encontrada");
     if (!CARD_METHODS.includes(transfer.payment_method)) {
       throw new Error("Este método de pago no usa tarjeta");
     }

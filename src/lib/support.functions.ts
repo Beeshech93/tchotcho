@@ -37,7 +37,7 @@ export const getSupportConfig = createServerFn({ method: "GET" }).handler(
 
 export const updateSupportConfig = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: Partial<SupportConfig>) => input)
+  .validator((input: Partial<SupportConfig>) => input)
   .handler(async ({ data, context }) => {
     const { verifyIsAdmin } = await import("@/lib/admin.server");
     const isAdmin = await verifyIsAdmin(context);

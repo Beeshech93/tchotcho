@@ -281,7 +281,7 @@ export function mapStripeEvent(type: string): TransferStatus | null {
   }
 }
 
-/** Extrae la referencia del envío (RH-XXXXXXXX) del objeto del evento. */
+/** Extrae la referencia del envío (RH-XXXXXXXX o LR-TU-XXXXXXXX) del objeto del evento. */
 export function extractReference(obj: Record<string, unknown>): string | null {
   const metadata = obj["metadata"] as Record<string, unknown> | undefined;
   const paymentIntent = obj["payment_intent"] as { metadata?: Record<string, unknown> } | undefined;
@@ -294,9 +294,11 @@ export function extractReference(obj: Record<string, unknown>): string | null {
   ];
   for (const c of candidates) {
     if (typeof c !== "string") continue;
-    const match = c.match(/RH-[A-Z0-9]{6,}/i);
+    const match = c.match(/(?:RH|LR-TU)-[A-Z0-9_-]{4,}/i);
     if (match) return match[0].toUpperCase();
-    if (c.trim()) return c.trim();
+  }
+  for (const c of candidates) {
+    if (typeof c === "string" && c.trim()) return c.trim();
   }
   return null;
 }

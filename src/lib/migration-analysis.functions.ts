@@ -104,7 +104,7 @@ Nunca repitas valores sensibles (claves, tokens, contraseñas) que aparezcan en 
 
 export const analyzeMigration = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { schema: string; data: string }) => {
+  .validator((input: { schema: string; data: string }) => {
     const s = String(input?.schema ?? "");
     const d = String(input?.data ?? "");
     if (!s.trim() && !d.trim()) throw new Error("Pega el esquema o los datos exportados.");

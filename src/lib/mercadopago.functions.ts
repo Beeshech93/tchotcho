@@ -20,7 +20,7 @@ export const mercadoPagoStatus = createServerFn({ method: "POST" })
 /** Guardar manualmente las credenciales de Mercado Pago (solo administradores). */
 export const mercadoPagoSaveCredentials = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: MpCredentialsInput) => parseMpCredentialsInput(input))
+  .validator((input: MpCredentialsInput) => parseMpCredentialsInput(input))
   .handler(async ({ data, context }) => {
     const { verifyIsAdmin } = await import("@/lib/admin.server");
     if (!(await verifyIsAdmin(context))) throw new Error("No autorizado");
@@ -76,7 +76,7 @@ async function getAuthorizedTransfer(
 /** Inicia el pago en Mercado Pago y retorna la URL de checkout. */
 export const mercadoPagoInitiatePayment = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { transferId: string }) => input)
+  .validator((input: { transferId: string }) => input)
   .handler(async ({ data, context }) => {
     const transfer = await getAuthorizedTransfer(data.transferId, context);
 
@@ -115,7 +115,7 @@ export const mercadoPagoInitiatePayment = createServerFn({ method: "POST" })
 /** Genera (o recupera) una CLABE SPEI real para un envío propio. */
 export const mercadoPagoSpeiReference = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { transferId: string }) => parseSpeiReferenceInput(input))
+  .validator((input: { transferId: string }) => parseSpeiReferenceInput(input))
   .handler(async ({ data, context }) => {
     const transfer = await getAuthorizedTransfer(data.transferId, context);
 
@@ -152,7 +152,7 @@ export const mercadoPagoSpeiReference = createServerFn({ method: "POST" })
 /** Genera (o recupera) la ficha real de pago en OXXO para un envío propio. */
 export const mercadoPagoOxxoVoucher = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { transferId: string }) => parseOxxoVoucherInput(input))
+  .validator((input: { transferId: string }) => parseOxxoVoucherInput(input))
   .handler(async ({ data, context }) => {
     const transfer = await getAuthorizedTransfer(data.transferId, context);
 

@@ -29,7 +29,7 @@ export const bazikTestAuth = createServerFn({ method: "POST" })
 /** Guarda manualmente las credenciales de Bazik (solo administradores). */
 export const bazikSaveCredentials = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: BazikCredentialsInput) => parseBazikCredentialsInput(input))
+  .validator((input: BazikCredentialsInput) => parseBazikCredentialsInput(input))
   .handler(async ({ data, context }) => {
     await requireAdmin(context);
     const { saveStoredCred } = await import("@/lib/bazik.server");

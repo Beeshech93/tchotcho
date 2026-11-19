@@ -12,7 +12,7 @@ import {
 /** Catálogo de operadores y montos disponibles por país. */
 export const dingListProducts = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: DingProductsInput) => parseDingProductsInput(input))
+  .validator((input: DingProductsInput) => parseDingProductsInput(input))
   .handler(async ({ data }) => {
     const { dingProducts } = await import("@/lib/dingconnect.server");
     try {
@@ -25,7 +25,7 @@ export const dingListProducts = createServerFn({ method: "POST" })
 /** Envía una recarga de saldo móvil descontando el monto de la billetera. */
 export const dingSendTopup = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: DingTopupInput) => parseDingTopupInput(input))
+  .validator((input: DingTopupInput) => parseDingTopupInput(input))
   .handler(async ({ data, context }) => {
     const { dingValidateAccountNumber } = await import("@/lib/dingconnect.server");
     const validation = await dingValidateAccountNumber({
@@ -90,7 +90,7 @@ const TOPUP_CARD_METHODS = ["card", "tarjeta", "mercado_pago", "mercadopago"];
  */
 export const dingCreateTopupCheckout = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator(
+  .validator(
     (input: {
       skuCode: string;
       operator?: string;
@@ -233,7 +233,7 @@ export const dingStatus = createServerFn({ method: "POST" })
 /** Guardar manualmente las credenciales de DingConnect (solo administradores). */
 export const dingSaveCredentials = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: DingCredentialsInput) => parseDingCredentialsInput(input))
+  .validator((input: DingCredentialsInput) => parseDingCredentialsInput(input))
   .handler(async ({ data, context }) => {
     const { verifyIsAdmin } = await import("@/lib/admin.server");
     const isAdmin = await verifyIsAdmin(context);

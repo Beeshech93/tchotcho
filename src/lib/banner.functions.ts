@@ -43,7 +43,7 @@ export const getBannerConfig = createServerFn({ method: "GET" }).handler(
 
 export const updateBannerConfig = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: Partial<BannerConfig>) => input)
+  .validator((input: Partial<BannerConfig>) => input)
   .handler(async ({ data, context }) => {
     const { verifyIsAdmin } = await import("@/lib/admin.server");
     const isAdmin = await verifyIsAdmin(context);

@@ -40,7 +40,7 @@ const ADMIN_STATUS_LABEL: Record<string, string> = {
  */
 export const adminSetTransferStatus = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: z.infer<typeof adminSetStatusSchema>) =>
+  .validator((input: z.infer<typeof adminSetStatusSchema>) =>
     adminSetStatusSchema.parse(input),
   )
   .handler(async ({ data, context }) => {
@@ -93,7 +93,7 @@ export const adminSetTransferStatus = createServerFn({ method: "POST" })
 /** Cancela una transacción. No puede cancelarse un envío ya completado. */
 export const adminCancelTransfer = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: z.infer<typeof adminCancelSchema>) => adminCancelSchema.parse(input))
+  .validator((input: z.infer<typeof adminCancelSchema>) => adminCancelSchema.parse(input))
   .handler(async ({ data, context }) => {
     const { verifyIsAdmin } = await import("@/lib/admin.server");
     const isAdminData = await verifyIsAdmin(context);
@@ -140,7 +140,7 @@ export const adminCancelTransfer = createServerFn({ method: "POST" })
 /** Finaliza el envío pagando automáticamente al MonCash/NatCash del destinatario vía Bazik. */
 export const finalizeTransferPayout = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: z.infer<typeof finalizeSchema>) => finalizeSchema.parse(input))
+  .validator((input: z.infer<typeof finalizeSchema>) => finalizeSchema.parse(input))
   .handler(async ({ data, context }) => {
     const { data: t, error } = await context.supabase
       .from("transfers")
@@ -215,7 +215,7 @@ export const finalizeTransferPayout = createServerFn({ method: "POST" })
 /** Confirma una transacción manualmente llamando a Bazik si es MonCash/NatCash. Autorizado para Admin y Agentes. */
 export const adminConfirmTransfer = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: z.infer<typeof adminConfirmSchema>) => adminConfirmSchema.parse(input))
+  .validator((input: z.infer<typeof adminConfirmSchema>) => adminConfirmSchema.parse(input))
   .handler(async ({ data, context }) => {
     const { verifyIsAdmin, verifyIsStaff } = await import("@/lib/admin.server");
     const isAdminData = await verifyIsAdmin(context);
@@ -320,7 +320,7 @@ const agentCreateCashSchema = z.object({
  */
 export const agentCreateCashTransfer = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: z.infer<typeof agentCreateCashSchema>) =>
+  .validator((input: z.infer<typeof agentCreateCashSchema>) =>
     agentCreateCashSchema.parse(input),
   )
   .handler(async ({ data, context }) => {
@@ -528,7 +528,7 @@ const agentConfirmCashSchema = z.object({
  */
 export const agentConfirmCashPayment = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: z.infer<typeof agentConfirmCashSchema>) =>
+  .validator((input: z.infer<typeof agentConfirmCashSchema>) =>
     agentConfirmCashSchema.parse(input),
   )
   .handler(async ({ data, context }) => {

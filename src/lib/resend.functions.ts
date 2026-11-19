@@ -20,7 +20,7 @@ export const resendStatus = createServerFn({ method: "POST" })
 /** Guarda manualmente las credenciales de Resend (solo administradores). */
 export const resendSaveCredentials = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: ResendCredentialsInput) => parseResendCredentialsInput(input))
+  .validator((input: ResendCredentialsInput) => parseResendCredentialsInput(input))
   .handler(async ({ data, context }) => {
     await requireAdmin(context);
     const { saveResendCred } = await import("@/lib/resend.server");
@@ -65,7 +65,7 @@ export const resendSendTest = createServerFn({ method: "POST" })
 /** Envía un anuncio a todos los usuarios con correo confirmado, uno por uno para no revelar destinatarios. */
 export const resendSendAnnouncement = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { subject: string; message: string }) => {
+  .validator((input: { subject: string; message: string }) => {
     const subject = typeof input?.subject === "string" ? input.subject.trim() : "";
     const message = typeof input?.message === "string" ? input.message.trim() : "";
     if (subject.length < 3 || subject.length > 150) {
