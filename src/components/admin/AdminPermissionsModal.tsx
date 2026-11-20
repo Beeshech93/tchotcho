@@ -125,6 +125,12 @@ const TAB_METAS: TabMeta[] = [
     desc: "Gestionar anuncios y avisos en la web",
     category: "configuracion",
   },
+  {
+    id: "redes",
+    label: "Redes Sociales",
+    desc: "Conectar cuentas oficiales de redes sociales",
+    category: "configuracion",
+  },
 
   // Integraciones
   {
@@ -187,7 +193,7 @@ const CATEGORY_TITLES = {
   sistema: "Seguridad y Administración",
 };
 
-const OPERATIONAL_TABS: AdminTabId[] = ["tx", "recargas", "kyc", "soporte", "operators"];
+const OPERATIONAL_TABS: AdminTabId[] = ["tx", "recargas", "kyc", "soporte", "redes", "operators"];
 
 const AVAILABLE_ADMIN_TABS: AdminTabId[] = ALL_ADMIN_TAB_IDS;
 

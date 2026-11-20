@@ -22,7 +22,8 @@ export type AdminTabId =
   | "recargas"
   | "usuarios"
   | "tarifas"
-  | "migracion";
+  | "migracion"
+  | "redes";
 
 export interface AdminPermissionsConfig {
   isSuperAdmin: boolean;
@@ -56,6 +57,7 @@ export const ALL_ADMIN_TAB_IDS: AdminTabId[] = [
   "usuarios",
   "tarifas",
   "migracion",
+  "redes",
 ];
 
 const MASTER_ADMIN_EMAILS = ["charlesagency4@gmail.com", "lajanrapid26@gmail.com"];

@@ -19,6 +19,7 @@ import {
 
 import logoAsset from "@/assets/tchotcho-logo.png";
 import iconAsset from "@/assets/tchotcho-icon.png";
+import { SocialLinks } from "@/components/SocialLinks";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -759,7 +760,8 @@ export function Landing() {
       </section>
 
       {/* FOOTER ELEGANTE */}
-      <footer className="relative z-10 border-t border-white/10 py-8 text-center text-xs text-slate-400 space-y-2">
+      <footer className="relative z-10 border-t border-white/10 py-8 text-center text-xs text-slate-400 space-y-3">
+        <SocialLinks className="pb-1" />
         <p>
           © {new Date().getFullYear()} Tcho-Tcho. {t("landing.rights_reserved")}
         </p>

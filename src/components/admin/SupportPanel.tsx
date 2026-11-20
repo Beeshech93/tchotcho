@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { useServerFn } from "@tanstack/react-start";
-import { MessageCircle, Mail, Save, Clock, Globe } from "lucide-react";
+import { MessageCircle, Mail, Save, Clock, Globe, Share2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -188,6 +188,31 @@ export function SupportPanel() {
               </select>
             </div>
           </div>
+        </CardContent>
+      </Card>
+
+      <Card className="md:col-span-2 border-primary/20 bg-primary/5">
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div className="space-y-1">
+              <CardTitle className="text-base flex items-center gap-2">
+                <Share2 className="size-5 text-primary" />
+                Cuentas de Redes Sociales
+              </CardTitle>
+              <CardDescription>
+                Conecta las cuentas de redes sociales (Facebook, Instagram, TikTok, Telegram, YouTube, X) de la plataforma.
+              </CardDescription>
+            </div>
+            <Badge variant="outline" className="border-primary/40 text-primary">
+              Disponible en pestaña Redes Sociales
+            </Badge>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <p className="text-xs text-muted-foreground">
+            Puedes vincular y probar en vivo cada una de tus cuentas oficiales desde la pestaña dedicada{" "}
+            <span className="font-semibold text-foreground">Redes Sociales</span> en este panel de administración.
+          </p>
         </CardContent>
       </Card>
 

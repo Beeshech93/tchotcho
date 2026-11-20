@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { Mail, MessageCircle } from "lucide-react";
+import { SocialLinks } from "@/components/SocialLinks";
 import logoAsset from "@/assets/lajan-rapid-logo.png";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { getSupportConfig } from "@/lib/support.functions";
@@ -88,6 +89,11 @@ function ContactoPage() {
             Support hours: {config.support_hours}
           </p>
         )}
+
+        <div className="mt-8 border-t pt-6">
+          <p className="text-sm font-semibold mb-3">Follow us on social media</p>
+          <SocialLinks className="justify-start" />
+        </div>
       </section>
     </div>
   );

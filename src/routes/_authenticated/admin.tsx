@@ -42,6 +42,7 @@ import { DingConnectPanel } from "@/components/admin/DingConnectPanel";
 import { AccountingPanel } from "@/components/admin/AccountingPanel";
 import { SupportPanel } from "@/components/admin/SupportPanel";
 import { AdBannerPanel } from "@/components/admin/AdBannerPanel";
+import { SocialNetworksPanel } from "@/components/admin/SocialNetworksPanel";
 import { ServicesPanel } from "@/components/admin/ServicesPanel";
 import { KycPanel } from "@/components/admin/KycPanel";
 import { TopupsPanel } from "@/components/admin/TopupsPanel";
@@ -119,6 +120,7 @@ function Admin() {
     { id: "servicios", label: "Servicios", panel: <ServicesPanel /> },
     { id: "contabilidad", label: "Contabilidad", panel: <AccountingPanel /> },
     { id: "soporte", label: "Soporte", panel: <SupportPanel /> },
+    { id: "redes", label: "Redes Sociales", panel: <SocialNetworksPanel /> },
     { id: "banner", label: "Banner", panel: <AdBannerPanel /> },
     { id: "mercadopago", label: "Mercado Pago", panel: <MercadoPagoPanel /> },
     { id: "stripe", label: "Stripe", panel: <StripePanel /> },

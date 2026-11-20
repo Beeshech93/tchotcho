@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { ArrowLeft, Mail, MessageCircle, Phone } from "lucide-react";
+import { SocialLinks } from "@/components/SocialLinks";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -80,6 +81,14 @@ function Soporte() {
         {!whatsapp && !email && (
           <p className="text-sm text-muted-foreground sm:col-span-2">{t("support.no_channels")}</p>
         )}
+      </div>
+
+      <div className="rounded-xl border border-border/60 bg-card p-4 space-y-2">
+        <p className="text-sm font-semibold">Redes sociales oficiales</p>
+        <p className="text-xs text-muted-foreground">
+          Síguenos o comunícate con nosotros por cualquiera de nuestros canales oficiales.
+        </p>
+        <SocialLinks className="justify-start pt-1" />
       </div>
 
       {config?.support_hours && (
