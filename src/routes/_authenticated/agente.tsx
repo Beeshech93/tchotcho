@@ -809,7 +809,7 @@ function Agente() {
                   <span>Historial de Movimientos de Saldo</span>
                 </CardTitle>
                 <CardDescription className="text-xs">
-                  Registro de abonos de administrador, débitos por envíos, recargas y reembolsos.
+                  Registro de asignaciones de administrador, débitos por envíos, recargas y reembolsos.
                 </CardDescription>
               </div>
               <Button
@@ -860,7 +860,7 @@ function Agente() {
                             <div className="flex items-center gap-2 flex-wrap">
                               <span className="font-extrabold text-xs text-slate-900">
                                 {tx.description ||
-                                  (isPositive ? "Abono de saldo" : "Débito operativo")}
+                                  (isPositive ? "Asignación de saldo" : "Débito operativo")}
                               </span>
                               <Badge
                                 variant="outline"

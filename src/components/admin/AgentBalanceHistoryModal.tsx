@@ -54,7 +54,6 @@ export function AgentBalanceHistoryModal({
   const fetchHistory = useServerFn(getAgentBalanceHistory);
   const [search, setSearch] = useState("");
   const [currencyFilter, setCurrencyFilter] = useState("all");
-  const [typeFilter, setTypeFilter] = useState<"all" | "deposit" | "deduct">("all");
 
   const { data: items, isLoading, refetch, isFetching } = useQuery({
     queryKey: ["agent-balance-history", agentUser?.id],
@@ -71,8 +70,6 @@ export function AgentBalanceHistoryModal({
   const filteredItems = useMemo(() => {
     return (items ?? []).filter((item) => {
       if (currencyFilter !== "all" && item.currency !== currencyFilter) return false;
-      if (typeFilter === "deposit" && item.amount <= 0) return false;
-      if (typeFilter === "deduct" && item.amount >= 0) return false;
 
       const q = search.trim().toLowerCase();
       if (!q) return true;
@@ -84,14 +81,7 @@ export function AgentBalanceHistoryModal({
         String(item.amount).includes(q)
       );
     });
-  }, [items, search, currencyFilter, typeFilter]);
-
-  // Estadísticas rápidas
-  const totalDeposited = useMemo(() => {
-    return filteredItems
-      .filter((i) => i.amount > 0)
-      .reduce((acc, curr) => acc + curr.amount, 0);
-  }, [filteredItems]);
+  }, [items, search, currencyFilter]);
 
   const uniqueCurrencies = useMemo(() => {
     return Array.from(new Set((items ?? []).map((i) => i.currency))).filter(Boolean);
@@ -129,7 +119,7 @@ export function AgentBalanceHistoryModal({
               <DialogDescription className="text-xs">
                 {agentUser
                   ? `Registro de todas las recargas y ajustes recibidos por ${agentUser.full_name || agentUser.phone}.`
-                  : "Auditoría de todos los abonos y ajustes de saldo operativo otorgados a las cuentas de agentes."}
+                  : "Auditoría de asignaciones y ajustes de saldo operativo otorgados a las cuentas de agentes."}
               </DialogDescription>
             </div>
             <Button
@@ -145,22 +135,14 @@ export function AgentBalanceHistoryModal({
         </DialogHeader>
 
         {/* Resumen rápido */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 my-3">
+        <div className="grid grid-cols-2 gap-3 my-3">
           <div className="rounded-xl border border-primary/20 bg-primary/5 p-3">
             <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider">
               Total Operaciones
             </p>
             <p className="text-xl font-bold mt-0.5">{filteredItems.length}</p>
           </div>
-          <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-3">
-            <p className="text-[11px] font-medium text-emerald-400 uppercase tracking-wider">
-              Total Abonado
-            </p>
-            <p className="text-xl font-bold text-emerald-400 mt-0.5">
-              +{totalDeposited.toLocaleString()}
-            </p>
-          </div>
-          <div className="rounded-xl border border-border/40 bg-card p-3 col-span-2 sm:col-span-1">
+          <div className="rounded-xl border border-border/40 bg-card p-3">
             <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider">
               Monedas
             </p>
@@ -179,7 +161,7 @@ export function AgentBalanceHistoryModal({
         </div>
 
         {/* Filtros */}
-        <div className="grid gap-2 sm:grid-cols-[1fr_130px_130px] my-1">
+        <div className="grid gap-2 sm:grid-cols-[1fr_130px] my-1">
           <div className="relative">
             <Search className="absolute left-3 top-2.5 size-4 text-muted-foreground" />
             <Input
@@ -189,16 +171,6 @@ export function AgentBalanceHistoryModal({
               className="pl-9 h-9 text-xs"
             />
           </div>
-          <Select value={typeFilter} onValueChange={(v: any) => setTypeFilter(v)}>
-            <SelectTrigger className="h-9 text-xs">
-              <SelectValue placeholder="Tipo" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Todos los tipos</SelectItem>
-              <SelectItem value="deposit">Solo Abonos (+)</SelectItem>
-              <SelectItem value="deduct">Solo Ajustes (-)</SelectItem>
-            </SelectContent>
-          </Select>
           <Select value={currencyFilter} onValueChange={setCurrencyFilter}>
             <SelectTrigger className="h-9 text-xs">
               <SelectValue placeholder="Moneda" />
@@ -229,9 +201,9 @@ export function AgentBalanceHistoryModal({
                 No hay registros de adición de saldo
               </p>
               <p className="text-xs text-muted-foreground mt-1">
-                {search || typeFilter !== "all" || currencyFilter !== "all"
+                {search || currencyFilter !== "all"
                   ? "Intenta modificar los filtros de búsqueda."
-                  : "Aún no se han registrado abonos a cuentas de agentes."}
+                  : "Aún no se han registrado asignaciones de saldo a cuentas de agentes."}
               </p>
             </div>
           )}
@@ -280,7 +252,7 @@ export function AgentBalanceHistoryModal({
                               : "bg-amber-500/10 text-amber-400 border-amber-500/30 text-[10px]"
                           }
                         >
-                          {isPositive ? "Abono de saldo" : "Ajuste de saldo"}
+                          {isPositive ? "Asignación de saldo" : "Ajuste de saldo"}
                         </Badge>
                         <Badge
                           variant="outline"
