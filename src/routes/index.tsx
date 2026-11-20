@@ -222,19 +222,6 @@ export function Landing() {
             <span className="text-emerald-700">{t("landing.badge_route")}</span>
           </div>
 
-          {/* Titular Principal Hero */}
-          <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight text-slate-900 leading-[1.1]">
-            {t("landing.hero_title_1")}{" "}
-            <span className="bg-gradient-to-r from-emerald-600 to-emerald-800 bg-clip-text text-transparent">
-              {t("landing.hero_title_2")}
-            </span>
-          </h1>
-
-          {/* Subtítulo Hero */}
-          <p className="text-sm sm:text-base text-slate-600 font-medium leading-relaxed max-w-xl">
-            {t("landing.hero_subtitle")}
-          </p>
-
           {/* Botones de acción CTA modernos */}
           <div className="flex flex-wrap items-center justify-center lg:justify-start gap-2.5 sm:gap-4 pt-0.5">
             <Link
