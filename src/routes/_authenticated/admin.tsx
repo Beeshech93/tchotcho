@@ -164,19 +164,23 @@ function Admin() {
             </Link>
           </Button>
           <div className="flex flex-wrap items-center gap-2">
-            <h1 className="text-2xl font-bold">Administración</h1>
+            <h1 className="text-2xl font-extrabold text-slate-900">Admin Dashboard</h1>
             {isSuperAdmin && (
-              <Badge className="bg-amber-500/15 text-amber-500 border-amber-500/30 gap-1 text-xs">
-                <Shield className="size-3" /> Super Admin
+              <Badge className="bg-[#EF4444] text-white border-transparent gap-1 text-xs font-bold uppercase rounded-full px-2.5 py-0.5 shadow-xs">
+                <Shield className="size-3" /> ADMIN
               </Badge>
             )}
           </div>
         </div>
       </div>
       <Tabs defaultValue={defaultTab}>
-        <TabsList className="flex h-auto w-full flex-wrap justify-start gap-1">
+        <TabsList className="flex h-auto w-full flex-wrap justify-start gap-1 bg-white border border-slate-200 p-1 rounded-2xl shadow-xs">
           {allowedTabs.map((t) => (
-            <TabsTrigger key={t.id} value={t.id}>
+            <TabsTrigger
+              key={t.id}
+              value={t.id}
+              className="rounded-xl px-3 py-1.5 text-xs font-medium text-slate-600 data-[state=active]:bg-[#DCFCE7] data-[state=active]:text-[#15803D] data-[state=active]:font-bold data-[state=active]:shadow-none transition-all"
+            >
               {t.label}
             </TabsTrigger>
           ))}
@@ -229,8 +233,8 @@ function Resumen() {
   return (
     <div className="space-y-4">
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <Stat label="Volumen total" value={volume} />
-        <Stat label="Ingresos por comisión" value={fees} />
+        <Stat label="Volumen total" value={volume} isGreen />
+        <Stat label="Ingresos por comisión" value={fees} isGreen />
         <Stat label="Envíos entregados" value={`${completed} / ${rows.length}`} />
         <Stat label="KYC por revisar" value={String(pendingKyc)} />
       </div>
@@ -1098,12 +1102,27 @@ function Field({
   );
 }
 
-function Stat({ label, value }: { label: string; value: string }) {
+function Stat({
+  label,
+  value,
+  isGreen,
+}: {
+  label: string;
+  value: string;
+  isGreen?: boolean;
+}) {
   return (
-    <Card>
-      <CardContent className="p-4">
-        <p className="text-xs font-semibold text-muted-foreground">{label}</p>
-        <p className="mt-1 font-display text-xl font-bold">{value}</p>
+    <Card className="bg-white border border-slate-200 shadow-sm rounded-2xl">
+      <CardContent className="p-5">
+        <p className="text-xs font-semibold text-slate-500">{label}</p>
+        <p
+          className={cn(
+            "mt-1.5 font-display text-2xl font-black",
+            isGreen ? "text-[#15803D]" : "text-slate-900",
+          )}
+        >
+          {value}
+        </p>
       </CardContent>
     </Card>
   );

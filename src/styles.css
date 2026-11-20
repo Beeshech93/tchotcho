@@ -75,30 +75,30 @@
 :root {
   --radius: 1.25rem;
 
-  /* ---- Tcho-Tcho Design System: Pure Black (#000000) + Forest Emerald (#02531C) + Sun Amber Gold (#F2AC00) ---- */
-  --primary: #02531c; /* Brand Forest Emerald */
-  --primary-dark: #013813; /* Deep Pine */
-  --primary-light: #0e742c; /* Vibrant Emerald Glow */
+  /* ---- Tcho-Tcho Design System: Clean Light Fintech (Mega Chans inspired) ---- */
+  --primary: #15803d; /* Vibrant Emerald Green */
+  --primary-dark: #166534; /* Deep Forest */
+  --primary-light: #22c55e; /* Bright Green Glow */
 
-  --background: #000000; /* Pure OLED Black */
-  --surface: #0d0d0d; /* Sleek Dark Cards */
-  --surface-secondary: #141414; /* Inner cards & inputs */
-  --surface-elevated: #1a1a1a; /* Modals, popovers & docks */
+  --background: #f4f7f5; /* Clean light gray-mint background matching reference */
+  --surface: #ffffff; /* Crisp pure white cards */
+  --surface-secondary: #f8faf9; /* Inner containers and light gray elements */
+  --surface-elevated: #ffffff; /* Modals, dropdowns, popovers */
   --logo-surface: transparent;
 
-  --text-primary: #ffffff;
-  --text-secondary: #94a3b8;
-  --text-muted: #64748b;
+  --text-primary: #0f172a; /* Slate 900 for high-contrast crisp text */
+  --text-secondary: #475569; /* Slate 600 */
+  --text-muted: #64748b; /* Slate 500 */
 
-  --success: #10b981; /* Emerald Green */
-  --warning: #f2ac00; /* Tcho-Tcho Sun Gold */
-  --error: #ef4444; /* Rose Red */
+  --success: #16a34a; /* Green metric color */
+  --warning: #d97706; /* Amber */
+  --error: #ef4444; /* Rose Red (Admin badge) */
 
-  --border: rgba(255, 255, 255, 0.08);
-  --border-strong: rgba(2, 83, 28, 0.4);
+  --border: #e2e8f0; /* Crisp subtle border */
+  --border-strong: #cbd5e1;
 
-  --card-gradient-start: #02531c;
-  --card-gradient-end: #082b12;
+  --card-gradient-start: #ffffff;
+  --card-gradient-end: #f8faf9;
 
   /* ---- Mapeo a tokens de componentes (shadcn) ---- */
   --foreground: var(--text-primary);
@@ -113,40 +113,40 @@
   --secondary: var(--surface-secondary);
   --secondary-foreground: var(--text-primary);
 
-  --muted: var(--surface-secondary);
+  --muted: #f1f5f3;
   --muted-foreground: var(--text-muted);
 
-  --accent: #f2ac00;
-  --accent-foreground: #000000;
+  --accent: #dcfce7; /* Soft pastel mint pill for active nav items */
+  --accent-foreground: #15803d; /* Deep emerald text for active items */
 
   --destructive: var(--error);
   --destructive-foreground: #ffffff;
-  --success-foreground: #000000;
-  --warning-foreground: #000000;
+  --success-foreground: #ffffff;
+  --warning-foreground: #ffffff;
 
-  --input: #141414;
-  --ring: #02531c;
+  --input: #ffffff;
+  --ring: #15803d;
 
-  --chart-1: #02531c;
-  --chart-2: #f2ac00;
-  --chart-3: #10b981;
-  --chart-4: #fbbf24;
-  --chart-5: var(--error);
+  --chart-1: #15803d;
+  --chart-2: #22c55e;
+  --chart-3: #f59e0b;
+  --chart-4: #ef4444;
+  --chart-5: #64748b;
 
-  --sidebar: #000000;
-  --sidebar-foreground: #ffffff;
-  --sidebar-primary: var(--primary);
+  --sidebar: #ffffff;
+  --sidebar-foreground: #0f172a;
+  --sidebar-primary: #15803d;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #141414;
-  --sidebar-accent-foreground: #ffffff;
-  --sidebar-border: var(--border);
-  --sidebar-ring: var(--primary);
+  --sidebar-accent: #dcfce7;
+  --sidebar-accent-foreground: #15803d;
+  --sidebar-border: #e2e8f0;
+  --sidebar-ring: #15803d;
 
-  --gradient-brand: linear-gradient(135deg, #02531c 0%, #086b27 50%, #033913 100%);
-  --gradient-gold: linear-gradient(135deg, #f2ac00 0%, #fbbf24 50%, #d97706 100%);
-  --gradient-mint: linear-gradient(135deg, #10b981 0%, #059669 100%);
-  --shadow-soft: 0 4px 20px -2px rgba(0, 0, 0, 0.5), 0 0 25px -5px rgba(2, 83, 28, 0.2);
-  --shadow-lift: 0 10px 30px -5px rgba(0, 0, 0, 0.7), 0 0 40px -10px rgba(2, 83, 28, 0.4);
+  --gradient-brand: linear-gradient(135deg, #15803d 0%, #16a34a 100%);
+  --gradient-gold: linear-gradient(135deg, #f2ac00 0%, #fbbf24 100%);
+  --gradient-mint: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+  --shadow-soft: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05);
+  --shadow-lift: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
 }
 
 .dark {
@@ -208,17 +208,17 @@
 }
 
 @utility glass-panel {
-  background: rgba(13, 13, 13, 0.85);
+  background: rgba(255, 255, 255, 0.9);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(226, 232, 240, 0.8);
 }
 
 @utility glass-pill {
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.8);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(226, 232, 240, 0.8);
 }
 
 @utility finflow-card-hero {
