@@ -285,20 +285,49 @@ export function useRate(fromCurrency?: string, toCurrency?: string) {
  * afectar ni depender de las tasas de exchange_rates.
  */
 export function useTopupRate(fromCurrency?: string, toCurrency?: string) {
+  const from = fromCurrency || "MXN";
+  const to = toCurrency || "HTG";
+  const fb = fallbackRate(from, to);
+
   return useQuery({
     queryKey: ["topup_rate", fromCurrency, toCurrency],
     enabled: !!fromCurrency && !!toCurrency,
     queryFn: async () => {
-      const { data } = await supabase
+      const { data: topupData } = await supabase
         .from("topup_rates")
         .select("*")
         .eq("is_active", true)
-        .eq("from_currency", fromCurrency!)
-        .eq("to_currency", toCurrency!)
+        .eq("from_currency", from)
+        .eq("to_currency", to)
         .order("created_at", { ascending: false })
         .limit(1)
         .maybeSingle();
-      return data as { id: string; rate: number } | null;
+
+      if (topupData?.rate && Number(topupData.rate) > 0) {
+        return topupData as { id: string; rate: number };
+      }
+
+      // Si no hay tasa específica en topup_rates, usar exchange_rates
+      const { data: exData } = await supabase
+        .from("exchange_rates")
+        .select("*")
+        .eq("is_active", true)
+        .eq("from_currency", from)
+        .eq("to_currency", to)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (exData?.rate && Number(exData.rate) > 0) {
+        return { id: exData.id, rate: Number(exData.rate) };
+      }
+
+      // Si tampoco hay en base de datos, usar fallback
+      if (fb?.rate) {
+        return { id: fb.id, rate: Number(fb.rate) };
+      }
+
+      return null;
     },
   });
 }

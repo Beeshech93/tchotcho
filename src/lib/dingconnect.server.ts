@@ -187,6 +187,12 @@ export type DingProduct = {
   minValue: number | null;
   maxValue: number | null;
   currency: string;
+  minSendValue?: number | null;
+  maxSendValue?: number | null;
+  sendCurrency?: string;
+  minReceiveValue?: number | null;
+  maxReceiveValue?: number | null;
+  receiveCurrency?: string;
 };
 
 /** Nombre real de cada proveedor (GetProducts solo da un código interno como "4RHT"). */
@@ -217,8 +223,18 @@ export async function dingProducts(countryCode: string): Promise<DingProduct[]> 
     CountryIso?: unknown;
     Benefits?: unknown;
     DefaultDisplayText?: unknown;
-    Minimum?: { SendValue?: number; SendCurrencyIso?: string };
-    Maximum?: { SendValue?: number };
+    Minimum?: {
+      SendValue?: number;
+      SendCurrencyIso?: string;
+      ReceiveValue?: number;
+      ReceiveCurrencyIso?: string;
+    };
+    Maximum?: {
+      SendValue?: number;
+      SendCurrencyIso?: string;
+      ReceiveValue?: number;
+      ReceiveCurrencyIso?: string;
+    };
   };
   const [raw, providerNames] = await Promise.all([
     dingFetch(
@@ -239,14 +255,41 @@ export async function dingProducts(countryCode: string): Promise<DingProduct[]> 
 
   return items.slice(0, 200).map((p) => {
     const code = String(p["ProviderCode"] ?? "");
+    const isHaiti = String(p["CountryIso"] ?? countryCode).toUpperCase() === "HT";
+
+    const recCurr = String(p["Minimum"]?.["ReceiveCurrencyIso"] ?? "").trim();
+    const sendCurr = String(p["Minimum"]?.["SendCurrencyIso"] ?? "").trim();
+    const destCurrency = isHaiti ? "HTG" : (recCurr || sendCurr || "HTG");
+
+    const minRec = p["Minimum"]?.["ReceiveValue"] != null ? Number(p["Minimum"]?.["ReceiveValue"]) : null;
+    const maxRec = p["Maximum"]?.["ReceiveValue"] != null ? Number(p["Maximum"]?.["ReceiveValue"]) : null;
+    const minSend = p["Minimum"]?.["SendValue"] != null ? Number(p["Minimum"]?.["SendValue"]) : null;
+    const maxSend = p["Maximum"]?.["SendValue"] != null ? Number(p["Maximum"]?.["SendValue"]) : null;
+
+    let minValue = (minRec != null && minRec > 0) ? minRec : minSend;
+    let maxValue = (maxRec != null && maxRec > 0) ? maxRec : maxSend;
+
+    // Si el destino es Haití y DingConnect solo envió el costo mayorista en USD (SendValue),
+    // convertimos el rango a HTG (~130 HTG/USD) para que el destinatario siempre vea y opere en HTG.
+    if (isHaiti && (!minRec || minRec <= 0) && minSend != null && sendCurr === "USD") {
+      minValue = Math.round(minSend * 130);
+      maxValue = maxSend != null ? Math.round(maxSend * 130) : minValue;
+    }
+
     return {
       skuCode: String(p["SkuCode"] ?? ""),
       operator: providerNames[code] || String(p["ProviderName"] ?? "") || code,
       planName: String(p["DefaultDisplayText"] ?? ""),
       countryCode: String(p["CountryIso"] ?? countryCode).toUpperCase(),
-      minValue: p["Minimum"]?.["SendValue"] ?? null,
-      maxValue: p["Maximum"]?.["SendValue"] ?? null,
-      currency: String(p["Minimum"]?.["SendCurrencyIso"] ?? ""),
+      minValue,
+      maxValue,
+      currency: destCurrency,
+      minSendValue: minSend,
+      maxSendValue: maxSend,
+      sendCurrency: sendCurr,
+      minReceiveValue: minRec,
+      maxReceiveValue: maxRec,
+      receiveCurrency: destCurrency,
     };
   });
 }
@@ -258,17 +301,26 @@ export async function dingSendTransfer(opts: {
   sendCurrency: string;
   accountNumber: string;
   distributorRef: string;
+  receiveValue?: number;
 }) {
+  const isReceive = opts.receiveValue != null || opts.sendCurrency === "HTG";
+  const body: Record<string, any> = {
+    SkuCode: opts.skuCode,
+    AccountNumber: opts.accountNumber,
+    DistributorRef: opts.distributorRef,
+    ValidateOnly: false,
+  };
+  if (isReceive) {
+    body["ReceiveValue"] = opts.receiveValue ?? opts.sendValue;
+    body["SendValue"] = 0;
+  } else {
+    body["SendValue"] = opts.sendValue;
+    if (opts.sendCurrency) body["SendCurrencyIso"] = opts.sendCurrency;
+  }
+
   const raw = (await dingFetch("/SendTransfer", {
     method: "POST",
-    body: JSON.stringify({
-      SkuCode: opts.skuCode,
-      SendValue: opts.sendValue,
-      SendCurrencyIso: opts.sendCurrency,
-      AccountNumber: opts.accountNumber,
-      DistributorRef: opts.distributorRef,
-      ValidateOnly: false,
-    }),
+    body: JSON.stringify(body),
   })) as { TransferRecord?: { TransferId?: string | number; ProcessingState?: string } };
   return {
     providerRef: raw.TransferRecord?.TransferId ? String(raw.TransferRecord.TransferId) : null,
@@ -287,18 +339,27 @@ export async function dingValidateAccountNumber(opts: {
   sendValue: number;
   sendCurrency: string;
   accountNumber: string;
+  receiveValue?: number;
 }): Promise<{ ok: true } | { ok: false; reason: string }> {
   try {
+    const isReceive = opts.receiveValue != null || opts.sendCurrency === "HTG";
+    const body: Record<string, any> = {
+      SkuCode: opts.skuCode,
+      AccountNumber: opts.accountNumber,
+      DistributorRef: `validate-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+      ValidateOnly: true,
+    };
+    if (isReceive) {
+      body["ReceiveValue"] = opts.receiveValue ?? opts.sendValue;
+      body["SendValue"] = 0;
+    } else {
+      body["SendValue"] = opts.sendValue;
+      if (opts.sendCurrency) body["SendCurrencyIso"] = opts.sendCurrency;
+    }
+
     const raw = (await dingFetch("/SendTransfer", {
       method: "POST",
-      body: JSON.stringify({
-        SkuCode: opts.skuCode,
-        SendValue: opts.sendValue,
-        SendCurrencyIso: opts.sendCurrency,
-        AccountNumber: opts.accountNumber,
-        DistributorRef: `validate-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
-        ValidateOnly: true,
-      }),
+      body: JSON.stringify(body),
     })) as {
       TransferRecord?: { ProcessingState?: string; ErrorCodes?: unknown[] };
     };

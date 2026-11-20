@@ -277,12 +277,11 @@ function Recargas() {
 
   // Tasa manual (configurada en /admin) de la moneda de pago a la moneda del
   // operador, para calcular cuánto recibe realmente el destinatario.
-  // Moneda real del destinatario: la del producto si DingConnect la trae,
-  // si no, la del país de destino elegido (siempre la conocemos).
-  const destinationCurrency = (countries ?? []).find(
-    (c) => c.is_destination && c.code === country,
-  )?.currency;
-  const operatorCurrency = selected?.currency || destinationCurrency || "";
+  // Moneda real del destinatario: para Haití siempre es HTG; si no, la del país de destino.
+  const destinationCurrency =
+    (countries ?? []).find((c) => c.is_destination && c.code === country)?.currency ||
+    (country === "HT" ? "HTG" : "");
+  const operatorCurrency = country === "HT" ? "HTG" : (selected?.currency || destinationCurrency || "HTG");
   const sameCurrency = !!payCurrency && !!operatorCurrency && payCurrency === operatorCurrency;
   const { data: topupRate } = useTopupRate(
     sameCurrency ? undefined : payCurrency || undefined,
@@ -297,20 +296,28 @@ function Recargas() {
       : topupRate
         ? Math.round(amountValue * Number(topupRate.rate) * 100) / 100
         : null;
-  const receivedCurrency = operatorCurrency || payCurrency;
+  const receivedCurrency = operatorCurrency || destinationCurrency || "HTG";
   const missingRate = Boolean(hasAmount && !sameCurrency && operatorCurrency && !topupRate);
+
+  // Rangos del proveedor ajustados a la moneda que recibe el destinatario (HTG para Haití)
+  const isHaitiTarget = country === "HT";
+  const rawMin = Number(selected?.minValue ?? 0);
+  const rawMax = Number(selected?.maxValue ?? selected?.minValue ?? 0);
+  const isUsdProductForHaiti = isHaitiTarget && selected?.currency === "USD" && rawMin > 0 && rawMin < 200;
+
+  const providerMin = isUsdProductForHaiti ? Math.round(rawMin * 130) : rawMin;
+  const providerMax = isUsdProductForHaiti ? Math.round(rawMax * 130) : rawMax;
+  const providerCurrency = isHaitiTarget ? "HTG" : (selected?.currency || "HTG");
   const providerRangeKnown = selected?.minValue != null;
-  const providerMin = Number(selected?.minValue ?? 0);
-  const providerMax = Number(selected?.maxValue ?? selected?.minValue ?? 0);
+
   const providerAmountValid =
     !providerRangeKnown ||
-    (receivedCurrency === selected?.currency &&
-      receivedAmount != null &&
+    (receivedAmount != null &&
       receivedAmount >= providerMin &&
       receivedAmount <= providerMax);
   const suggestedPayAmount =
-    topupRate && Number(topupRate.rate) > 0 && selected?.minValue != null
-      ? Math.ceil((Number(selected.minValue) / Number(topupRate.rate)) * 100) / 100
+    topupRate && Number(topupRate.rate) > 0 && providerMin > 0
+      ? Math.ceil((providerMin / Number(topupRate.rate)) * 100) / 100
       : null;
 
   const sendMut = useMutation({
@@ -332,16 +339,14 @@ function Recargas() {
       // currency, not to the MXN amount paid by the customer. Keep this guard
       // explicit and do not silently send an out-of-range amount.
       if (
-        selected?.minValue != null &&
-        (receivedCurrency !== selected.currency ||
-          receivedAmount < Number(selected.minValue) ||
-          receivedAmount > Number(selected.maxValue ?? selected.minValue))
+        providerRangeKnown &&
+        (receivedAmount < providerMin || receivedAmount > providerMax)
       ) {
         throw new Error(
           interpolate(t("topup.err_range"), {
-            min: selected.minValue,
-            max: selected.maxValue ?? selected.minValue,
-            currency: selected.currency,
+            min: providerMin,
+            max: providerMax,
+            currency: providerCurrency,
           }),
         );
       }
@@ -606,16 +611,15 @@ function Recargas() {
                 })}
               </p>
             )}
-            {selected?.minValue != null && (
+            {providerRangeKnown && (
               <div className="space-y-1">
                 <p className="text-xs text-muted-foreground">
-                  Recarga disponible con el proveedor: {selected.minValue} –{" "}
-                  {selected.maxValue ?? selected.minValue} {selected.currency}
+                  Recarga disponible con el proveedor: {providerMin} – {providerMax} {providerCurrency}
                 </p>
-                {Number(selected.minValue) === Number(selected.maxValue ?? selected.minValue) && (
+                {providerMin === providerMax && (
                   <p className="text-xs text-muted-foreground">
                     Esta es una recarga de importe fijo. Para comprarla, el importe pagado debe
-                    equivaler a {selected.minValue} {selected.currency}.
+                    equivaler a {providerMin} {providerCurrency}.
                     {suggestedPayAmount != null
                       ? ` Con la tasa configurada, el pago aproximado es ${suggestedPayAmount.toFixed(2)} ${payCurrency}.`
                       : ""}
