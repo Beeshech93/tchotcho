@@ -531,12 +531,20 @@ function Agente() {
           </div>
         </div>
 
-        {/* Botones de Acción Rápida (Todo integrado dentro del panel) */}
-        <div className="flex flex-wrap items-center gap-2">
+        {/* Botones de Acción Rápida (Todo integrado dentro del panel, lado a lado) */}
+        <div className="flex flex-row items-center gap-2 overflow-x-auto pb-1 sm:pb-0 sm:overflow-visible">
+          <Button
+            onClick={() => setOpenNewCashModal(true)}
+            className="gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold shadow-md text-xs sm:text-sm whitespace-nowrap shrink-0"
+          >
+            <PlusCircle className="size-4" />
+            <span>Nueva Operación en Efectivo</span>
+          </Button>
+
           <Button
             onClick={() => setOpenTopupModal(true)}
             variant="outline"
-            className="gap-2 border-cyan-500/30 hover:bg-cyan-500/10 text-cyan-400 text-xs sm:text-sm cursor-pointer"
+            className="gap-2 border-cyan-500/30 hover:bg-cyan-500/10 text-cyan-400 text-xs sm:text-sm cursor-pointer whitespace-nowrap shrink-0"
           >
             <Smartphone className="size-4 text-cyan-400" />
             <span>Nueva Recarga</span>
@@ -545,18 +553,10 @@ function Agente() {
           <Button
             onClick={() => setOpenClaimModal(true)}
             variant="outline"
-            className="gap-2 border-emerald-500/30 hover:bg-emerald-500/10 text-xs sm:text-sm"
+            className="gap-2 border-emerald-500/30 hover:bg-emerald-500/10 text-xs sm:text-sm whitespace-nowrap shrink-0"
           >
             <Search className="size-4 text-emerald-400" />
             <span>Cobrar con Referencia</span>
-          </Button>
-
-          <Button
-            onClick={() => setOpenNewCashModal(true)}
-            className="gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold shadow-md text-xs sm:text-sm"
-          >
-            <PlusCircle className="size-4" />
-            <span>Nueva Operación en Efectivo</span>
           </Button>
         </div>
       </div>

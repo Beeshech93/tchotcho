@@ -87,16 +87,15 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   const coreNav = [
     { to: "/dashboard", label: t("shell.dashboard"), icon: Home },
-    ...(transfersEnabled ? [{ to: "/enviar", label: t("shell.send_money"), icon: Send }] : []),
-    ...(topupsEnabled ? [{ to: "/recargas", label: t("shell.topups"), icon: Smartphone }] : []),
-    { to: isAgent ? "/agente" : "/historial", label: isAgent ? "Operaciones / Agente" : t("shell.transactions"), icon: isAgent ? Briefcase : History },
+    ...(transfersEnabled && !isAgent ? [{ to: "/enviar", label: t("shell.send_money"), icon: Send }] : []),
+    ...(topupsEnabled && !isAgent ? [{ to: "/recargas", label: t("shell.topups"), icon: Smartphone }] : []),
+    { to: isAgent ? "/agente" : "/historial", label: isAgent ? "Panel de Agente" : t("shell.transactions"), icon: isAgent ? Briefcase : History },
     { to: "/perfil", label: t("shell.my_account"), icon: User },
   ];
 
   const workflowNav = [
     { to: "/soporte", label: t("shell.help_center"), icon: LifeBuoy },
     ...(isAdmin ? [{ to: "/admin", label: t("shell.admin_panel"), icon: Shield }] : []),
-    ...(isAgent ? [{ to: "/agente", label: t("shell.agent_portal"), icon: Briefcase }] : []),
   ];
 
   const signOut = async () => {
@@ -178,16 +177,18 @@ export function AppShell({ children }: { children: ReactNode }) {
           </div>
 
           {/* Mini-Badge compacto de envíos directos a Haití */}
-          <Link
-            to="/enviar"
-            className="rounded-xl bg-[#F8FAF9] border border-slate-200 p-2.5 text-center shadow-xs hover:border-emerald-500/40 transition group block"
-          >
-            <p className="text-[11px] font-black text-[#15803D] flex items-center justify-center gap-1">
-              <span>MonCash & NatCash Flash</span>
-              <ArrowRight className="size-3 group-hover:translate-x-0.5 transition" />
-            </p>
-            <p className="text-[9px] text-slate-500">Acreditación directa en &lt; 2 minutos</p>
-          </Link>
+          {!isAgent && (
+            <Link
+              to="/enviar"
+              className="rounded-xl bg-[#F8FAF9] border border-slate-200 p-2.5 text-center shadow-xs hover:border-emerald-500/40 transition group block"
+            >
+              <p className="text-[11px] font-black text-[#15803D] flex items-center justify-center gap-1">
+                <span>MonCash & NatCash Flash</span>
+                <ArrowRight className="size-3 group-hover:translate-x-0.5 transition" />
+              </p>
+              <p className="text-[9px] text-slate-500">Acreditación directa en &lt; 2 minutos</p>
+            </Link>
+          )}
 
           {/* Redes Oficiales compactas */}
           <div className="rounded-xl bg-[#F8FAF9] border border-slate-200 px-2.5 py-1.5 flex items-center justify-between gap-1.5">
@@ -316,7 +317,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                 </Link>
               </li>
 
-              {topupsEnabled && (
+              {topupsEnabled && !isAgent && (
                 <li>
                   <Link
                     to="/recargas"
@@ -333,7 +334,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                 </li>
               )}
 
-              {transfersEnabled && (
+              {transfersEnabled && !isAgent && (
                 <li>
                   <Link
                     to="/enviar"
