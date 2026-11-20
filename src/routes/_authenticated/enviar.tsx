@@ -266,7 +266,7 @@ function Enviar() {
   }
 
   return (
-    <form onSubmit={submit} className="mx-auto max-w-3xl space-y-5">
+    <form onSubmit={submit} className="mx-auto max-w-3xl space-y-4 sm:space-y-5 w-full min-w-0 overflow-hidden">
       <div className="flex items-center gap-2">
         <Button
           asChild

@@ -124,7 +124,7 @@ function Recargas() {
       return [
         {
           value: "direct",
-          label: "⚡ Transacción Directa (Admin — Sin pasarela de pago)",
+          label: "⚡ Recarga Directa (Admin)",
           hint: "Envío inmediato sin cobro",
         },
         ...gatewayMethods,
@@ -134,7 +134,7 @@ function Recargas() {
       return [
         {
           value: "agent_wallet",
-          label: `📱 Billetera de Recargas de Agente (${topupBalance.toLocaleString()} HTG)`,
+          label: `📱 Billetera Recargas (${topupBalance.toLocaleString()} HTG)`,
           hint: "Saldo operativo para recargas",
         },
       ];
@@ -451,8 +451,8 @@ function Recargas() {
   }
 
   return (
-    <div className="mx-auto max-w-4xl space-y-5">
-      <div className="flex items-center gap-2">
+    <div className="mx-auto max-w-4xl space-y-4 sm:space-y-5 w-full min-w-0 overflow-hidden">
+      <div className="flex items-center gap-2 min-w-0">
         <Button
           asChild
           variant="ghost"
@@ -464,25 +464,25 @@ function Recargas() {
             <ArrowLeft className="size-5" />
           </Link>
         </Button>
-        <h1 className="text-2xl font-bold">{t("topup.title")}</h1>
+        <h1 className="text-xl sm:text-2xl font-bold truncate">{t("topup.title")}</h1>
       </div>
 
       {!topupsEnabled && (
-        <div className="flex items-center gap-3 rounded-xl border border-destructive/40 bg-destructive/10 p-4 text-sm text-destructive">
+        <div className="flex items-center gap-3 rounded-xl border border-destructive/40 bg-destructive/10 p-3 sm:p-4 text-sm text-destructive">
           <AlertTriangle className="size-5 shrink-0" />
-          <p className="font-medium">{topupsMessage}</p>
+          <p className="font-medium text-xs sm:text-sm">{topupsMessage}</p>
         </div>
       )}
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-base">
-            <Smartphone className="size-4" /> {t("topup.send_recharge")}
+      <Card className="overflow-hidden border border-slate-200 shadow-sm w-full min-w-0">
+        <CardHeader className="px-4 py-3 sm:px-6 sm:py-4">
+          <CardTitle className="flex items-center gap-2 text-sm sm:text-base">
+            <Smartphone className="size-4 shrink-0 text-emerald-600" /> {t("topup.send_recharge")}
           </CardTitle>
         </CardHeader>
-        <CardContent className="grid gap-4 sm:grid-cols-2">
-          <div className="space-y-1.5">
-            <Label>{t("topup.pay_country")}</Label>
+        <CardContent className="grid gap-3.5 sm:gap-4 sm:grid-cols-2 min-w-0 px-4 pb-5 pt-0 sm:px-6">
+          <div className="space-y-1.5 min-w-0 w-full">
+            <Label className="text-xs font-bold text-slate-800">{t("topup.pay_country")}</Label>
             <Select
               value={payOrigin}
               onValueChange={(v) => {
@@ -491,7 +491,7 @@ function Recargas() {
                 setPayMethod(nextMethods[0]?.value ?? "card");
               }}
             >
-              <SelectTrigger>
+              <SelectTrigger className="w-full min-w-0 max-w-full">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -504,10 +504,10 @@ function Recargas() {
             </Select>
           </div>
 
-          <div className="space-y-1.5">
-            <Label>{t("topup.pay_method")}</Label>
+          <div className="space-y-1.5 min-w-0 w-full">
+            <Label className="text-xs font-bold text-slate-800">{t("topup.pay_method")}</Label>
             <Select value={payMethod} onValueChange={setPayMethod}>
-              <SelectTrigger>
+              <SelectTrigger className="w-full min-w-0 max-w-full">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -520,8 +520,8 @@ function Recargas() {
             </Select>
           </div>
 
-          <div className="space-y-1.5">
-            <Label>{t("topup.number_country")}</Label>
+          <div className="space-y-1.5 min-w-0 w-full">
+            <Label className="text-xs font-bold text-slate-800">{t("topup.number_country")}</Label>
             <Select
               value={country}
               onValueChange={(v) => {
@@ -530,7 +530,7 @@ function Recargas() {
                 setSku("");
               }}
             >
-              <SelectTrigger>
+              <SelectTrigger className="w-full min-w-0 max-w-full">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -543,8 +543,8 @@ function Recargas() {
             </Select>
           </div>
 
-          <div className="space-y-1.5">
-            <Label>
+          <div className="space-y-1.5 min-w-0 w-full">
+            <Label className="text-xs font-bold text-slate-800">
               {t("topup.operator_of")} {countryInfo?.label ?? country}
             </Label>
             <Select
@@ -554,7 +554,7 @@ function Recargas() {
                 setSku("");
               }}
             >
-              <SelectTrigger>
+              <SelectTrigger className="w-full min-w-0 max-w-full">
                 <SelectValue
                   placeholder={
                     isFetching ? t("topup.loading_operators") : t("topup.choose_operator")
@@ -586,10 +586,12 @@ function Recargas() {
             )}
           </div>
 
-          <div className="space-y-1.5">
-            <Label htmlFor="tu-phone">{t("topup.number_to_recharge")}</Label>
-            <div className="flex items-center gap-2">
-              <span className="rounded-md border bg-muted px-2.5 py-2 text-sm text-muted-foreground">
+          <div className="space-y-1.5 min-w-0 w-full">
+            <Label htmlFor="tu-phone" className="text-xs font-bold text-slate-800">
+              {t("topup.number_to_recharge")}
+            </Label>
+            <div className="flex items-center gap-2 min-w-0 w-full">
+              <span className="shrink-0 rounded-md border bg-muted px-2.5 py-2 text-xs sm:text-sm text-muted-foreground font-mono">
                 {dial}
               </span>
               <Input
@@ -601,6 +603,7 @@ function Recargas() {
                 placeholder={countryInfo?.placeholder ?? "+509 3412 3456"}
                 value={phone}
                 onChange={(e) => setPhone(formatNational(validationCode, e.target.value, dial))}
+                className="min-w-0 flex-1 font-mono text-sm"
               />
             </div>
             {phoneError ? (
@@ -619,8 +622,8 @@ function Recargas() {
             ) : null}
           </div>
 
-          <div className="space-y-1.5">
-            <Label htmlFor="tu-amount">
+          <div className="space-y-1.5 min-w-0 w-full">
+            <Label htmlFor="tu-amount" className="text-xs font-bold text-slate-800">
               {t("topup.amount_to_pay")} {payCurrency ? `(${payCurrency})` : ""}
             </Label>
             <Input
@@ -629,22 +632,23 @@ function Recargas() {
               placeholder="0.00"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
+              className="font-mono text-base font-bold"
             />
             <div
               data-testid="recipient-amount"
               aria-live="polite"
-              className="block w-full rounded-xl border-2 border-emerald-500 bg-emerald-500/10 p-4"
+              className="block w-full min-w-0 rounded-xl border-2 border-emerald-500 bg-emerald-50/80 p-3.5 sm:p-4 shadow-2xs overflow-hidden"
             >
-              <p className="text-sm font-semibold">
+              <p className="text-xs sm:text-sm font-bold text-slate-800 break-words">
                 Monto que recibe el destinatario / Recipient receives
               </p>
-              <p className="mt-1 text-2xl font-bold text-emerald-600">
+              <p className="mt-1 text-xl sm:text-2xl font-black text-emerald-700 font-mono break-all">
                 {hasAmount && receivedAmount != null
                   ? `${receivedAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${receivedCurrency}`
                   : `— ${operatorCurrency || destinationCurrency || "HTG"}`}
               </p>
               {hasAmount && receivedAmount == null && (
-                <p className="mt-1 text-sm text-muted-foreground">
+                <p className="mt-1 text-xs text-slate-600">
                   Falta una tasa de recarga válida para calcular el importe en HTG.
                 </p>
               )}
@@ -682,23 +686,23 @@ function Recargas() {
             )}
           </div>
 
-          <div className="sm:col-span-2">
+          <div className="sm:col-span-2 min-w-0 w-full">
             {isAgent && (
-              <div className="rounded-2xl border-2 border-cyan-300 bg-cyan-50/90 p-4 text-xs space-y-2 mb-3 shadow-2xs">
-                <div className="flex items-center justify-between">
-                  <span className="font-black text-cyan-950 flex items-center gap-1.5">
-                    <Smartphone className="size-4 text-cyan-700" /> Billetera de Recargas (Saldo de Agente)
+              <div className="rounded-2xl border-2 border-cyan-300 bg-cyan-50/90 p-3.5 sm:p-4 text-xs space-y-2 mb-3 shadow-2xs min-w-0 overflow-hidden">
+                <div className="flex flex-wrap items-center justify-between gap-1.5 min-w-0">
+                  <span className="font-black text-cyan-950 flex items-center gap-1.5 text-xs truncate">
+                    <Smartphone className="size-4 shrink-0 text-cyan-700" /> Billetera de Recargas
                   </span>
-                  <span className="font-black text-sm text-cyan-950 bg-white px-2.5 py-1 rounded-xl border border-cyan-200 shadow-2xs">
+                  <span className="font-black text-xs sm:text-sm text-cyan-950 bg-white px-2.5 py-1 rounded-xl border border-cyan-200 shadow-2xs shrink-0 font-mono">
                     {topupBalance.toLocaleString()} HTG
                   </span>
                 </div>
                 {receivedAmount != null && receivedAmount > topupBalance ? (
-                  <p className="text-rose-800 font-bold bg-rose-100/90 p-2.5 rounded-xl border border-rose-300">
+                  <p className="text-rose-800 font-bold bg-rose-100/90 p-2.5 rounded-xl border border-rose-300 break-words">
                     ⚠️ Saldo insuficiente: Tienes {topupBalance.toLocaleString()} HTG y esta recarga requiere {receivedAmount.toLocaleString()} HTG. Sin saldo operativo no puedes enviar recargas.
                   </p>
                 ) : (
-                  <p className="text-cyan-800 font-semibold">
+                  <p className="text-cyan-800 font-semibold break-words">
                     Esta recarga se descontará directamente de tu Billetera de Recargas.
                   </p>
                 )}
@@ -706,7 +710,7 @@ function Recargas() {
             )}
 
             <Button
-              className="w-full"
+              className="w-full h-auto min-h-12 py-3 px-4 font-black text-xs sm:text-sm whitespace-normal text-center leading-snug break-words rounded-xl shadow-xs"
               disabled={
                 !topupsEnabled ||
                 sendMut.isPending ||
@@ -718,24 +722,26 @@ function Recargas() {
               }
               onClick={() => sendMut.mutate()}
             >
-              <Send className="mr-2 size-4" />
-              {!topupsEnabled
-                ? t("services.disabled_btn")
-                : sendMut.isPending
-                  ? t("topup.sending")
-                  : payMethod === "direct"
-                    ? "⚡ Enviar recarga directa (Admin)"
-                    : payMethod === "agent_wallet"
-                      ? receivedAmount != null && topupBalance < receivedAmount
-                        ? "Saldo insuficiente en Billetera de Recargas"
-                        : `⚡ Enviar recarga con saldo de agente (${receivedAmount?.toLocaleString() ?? amount} HTG)`
-                      : payMethod === "oxxo"
-                        ? t("topup.generate_oxxo")
-                        : payMethod === "spei"
-                          ? t("topup.generate_spei")
-                          : t("topup.pay_card")}
+              <Send className="mr-2 size-4 shrink-0" />
+              <span>
+                {!topupsEnabled
+                  ? t("services.disabled_btn")
+                  : sendMut.isPending
+                    ? t("topup.sending")
+                    : payMethod === "direct"
+                      ? "⚡ Enviar recarga directa (Admin)"
+                      : payMethod === "agent_wallet"
+                        ? receivedAmount != null && topupBalance < receivedAmount
+                          ? "Saldo insuficiente en Billetera de Recargas"
+                          : `⚡ Enviar recarga con saldo (${receivedAmount?.toLocaleString() ?? amount} HTG)`
+                        : payMethod === "oxxo"
+                          ? t("topup.generate_oxxo")
+                          : payMethod === "spei"
+                            ? t("topup.generate_spei")
+                            : t("topup.pay_card")}
+              </span>
             </Button>
-            <p className="mt-2 text-xs text-muted-foreground">
+            <p className="mt-2 text-[11px] sm:text-xs text-slate-500 leading-relaxed break-words">
               {payMethod === "direct"
                 ? "⚡ Transacción directa autorizada como Administrador: la recarga se procesa de inmediato en DingConnect sin cobro externo."
                 : payMethod === "agent_wallet"
@@ -831,33 +837,33 @@ function Recargas() {
         </Card>
       )}
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">{t("topup.history_title")}</CardTitle>
+      <Card className="overflow-hidden border border-slate-200 shadow-sm w-full min-w-0">
+        <CardHeader className="px-4 py-3 sm:px-6 sm:py-4">
+          <CardTitle className="text-sm sm:text-base font-bold text-slate-900">{t("topup.history_title")}</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-2">
+        <CardContent className="space-y-2 px-4 pb-5 sm:px-6">
           {(topups ?? []).length === 0 && (
-            <p className="py-4 text-sm text-muted-foreground">{t("topup.no_history")}</p>
+            <p className="py-4 text-xs sm:text-sm text-muted-foreground">{t("topup.no_history")}</p>
           )}
           {(topups ?? []).map((t2) => (
             <div
               key={t2.id}
-              className="flex items-center justify-between rounded-lg border p-3 text-sm"
+              className="flex flex-wrap sm:flex-nowrap items-center justify-between gap-2.5 rounded-xl border border-slate-200 bg-white p-3 text-xs sm:text-sm min-w-0 shadow-2xs"
             >
-              <div>
-                <p className="font-medium">
+              <div className="min-w-0 flex-1">
+                <p className="font-bold text-slate-900 truncate">
                   {t2.operator || t2.sku_code} · {t2.phone}
                 </p>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-[11px] text-slate-500 truncate font-mono mt-0.5">
                   {t2.reference} · {shortDate(t2.created_at)}
                 </p>
               </div>
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2.5 shrink-0 ml-auto sm:ml-0">
                 <div className="text-right">
-                  <p className="font-semibold">{money(Number(t2.amount), t2.currency)}</p>
-                  <p className="text-[11px] text-muted-foreground">{t("topup.received")}</p>
+                  <p className="font-black text-slate-900 font-mono text-xs sm:text-sm">{money(Number(t2.amount), t2.currency)}</p>
+                  <p className="text-[10px] text-slate-500">{t("topup.received")}</p>
                 </div>
-                <Badge variant={t2.status === "completed" ? "default" : "secondary"}>
+                <Badge variant={t2.status === "completed" ? "default" : "secondary"} className="shrink-0 text-[10px] sm:text-xs">
                   {STATUS_LABEL[t2.status] ?? t2.status}
                 </Badge>
               </div>

@@ -112,7 +112,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   };
 
   return (
-    <div className="min-h-screen bg-[#F4F7F5] text-slate-900 md:flex selection:bg-[#DCFCE7] selection:text-[#15803D]">
+    <div className="min-h-screen bg-[#F4F7F5] text-slate-900 md:flex selection:bg-[#DCFCE7] selection:text-[#15803D] w-full max-w-full overflow-x-hidden">
       {/* Desktop Sidebar matching SaaS Dashboard mockup - ajustado con paleta limpia y profesional */}
       <aside className="hidden w-64 shrink-0 flex-col justify-between bg-white border-r border-slate-200 p-3 text-slate-800 md:sticky md:top-0 md:flex md:h-screen md:overflow-y-auto custom-scrollbar select-none shadow-xs">
         <div className="flex flex-col gap-2">
@@ -251,35 +251,35 @@ export function AppShell({ children }: { children: ReactNode }) {
         </div>
       </aside>
 
-      <div className="flex min-h-screen flex-1 flex-col">
+      <div className="flex min-h-screen flex-1 flex-col min-w-0 w-full max-w-full overflow-x-hidden">
         {/* Mobile Header - Fijo al tope en versión móvil */}
-        <header className="fixed top-0 inset-x-0 z-40 flex items-center justify-between gap-2 border-b border-slate-200 bg-white/95 px-4 py-3 pt-[calc(0.75rem+env(safe-area-inset-top,0px))] backdrop-blur-xl md:hidden shadow-xs">
-          <Link to={isAgentOnly ? "/agente" : "/dashboard"} className="flex min-w-0 items-center gap-2">
-            <span className="inline-flex items-center gap-2 rounded-xl bg-white px-2.5 py-1 shadow-xs border border-slate-200">
-              <img src={iconAsset} alt="Tcho-Tcho" className="size-6 object-contain shrink-0" />
-              <img src={logoAsset} alt="Tcho-Tcho" className="h-5 w-auto object-contain shrink-0" />
+        <header className="fixed top-0 inset-x-0 z-40 flex items-center justify-between gap-1.5 sm:gap-2 border-b border-slate-200 bg-white/95 px-3 sm:px-4 py-2.5 sm:py-3 pt-[calc(0.75rem+env(safe-area-inset-top,0px))] backdrop-blur-xl md:hidden shadow-xs w-full max-w-full">
+          <Link to={isAgentOnly ? "/agente" : "/dashboard"} className="flex min-w-0 items-center gap-1.5 sm:gap-2 shrink-0">
+            <span className="inline-flex items-center gap-1.5 sm:gap-2 rounded-xl bg-white px-2 py-1 shadow-xs border border-slate-200">
+              <img src={iconAsset} alt="Tcho-Tcho" className="size-5 sm:size-6 object-contain shrink-0" />
+              <img src={logoAsset} alt="Tcho-Tcho" className="h-4 sm:h-5 w-auto object-contain shrink-0" />
             </span>
           </Link>
-          <div className="flex shrink-0 items-center gap-1">
+          <div className="flex shrink-0 items-center gap-0.5 sm:gap-1">
             <Button
               variant="ghost"
               size="icon"
               asChild
               aria-label={t("nav.support")}
-              className="text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+              className="text-slate-600 hover:text-slate-900 hover:bg-slate-100 size-8 sm:size-9"
             >
               <Link to="/soporte">
                 <LifeBuoy className="size-4" />
               </Link>
             </Button>
-            <NotificationBell triggerClassName="text-slate-600 hover:text-slate-900 hover:bg-slate-100" />
-            <LanguageSwitcher className="h-9 w-[80px] text-xs bg-slate-100 border-slate-200 text-slate-800" />
+            <NotificationBell triggerClassName="text-slate-600 hover:text-slate-900 hover:bg-slate-100 size-8 sm:size-9" />
+            <LanguageSwitcher className="h-8 sm:h-9 w-[74px] sm:w-[80px] text-[11px] sm:text-xs bg-slate-100 border-slate-200 text-slate-800 px-1.5" />
             <Button
               variant="ghost"
               size="icon"
               onClick={signOut}
               aria-label={t("nav.signout")}
-              className="text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+              className="text-slate-600 hover:text-slate-900 hover:bg-slate-100 size-8 sm:size-9"
             >
               <LogOut className="size-4" />
             </Button>
@@ -287,7 +287,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         </header>
 
         <main
-          className="flex-1 px-4 pt-[calc(4.75rem+env(safe-area-inset-top,0px))] pb-[calc(5.75rem+env(safe-area-inset-bottom,0px))] md:px-8 md:pt-5 md:pb-10"
+          className="flex-1 px-3 sm:px-4 pt-[calc(4.75rem+env(safe-area-inset-top,0px))] pb-[calc(5.75rem+env(safe-area-inset-bottom,0px))] md:px-8 md:pt-5 md:pb-10 min-w-0 w-full max-w-full overflow-x-hidden"
         >
           <AdBanner className="mb-5" />
           {children}
