@@ -389,11 +389,11 @@ function Enviar() {
                 : "MonCash: máximo 75,000 HTG por transacción."}
             </p>
           )}
-          <div className="relative overflow-hidden rounded-2xl bg-mint p-4 text-white shadow-lg shadow-emerald-950/25 border border-emerald-400/25">
-            <p className="text-xs font-semibold uppercase tracking-wider text-emerald-100/90">
+          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-600 via-emerald-700 to-emerald-800 p-5 text-white shadow-lg shadow-emerald-950/20 border-2 border-emerald-500">
+            <p className="text-xs font-black uppercase tracking-wider text-emerald-100">
               {t("send.family_gets")}
             </p>
-            <p className="mt-1 font-display text-2xl font-bold tracking-tight text-white">
+            <p className="mt-1 font-display text-3xl font-black tracking-tight text-white drop-shadow-xs">
               {money(q.receives, recvCur)}
             </p>
           </div>
