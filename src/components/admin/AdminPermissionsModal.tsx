@@ -401,8 +401,8 @@ export function AdminPermissionsModal({
                     <Label className="font-bold text-base">
                       Opciones y Módulos Permitidos
                     </Label>
-                    <Badge variant="outline" className="border-primary/50 text-primary gap-1 text-[11px] font-semibold">
-                      <ShieldCheck className="size-3" /> {selectedTabs.length} de {AVAILABLE_ADMIN_TABS.length} activos
+                    <Badge variant="outline" className="border-emerald-300 text-emerald-800 bg-emerald-50 gap-1 text-[11px] font-bold">
+                      <ShieldCheck className="size-3 text-emerald-700" /> {selectedTabs.length} de {isSuperAdmin ? AVAILABLE_ADMIN_TABS.length : effectiveCallerTabs.length} {isSuperAdmin ? "activos" : "permitidos"}
                     </Badge>
                   </div>
                   <p className="text-xs text-muted-foreground">
@@ -437,10 +437,9 @@ export function AdminPermissionsModal({
                 </div>
               </div>
 
-              {/* Selector de permisos granulares */}
+              {/* Selector de permisos granulares — Solo módulos autorizados */}
               <div className="space-y-4 pt-3 border-t border-border/50">
-
-                  {/* Lista de módulos por categoría */}
+                  {/* Lista de módulos por categoría (filtrando no autorizados) */}
                   {(
                     [
                       "operaciones",
@@ -450,54 +449,43 @@ export function AdminPermissionsModal({
                       "sistema",
                     ] as const
                   ).map((cat) => {
-                    const items = TAB_METAS.filter((m) => m.category === cat);
+                    const items = TAB_METAS.filter(
+                      (m) => m.category === cat && (isSuperAdmin || effectiveCallerTabs.includes(m.id)),
+                    );
+                    if (items.length === 0) return null;
                     return (
                       <div key={cat} className="space-y-2">
-                        <p className="text-xs font-bold text-foreground/80 flex items-center gap-1.5">
-                          <span className="size-1.5 rounded-full bg-primary" />
+                        <p className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                          <span className="size-1.5 rounded-full bg-emerald-600" />
                           {CATEGORY_TITLES[cat]}
                         </p>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                           {items.map((tab) => {
                             const checked = selectedTabs.includes(tab.id);
-                            const isLockedForCaller = !isSuperAdmin && !effectiveCallerTabs.includes(tab.id);
                             return (
                               <button
                                 key={tab.id}
                                 type="button"
                                 onClick={() => toggleTab(tab.id)}
-                                className={`flex items-start gap-2.5 p-2.5 rounded-xl border text-left transition-colors ${
-                                  isLockedForCaller
-                                    ? "border-border/30 bg-secondary/20 opacity-60 cursor-not-allowed"
-                                    : checked
-                                      ? "border-primary/60 bg-primary/5 text-foreground cursor-pointer"
-                                      : "border-border/40 text-muted-foreground hover:bg-secondary/40 cursor-pointer"
+                                className={`flex items-start gap-2.5 p-2.5 rounded-xl border-2 text-left transition-colors cursor-pointer ${
+                                  checked
+                                    ? "border-emerald-500 bg-emerald-50/70 text-slate-900 shadow-2xs"
+                                    : "border-slate-200 text-slate-600 hover:bg-slate-50"
                                 }`}
                               >
                                 <div className="mt-0.5 shrink-0">
-                                  {isLockedForCaller ? (
-                                    <Lock className="size-4 text-amber-500/80" />
-                                  ) : checked ? (
-                                    <CheckSquare className="size-4 text-primary" />
+                                  {checked ? (
+                                    <CheckSquare className="size-4 text-emerald-700" />
                                   ) : (
-                                    <Square className="size-4 text-muted-foreground/60" />
+                                    <Square className="size-4 text-slate-400" />
                                   )}
                                 </div>
                                 <div className="min-w-0 flex-1">
-                                  <div className="flex items-center justify-between gap-1">
-                                    <p className="font-semibold text-xs text-foreground leading-tight">
-                                      {tab.label}
-                                    </p>
-                                    {isLockedForCaller && (
-                                      <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-500 border border-amber-500/30 shrink-0">
-                                        Super Admin
-                                      </span>
-                                    )}
-                                  </div>
-                                  <p className="text-[11px] text-muted-foreground leading-tight mt-0.5 truncate">
-                                    {isLockedForCaller
-                                      ? "Requiere autorización del Super Admin"
-                                      : tab.desc}
+                                  <p className="font-extrabold text-xs text-slate-900 leading-tight">
+                                    {tab.label}
+                                  </p>
+                                  <p className="text-[11px] text-slate-500 font-medium leading-tight mt-0.5 truncate">
+                                    {tab.desc}
                                   </p>
                                 </div>
                               </button>
