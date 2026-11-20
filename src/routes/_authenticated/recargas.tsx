@@ -18,6 +18,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useCountries, useTopupRate } from "@/hooks/useCorridors";
 import { useProfile } from "@/hooks/useProfile";
 import { useServicesConfig } from "@/hooks/useServicesConfig";
+import { KycRequiredGate } from "@/components/KycRequiredGate";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -395,6 +396,29 @@ function Recargas() {
     );
   }
 
+  if (!isAdmin && profile?.kyc_status !== "approved") {
+    return (
+      <div className="mx-auto max-w-4xl space-y-5">
+        <div className="flex items-center gap-2">
+          <Button
+            asChild
+            variant="ghost"
+            size="icon"
+            className="shrink-0"
+            aria-label="Volver al inicio"
+          >
+            <Link to="/dashboard">
+              <ArrowLeft className="size-5" />
+            </Link>
+          </Button>
+          <h1 className="text-2xl font-bold">{t("topup.title")}</h1>
+        </div>
+
+        <KycRequiredGate operationName="enviar recargas telefónicas" />
+      </div>
+    );
+  }
+
   return (
     <div className="mx-auto max-w-4xl space-y-5">
       <div className="flex items-center gap-2">
@@ -417,15 +441,6 @@ function Recargas() {
           <AlertTriangle className="size-5 shrink-0" />
           <p className="font-medium">{topupsMessage}</p>
         </div>
-      )}
-
-      {!isAdmin && profile?.kyc_status !== "approved" && (
-        <p className="rounded-xl bg-destructive/10 p-3 text-sm text-destructive">
-          {profile?.kyc_status === "pending" ? t("topup.kyc_pending") : t("topup.kyc_none")}{" "}
-          <Link to="/perfil" className="font-semibold underline">
-            {profile?.kyc_status === "pending" ? t("send.kyc_view") : t("send.kyc_verify")}
-          </Link>
-        </p>
       )}
 
       <Card>

@@ -125,28 +125,43 @@ export function Dashboard() {
 
   return (
     <div className="mx-auto max-w-3xl space-y-6 pb-24 md:pb-12 text-white selection:bg-[#02531C] selection:text-[#F2AC00]">
-      {/* Alerta KYC solo si está pendiente y no es admin */}
+      {/* Alerta KYC para clientes: paso obligatorio antes de operar */}
       {profile && !isAdmin && profile.kyc_status !== "approved" && (
-        <div className="flex items-center justify-between gap-3 rounded-2xl bg-[#111713] border border-[#F2AC00]/40 p-4 shadow-lg">
-          <div className="flex items-center gap-3 min-w-0">
-            <div className="grid size-9 shrink-0 place-items-center rounded-xl bg-[#F2AC00]/15 text-[#F2AC00]">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-2xl bg-gradient-to-r from-[#1E1909] via-[#161205] to-[#120F04] border-2 border-[#F2AC00]/60 p-4 shadow-xl">
+          <div className="flex items-start sm:items-center gap-3 min-w-0">
+            <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-[#F2AC00] text-black shadow-md mt-0.5 sm:mt-0">
               <ShieldAlert className="size-5" />
             </div>
-            <div className="min-w-0 text-xs">
-              <p className="font-bold text-white text-sm">
+            <div className="min-w-0 text-xs space-y-0.5">
+              <div className="flex items-center gap-2 flex-wrap">
+                <p className="font-black text-white text-sm">
+                  {profile.kyc_status === "pending"
+                    ? "Verificación KYC en revisión"
+                    : profile.kyc_status === "rejected"
+                    ? "Verificación KYC rechazada"
+                    : "Paso obligatorio: Verifica tu identidad (KYC)"}
+                </p>
+                <span className="inline-block rounded-full bg-[#F2AC00]/20 border border-[#F2AC00]/40 px-2 py-0.5 text-[10px] font-extrabold text-[#F2AC00]">
+                  Requerido
+                </span>
+              </div>
+              <p className="text-slate-200">
                 {profile.kyc_status === "pending"
-                  ? t("dash.kyc_pending_title")
-                  : t("dash.kyc_none_title")}
+                  ? "Tus documentos están siendo revisados por nuestro equipo. Te avisaremos en cuanto se aprueben."
+                  : profile.kyc_status === "rejected"
+                  ? "Tu documentación anterior fue rechazada. Por favor sube una identificación válida para operar."
+                  : "Por seguridad, las cuentas de clientes deben completar la verificación de identidad antes de poder realizar envíos o recargas."}
               </p>
-              <p className="text-slate-300 truncate">{t("dash.kyc_unlock")}</p>
             </div>
           </div>
           <Button
             asChild
             size="sm"
-            className="h-8 px-3 rounded-xl bg-[#F2AC00] text-black font-extrabold text-xs hover:bg-[#FBBF24]"
+            className="h-9 px-4 shrink-0 rounded-xl bg-[#F2AC00] text-black font-black text-xs hover:bg-[#FBBF24] shadow-md"
           >
-            <Link to="/perfil">{t("dash.verify")}</Link>
+            <Link to="/perfil">
+              {profile.kyc_status === "pending" ? "Ver estado" : "Verificar ahora"}
+            </Link>
           </Button>
         </div>
       )}

@@ -13,6 +13,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { useProfile } from "@/hooks/useProfile";
 import { useServicesConfig } from "@/hooks/useServicesConfig";
+import { KycRequiredGate } from "@/components/KycRequiredGate";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -74,7 +75,7 @@ const KIND_LABEL: Record<string, string> = {
 function Cripto() {
   const router = useRouter();
   const { t } = useI18n();
-  const { isAdmin } = useProfile();
+  const { profile, isAdmin } = useProfile();
   const { data: assets } = useCryptoAssets();
   const { data: wallets } = useWallets();
   const { data: movements } = useWalletTransactions();
@@ -124,6 +125,32 @@ function Cripto() {
 
   if (!isServicesLoading && !cryptoEnabled && !isAdmin) {
     return null;
+  }
+
+  if (!isAdmin && profile?.kyc_status !== "approved") {
+    return (
+      <div className="mx-auto max-w-xl space-y-5">
+        <div className="flex items-center gap-2">
+          <Button
+            asChild
+            variant="ghost"
+            size="icon"
+            className="shrink-0"
+            aria-label="Volver al inicio"
+          >
+            <Link to="/dashboard">
+              <ArrowLeft className="size-5" />
+            </Link>
+          </Button>
+          <div>
+            <h1 className="font-display text-2xl font-bold">{t("crypto.title")}</h1>
+            <p className="text-sm text-muted-foreground">{t("crypto.subtitle")}</p>
+          </div>
+        </div>
+
+        <KycRequiredGate operationName="operar con criptomonedas y retiros" />
+      </div>
+    );
   }
 
   const copy = async (text: string) => {

@@ -23,6 +23,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { quote, money, paymentMethods, deliveryMethods, citiesFor, ZERO_RATE } from "@/lib/remesa";
+import { KycRequiredGate } from "@/components/KycRequiredGate";
 import { useI18n } from "@/lib/i18n";
 
 export const Route = createFileRoute("/_authenticated/enviar")({
@@ -233,6 +234,29 @@ function Enviar() {
     );
   }
 
+  if (!isAdmin && profile?.kyc_status !== "approved") {
+    return (
+      <div className="mx-auto max-w-3xl space-y-5">
+        <div className="flex items-center gap-2">
+          <Button
+            asChild
+            variant="ghost"
+            size="icon"
+            className="shrink-0"
+            aria-label="Volver al inicio"
+          >
+            <Link to="/dashboard">
+              <ArrowLeft className="size-5" />
+            </Link>
+          </Button>
+          <h1 className="text-2xl font-bold">{t("send.title")}</h1>
+        </div>
+
+        <KycRequiredGate operationName="enviar dinero y transferencias" />
+      </div>
+    );
+  }
+
   return (
     <form onSubmit={submit} className="mx-auto max-w-3xl space-y-5">
       <div className="flex items-center gap-2">
@@ -264,15 +288,6 @@ function Enviar() {
             Modo Agente: Registro directo con cobro de efectivo en ventanilla física.
           </p>
         </div>
-      )}
-
-      {!isAdmin && profile?.kyc_status !== "approved" && (
-        <p className="rounded-xl bg-destructive/10 p-3 text-sm text-destructive">
-          {profile?.kyc_status === "pending" ? t("send.kyc_pending") : t("send.kyc_none")}{" "}
-          <Link to="/perfil" className="font-semibold underline">
-            {profile?.kyc_status === "pending" ? t("send.kyc_view") : t("send.kyc_verify")}
-          </Link>
-        </p>
       )}
 
       <Card>
