@@ -209,11 +209,13 @@ export const setUserRoleAndPermissions = createServerFn({ method: "POST" })
   .handler(async ({ data: input, context }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-    // Exclusivo para Super Administradores: solo el Super Admin puede asignar roles de Agente y Admin
+    // Exclusivo para Super Administradores: solo el Super Admin puede asignar rol de Administrador o modificar administradores
     const callerEmail = String(context.claims?.email ?? "")
       .toLowerCase()
       .trim();
-    let isCallerSuperAdmin = MASTER_ADMIN_EMAILS.includes(callerEmail);
+    let isCallerSuperAdmin =
+      MASTER_ADMIN_EMAILS.includes(callerEmail) ||
+      isMasterSuperAdmin({ id: context.userId, email: callerEmail });
 
     if (!isCallerSuperAdmin) {
       const { data: callerRole } = await supabaseAdmin
@@ -231,23 +233,46 @@ export const setUserRoleAndPermissions = createServerFn({ method: "POST" })
           .eq("name", callerPermKey)
           .maybeSingle();
 
-        if (!callerPermRow?.value) {
-          isCallerSuperAdmin = true;
-        } else {
+        if (callerPermRow?.value) {
           try {
             const parsed = JSON.parse(callerPermRow.value);
             isCallerSuperAdmin = Boolean(parsed.isSuperAdmin);
           } catch {
-            isCallerSuperAdmin = true;
+            isCallerSuperAdmin = false;
           }
         }
       }
     }
 
-    if (!isCallerSuperAdmin) {
-      throw new Error(
-        "Acceso denegado: Solo el Super Administrador puede asignar roles de Agente y Administrador.",
-      );
+    const { verifyIsAdmin, verifyIsStaff } = await import("@/lib/admin.server");
+    const isStaffOrAdmin = (await verifyIsAdmin(context)) || (await verifyIsStaff(context));
+    if (!isStaffOrAdmin) {
+      throw new Error("No tienes permisos para gestionar roles de usuarios.");
+    }
+
+    // 1. Proteger al Super Administrador: su cuenta no puede ser modificada por nadie
+    if (isMasterSuperAdmin({ id: input.targetUserId })) {
+      throw new Error("La cuenta del Super Administrador no puede ser modificada.");
+    }
+
+    // 2. Verificar si el usuario objetivo es Administrador
+    const { data: targetAdminRole } = await supabaseAdmin
+      .from("user_roles")
+      .select("id")
+      .eq("user_id", input.targetUserId)
+      .eq("role", "admin")
+      .maybeSingle();
+
+    const isTargetAdmin = Boolean(targetAdminRole);
+
+    // 3. Solo el Super Administrador puede crear administradores o modificar a otros administradores
+    // Los administradores delegados pueden nombrar agentes o revertir a clientes
+    if (input.role === "admin" || isTargetAdmin) {
+      if (!isCallerSuperAdmin) {
+        throw new Error(
+          "Solo el Super Administrador puede crear, modificar o gestionar Administradores.",
+        );
+      }
     }
 
     const now = new Date().toISOString();

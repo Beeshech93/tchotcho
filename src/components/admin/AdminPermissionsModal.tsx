@@ -201,6 +201,7 @@ interface AdminPermissionsModalProps {
   } | null;
   currentRole: "admin" | "agent" | "client";
   currentPerms?: AdminPermissionsConfig | null;
+  isSuperAdmin?: boolean;
 }
 
 export function AdminPermissionsModal({
@@ -209,6 +210,7 @@ export function AdminPermissionsModal({
   user,
   currentRole,
   currentPerms,
+  isSuperAdmin = false,
 }: AdminPermissionsModalProps) {
   const qc = useQueryClient();
   const saveRoleAndPerms = useServerFn(setUserRoleAndPermissions);
@@ -334,27 +336,39 @@ export function AdminPermissionsModal({
               {/* Administrador */}
               <button
                 type="button"
-                onClick={() => setRole("admin")}
-                className={`p-3.5 rounded-2xl border text-left transition-all cursor-pointer ${
-                  role === "admin"
-                    ? "border-primary bg-primary/10 ring-2 ring-primary/20"
-                    : "border-border/60 hover:border-border hover:bg-secondary/40"
+                disabled={!isSuperAdmin}
+                onClick={() => {
+                  if (isSuperAdmin) setRole("admin");
+                }}
+                className={`p-3.5 rounded-2xl border text-left transition-all ${
+                  !isSuperAdmin
+                    ? "opacity-50 cursor-not-allowed border-border/40 bg-secondary/10"
+                    : role === "admin"
+                      ? "border-primary bg-primary/10 ring-2 ring-primary/20 cursor-pointer"
+                      : "border-border/60 hover:border-border hover:bg-secondary/40 cursor-pointer"
                 }`}
               >
                 <div className="flex items-center justify-between">
                   <ShieldCheck className="size-5 text-primary" />
                   {role === "admin" && <Check className="size-4 text-primary" />}
+                  {!isSuperAdmin && (
+                    <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/30">
+                      Super Admin
+                    </span>
+                  )}
                 </div>
                 <p className="font-bold text-sm mt-2">Administrador</p>
                 <p className="text-xs text-muted-foreground mt-0.5 leading-snug">
-                  Acceso al panel administrativo con o sin restricciones.
+                  {isSuperAdmin
+                    ? "Acceso al panel administrativo con o sin restricciones."
+                    : "Solo el Super Administrador puede crear o modificar Administradores."}
                 </p>
               </button>
             </div>
           </div>
 
           {/* 2. Opciones de Administrador (Permisos y Opciones Permitidas) */}
-          {role === "admin" && (
+          {role === "admin" && isSuperAdmin && (
             <div className="space-y-4 rounded-2xl bg-secondary/30 p-4 border border-border/50 animate-in fade-in duration-200">
               <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
                 <div className="space-y-0.5">

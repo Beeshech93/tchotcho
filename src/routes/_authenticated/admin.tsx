@@ -508,8 +508,9 @@ function UsersPanel() {
               </span>
             </CardTitle>
             <p className="text-xs text-muted-foreground mt-0.5">
-              Los nuevos usuarios se registran como clientes. Solo el Super Administrador puede
-              asignar roles de Agente y Administrador.
+              Los nuevos usuarios se registran como clientes. Los administradores pueden nombrar
+              agentes y adicionar saldo. Solo el Super Administrador puede crear administradores y sus
+              permisos.
             </p>
           </div>
           <Button
@@ -651,30 +652,47 @@ function UsersPanel() {
                   </Badge>
                 </div>
                 <div className="flex flex-wrap items-center gap-2">
-                  {(isAgent || isAdmin) && (
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="gap-1.5 border-emerald-500/40 text-emerald-400 hover:bg-emerald-500/10 font-semibold text-xs"
-                      onClick={() => setBalanceUser(p)}
-                    >
-                      <Coins className="size-3.5" />
-                      Adicionar Saldo
-                    </Button>
-                  )}
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="gap-1.5 border-emerald-500/40 text-emerald-400 hover:bg-emerald-500/10 font-semibold text-xs"
+                    onClick={() => setBalanceUser(p)}
+                  >
+                    <Coins className="size-3.5" />
+                    Adicionar Saldo
+                  </Button>
+
+                  {/* Super Admin: puede asignar roles y configurar opciones permitidas */}
                   {isSuperAdmin && !isMaster && (
                     <Button
                       size="sm"
                       variant={isAdmin ? "default" : "outline"}
                       className={
                         isAdmin
-                          ? "gap-1.5 bg-primary text-primary-foreground font-semibold"
-                          : "gap-1.5"
+                          ? "gap-1.5 bg-primary text-primary-foreground font-semibold text-xs"
+                          : "gap-1.5 text-xs font-semibold"
                       }
                       onClick={() => setEditingUser(p)}
                     >
                       <Shield className="size-3.5" />
-                      {isAdmin ? "Opciones Permitidas" : "Hacer Admin / Rol"}
+                      {isAdmin ? "Opciones Permitidas" : "Asignar Rol"}
+                    </Button>
+                  )}
+
+                  {/* Administradores: pueden nombrar agentes o revertirlos a cliente */}
+                  {!isSuperAdmin && !isAdmin && !isMaster && (
+                    <Button
+                      size="sm"
+                      variant={isAgent ? "outline" : "default"}
+                      className={
+                        isAgent
+                          ? "gap-1.5 border-amber-500/40 text-amber-400 hover:bg-amber-500/10 font-semibold text-xs"
+                          : "gap-1.5 bg-primary text-primary-foreground font-semibold text-xs"
+                      }
+                      onClick={() => setEditingUser(p)}
+                    >
+                      <Users className="size-3.5" />
+                      {isAgent ? "Gestionar Agente" : "Hacer Agente"}
                     </Button>
                   )}
                 </div>
@@ -709,6 +727,7 @@ function UsersPanel() {
                 : "client"
           }
           currentPerms={adminsMap?.[editingUser.id] ?? null}
+          isSuperAdmin={isSuperAdmin}
         />
       )}
     </Card>
