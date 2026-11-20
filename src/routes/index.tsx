@@ -219,18 +219,7 @@ export function Landing() {
             <span>{t("landing.badge_route")}</span>
           </div>
 
-          {/* Titular Principal moderno y poderoso */}
-          <h1 className="font-display text-4xl sm:text-5xl lg:text-[3.85rem] font-black tracking-tight text-white leading-[1.03] max-w-xl">
-            {t("landing.hero_title_1")}{" "}
-            <span className="bg-gradient-to-r from-emerald-300 via-[#F2AC00] to-white bg-clip-text text-transparent">
-              {t("landing.hero_title_2")}
-            </span>
-          </h1>
 
-          {/* Subtítulo descriptivo moderno */}
-          <p className="max-w-xl text-base sm:text-lg text-slate-300/90 leading-relaxed font-normal">
-            {t("landing.hero_subtitle")}
-          </p>
 
           {/* Botones de acción CTA modernos */}
           <div className="flex flex-wrap items-center gap-4 pt-1">
