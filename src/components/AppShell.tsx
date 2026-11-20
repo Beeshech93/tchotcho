@@ -294,19 +294,21 @@ export function AppShell({ children }: { children: ReactNode }) {
           </footer>
         </main>
 
+        {/* Mobile Navigation Dock - Fijo al fondo con colores destacados y soporte para safe-area */}
         <nav
-          className="fixed bottom-4 inset-x-4 z-40 mx-auto max-w-sm rounded-[28px] bg-[#0E1511]/95 backdrop-blur-2xl border-2 border-emerald-500/30 px-3.5 py-2 shadow-[0_16px_40px_rgba(0,0,0,0.95)] md:hidden"
-          style={{ marginBottom: "env(safe-area-inset-bottom, 0px)" }}
+          className="fixed bottom-3 inset-x-3 z-50 mx-auto max-w-sm rounded-[32px] bg-gradient-to-r from-[#08120B]/98 via-[#0D1C12]/98 to-[#08120B]/98 backdrop-blur-2xl border-2 border-emerald-500/70 p-2 shadow-[0_12px_40px_rgba(0,0,0,0.95),0_0_25px_rgba(2,83,28,0.4)] md:hidden pointer-events-auto select-none"
+          style={{ bottom: "max(0.75rem, env(safe-area-inset-bottom, 0px))" }}
+          aria-label="Navegación móvil"
         >
-          <ul className="flex items-center justify-between">
+          <ul className="flex items-center justify-around gap-1">
             <li>
               <Link
                 to="/dashboard"
                 className={cn(
-                  "flex items-center justify-center rounded-2xl p-2.5 transition-all",
+                  "flex items-center justify-center transition-all duration-200 active:scale-95",
                   pathname === "/dashboard"
-                    ? "bg-gradient-to-r from-[#02531C] to-[#046824] text-[#F2AC00] shadow-[0_0_16px_rgba(242,172,0,0.4)] border-2 border-[#F2AC00]"
-                    : "text-slate-300 hover:text-white",
+                    ? "size-11 rounded-full bg-gradient-to-br from-[#02531C] via-[#046824] to-[#013813] text-[#F2AC00] shadow-[0_0_18px_rgba(242,172,0,0.65),inset_0_1px_1px_rgba(255,255,255,0.3)] border-2 border-[#F2AC00] scale-105"
+                    : "size-10 rounded-full bg-white/[0.06] border border-white/12 text-white hover:border-emerald-400/50 hover:text-[#F2AC00] hover:bg-emerald-950/40",
                 )}
                 aria-label={t("nav.home")}
               >
@@ -319,10 +321,10 @@ export function AppShell({ children }: { children: ReactNode }) {
                 <Link
                   to="/recargas"
                   className={cn(
-                    "flex items-center justify-center rounded-2xl p-2.5 transition-all",
-                    pathname === "/recargas"
-                      ? "bg-gradient-to-r from-[#02531C] to-[#046824] text-[#F2AC00] shadow-[0_0_16px_rgba(242,172,0,0.4)] border-2 border-[#F2AC00]"
-                      : "text-slate-300 hover:text-white",
+                    "flex items-center justify-center transition-all duration-200 active:scale-95",
+                    pathname.startsWith("/recargas")
+                      ? "size-11 rounded-full bg-gradient-to-br from-[#02531C] via-[#046824] to-[#013813] text-[#F2AC00] shadow-[0_0_18px_rgba(242,172,0,0.65),inset_0_1px_1px_rgba(255,255,255,0.3)] border-2 border-[#F2AC00] scale-105"
+                      : "size-10 rounded-full bg-white/[0.06] border border-white/12 text-white hover:border-emerald-400/50 hover:text-[#F2AC00] hover:bg-emerald-950/40",
                   )}
                   aria-label={t("nav.topups")}
                 >
@@ -336,10 +338,10 @@ export function AppShell({ children }: { children: ReactNode }) {
                 <Link
                   to="/enviar"
                   className={cn(
-                    "flex items-center justify-center rounded-2xl p-2.5 transition-all",
-                    pathname === "/enviar"
-                      ? "bg-gradient-to-r from-[#02531C] to-[#046824] text-[#F2AC00] shadow-[0_0_16px_rgba(242,172,0,0.4)] border-2 border-[#F2AC00]"
-                      : "text-slate-300 hover:text-white",
+                    "flex items-center justify-center transition-all duration-200 active:scale-95",
+                    pathname.startsWith("/enviar")
+                      ? "size-11 rounded-full bg-gradient-to-br from-[#02531C] via-[#046824] to-[#013813] text-[#F2AC00] shadow-[0_0_18px_rgba(242,172,0,0.65),inset_0_1px_1px_rgba(255,255,255,0.3)] border-2 border-[#F2AC00] scale-105"
+                      : "size-10 rounded-full bg-gradient-to-br from-amber-500/15 to-emerald-500/15 border border-[#F2AC00]/40 text-[#F2AC00] hover:bg-amber-500/25 shadow-[0_0_10px_rgba(242,172,0,0.2)]",
                   )}
                   aria-label={t("nav.send")}
                 >
@@ -352,10 +354,10 @@ export function AppShell({ children }: { children: ReactNode }) {
               <Link
                 to="/historial"
                 className={cn(
-                  "flex items-center justify-center rounded-2xl p-2.5 transition-all",
-                  pathname === "/historial"
-                    ? "bg-gradient-to-r from-[#02531C] to-[#046824] text-[#F2AC00] shadow-[0_0_16px_rgba(242,172,0,0.4)] border-2 border-[#F2AC00]"
-                    : "text-slate-300 hover:text-white",
+                  "flex items-center justify-center transition-all duration-200 active:scale-95",
+                  pathname.startsWith("/historial") || pathname.startsWith("/transferencia")
+                    ? "size-11 rounded-full bg-gradient-to-br from-[#02531C] via-[#046824] to-[#013813] text-[#F2AC00] shadow-[0_0_18px_rgba(242,172,0,0.65),inset_0_1px_1px_rgba(255,255,255,0.3)] border-2 border-[#F2AC00] scale-105"
+                    : "size-10 rounded-full bg-white/[0.06] border border-white/12 text-white hover:border-emerald-400/50 hover:text-[#F2AC00] hover:bg-emerald-950/40",
                 )}
                 aria-label={t("nav.history")}
               >
@@ -367,10 +369,10 @@ export function AppShell({ children }: { children: ReactNode }) {
               <Link
                 to="/perfil"
                 className={cn(
-                  "flex items-center justify-center rounded-2xl p-2.5 transition-all",
-                  pathname === "/perfil"
-                    ? "bg-gradient-to-r from-[#02531C] to-[#046824] text-[#F2AC00] shadow-[0_0_16px_rgba(242,172,0,0.4)] border-2 border-[#F2AC00]"
-                    : "text-slate-300 hover:text-white",
+                  "flex items-center justify-center transition-all duration-200 active:scale-95",
+                  pathname.startsWith("/perfil")
+                    ? "size-11 rounded-full bg-gradient-to-br from-[#02531C] via-[#046824] to-[#013813] text-[#F2AC00] shadow-[0_0_18px_rgba(242,172,0,0.65),inset_0_1px_1px_rgba(255,255,255,0.3)] border-2 border-[#F2AC00] scale-105"
+                    : "size-10 rounded-full bg-white/[0.06] border border-white/12 text-white hover:border-emerald-400/50 hover:text-[#F2AC00] hover:bg-emerald-950/40",
                 )}
                 aria-label={t("nav.profile")}
               >
