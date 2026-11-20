@@ -106,21 +106,20 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   return (
     <div className="min-h-screen bg-black text-slate-100 md:flex selection:bg-[#02531C] selection:text-[#F2AC00]">
-      {/* Desktop Sidebar matching SaaS Dashboard mockup */}
-      <aside className="hidden w-64 shrink-0 flex-col justify-between bg-gradient-to-b from-[#101612] via-[#0C110E] to-[#080B09] border-r border-white/10 p-4 text-slate-200 md:sticky md:top-0 md:flex md:h-screen md:overflow-hidden select-none">
-        {/* Organization Switcher Header con Logo Tcho-Tcho bien destacado (Fijo) */}
-        <div className="shrink-0 mb-4 flex items-center justify-between gap-2 p-2.5 rounded-2xl bg-white border-2 border-white shadow-[0_0_24px_rgba(242,172,0,0.3)]">
-          <Link to="/dashboard" className="flex min-w-0 items-center gap-2">
-            <img src={iconAsset} alt="Tcho-Tcho" className="size-8 object-contain shrink-0" />
-            <img src={logoAsset} alt="Tcho-Tcho" className="h-6 w-auto object-contain shrink-0" />
-          </Link>
-          <NotificationBell triggerClassName="text-slate-800 hover:text-black hover:bg-slate-100" />
-        </div>
+      {/* Desktop Sidebar matching SaaS Dashboard mockup - ajustado para que todo quepa en una sola pantalla */}
+      <aside className="hidden w-64 shrink-0 flex-col justify-between bg-gradient-to-b from-[#101612] via-[#0C110E] to-[#080B09] border-r border-white/10 p-3 text-slate-200 md:sticky md:top-0 md:flex md:h-screen md:overflow-y-auto custom-scrollbar select-none">
+        <div className="flex flex-col gap-2">
+          {/* Organization Switcher Header con Logo Tcho-Tcho bien destacado */}
+          <div className="flex items-center justify-between gap-2 p-2 rounded-xl bg-white border border-white shadow-[0_0_20px_rgba(242,172,0,0.25)]">
+            <Link to="/dashboard" className="flex min-w-0 items-center gap-2">
+              <img src={iconAsset} alt="Tcho-Tcho" className="size-7 object-contain shrink-0" />
+              <img src={logoAsset} alt="Tcho-Tcho" className="h-5 w-auto object-contain shrink-0" />
+            </Link>
+            <NotificationBell triggerClassName="text-slate-800 hover:text-black hover:bg-slate-100 size-7" />
+          </div>
 
-        {/* Sección Central con scroll suave independiente si la pantalla es reducida */}
-        <div className="flex-1 overflow-y-auto custom-scrollbar pr-1 space-y-5">
           {/* Core Navigation */}
-          <nav className="flex flex-col gap-1.5">
+          <nav className="flex flex-col gap-1">
             {coreNav.map((item) => {
               const isActive = pathname === item.to;
               return (
@@ -128,10 +127,10 @@ export function AppShell({ children }: { children: ReactNode }) {
                   key={item.label}
                   to={item.to}
                   className={cn(
-                    "flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-xs font-bold transition-all",
+                    "flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-bold transition-all",
                     isActive
-                      ? "bg-gradient-to-r from-[#02531C] to-[#046824] text-[#F2AC00] shadow-[0_0_16px_rgba(2,83,28,0.5)] border border-[#F2AC00]/50"
-                      : "text-slate-300 hover:bg-white/[0.06] hover:text-white hover:border-white/10 border border-transparent",
+                      ? "bg-gradient-to-r from-[#02531C] to-[#046824] text-[#F2AC00] shadow-[0_0_12px_rgba(2,83,28,0.4)] border border-[#F2AC00]/40"
+                      : "text-slate-300 hover:bg-white/[0.06] hover:text-white border border-transparent",
                   )}
                 >
                   <item.icon
@@ -147,11 +146,11 @@ export function AppShell({ children }: { children: ReactNode }) {
           </nav>
 
           {/* Servicios Adicionales */}
-          <div>
-            <p className="px-3.5 pb-2 text-[11px] font-black uppercase tracking-wider text-emerald-400">
+          <div className="pt-1">
+            <p className="px-3 pb-1 text-[10px] font-black uppercase tracking-wider text-emerald-400">
               Más Opciones
             </p>
-            <nav className="flex flex-col gap-1.5">
+            <nav className="flex flex-col gap-1">
               {workflowNav.map((item) => {
                 const isActive = pathname === item.to;
                 return (
@@ -159,10 +158,10 @@ export function AppShell({ children }: { children: ReactNode }) {
                     key={item.label}
                     to={item.to}
                     className={cn(
-                      "flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-xs font-bold transition-all",
+                      "flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-bold transition-all",
                       isActive
-                        ? "bg-gradient-to-r from-[#02531C] to-[#046824] text-[#F2AC00] shadow-[0_0_16px_rgba(2,83,28,0.5)] border border-[#F2AC00]/50"
-                        : "text-slate-300 hover:bg-white/[0.06] hover:text-white hover:border-white/10 border border-transparent",
+                        ? "bg-gradient-to-r from-[#02531C] to-[#046824] text-[#F2AC00] shadow-[0_0_12px_rgba(2,83,28,0.4)] border border-[#F2AC00]/40"
+                        : "text-slate-300 hover:bg-white/[0.06] hover:text-white border border-transparent",
                     )}
                   >
                     <item.icon
@@ -178,44 +177,37 @@ export function AppShell({ children }: { children: ReactNode }) {
             </nav>
           </div>
 
-          {/* Widget inferior enfocado 100% en envíos a Haití */}
-          <div className="rounded-2xl bg-gradient-to-b from-[#18241C] to-[#0F1611] border border-emerald-500/30 p-4 text-center shadow-lg relative overflow-hidden group">
-            <div className="absolute -top-10 -right-10 size-28 rounded-full bg-[#F2AC00]/15 blur-xl pointer-events-none" />
-            <div className="mx-auto mb-2.5 flex h-11 w-24 items-center justify-center rounded-xl bg-gradient-to-tr from-black to-[#0A2613] p-2 border border-[#F2AC00]/40 shadow-inner">
-              <span className="text-xs font-black text-[#F2AC00]">Tcho-Tcho</span>
-            </div>
-            <p className="text-xs font-black text-white">MonCash & NatCash Directo</p>
-            <p className="text-[10px] text-slate-300 mt-0.5">
-              Acreditación flash en &lt; 2 minutos
+          {/* Mini-Badge compacto de envíos directos a Haití */}
+          <Link
+            to="/enviar"
+            className="rounded-xl bg-gradient-to-r from-[#18241C] to-[#0F1611] border border-emerald-500/25 p-2.5 text-center shadow-md hover:border-[#F2AC00]/50 transition group block"
+          >
+            <p className="text-[11px] font-black text-[#F2AC00] flex items-center justify-center gap-1">
+              <span>MonCash & NatCash Flash</span>
+              <ArrowRight className="size-3 group-hover:translate-x-0.5 transition" />
             </p>
-            <Link
-              to="/enviar"
-              className="mt-3 inline-flex w-full items-center justify-center gap-1.5 rounded-xl bg-[#F2AC00] px-3.5 py-2 text-xs font-black text-black shadow-[0_0_15px_rgba(242,172,0,0.4)] hover:bg-[#FBBF24] transition"
-            >
-              {t("shell.send_money")}
-              <ArrowRight className="size-3.5" />
-            </Link>
-          </div>
+            <p className="text-[9px] text-slate-300">Acreditación directa en &lt; 2 minutos</p>
+          </Link>
 
-          {/* Social Links en Sidebar */}
-          <div className="rounded-xl bg-white/[0.02] border border-white/5 p-2.5 space-y-1.5">
-            <p className="text-[10px] font-black uppercase tracking-wider text-slate-400">
-              Redes Oficiales
-            </p>
-            <SocialLinks iconSize="size-3.5" className="justify-start gap-1.5" />
+          {/* Redes Oficiales compactas */}
+          <div className="rounded-xl bg-white/[0.02] border border-white/5 px-2.5 py-1.5 flex items-center justify-between gap-1.5">
+            <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 shrink-0">
+              Redes
+            </span>
+            <SocialLinks iconSize="size-3.5" className="justify-end gap-1.5" />
           </div>
         </div>
 
-        {/* Sidebar Footer (Fijo al fondo) */}
-        <div className="mt-3 shrink-0 space-y-2.5 border-t border-white/10 pt-3">
-          <LanguageSwitcher className="w-full bg-[#161F18] text-slate-200 border-white/10 text-xs font-semibold" />
-          <div className="px-1 py-1">
+        {/* Sidebar Footer compacto */}
+        <div className="shrink-0 space-y-1.5 border-t border-white/10 pt-2.5 mt-2">
+          <LanguageSwitcher className="w-full h-8 bg-[#161F18] text-slate-200 border-white/10 text-xs font-semibold py-1" />
+          <div className="px-1 py-0.5">
             <div className="flex items-center justify-between gap-1.5">
               <p className="truncate text-xs font-extrabold text-white">
                 {profile?.full_name || t("nav.account")}
               </p>
               {isAdmin && (
-                <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/20 border border-amber-500/40 px-2 py-0.5 text-[9px] font-black text-amber-300 shrink-0">
+                <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/20 border border-amber-500/40 px-1.5 py-0.2 text-[9px] font-black text-amber-300 shrink-0">
                   <Shield className="size-2.5" /> Super Admin
                 </span>
               )}
@@ -227,18 +219,18 @@ export function AppShell({ children }: { children: ReactNode }) {
           <Button
             variant="ghost"
             size="sm"
-            className="w-full justify-start gap-2 text-xs font-bold text-rose-400 hover:bg-rose-500/15 hover:text-rose-300"
+            className="w-full h-7 justify-start gap-2 text-xs font-bold text-rose-400 hover:bg-rose-500/15 hover:text-rose-300 py-1"
             onClick={signOut}
           >
             <LogOut className="size-3.5" /> {t("nav.signout")}
           </Button>
           {isCustomBrand && (
-            <div className="pt-2 text-center border-t border-white/10">
+            <div className="pt-1 text-center border-t border-white/10">
               <a
                 href="https://tchotcho.app"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center justify-center gap-1 text-[10px] text-slate-400 transition hover:text-slate-200"
+                className="inline-flex items-center justify-center gap-1 text-[9px] text-slate-400 transition hover:text-slate-200"
               >
                 <span>Creado por</span>
                 <span className="font-bold text-[#F2AC00] underline underline-offset-2">
