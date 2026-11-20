@@ -107,17 +107,18 @@ export function AppShell({ children }: { children: ReactNode }) {
   return (
     <div className="min-h-screen bg-black text-slate-100 md:flex selection:bg-[#02531C] selection:text-[#F2AC00]">
       {/* Desktop Sidebar matching SaaS Dashboard mockup */}
-      <aside className="hidden w-64 shrink-0 flex-col justify-between bg-gradient-to-b from-[#101612] via-[#0C110E] to-[#080B09] border-r border-white/10 p-4 text-slate-200 md:sticky md:top-0 md:flex md:h-screen md:overflow-y-auto custom-scrollbar">
-        <div className="flex flex-1 flex-col">
-          {/* Organization Switcher Header con Logo Tcho-Tcho bien destacado */}
-          <div className="mb-6 flex items-center justify-between gap-2 p-2.5 rounded-2xl bg-white border-2 border-white shadow-[0_0_24px_rgba(242,172,0,0.3)]">
-            <Link to="/dashboard" className="flex min-w-0 items-center gap-2">
-              <img src={iconAsset} alt="Tcho-Tcho" className="size-8 object-contain shrink-0" />
-              <img src={logoAsset} alt="Tcho-Tcho" className="h-6 w-auto object-contain shrink-0" />
-            </Link>
-            <NotificationBell triggerClassName="text-slate-800 hover:text-black hover:bg-slate-100" />
-          </div>
+      <aside className="hidden w-64 shrink-0 flex-col justify-between bg-gradient-to-b from-[#101612] via-[#0C110E] to-[#080B09] border-r border-white/10 p-4 text-slate-200 md:sticky md:top-0 md:flex md:h-screen md:overflow-hidden select-none">
+        {/* Organization Switcher Header con Logo Tcho-Tcho bien destacado (Fijo) */}
+        <div className="shrink-0 mb-4 flex items-center justify-between gap-2 p-2.5 rounded-2xl bg-white border-2 border-white shadow-[0_0_24px_rgba(242,172,0,0.3)]">
+          <Link to="/dashboard" className="flex min-w-0 items-center gap-2">
+            <img src={iconAsset} alt="Tcho-Tcho" className="size-8 object-contain shrink-0" />
+            <img src={logoAsset} alt="Tcho-Tcho" className="h-6 w-auto object-contain shrink-0" />
+          </Link>
+          <NotificationBell triggerClassName="text-slate-800 hover:text-black hover:bg-slate-100" />
+        </div>
 
+        {/* Sección Central con scroll suave independiente si la pantalla es reducida */}
+        <div className="flex-1 overflow-y-auto custom-scrollbar pr-1 space-y-5">
           {/* Core Navigation */}
           <nav className="flex flex-col gap-1.5">
             {coreNav.map((item) => {
@@ -146,7 +147,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           </nav>
 
           {/* Servicios Adicionales */}
-          <div className="mt-6">
+          <div>
             <p className="px-3.5 pb-2 text-[11px] font-black uppercase tracking-wider text-emerald-400">
               Más Opciones
             </p>
@@ -178,7 +179,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           </div>
 
           {/* Widget inferior enfocado 100% en envíos a Haití */}
-          <div className="mt-8 rounded-2xl bg-gradient-to-b from-[#18241C] to-[#0F1611] border border-emerald-500/30 p-4 text-center shadow-lg relative overflow-hidden group">
+          <div className="rounded-2xl bg-gradient-to-b from-[#18241C] to-[#0F1611] border border-emerald-500/30 p-4 text-center shadow-lg relative overflow-hidden group">
             <div className="absolute -top-10 -right-10 size-28 rounded-full bg-[#F2AC00]/15 blur-xl pointer-events-none" />
             <div className="mx-auto mb-2.5 flex h-11 w-24 items-center justify-center rounded-xl bg-gradient-to-tr from-black to-[#0A2613] p-2 border border-[#F2AC00]/40 shadow-inner">
               <span className="text-xs font-black text-[#F2AC00]">Tcho-Tcho</span>
@@ -197,7 +198,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           </div>
 
           {/* Social Links en Sidebar */}
-          <div className="mt-4 shrink-0 rounded-xl bg-white/[0.02] border border-white/5 p-2.5 space-y-1.5">
+          <div className="rounded-xl bg-white/[0.02] border border-white/5 p-2.5 space-y-1.5">
             <p className="text-[10px] font-black uppercase tracking-wider text-slate-400">
               Redes Oficiales
             </p>
@@ -205,8 +206,8 @@ export function AppShell({ children }: { children: ReactNode }) {
           </div>
         </div>
 
-        {/* Sidebar Footer */}
-        <div className="mt-4 shrink-0 space-y-2.5 border-t border-white/10 pt-3">
+        {/* Sidebar Footer (Fijo al fondo) */}
+        <div className="mt-3 shrink-0 space-y-2.5 border-t border-white/10 pt-3">
           <LanguageSwitcher className="w-full bg-[#161F18] text-slate-200 border-white/10 text-xs font-semibold" />
           <div className="px-1 py-1">
             <div className="flex items-center justify-between gap-1.5">
