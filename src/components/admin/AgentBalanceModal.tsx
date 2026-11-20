@@ -2,7 +2,8 @@ import { useState, useEffect } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Coins, Plus, Wallet, ShieldAlert, CheckCircle2 } from "lucide-react";
+import { Coins, Plus, Wallet, ShieldAlert, CheckCircle2, History } from "lucide-react";
+import { AgentBalanceHistoryModal } from "@/components/admin/AgentBalanceHistoryModal";
 import {
   Dialog,
   DialogContent,
@@ -47,6 +48,7 @@ export function AgentBalanceModal({ isOpen, onClose, user, onSuccess }: AgentBal
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [userWallets, setUserWallets] = useState<Array<{ currency: string; balance: number }>>([]);
   const [isLoadingWallets, setIsLoadingWallets] = useState(false);
+  const [openHistory, setOpenHistory] = useState(false);
 
   useEffect(() => {
     if (user?.id && isOpen) {
@@ -99,6 +101,7 @@ export function AgentBalanceModal({ isOpen, onClose, user, onSuccess }: AgentBal
   };
 
   return (
+    <>
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="max-w-md bg-[#101713] border-white/10 text-white">
         <DialogHeader>
@@ -130,11 +133,23 @@ export function AgentBalanceModal({ isOpen, onClose, user, onSuccess }: AgentBal
             </div>
             <div className="flex items-center justify-between text-xs pt-1 border-t border-white/10">
               <span className="text-slate-400 font-medium">Saldo actual ({currency}):</span>
-              <span className="font-extrabold text-[#F2AC00]">
-                {isLoadingWallets
-                  ? "Cargando..."
-                  : `${currentBalance.toLocaleString()} ${currency}`}
-              </span>
+              <div className="flex items-center gap-2">
+                <span className="font-extrabold text-[#F2AC00]">
+                  {isLoadingWallets
+                    ? "Cargando..."
+                    : `${currentBalance.toLocaleString()} ${currency}`}
+                </span>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setOpenHistory(true)}
+                  className="h-6 px-1.5 text-[11px] text-emerald-400 hover:text-emerald-300 hover:bg-emerald-500/10 gap-1"
+                >
+                  <History className="size-3" />
+                  Historial
+                </Button>
+              </div>
             </div>
           </div>
 
@@ -239,5 +254,14 @@ export function AgentBalanceModal({ isOpen, onClose, user, onSuccess }: AgentBal
         </form>
       </DialogContent>
     </Dialog>
+
+    {openHistory && (
+      <AgentBalanceHistoryModal
+        isOpen={openHistory}
+        onClose={() => setOpenHistory(false)}
+        agentUser={user}
+      />
+    )}
+    </>
   );
 }

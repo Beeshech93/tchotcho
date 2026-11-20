@@ -171,6 +171,18 @@ function Detalle() {
   const paymentName = paymentLabel(t.payment_method);
   const deliveryName = deliveryLabel(t.delivery_method);
 
+  const agentUserId = (t as any)?.agent_id || (t?.payment_method === "cash_agent" ? t?.user_id : null);
+  const { data: agentProfile } = useQuery({
+    queryKey: ["transfer-agent-profile", agentUserId],
+    queryFn: async () => {
+      if (!agentUserId) return null;
+      const { data } = await supabase.from("profiles").select("id, full_name, phone").eq("id", agentUserId).maybeSingle();
+      return data;
+    },
+    enabled: Boolean(agentUserId),
+  });
+  const agentName = agentProfile?.full_name || agentProfile?.phone || (agentUserId ? "Agente autorizado" : null);
+
   return (
     <div className="mx-auto max-w-3xl space-y-5 text-white">
       {/* Finflow Confirmation Hero (Módulo 1486849455 / 1486849441) */}
@@ -226,7 +238,7 @@ function Detalle() {
                     (ch) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[ch] ?? ch,
                   );
                 w.document.write(
-                  `<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Recibo ${safe(t.reference)}</title><style>body{font:16px Arial;max-width:720px;margin:40px auto;padding:24px;color:#172033;background:#fff}h1{color:#02531C}.row{display:flex;justify-content:space-between;border-bottom:1px solid #ddd;padding:13px 0}span{color:#667085}@media print{button{display:none}}</style></head><body><h1>TCHO-TCHO</h1><h2>Recibo de transacción</h2><p>Referencia: ${safe(t.reference)} · Fecha: ${safe(shortDate(t.created_at))}</p><div class="row"><span>Estado</span><strong>${safe(STATUS_LABEL[t.status as TransferStatus] ?? t.status)}</strong></div><div class="row"><span>Destinatario</span><strong>${safe(t.recipient_name)}</strong></div><div class="row"><span>Origen</span><strong>${safe(t.origin_country)}</strong></div><div class="row"><span>Destino</span><strong>${safe(t.destination_country)}</strong></div><div class="row"><span>Método de pago</span><strong>${safe(paymentName)}</strong></div><div class="row"><span>Monto enviado</span><strong>${safe(money(Number(t.amount_send), t.send_currency))}</strong></div><div class="row"><span>Monto a recibir</span><strong>${safe(money(Number(t.amount_receive), t.receive_currency))}</strong></div><p>Recibo informativo de Tcho-Tcho Digital Banking.</p><button onclick="window.print()">Imprimir / Guardar como PDF</button></body></html>`,
+                  `<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Recibo ${safe(t.reference)}</title><style>body{font:16px Arial;max-width:720px;margin:40px auto;padding:24px;color:#172033;background:#fff}h1{color:#02531C}.row{display:flex;justify-content:space-between;border-bottom:1px solid #ddd;padding:13px 0}span{color:#667085}@media print{button{display:none}}</style></head><body><h1>TCHO-TCHO</h1><h2>Recibo de transacción</h2><p>Referencia: ${safe(t.reference)} · Fecha: ${safe(shortDate(t.created_at))}</p><div class="row"><span>Estado</span><strong>${safe(STATUS_LABEL[t.status as TransferStatus] ?? t.status)}</strong></div>${agentName ? `<div class="row"><span>Agente que procesó</span><strong style="color:#02531C">${safe(agentName)}</strong></div>` : ""}<div class="row"><span>Destinatario</span><strong>${safe(t.recipient_name)}</strong></div><div class="row"><span>Origen</span><strong>${safe(t.origin_country)}</strong></div><div class="row"><span>Destino</span><strong>${safe(t.destination_country)}</strong></div><div class="row"><span>Método de pago</span><strong>${safe(paymentName)}</strong></div><div class="row"><span>Monto enviado</span><strong>${safe(money(Number(t.amount_send), t.send_currency))}</strong></div><div class="row"><span>Monto a recibir</span><strong>${safe(money(Number(t.amount_receive), t.receive_currency))}</strong></div><p>Recibo informativo de Tcho-Tcho Digital Banking.</p><button onclick="window.print()">Imprimir / Guardar como PDF</button></body></html>`,
                 );
                 w.document.close();
               }}
@@ -311,7 +323,7 @@ function Detalle() {
                 (ch) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[ch] ?? ch,
               );
             w.document.write(
-              `<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Recibo ${safe(t.reference)}</title><style>body{font:16px Arial;max-width:720px;margin:40px auto;padding:24px;color:#172033}h1{color:#0e9f6e}.row{display:flex;justify-content:space-between;border-bottom:1px solid #ddd;padding:13px 0}span{color:#667085}@media print{button{display:none}}</style></head><body><h1>LAJAN RAPID</h1><h2>Recibo de transacción</h2><p>Referencia: ${safe(t.reference)} · Fecha: ${safe(shortDate(t.created_at))}</p><div class="row"><span>Estado</span><strong>${safe(STATUS_LABEL[t.status as TransferStatus] ?? t.status)}</strong></div><div class="row"><span>Destinatario</span><strong>${safe(t.recipient_name)}</strong></div><div class="row"><span>Origen</span><strong>${safe(t.origin_country)}</strong></div><div class="row"><span>Destino</span><strong>${safe(t.destination_country)}</strong></div><div class="row"><span>Método de pago</span><strong>${safe(paymentName)}</strong></div><div class="row"><span>Monto enviado</span><strong>${safe(money(Number(t.amount_send), t.send_currency))}</strong></div><div class="row"><span>Monto a recibir</span><strong>${safe(money(Number(t.amount_receive), t.receive_currency))}</strong></div><p>Recibo informativo; no sustituye confirmación bancaria.</p><button onclick="window.print()">Imprimir / Guardar como PDF</button></body></html>`,
+              `<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Recibo ${safe(t.reference)}</title><style>body{font:16px Arial;max-width:720px;margin:40px auto;padding:24px;color:#172033}h1{color:#0e9f6e}.row{display:flex;justify-content:space-between;border-bottom:1px solid #ddd;padding:13px 0}span{color:#667085}@media print{button{display:none}}</style></head><body><h1>LAJAN RAPID</h1><h2>Recibo de transacción</h2><p>Referencia: ${safe(t.reference)} · Fecha: ${safe(shortDate(t.created_at))}</p><div class="row"><span>Estado</span><strong>${safe(STATUS_LABEL[t.status as TransferStatus] ?? t.status)}</strong></div>${agentName ? `<div class="row"><span>Agente que procesó</span><strong style="color:#0e9f6e">${safe(agentName)}</strong></div>` : ""}<div class="row"><span>Destinatario</span><strong>${safe(t.recipient_name)}</strong></div><div class="row"><span>Origen</span><strong>${safe(t.origin_country)}</strong></div><div class="row"><span>Destino</span><strong>${safe(t.destination_country)}</strong></div><div class="row"><span>Método de pago</span><strong>${safe(paymentName)}</strong></div><div class="row"><span>Monto enviado</span><strong>${safe(money(Number(t.amount_send), t.send_currency))}</strong></div><div class="row"><span>Monto a recibir</span><strong>${safe(money(Number(t.amount_receive), t.receive_currency))}</strong></div><p>Recibo informativo; no sustituye confirmación bancaria.</p><button onclick="window.print()">Imprimir / Guardar como PDF</button></body></html>`,
             );
             w.document.close();
           }}
@@ -530,6 +542,7 @@ function Detalle() {
             value={`${t.origin_country} → ${t.destination_country}`}
           />
           <Row label={t2("detail.payment_method")} value={paymentName} />
+          {agentName && <Row label="Agente procesador" value={agentName} />}
           <Row
             label={t2("detail.rate")}
             value={`1 ${t.send_currency} = ${effectiveRate.toFixed(4)} ${t.receive_currency}`}

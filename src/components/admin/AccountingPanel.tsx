@@ -19,6 +19,7 @@ import {
   ExternalLink,
   ArrowRight,
   Info,
+  UserCheck,
 } from "lucide-react";
 
 import { supabase } from "@/integrations/supabase/client";
@@ -62,6 +63,8 @@ type TransferRow = {
   origin_country?: string | null;
   destination_country?: string | null;
   note?: string | null;
+  agent_id?: string | null;
+  user_id?: string | null;
 };
 
 const PERIODS = [
@@ -194,7 +197,7 @@ export function AccountingPanel() {
       let q = supabase
         .from("transfers")
         .select(
-          "id,reference,created_at,status,send_currency,receive_currency,amount_send,fee_send,total_send,amount_receive,agent_commission_send,recipient_name,recipient_phone,delivery_method,payment_method,origin_country,destination_country,note",
+          "id,reference,created_at,status,send_currency,receive_currency,amount_send,fee_send,total_send,amount_receive,agent_commission_send,recipient_name,recipient_phone,delivery_method,payment_method,origin_country,destination_country,note,agent_id,user_id",
         )
         .order("created_at", { ascending: false })
         .limit(5000);
@@ -207,6 +210,15 @@ export function AccountingPanel() {
       return (data ?? []) as TransferRow[];
     },
   });
+
+  const { data: profiles } = useQuery({
+    queryKey: ["admin-profiles"],
+    queryFn: async () => (await supabase.from("profiles").select("id, full_name, phone")).data ?? [],
+  });
+
+  const profilesMap = useMemo(() => {
+    return new Map((profiles ?? []).map((p) => [p.id, p]));
+  }, [profiles]);
 
   const currencies = useMemo(
     () => Array.from(new Set(rows.map((r) => r.send_currency))).sort(),
@@ -1054,17 +1066,28 @@ export function AccountingPanel() {
           <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-3">
             {modalTransactions.length > 0 ? (
               <div className="space-y-2.5">
-                {modalTransactions.map((tx) => (
+                {modalTransactions.map((tx) => {
+                  const agentId = tx.agent_id || (tx.payment_method === "cash_agent" ? tx.user_id : null);
+                  const agentProfile = agentId ? profilesMap.get(agentId) : null;
+                  const agentName = agentProfile?.full_name || agentProfile?.phone || (agentId ? "Agente autorizado" : null);
+
+                  return (
                   <div
                     key={tx.id}
                     className="p-4 rounded-xl bg-white/[0.02] border border-white/5 hover:border-white/15 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs"
                   >
                     <div className="space-y-1 min-w-0">
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 flex-wrap">
                         <span className="font-mono font-bold text-white text-sm">
                           {tx.reference}
                         </span>
                         {getStatusBadge(tx.status)}
+                        {agentName && (
+                          <Badge className="bg-emerald-500/15 text-emerald-400 border-emerald-500/30 text-[10px] font-bold gap-1 py-0 px-1.5">
+                            <UserCheck className="size-3" />
+                            Agente: {agentName}
+                          </Badge>
+                        )}
                         <span className="text-[11px] text-muted-foreground">
                           {formatShortDate(tx.created_at)}
                         </span>
@@ -1127,7 +1150,8 @@ export function AccountingPanel() {
                       </div>
                     </div>
                   </div>
-                ))}
+                  );
+                })}
               </div>
             ) : (
               <div className="flex flex-col items-center justify-center p-12 text-center space-y-2">

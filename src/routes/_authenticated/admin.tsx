@@ -1,8 +1,8 @@
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { useState } from "react";
-import { ArrowLeft, Coins, FileText, RefreshCw, Shield, Users } from "lucide-react";
+import { useState, useMemo } from "react";
+import { ArrowLeft, Coins, FileText, History, RefreshCw, Shield, UserCheck, Users } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
@@ -15,6 +15,7 @@ import {
 } from "@/lib/admin-permissions.functions";
 import { AdminPermissionsModal } from "@/components/admin/AdminPermissionsModal";
 import { AgentBalanceModal } from "@/components/admin/AgentBalanceModal";
+import { AgentBalanceHistoryModal } from "@/components/admin/AgentBalanceHistoryModal";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -280,11 +281,25 @@ function TxPanel() {
   const [filter, setFilter] = useState<"all" | TransferStatus>("all");
   const [busy, setBusy] = useState<string | null>(null);
 
+  const { data: profiles } = useQuery({
+    queryKey: ["admin-profiles"],
+    queryFn: async () => (await supabase.from("profiles").select("id, full_name, phone")).data ?? [],
+  });
+
+  const profilesMap = useMemo(() => {
+    return new Map((profiles ?? []).map((p) => [p.id, p]));
+  }, [profiles]);
+
   const rows = (data ?? []).filter((t) => {
     if (filter !== "all" && t.status !== filter) return false;
     const q = search.trim().toLowerCase();
     if (!q) return true;
-    return [t.reference, t.recipient_name, t.recipient_phone, t.destination_country]
+
+    const agentId = (t as any).agent_id || (t.payment_method === "cash_agent" ? t.user_id : null);
+    const agentProfile = agentId ? profilesMap.get(agentId) : null;
+    const agentName = agentProfile?.full_name || agentProfile?.phone || "";
+
+    return [t.reference, t.recipient_name, t.recipient_phone, t.destination_country, agentName]
       .filter(Boolean)
       .some((v) => String(v).toLowerCase().includes(q));
   });
@@ -313,7 +328,7 @@ function TxPanel() {
         <CardTitle className="text-base">Todas las transacciones</CardTitle>
         <div className="grid gap-2 sm:grid-cols-[1fr_200px]">
           <Input
-            placeholder="Buscar por referencia o destinatario"
+            placeholder="Buscar por referencia, destinatario o nombre del agente..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
@@ -337,68 +352,82 @@ function TxPanel() {
         {!isLoading && rows.length === 0 && (
           <p className="text-sm text-muted-foreground">No hay envíos para este filtro.</p>
         )}
-        {rows.map((t) => (
-          <div
-            key={t.id}
-            className="flex flex-wrap items-center justify-between gap-3 rounded-xl border p-3"
-          >
-            <div className="min-w-0">
-              <p className="font-medium">{t.recipient_name}</p>
-              <p className="text-xs text-muted-foreground">
-                {t.reference} · {t.origin_country} → {t.destination_country} · {t.payment_method} ·{" "}
-                {shortDate(t.created_at)}
-              </p>
-            </div>
-            <div className="text-right">
-              <p className="font-semibold">{money(Number(t.amount_send), t.send_currency)}</p>
-              <p className="text-xs text-muted-foreground">
-                {money(Number(t.amount_receive), t.receive_currency)}
-              </p>
-            </div>
-            <Badge className={STATUS_TONE[t.status as TransferStatus]} variant="secondary">
-              {STATUS_LABEL[t.status as TransferStatus]}
-            </Badge>
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => {
-                const w = window.open("", "_blank", "width=800,height=700");
-                if (!w) {
-                  toast.error("Permite las ventanas emergentes.");
-                  return;
-                }
-                const safe = (v: unknown) =>
-                  String(v ?? "").replace(
-                    /[&<>"]/g,
-                    (ch) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[ch] ?? ch,
+        {rows.map((t) => {
+          const agentId = (t as any).agent_id || (t.payment_method === "cash_agent" ? t.user_id : null);
+          const agentProfile = agentId ? profilesMap.get(agentId) : null;
+          const agentName = agentProfile?.full_name || agentProfile?.phone || (agentId ? "Agente autorizado" : null);
+
+          return (
+            <div
+              key={t.id}
+              className="flex flex-wrap items-center justify-between gap-3 rounded-xl border p-3 hover:bg-card/70 transition-colors"
+            >
+              <div className="min-w-0 space-y-1">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <p className="font-semibold text-sm">{t.recipient_name}</p>
+                  {agentName && (
+                    <Badge className="bg-emerald-500/15 text-emerald-400 border-emerald-500/30 text-[11px] font-semibold gap-1 py-0 px-2">
+                      <UserCheck className="size-3" />
+                      Agente: {agentName}
+                    </Badge>
+                  )}
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  {t.reference} · {t.origin_country} → {t.destination_country} · {t.payment_method} ·{" "}
+                  {shortDate(t.created_at)}
+                </p>
+              </div>
+              <div className="text-right">
+                <p className="font-semibold">{money(Number(t.amount_send), t.send_currency)}</p>
+                <p className="text-xs text-muted-foreground">
+                  {money(Number(t.amount_receive), t.receive_currency)}
+                </p>
+              </div>
+              <Badge className={STATUS_TONE[t.status as TransferStatus]} variant="secondary">
+                {STATUS_LABEL[t.status as TransferStatus]}
+              </Badge>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => {
+                  const w = window.open("", "_blank", "width=800,height=700");
+                  if (!w) {
+                    toast.error("Permite las ventanas emergentes.");
+                    return;
+                  }
+                  const safe = (v: unknown) =>
+                    String(v ?? "").replace(
+                      /[&<>"]/g,
+                      (ch) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[ch] ?? ch,
+                    );
+                  w.document.write(
+                    `<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Recibo ${safe(t.reference)}</title><style>body{font:16px Arial;max-width:720px;margin:40px auto;padding:24px;color:#172033}h1{color:#0e9f6e}.row{display:flex;justify-content:space-between;border-bottom:1px solid #ddd;padding:13px 0}span{color:#667085}@media print{button{display:none}}</style></head><body><h1>LAJAN RAPID</h1><h2>Recibo de transacción</h2><p>Referencia: ${safe(t.reference)} · Fecha: ${safe(shortDate(t.created_at))}</p><div class="row"><span>Estado</span><strong>${safe(STATUS_LABEL[t.status as TransferStatus] ?? t.status)}</strong></div>${agentName ? `<div class="row"><span>Agente que procesó</span><strong style="color:#059669">${safe(agentName)}</strong></div>` : ""}<div class="row"><span>Destinatario</span><strong>${safe(t.recipient_name)}</strong></div><div class="row"><span>Países</span><strong>${safe(t.origin_country)} → ${safe(t.destination_country)}</strong></div><div class="row"><span>Método de pago</span><strong>${safe(t.payment_method)}</strong></div><div class="row"><span>Enviado</span><strong>${safe(money(Number(t.amount_send), t.send_currency))}</strong></div><div class="row"><span>Recibe</span><strong>${safe(money(Number(t.amount_receive), t.receive_currency))}</strong></div><button onclick="window.print()">Imprimir / Guardar como PDF</button></body></html>`,
                   );
-                w.document.write(
-                  `<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Recibo ${safe(t.reference)}</title><style>body{font:16px Arial;max-width:720px;margin:40px auto;padding:24px;color:#172033}h1{color:#0e9f6e}.row{display:flex;justify-content:space-between;border-bottom:1px solid #ddd;padding:13px 0}span{color:#667085}@media print{button{display:none}}</style></head><body><h1>LAJAN RAPID</h1><h2>Recibo de transacción</h2><p>Referencia: ${safe(t.reference)} · Fecha: ${safe(shortDate(t.created_at))}</p><div class="row"><span>Estado</span><strong>${safe(STATUS_LABEL[t.status as TransferStatus] ?? t.status)}</strong></div><div class="row"><span>Destinatario</span><strong>${safe(t.recipient_name)}</strong></div><div class="row"><span>Países</span><strong>${safe(t.origin_country)} → ${safe(t.destination_country)}</strong></div><div class="row"><span>Método de pago</span><strong>${safe(t.payment_method)}</strong></div><div class="row"><span>Enviado</span><strong>${safe(money(Number(t.amount_send), t.send_currency))}</strong></div><div class="row"><span>Recibe</span><strong>${safe(money(Number(t.amount_receive), t.receive_currency))}</strong></div><button onclick="window.print()">Imprimir / Guardar como PDF</button></body></html>`,
-                );
-                w.document.close();
-              }}
-            >
-              <FileText className="mr-2 size-4" />
-              Generar recibo
-            </Button>
-            <Select
-              value={t.status}
-              disabled={busy === t.id || t.status === "cancelled" || t.status === "completed"}
-              onValueChange={(v) => void change(t.id, v as TransferStatus)}
-            >
-              <SelectTrigger className="h-9 w-[170px]">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {ALL_TRANSFER_STATUSES.map((s) => (
-                  <SelectItem key={s} value={s}>
-                    {STATUS_LABEL[s]}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        ))}
+                  w.document.close();
+                }}
+              >
+                <FileText className="mr-2 size-4" />
+                Generar recibo
+              </Button>
+              <Select
+                value={t.status}
+                disabled={busy === t.id || t.status === "cancelled" || t.status === "completed"}
+                onValueChange={(v) => void change(t.id, v as TransferStatus)}
+              >
+                <SelectTrigger className="h-9 w-[170px]">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {ALL_TRANSFER_STATUSES.map((s) => (
+                    <SelectItem key={s} value={s}>
+                      {STATUS_LABEL[s]}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          );
+        })}
       </CardContent>
     </Card>
   );
@@ -410,6 +439,7 @@ function UsersPanel() {
   const [userSearch, setUserSearch] = useState("");
   const [editingUser, setEditingUser] = useState<any>(null);
   const [balanceUser, setBalanceUser] = useState<any>(null);
+  const [openGlobalHistory, setOpenGlobalHistory] = useState(false);
 
   const fetchAdminsMap = useServerFn(getAllAdminsPermissionsMap);
   const { data: adminsMap } = useQuery({
@@ -511,18 +541,29 @@ function UsersPanel() {
               permisos.
             </p>
           </div>
-          <Button
-            size="sm"
-            variant="outline"
-            className="gap-1.5 font-semibold text-xs border-white/20 hover:bg-white/10"
-            onClick={() => {
-              refetchUsers();
-              toast.info("Actualizando lista de usuarios...");
-            }}
-          >
-            <RefreshCw className={cn("size-3.5", isLoadingUsers && "animate-spin")} />
-            Actualizar Lista
-          </Button>
+          <div className="flex items-center gap-2 flex-wrap">
+            <Button
+              size="sm"
+              variant="outline"
+              className="gap-1.5 font-semibold text-xs border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/10"
+              onClick={() => setOpenGlobalHistory(true)}
+            >
+              <History className="size-3.5" />
+              Historial de Saldo a Agentes
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              className="gap-1.5 font-semibold text-xs border-white/20 hover:bg-white/10"
+              onClick={() => {
+                refetchUsers();
+                toast.info("Actualizando lista de usuarios...");
+              }}
+            >
+              <RefreshCw className={cn("size-3.5", isLoadingUsers && "animate-spin")} />
+              Actualizar Lista
+            </Button>
+          </div>
         </div>
         <Input
           className="mt-3"
@@ -712,6 +753,14 @@ function UsersPanel() {
           onSuccess={() => {
             qc.invalidateQueries({ queryKey: ["admin-users-list"] });
           }}
+        />
+      )}
+
+      {/* Modal de Histórico de Adición de Saldo a Agentes */}
+      {openGlobalHistory && (
+        <AgentBalanceHistoryModal
+          isOpen={openGlobalHistory}
+          onClose={() => setOpenGlobalHistory(false)}
         />
       )}
 

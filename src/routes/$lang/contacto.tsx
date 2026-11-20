@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect } from "react";
 import { Mail, MessageCircle } from "lucide-react";
+import { SocialLinks } from "@/components/SocialLinks";
 import logoAsset from "@/assets/lajan-rapid-logo.png";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { getSupportConfig } from "@/lib/support.functions";
@@ -116,6 +117,11 @@ function LocaleContacto() {
             {t("support.hours")}: {config.support_hours}
           </p>
         )}
+
+        <div className="mt-8 border-t pt-6">
+          <p className="text-sm font-semibold mb-3">Redes sociales / Rezo sosyal</p>
+          <SocialLinks className="justify-start" />
+        </div>
       </section>
     </div>
   );

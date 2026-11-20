@@ -101,12 +101,19 @@ export const adminAdjustAgentBalance = createServerFn({ method: "POST" })
       throw new Error(updateError.message);
     }
 
-    // 3. Registrar movimiento en wallet_transactions
-    const desc = input.description?.trim()
-      ? input.description.trim()
-      : input.amount > 0
-        ? `Saldo acreditado por Administrador (+${input.amount} ${currency})`
-        : `Ajuste de saldo por Administrador (${input.amount} ${currency})`;
+    // 3. Registrar movimiento en wallet_transactions con identificación del admin
+    const { data: adminProfile } = await supabaseAdmin
+      .from("profiles")
+      .select("full_name, phone")
+      .eq("id", context.userId)
+      .maybeSingle();
+
+    const adminName = adminProfile?.full_name || adminProfile?.phone || "Admin";
+    const customNote = input.description?.trim();
+    const actionLabel = input.amount > 0 ? `+${input.amount}` : `${input.amount}`;
+    const desc = customNote
+      ? `${customNote} (Por: ${adminName})`
+      : `Saldo ${input.amount > 0 ? "acreditado" : "ajustado"} (${actionLabel} ${currency}) por Admin: ${adminName}`;
 
     await supabaseAdmin.from("wallet_transactions").insert({
       wallet_id: wallet.id,
@@ -125,6 +132,81 @@ export const adminAdjustAgentBalance = createServerFn({ method: "POST" })
       currency,
       message: `Saldo ${input.amount > 0 ? "adicionado" : "ajustado"} con éxito. Nuevo balance: ${newBalance.toLocaleString()} ${currency}.`,
     };
+  });
+
+export interface AgentBalanceHistoryItem {
+  id: string;
+  agentUserId: string;
+  agentName: string;
+  agentPhone: string;
+  agentEmail: string;
+  amount: number;
+  currency: string;
+  kind: string;
+  description: string;
+  createdAt: string;
+}
+
+/**
+ * Consulta el historial de adiciones y ajustes de saldo realizados a los agentes.
+ */
+export const getAgentBalanceHistory = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .validator((input: { agentUserId?: string | undefined; limit?: number | undefined }) => input)
+  .handler(async ({ data: input, context }): Promise<AgentBalanceHistoryItem[]> => {
+    const { verifyIsAdmin, verifyIsStaff } = await import("@/lib/admin.server");
+    const isAdmin = await verifyIsAdmin(context);
+    const isStaff = await verifyIsStaff(context);
+    const isSelf = Boolean(input.agentUserId && context.userId === input.agentUserId);
+
+    if (!isAdmin && !isStaff && !isSelf) {
+      throw new Error("No autorizado para consultar el historial de saldos.");
+    }
+
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    let query = supabaseAdmin
+      .from("wallet_transactions")
+      .select("id, user_id, amount, currency, kind, description, created_at")
+      .in("kind", ["admin_deposit", "admin_deduct", "agent_deposit"])
+      .order("created_at", { ascending: false })
+      .limit(input.limit || 150);
+
+    if (input.agentUserId) {
+      query = query.eq("user_id", input.agentUserId);
+    }
+
+    const { data: txs, error } = await query;
+    if (error) {
+      console.error("Error al consultar histórico de adiciones:", error);
+      throw new Error(error.message);
+    }
+
+    if (!txs || txs.length === 0) return [];
+
+    const userIds = Array.from(new Set(txs.map((t) => t.user_id)));
+    const { data: profiles } = await supabaseAdmin
+      .from("profiles")
+      .select("id, full_name, phone")
+      .in("id", userIds);
+
+    const profileMap = new Map((profiles ?? []).map((p) => [p.id, p]));
+
+    return txs.map((t) => {
+      const p = profileMap.get(t.user_id);
+      return {
+        id: t.id,
+        agentUserId: t.user_id,
+        agentName: p?.full_name || p?.phone || "Agente",
+        agentPhone: p?.phone || "",
+        agentEmail: "",
+        amount: Number(t.amount),
+        currency: t.currency,
+        kind: t.kind,
+        description: t.description || "",
+        createdAt: t.created_at,
+      };
+    });
   });
 
 /**
