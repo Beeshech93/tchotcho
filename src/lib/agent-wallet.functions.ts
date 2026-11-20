@@ -32,19 +32,17 @@ export const adminAdjustAgentBalance = createServerFn({ method: "POST" })
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-    // Verificar que la cuenta de destino sea un agente o administrador
+    // Las cuentas clientes no necesitan saldo operativo. Solo las cuentas de agentes pueden recibir saldo.
     const { data: roleRows } = await supabaseAdmin
       .from("user_roles")
       .select("role")
       .eq("user_id", input.agentUserId)
       .in("role", ["agent", "admin"]);
 
-    // Si aún no tiene rol de agente o admin, asignar automáticamente el rol de agente
     if (!roleRows || roleRows.length === 0) {
-      await supabaseAdmin.from("user_roles").insert({
-        user_id: input.agentUserId,
-        role: "agent" as any,
-      });
+      throw new Error(
+        "Las cuentas clientes no necesitan saldo. Solo las cuentas de agentes pueden recibir asignación de saldo operativo.",
+      );
     }
 
     const currency = (input.currency || "HTG").toUpperCase();
