@@ -49,7 +49,7 @@ export function LogoIntro() {
             className="h-full w-full object-contain filter drop-shadow-[0_2px_12px_rgba(255,255,255,0.1)]"
           />
         </span>
-        <span className="logo-shine h-1 w-24 rounded-full bg-gradient-to-r from-[#02531C] via-[#F2AC00] to-[#02531C]" />
+        <span className="logo-shine h-1 w-24 rounded-full bg-gradient-to-r from-emerald-700 via-emerald-400 to-emerald-700" />
       </div>
     </div>
   );
@@ -73,8 +73,8 @@ export function LogoCelebration() {
   return (
     <div aria-hidden className="pointer-events-none fixed inset-0 z-[190] grid place-items-center">
       <div className="relative grid place-items-center">
-        <span className="logo-ring absolute size-32 rounded-full border-2 border-[#02531C]" />
-        <span className="logo-ring logo-ring-delay absolute size-32 rounded-full border-2 border-[#F2AC00]" />
+        <span className="logo-ring absolute size-32 rounded-full border-2 border-emerald-600" />
+        <span className="logo-ring logo-ring-delay absolute size-32 rounded-full border-2 border-emerald-400" />
         <span className="logo-celebrate grid size-24 place-items-center overflow-hidden rounded-3xl bg-[#0C1A10] border border-[#02531C]/40 p-3 shadow-2xl">
           <img
             src={logoAsset}

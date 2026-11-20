@@ -261,15 +261,15 @@ function AuthPage() {
   };
 
   return (
-    <div className="relative min-h-screen bg-[#000000] text-white selection:bg-[#02531C] selection:text-white overflow-hidden">
-      {/* Glow radial superior que recrea la iluminación del logo Tcho-Tcho */}
+    <div className="relative min-h-screen bg-[#000000] text-white selection:bg-emerald-600 selection:text-white overflow-hidden">
+      {/* Glow radial superior suave */}
       <div
-        className="pointer-events-none absolute -top-40 left-1/2 -translate-x-1/2 w-[600px] h-[500px] rounded-full blur-[140px] opacity-35"
-        style={{ background: "radial-gradient(circle, #02531C 0%, #06260E 65%, transparent 100%)" }}
+        className="pointer-events-none absolute -top-40 left-1/2 -translate-x-1/2 w-[600px] h-[500px] rounded-full blur-[140px] opacity-25"
+        style={{ background: "radial-gradient(circle, #064E3B 0%, #022c22 65%, transparent 100%)" }}
       />
       <div
         className="pointer-events-none absolute top-10 right-0 w-[260px] h-[260px] rounded-full blur-[120px] opacity-15"
-        style={{ background: "radial-gradient(circle, #F2AC00 0%, transparent 70%)" }}
+        style={{ background: "radial-gradient(circle, #059669 0%, transparent 70%)" }}
       />
 
       <div className="relative z-10 mx-auto flex min-h-screen w-full max-w-sm flex-col justify-between px-5 py-6">
@@ -342,7 +342,7 @@ function AuthPage() {
                     type="email"
                     required
                     placeholder="Enter your email address"
-                    className="h-12 w-full rounded-2xl bg-[#121212]/90 border border-white/10 pl-11 pr-4 text-xs text-white placeholder:text-slate-500 focus-visible:border-[#02531C] focus-visible:ring-1 focus-visible:ring-[#02531C]"
+                    className="h-12 w-full rounded-2xl bg-[#121212]/90 border border-white/10 pl-11 pr-4 text-xs text-white placeholder:text-slate-500 focus-visible:border-emerald-500 focus-visible:ring-1 focus-visible:ring-emerald-500"
                   />
                 </div>
 
@@ -356,7 +356,7 @@ function AuthPage() {
                       type="checkbox"
                       checked={rememberMe}
                       onChange={(e) => setRememberMe(e.target.checked)}
-                      className="size-3.5 rounded border-white/20 bg-[#121212] text-[#02531C] focus:ring-0 focus:ring-offset-0"
+                      className="size-3.5 rounded border-white/20 bg-[#121212] text-emerald-600 focus:ring-0 focus:ring-offset-0"
                     />
                     <span>Remember me</span>
                   </label>
@@ -373,21 +373,21 @@ function AuthPage() {
                   </button>
                 </div>
 
-                {/* Botón blanco en pastilla estilo Finflow */}
+                {/* Botón en pastilla estilo fintech */}
                 <button
                   type="submit"
                   disabled={loading}
-                  className="mt-2 flex h-12 w-full items-center justify-center gap-2 rounded-full bg-white text-xs font-bold text-[#02531C] transition-all hover:bg-emerald-50 active:scale-[0.98] disabled:opacity-50 shadow-lg shadow-white/10"
+                  className="mt-2 flex h-12 w-full items-center justify-center gap-2 rounded-full bg-emerald-600 hover:bg-emerald-500 text-xs font-bold text-white transition-all active:scale-[0.98] disabled:opacity-50 shadow-lg shadow-emerald-950/40"
                 >
                   {loading ? (
                     <>
-                      <Loader2 className="size-4 animate-spin text-[#02531C]" />
+                      <Loader2 className="size-4 animate-spin text-white" />
                       <span>Entering...</span>
                     </>
                   ) : (
                     <>
                       <span>Login</span>
-                      <ArrowRight className="size-4 text-[#02531C]" />
+                      <ArrowRight className="size-4 text-white" />
                     </>
                   )}
                 </button>
@@ -402,7 +402,7 @@ function AuthPage() {
                     type="text"
                     required
                     placeholder="Enter Your Name"
-                    className="h-12 w-full rounded-2xl bg-[#121212]/90 border border-white/10 pl-11 pr-4 text-xs text-white placeholder:text-slate-500 focus-visible:border-[#02531C] focus-visible:ring-1 focus-visible:ring-[#02531C]"
+                    className="h-12 w-full rounded-2xl bg-[#121212]/90 border border-white/10 pl-11 pr-4 text-xs text-white placeholder:text-slate-500 focus-visible:border-emerald-500 focus-visible:ring-1 focus-visible:ring-emerald-500"
                   />
                 </div>
 
@@ -452,28 +452,28 @@ function AuthPage() {
                     type="email"
                     required
                     placeholder="Enter your email address"
-                    className="h-12 w-full rounded-2xl bg-[#121212]/90 border border-white/10 pl-11 pr-4 text-xs text-white placeholder:text-slate-500 focus-visible:border-[#02531C] focus-visible:ring-1 focus-visible:ring-[#02531C]"
+                    className="h-12 w-full rounded-2xl bg-[#121212]/90 border border-white/10 pl-11 pr-4 text-xs text-white placeholder:text-slate-500 focus-visible:border-emerald-500 focus-visible:ring-1 focus-visible:ring-emerald-500"
                   />
                 </div>
 
                 {/* Contraseña */}
                 <PasswordInput name="password" placeholder="Enter your password" />
 
-                {/* Botón Sign Up blanco en pastilla */}
+                {/* Botón Sign Up en pastilla */}
                 <button
                   type="submit"
                   disabled={loading}
-                  className="mt-2 flex h-12 w-full items-center justify-center gap-2 rounded-full bg-white text-xs font-bold text-[#02531C] transition-all hover:bg-emerald-50 active:scale-[0.98] disabled:opacity-50 shadow-lg shadow-white/10"
+                  className="mt-2 flex h-12 w-full items-center justify-center gap-2 rounded-full bg-emerald-600 hover:bg-emerald-500 text-xs font-bold text-white transition-all active:scale-[0.98] disabled:opacity-50 shadow-lg shadow-emerald-950/40"
                 >
                   {loading ? (
                     <>
-                      <Loader2 className="size-4 animate-spin text-[#02531C]" />
+                      <Loader2 className="size-4 animate-spin text-white" />
                       <span>Creating...</span>
                     </>
                   ) : (
                     <>
                       <span>Sing Up</span>
-                      <ArrowRight className="size-4 text-[#02531C]" />
+                      <ArrowRight className="size-4 text-white" />
                     </>
                   )}
                 </button>
@@ -488,10 +488,10 @@ function AuthPage() {
                 disabled={biometricLoading}
                 className="group relative flex flex-col items-center justify-center transition-all hover:scale-105 active:scale-95"
               >
-                <div className="relative grid size-14 place-items-center rounded-2xl bg-gradient-to-b from-[#02531C]/30 to-transparent border border-[#02531C]/60 shadow-[0_0_25px_rgba(2,83,28,0.4)] group-hover:border-[#F2AC00]">
-                  <Fingerprint className="size-8 text-[#10B981] transition-transform group-hover:scale-110" />
+                <div className="relative grid size-14 place-items-center rounded-2xl bg-emerald-950/40 border border-emerald-500/40 shadow-[0_0_20px_rgba(16,185,129,0.25)] group-hover:border-emerald-400">
+                  <Fingerprint className="size-8 text-emerald-400 transition-transform group-hover:scale-110" />
                   {biometricLoading && (
-                    <span className="absolute inset-0 rounded-2xl border-2 border-[#F2AC00] animate-ping opacity-40" />
+                    <span className="absolute inset-0 rounded-2xl border-2 border-emerald-400 animate-ping opacity-40" />
                   )}
                 </div>
                 <span className="mt-2 text-[11px] text-slate-400 group-hover:text-slate-200">
@@ -620,7 +620,7 @@ function PasswordInput({ name, placeholder }: { name: string; placeholder: strin
         type={show ? "text" : "password"}
         required
         placeholder={placeholder}
-        className="h-12 w-full rounded-2xl bg-[#121212]/90 border border-white/10 pl-11 pr-11 text-xs text-white placeholder:text-slate-500 focus-visible:border-[#02531C] focus-visible:ring-1 focus-visible:ring-[#02531C]"
+        className="h-12 w-full rounded-2xl bg-[#121212]/90 border border-white/10 pl-11 pr-11 text-xs text-white placeholder:text-slate-500 focus-visible:border-emerald-500 focus-visible:ring-1 focus-visible:ring-emerald-500"
       />
       <button
         type="button"

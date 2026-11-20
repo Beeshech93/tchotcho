@@ -97,7 +97,7 @@ export function KycRequiredGate({
           <Button
             asChild
             size="lg"
-            className="w-full sm:w-auto min-w-[200px] h-11 rounded-xl bg-[#02531C] text-[#F2AC00] border border-[#F2AC00]/40 font-bold hover:bg-[#036B25] shadow-lg gap-2 text-sm"
+            className="w-full sm:w-auto min-w-[200px] h-11 rounded-xl bg-emerald-700 text-white font-bold hover:bg-emerald-800 shadow-md gap-2 text-sm"
           >
             <Link to="/perfil">
               {status === "rejected" ? "Volver a enviar documentos" : "Completar verificación KYC"}

@@ -196,11 +196,11 @@ function Detalle() {
       {(definiteStatus === "completed" || definiteStatus === "paid") && (
         <div className="relative overflow-hidden rounded-3xl bg-[#0C1A10]/95 border border-[#02531C]/40 p-6 text-center space-y-4 shadow-2xl">
           <div className="pointer-events-none absolute -top-24 left-1/2 -translate-x-1/2 size-48 rounded-full bg-[#02531C]/40 blur-3xl" />
-          <div className="pointer-events-none absolute top-0 right-1/4 size-32 rounded-full bg-[#F2AC00]/15 blur-2xl" />
+          <div className="pointer-events-none absolute top-0 right-1/4 size-32 rounded-full bg-emerald-500/15 blur-2xl" />
 
           {/* Badge festoneado brillante */}
           <div className="relative mx-auto size-20 grid place-items-center">
-            <div className="absolute inset-0 rounded-full bg-[#F2AC00]/25 animate-ping opacity-30" />
+            <div className="absolute inset-0 rounded-full bg-emerald-400/25 animate-ping opacity-30" />
             <div className="absolute inset-1 rounded-full bg-gradient-to-tr from-[#02531C] to-[#10B981] opacity-90 shadow-md shadow-[#02531C]/40" />
             <div className="relative z-10 grid size-12 place-items-center rounded-2xl bg-white text-[#02531C] shadow-lg shadow-black/40">
               <Check className="size-7 stroke-[3]" />

@@ -157,23 +157,23 @@ export function Landing() {
     : 0;
 
   return (
-    <div className="min-h-screen bg-[#000000] text-white selection:bg-[#02531C] selection:text-[#F2AC00] relative overflow-hidden">
-      {/* Lujoso fondo con resplandor radial esmeralda profundo idéntico al diseño */}
+    <div className="min-h-screen bg-[#070A08] text-white selection:bg-emerald-600 selection:text-white relative overflow-hidden">
+      {/* Fondo con resplandor radial esmeralda profundo */}
       <div
         className="pointer-events-none absolute inset-x-0 top-0 h-[850px] z-0"
         style={{
           background:
-            "radial-gradient(ellipse 95% 70% at 50% -5%, #036B25 0%, #013D14 40%, #000000 85%)",
+            "radial-gradient(ellipse 95% 70% at 50% -5%, #047857 0%, #064E3B 35%, #070A08 80%)",
         }}
       />
 
       {/* TOP HEADER 100% FIJO (FIXED) SIN MOVERSE AL HACER SCROLL */}
-      <header className="fixed top-0 inset-x-0 z-50 w-full bg-black/90 backdrop-blur-2xl border-b border-white/10 shadow-[0_4px_24px_rgba(0,0,0,0.85)] transition-all">
+      <header className="fixed top-0 inset-x-0 z-50 w-full bg-[#070A08]/90 backdrop-blur-2xl border-b border-white/10 shadow-[0_4px_24px_rgba(0,0,0,0.85)] transition-all">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-3.5 py-2.5 sm:px-8 sm:py-3.5">
           {/* Logo Tcho-Tcho Oficial bien destacado */}
           <Link
             to="/"
-            className="group inline-flex items-center gap-2 sm:gap-3 rounded-full bg-white px-2.5 sm:px-4 py-1.5 sm:py-2 shadow-[0_0_24px_rgba(242,172,0,0.35),0_4px_16px_rgba(0,0,0,0.3)] border-2 border-white hover:scale-105 active:scale-95 transition-all shrink-0"
+            className="group inline-flex items-center gap-2 sm:gap-3 rounded-full bg-white px-2.5 sm:px-4 py-1.5 sm:py-2 shadow-[0_0_20px_rgba(16,185,129,0.2),0_4px_16px_rgba(0,0,0,0.3)] border-2 border-white hover:scale-105 active:scale-95 transition-all shrink-0"
             aria-label="Tcho-Tcho — Ir a Inicio"
           >
             <img
@@ -202,7 +202,7 @@ export function Landing() {
             <Link
               to="/auth"
               search={{ modo: "registro" }}
-              className="rounded-full bg-white text-black font-extrabold px-3 sm:px-5 py-1.5 sm:py-2 text-[11px] sm:text-sm shadow-lg hover:bg-slate-100 hover:scale-[1.02] active:scale-[0.98] transition-all whitespace-nowrap"
+              className="rounded-full bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold px-3 sm:px-5 py-1.5 sm:py-2 text-[11px] sm:text-sm shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-all whitespace-nowrap"
             >
               {t("landing.signup")}
             </Link>
@@ -214,11 +214,11 @@ export function Landing() {
       <section className="relative z-10 mx-auto grid max-w-7xl items-center gap-6 sm:gap-10 px-4 pt-20 pb-12 sm:px-8 sm:pt-28 sm:pb-20 lg:grid-cols-[1.1fr_1fr] lg:gap-14 lg:pt-32 lg:pb-24">
         {/* COLUMNA IZQUIERDA: Titular, Subtítulo, Botones y Píldoras de Confianza */}
         <div className="space-y-4 sm:space-y-6 flex flex-col items-center lg:items-start text-center lg:text-left">
-          {/* Badge superior ultra-moderno con punto pulsante */}
-          <div className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-emerald-950/70 via-black/80 to-black/60 border border-emerald-500/35 px-3 py-1 sm:px-4 sm:py-1.5 text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-emerald-300 backdrop-blur-xl shadow-[0_0_20px_rgba(2,83,28,0.25)]">
-            <span className="flex size-1.5 sm:size-2 rounded-full bg-[#10B981] animate-ping" />
+          {/* Badge superior con punto pulsante */}
+          <div className="inline-flex items-center gap-2 rounded-full bg-emerald-950/60 border border-emerald-500/30 px-3 py-1 sm:px-4 sm:py-1.5 text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-emerald-300 backdrop-blur-xl shadow-sm">
+            <span className="flex size-1.5 sm:size-2 rounded-full bg-emerald-400 animate-ping" />
             <span className="font-semibold text-slate-200">{t("landing.badge_fintech")}</span>
-            <span className="text-[#F2AC00] font-black">·</span>
+            <span className="text-emerald-400 font-black">·</span>
             <span>{t("landing.badge_route")}</span>
           </div>
 
@@ -243,45 +243,45 @@ export function Landing() {
             </Link>
           </div>
 
-          {/* 3 Tarjetas de Beneficios compactas en móvil (1 fila de 3 columnas) y completas en desktop */}
+          {/* 3 Tarjetas de Beneficios compactas y limpias */}
           <div className="grid grid-cols-3 gap-2 sm:gap-3 pt-1 w-full">
-            <div className="rounded-xl sm:rounded-2xl bg-gradient-to-b from-white/[0.08] to-white/[0.02] border border-white/12 p-2 sm:p-4 backdrop-blur-xl shadow-sm space-y-1 sm:space-y-2 hover:border-[#F2AC00]/40 transition-all group flex flex-col items-center sm:items-start text-center sm:text-left">
-              <div className="grid size-7 sm:size-8 place-items-center rounded-lg sm:rounded-xl bg-[#02531C] border border-[#F2AC00]/30 text-[#F2AC00] group-hover:scale-110 transition shadow-sm">
+            <div className="rounded-xl sm:rounded-2xl bg-white/[0.04] border border-white/10 p-2 sm:p-4 backdrop-blur-xl shadow-sm space-y-1 sm:space-y-2 hover:border-emerald-500/40 transition-all group flex flex-col items-center sm:items-start text-center sm:text-left">
+              <div className="grid size-7 sm:size-8 place-items-center rounded-lg sm:rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 group-hover:scale-110 transition shadow-sm">
                 <Zap className="size-3.5 sm:size-4" />
               </div>
               <div>
                 <p className="font-extrabold text-[11px] sm:text-sm text-white leading-tight">
                   {t("landing.benefit_flash")}
                 </p>
-                <p className="text-[9px] sm:text-[11px] text-slate-300 mt-0.5 hidden xs:block">
+                <p className="text-[9px] sm:text-[11px] text-slate-400 mt-0.5 hidden xs:block">
                   {t("landing.benefit_flash_desc")}
                 </p>
               </div>
             </div>
 
-            <div className="rounded-xl sm:rounded-2xl bg-gradient-to-b from-white/[0.08] to-white/[0.02] border border-white/12 p-2 sm:p-4 backdrop-blur-xl shadow-sm space-y-1 sm:space-y-2 hover:border-emerald-400/40 transition-all group flex flex-col items-center sm:items-start text-center sm:text-left">
-              <div className="grid size-7 sm:size-8 place-items-center rounded-lg sm:rounded-xl bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 group-hover:scale-110 transition shadow-sm">
+            <div className="rounded-xl sm:rounded-2xl bg-white/[0.04] border border-white/10 p-2 sm:p-4 backdrop-blur-xl shadow-sm space-y-1 sm:space-y-2 hover:border-emerald-500/40 transition-all group flex flex-col items-center sm:items-start text-center sm:text-left">
+              <div className="grid size-7 sm:size-8 place-items-center rounded-lg sm:rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 group-hover:scale-110 transition shadow-sm">
                 <ShieldCheck className="size-3.5 sm:size-4" />
               </div>
               <div>
                 <p className="font-extrabold text-[11px] sm:text-sm text-white leading-tight">
                   {t("landing.benefit_security")}
                 </p>
-                <p className="text-[9px] sm:text-[11px] text-slate-300 mt-0.5 hidden xs:block">
+                <p className="text-[9px] sm:text-[11px] text-slate-400 mt-0.5 hidden xs:block">
                   {t("landing.benefit_security_desc")}
                 </p>
               </div>
             </div>
 
-            <div className="rounded-xl sm:rounded-2xl bg-gradient-to-b from-white/[0.08] to-white/[0.02] border border-white/12 p-2 sm:p-4 backdrop-blur-xl shadow-sm space-y-1 sm:space-y-2 hover:border-[#F2AC00]/40 transition-all group flex flex-col items-center sm:items-start text-center sm:text-left">
-              <div className="grid size-7 sm:size-8 place-items-center rounded-lg sm:rounded-xl bg-[#02531C] border border-[#F2AC00]/30 text-[#F2AC00] group-hover:scale-110 transition shadow-sm">
+            <div className="rounded-xl sm:rounded-2xl bg-white/[0.04] border border-white/10 p-2 sm:p-4 backdrop-blur-xl shadow-sm space-y-1 sm:space-y-2 hover:border-emerald-500/40 transition-all group flex flex-col items-center sm:items-start text-center sm:text-left">
+              <div className="grid size-7 sm:size-8 place-items-center rounded-lg sm:rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 group-hover:scale-110 transition shadow-sm">
                 <BadgePercent className="size-3.5 sm:size-4" />
               </div>
               <div>
                 <p className="font-extrabold text-[11px] sm:text-sm text-white leading-tight">
                   {t("landing.benefit_rate")}
                 </p>
-                <p className="text-[9px] sm:text-[11px] text-slate-300 mt-0.5 hidden xs:block">
+                <p className="text-[9px] sm:text-[11px] text-slate-400 mt-0.5 hidden xs:block">
                   {t("landing.benefit_rate_desc")}
                 </p>
               </div>
@@ -300,14 +300,14 @@ export function Landing() {
               <div className="grid size-6 sm:size-7 place-items-center rounded-full bg-slate-800 border-2 border-black text-[10px] sm:text-xs shadow-sm">
                 🇲🇽
               </div>
-              <div className="grid size-6 sm:size-7 place-items-center rounded-full bg-[#02531C] border-2 border-black text-[9px] sm:text-[10px] font-black text-[#F2AC00]">
+              <div className="grid size-6 sm:size-7 place-items-center rounded-full bg-emerald-950 border-2 border-black text-[9px] sm:text-[10px] font-black text-emerald-400">
                 ★
               </div>
             </div>
             <div className="leading-tight text-left">
               <p className="font-bold text-white text-[11px] sm:text-[12px] flex items-center gap-1.5">
                 <span>4.9 / 5</span>
-                <span className="text-[#F2AC00]">★★★★★</span>
+                <span className="text-emerald-400">★★★★★</span>
               </p>
               <p className="text-[10px] sm:text-[11px] text-slate-400">{t("landing.social_proof")}</p>
             </div>
@@ -316,11 +316,11 @@ export function Landing() {
 
         {/* COLUMNA DERECHA: LA CALCULADORA DE REMESAS Y RECARGAS */}
         <div className="relative w-full">
-          {/* Sombra de fondo para profundidad */}
-          <div className="absolute -inset-4 rounded-[40px] bg-[#02531C]/30 blur-3xl pointer-events-none" />
+          {/* Sombra de fondo suave */}
+          <div className="absolute -inset-4 rounded-[40px] bg-emerald-950/20 blur-3xl pointer-events-none" />
 
-          <div className="relative mx-auto w-full max-w-lg rounded-[28px] sm:rounded-[36px] bg-[#0E1310]/95 border border-white/15 p-4 sm:p-7 shadow-[0_24px_64px_rgba(0,0,0,0.9)] backdrop-blur-2xl space-y-4 sm:space-y-5">
-            {/* Tabs Enviar / Recargas con diseño estilizado */}
+          <div className="relative mx-auto w-full max-w-lg rounded-[28px] sm:rounded-[36px] bg-[#0E1310]/95 border border-white/12 p-4 sm:p-7 shadow-[0_24px_64px_rgba(0,0,0,0.8)] backdrop-blur-2xl space-y-4 sm:space-y-5">
+            {/* Tabs Enviar / Recargas con diseño simple y limpio */}
             <div className="flex items-center justify-between border-b border-white/10 pb-4">
               <button
                 type="button"
@@ -333,12 +333,12 @@ export function Landing() {
                 <Send
                   className={cn(
                     "size-4",
-                    activeTab === "envios" ? "text-[#F2AC00]" : "text-slate-400",
+                    activeTab === "envios" ? "text-emerald-400" : "text-slate-400",
                   )}
                 />
                 <span>{t("landing.tab_send")}</span>
                 {activeTab === "envios" && (
-                  <span className="absolute -bottom-4 inset-x-8 h-0.5 bg-[#F2AC00] rounded-full shadow-[0_0_8px_#F2AC00]" />
+                  <span className="absolute -bottom-4 inset-x-8 h-0.5 bg-emerald-500 rounded-full shadow-[0_0_8px_rgba(16,185,129,0.6)]" />
                 )}
               </button>
 
@@ -353,12 +353,12 @@ export function Landing() {
                 <Smartphone
                   className={cn(
                     "size-4",
-                    activeTab === "recargas" ? "text-[#F2AC00]" : "text-slate-400",
+                    activeTab === "recargas" ? "text-emerald-400" : "text-slate-400",
                   )}
                 />
                 <span>{t("landing.tab_topups")}</span>
                 {activeTab === "recargas" && (
-                  <span className="absolute -bottom-4 inset-x-8 h-0.5 bg-[#F2AC00] rounded-full shadow-[0_0_8px_#F2AC00]" />
+                  <span className="absolute -bottom-4 inset-x-8 h-0.5 bg-emerald-500 rounded-full shadow-[0_0_8px_rgba(16,185,129,0.6)]" />
                 )}
               </button>
             </div>
@@ -373,7 +373,7 @@ export function Landing() {
                       {t("landing.origin_country")}
                     </span>
                     <Select value={origin} onValueChange={setOrigin}>
-                      <SelectTrigger className="h-11 rounded-2xl bg-[#161D18] border border-white/15 text-xs font-bold text-white focus:ring-1 focus:ring-[#F2AC00]">
+                      <SelectTrigger className="h-11 rounded-2xl bg-[#161D18] border border-white/15 text-xs font-bold text-white focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500">
                         <SelectValue
                           placeholder={
                             originCountry
@@ -387,7 +387,7 @@ export function Landing() {
                           <SelectItem
                             key={c.code}
                             value={c.code}
-                            className="text-xs font-semibold focus:bg-[#02531C] focus:text-white"
+                            className="text-xs font-semibold focus:bg-emerald-800 focus:text-white"
                           >
                             {c.flag} {c.name}
                           </SelectItem>
@@ -401,7 +401,7 @@ export function Landing() {
                       {t("landing.dest_country")}
                     </span>
                     <Select value={destination} onValueChange={setDestination}>
-                      <SelectTrigger className="h-11 rounded-2xl bg-[#161D18] border border-white/15 text-xs font-bold text-white focus:ring-1 focus:ring-[#F2AC00]">
+                      <SelectTrigger className="h-11 rounded-2xl bg-[#161D18] border border-white/15 text-xs font-bold text-white focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500">
                         <SelectValue
                           placeholder={
                             destCountry ? `${destCountry.flag} ${destCountry.name}` : "🇭🇹 Haití"
@@ -413,7 +413,7 @@ export function Landing() {
                           <SelectItem
                             key={c.code}
                             value={c.code}
-                            className="text-xs font-semibold focus:bg-[#02531C] focus:text-white"
+                            className="text-xs font-semibold focus:bg-emerald-800 focus:text-white"
                           >
                             {c.flag} {c.name}
                           </SelectItem>
@@ -434,7 +434,7 @@ export function Landing() {
                       inputMode="decimal"
                       value={amount}
                       onChange={(e) => setAmount(e.target.value.replace(/[^0-9.]/g, ""))}
-                      className="w-full h-14 rounded-2xl bg-[#161D18] border border-white/15 px-4 font-display text-2xl font-black text-white focus:outline-none focus:border-[#F2AC00] focus:ring-1 focus:ring-[#F2AC00] transition"
+                      className="w-full h-14 rounded-2xl bg-[#161D18] border border-white/15 px-4 font-display text-2xl font-black text-white focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition"
                     />
                     <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">
                       {sendCurrency}
@@ -483,7 +483,7 @@ export function Landing() {
                       {t("landing.topup_pay_country")}
                     </span>
                     <Select value={topupOrigin} onValueChange={setTopupOrigin}>
-                      <SelectTrigger className="h-11 rounded-2xl bg-[#161D18] border border-white/15 text-xs font-bold text-white">
+                      <SelectTrigger className="h-11 rounded-2xl bg-[#161D18] border border-white/15 text-xs font-bold text-white focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent className="bg-[#121714] border border-white/15 text-white">
@@ -491,7 +491,7 @@ export function Landing() {
                           <SelectItem
                             key={c.code}
                             value={c.code}
-                            className="text-xs font-semibold focus:bg-[#02531C]"
+                            className="text-xs font-semibold focus:bg-emerald-800"
                           >
                             {c.flag} {c.name}
                           </SelectItem>
@@ -505,7 +505,7 @@ export function Landing() {
                       {t("landing.topup_recharge_country")}
                     </span>
                     <Select value={topupDestination} onValueChange={setTopupDestination}>
-                      <SelectTrigger className="h-11 rounded-2xl bg-[#161D18] border border-white/15 text-xs font-bold text-white">
+                      <SelectTrigger className="h-11 rounded-2xl bg-[#161D18] border border-white/15 text-xs font-bold text-white focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent className="bg-[#121714] border border-white/15 text-white">
@@ -513,7 +513,7 @@ export function Landing() {
                           <SelectItem
                             key={c.code}
                             value={c.code}
-                            className="text-xs font-semibold focus:bg-[#02531C]"
+                            className="text-xs font-semibold focus:bg-emerald-800"
                           >
                             {c.label}
                           </SelectItem>
@@ -532,7 +532,7 @@ export function Landing() {
                     inputMode="decimal"
                     value={topupAmount}
                     onChange={(e) => setTopupAmount(e.target.value.replace(/[^0-9.]/g, ""))}
-                    className="w-full h-14 rounded-2xl bg-[#161D18] border border-white/15 px-4 font-display text-2xl font-black text-white focus:outline-none focus:border-[#F2AC00] transition"
+                    className="w-full h-14 rounded-2xl bg-[#161D18] border border-white/15 px-4 font-display text-2xl font-black text-white focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition"
                   />
                 </div>
 
@@ -550,11 +550,11 @@ export function Landing() {
                   </div>
                 </div>
 
-                <div className="rounded-2xl bg-[#00D084] p-4 text-black shadow-[0_12px_28px_rgba(0,208,132,0.45)]">
-                  <p className="text-[10px] font-black uppercase tracking-wider text-black/80">
+                <div className="rounded-2xl bg-gradient-to-r from-emerald-600 via-emerald-700 to-emerald-800 p-4 text-white shadow-lg border border-emerald-500/30">
+                  <p className="text-[11px] font-black uppercase tracking-wider text-emerald-100">
                     {t("landing.phone_receives")}
                   </p>
-                  <p className="mt-0.5 font-display text-3xl font-black tracking-tight text-black">
+                  <p className="mt-0.5 font-display text-3xl font-black tracking-tight text-white drop-shadow-sm">
                     {money(topupReceived, topupDestCurrency)}
                   </p>
                 </div>
@@ -569,12 +569,12 @@ export function Landing() {
         {/* Encabezado de la Sección */}
         <div className="text-center max-w-2xl mx-auto space-y-3">
           <div className="inline-flex items-center gap-2 rounded-full bg-emerald-950/60 border border-emerald-500/35 px-4 py-1 text-[11px] font-bold uppercase tracking-wider text-emerald-300 backdrop-blur-xl shadow-sm">
-            <Sparkles className="size-3 text-[#F2AC00]" />
+            <Sparkles className="size-3 text-emerald-400" />
             <span>{t("landing.infra_badge")}</span>
           </div>
           <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight">
             {t("landing.infra_title_1")}{" "}
-            <span className="bg-gradient-to-r from-emerald-300 via-[#F2AC00] to-white bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-emerald-400 via-emerald-200 to-white bg-clip-text text-transparent">
               {t("landing.infra_title_2")}
             </span>
           </h2>
@@ -585,12 +585,12 @@ export function Landing() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           {/* Bento Card 1 (7 cols): Acreditación Flash MonCash & NatCash con simulador */}
           <div className="lg:col-span-7 rounded-[32px] bg-gradient-to-b from-[#131B15] to-[#0A0E0C] border border-emerald-500/25 p-7 sm:p-8 space-y-6 shadow-2xl relative overflow-hidden group hover:border-emerald-500/50 transition-all">
-            <div className="absolute top-0 right-0 size-60 rounded-full bg-[#10B981]/15 blur-3xl pointer-events-none" />
+            <div className="absolute top-0 right-0 size-60 rounded-full bg-emerald-500/10 blur-3xl pointer-events-none" />
 
             <div className="flex items-start justify-between relative z-10">
               <div className="space-y-1">
-                <div className="inline-flex items-center gap-2 text-xs font-bold text-[#10B981] bg-[#02531C]/60 border border-[#10B981]/30 px-3 py-1 rounded-full shadow-sm">
-                  <Zap className="size-3.5 text-[#F2AC00]" />
+                <div className="inline-flex items-center gap-2 text-xs font-bold text-emerald-300 bg-emerald-500/10 border border-emerald-500/30 px-3 py-1 rounded-full shadow-sm">
+                  <Zap className="size-3.5 text-emerald-400" />
                   <span>{t("landing.card1_speed")}</span>
                 </div>
                 <h3 className="font-display text-2xl font-black text-white pt-2">
@@ -606,14 +606,14 @@ export function Landing() {
             <div className="rounded-2xl bg-black/60 border border-white/10 p-4 space-y-3 relative z-10">
               <div className="flex items-center justify-between text-xs font-mono">
                 <span className="text-slate-400">{t("landing.card1_sim_origin")}</span>
-                <span className="text-[#10B981] font-bold flex items-center gap-1.5">
-                  <span className="size-2 rounded-full bg-[#10B981] animate-ping" />
+                <span className="text-emerald-400 font-bold flex items-center gap-1.5">
+                  <span className="size-2 rounded-full bg-emerald-400 animate-ping" />
                   {t("landing.card1_sim_status")}
                 </span>
               </div>
 
               <div className="h-2 w-full bg-slate-800 rounded-full overflow-hidden">
-                <div className="h-full bg-gradient-to-r from-[#02531C] via-[#10B981] to-[#F2AC00] w-full rounded-full animate-pulse" />
+                <div className="h-full bg-gradient-to-r from-emerald-700 to-emerald-400 w-full rounded-full animate-pulse" />
               </div>
 
               <div className="flex items-center justify-between pt-1">
@@ -625,7 +625,7 @@ export function Landing() {
                   <span className="size-3 rounded-full bg-blue-500 shadow-[0_0_8px_#3b82f6]" />
                   <span className="text-xs font-bold text-white">NatCash Natcom</span>
                 </div>
-                <span className="text-xs font-extrabold text-[#F2AC00]">
+                <span className="text-xs font-extrabold text-emerald-400">
                   {t("landing.card1_sim_fee")}
                 </span>
               </div>
@@ -633,11 +633,11 @@ export function Landing() {
           </div>
 
           {/* Bento Card 2 (5 cols): Seguridad de Grado Bancario 100% Protegido */}
-          <div className="lg:col-span-5 rounded-[32px] bg-gradient-to-b from-[#181E19] to-[#0A0D0B] border border-white/12 p-7 sm:p-8 space-y-6 shadow-2xl relative overflow-hidden group hover:border-[#F2AC00]/40 transition-all">
-            <div className="absolute top-0 right-0 size-48 rounded-full bg-[#F2AC00]/10 blur-3xl pointer-events-none" />
+          <div className="lg:col-span-5 rounded-[32px] bg-gradient-to-b from-[#181E19] to-[#0A0D0B] border border-white/12 p-7 sm:p-8 space-y-6 shadow-2xl relative overflow-hidden group hover:border-emerald-500/40 transition-all">
+            <div className="absolute top-0 right-0 size-48 rounded-full bg-emerald-500/10 blur-3xl pointer-events-none" />
 
             <div className="space-y-2 relative z-10">
-              <div className="inline-flex items-center gap-2 text-xs font-bold text-[#F2AC00] bg-amber-500/10 border border-[#F2AC00]/30 px-3 py-1 rounded-full">
+              <div className="inline-flex items-center gap-2 text-xs font-bold text-emerald-300 bg-emerald-500/10 border border-emerald-500/30 px-3 py-1 rounded-full">
                 <ShieldCheck className="size-3.5" />
                 <span>{t("landing.card2_badge")}</span>
               </div>
@@ -649,19 +649,19 @@ export function Landing() {
 
             <div className="space-y-2.5 relative z-10 pt-1">
               <div className="flex items-center gap-3 rounded-xl bg-black/40 border border-white/5 p-3 text-xs">
-                <div className="grid size-7 place-items-center rounded-lg bg-[#02531C] text-[#F2AC00] font-black">
+                <div className="grid size-7 place-items-center rounded-lg bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 font-black">
                   ✓
                 </div>
                 <span className="text-slate-200 font-semibold">{t("landing.card2_point1")}</span>
               </div>
               <div className="flex items-center gap-3 rounded-xl bg-black/40 border border-white/5 p-3 text-xs">
-                <div className="grid size-7 place-items-center rounded-lg bg-[#02531C] text-[#F2AC00] font-black">
+                <div className="grid size-7 place-items-center rounded-lg bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 font-black">
                   ✓
                 </div>
                 <span className="text-slate-200 font-semibold">{t("landing.card2_point2")}</span>
               </div>
               <div className="flex items-center gap-3 rounded-xl bg-black/40 border border-white/5 p-3 text-xs">
-                <div className="grid size-7 place-items-center rounded-lg bg-[#02531C] text-[#F2AC00] font-black">
+                <div className="grid size-7 place-items-center rounded-lg bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 font-black">
                   ✓
                 </div>
                 <span className="text-slate-200 font-semibold">{t("landing.card2_point3")}</span>
@@ -707,7 +707,7 @@ export function Landing() {
           <div className="lg:col-span-7 rounded-[32px] bg-gradient-to-b from-[#131B15] to-[#0A0E0C] border border-emerald-500/25 p-7 sm:p-8 shadow-2xl relative overflow-hidden group hover:border-emerald-500/50 transition-all">
             <div className="flex flex-col sm:flex-row items-center gap-6 justify-between relative z-10">
               <div className="space-y-3 text-center sm:text-left">
-                <div className="inline-flex items-center gap-2 text-xs font-bold text-[#F2AC00] bg-amber-500/10 border border-[#F2AC00]/30 px-3 py-1 rounded-full">
+                <div className="inline-flex items-center gap-2 text-xs font-bold text-emerald-300 bg-emerald-500/10 border border-emerald-500/30 px-3 py-1 rounded-full">
                   <Smartphone className="size-3.5" />
                   <span>{t("landing.card4_badge")}</span>
                 </div>
@@ -727,7 +727,7 @@ export function Landing() {
                         window.dispatchEvent(event);
                       }
                     }}
-                    className="inline-flex items-center gap-2.5 rounded-full bg-[#F2AC00] text-black font-black px-6 py-3 text-xs sm:text-sm shadow-[0_0_20px_rgba(242,172,0,0.35)] hover:bg-[#FBBF24] hover:scale-105 active:scale-95 transition-all"
+                    className="inline-flex items-center gap-2.5 rounded-full bg-emerald-600 hover:bg-emerald-500 text-white font-black px-6 py-3 text-xs sm:text-sm shadow-[0_4px_20px_rgba(16,185,129,0.35)] hover:scale-105 active:scale-95 transition-all"
                   >
                     <Download className="size-4" />
                     <span>{t("landing.card4_install_btn")}</span>
@@ -741,16 +741,16 @@ export function Landing() {
               </div>
 
               {/* Mockup visual de la app en miniatura */}
-              <div className="shrink-0 w-36 sm:w-44 rounded-2xl bg-gradient-to-tr from-black to-[#052B11] border-2 border-[#F2AC00]/50 p-3 shadow-2xl text-center space-y-2 rotate-2 hover:rotate-0 transition-transform">
+              <div className="shrink-0 w-36 sm:w-44 rounded-2xl bg-gradient-to-tr from-black to-[#052B11] border border-emerald-500/30 p-3 shadow-2xl text-center space-y-2 rotate-2 hover:rotate-0 transition-transform">
                 <div className="size-11 mx-auto rounded-xl bg-white p-1 border border-white shadow-md flex items-center justify-center">
                   <img src={iconAsset} alt="Tcho-Tcho" className="size-9 object-contain" />
                 </div>
                 <p className="text-xs font-bold text-white">Tcho-Tcho</p>
                 <div className="rounded-xl bg-black/60 p-2 space-y-1">
                   <p className="text-[9px] text-slate-400">{t("landing.card4_balance")}</p>
-                  <p className="text-xs font-extrabold text-[#10B981]">$ 23,094.57</p>
+                  <p className="text-xs font-extrabold text-emerald-400">$ 23,094.57</p>
                 </div>
-                <span className="inline-block text-[9px] text-[#F2AC00] font-semibold">
+                <span className="inline-block text-[9px] text-emerald-400 font-bold">
                   {t("landing.card4_ready")}
                 </span>
               </div>
