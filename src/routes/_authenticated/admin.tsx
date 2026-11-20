@@ -162,13 +162,9 @@ function Admin() {
           </Button>
           <div className="flex flex-wrap items-center gap-2">
             <h1 className="text-2xl font-bold">Administración</h1>
-            {isSuperAdmin ? (
+            {isSuperAdmin && (
               <Badge className="bg-amber-500/15 text-amber-500 border-amber-500/30 gap-1 text-xs">
                 <Shield className="size-3" /> Super Admin
-              </Badge>
-            ) : (
-              <Badge variant="outline" className="border-primary/50 text-primary text-xs">
-                Admin Restringido ({allowedTabs.length} módulos)
               </Badge>
             )}
           </div>
