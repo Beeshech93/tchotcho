@@ -535,7 +535,7 @@ function Agente() {
         <div className="flex flex-row items-center gap-2 overflow-x-auto pb-1 sm:pb-0 sm:overflow-visible">
           <Button
             onClick={() => setOpenNewCashModal(true)}
-            className="gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold shadow-md text-xs sm:text-sm whitespace-nowrap shrink-0"
+            className="gap-2 bg-emerald-700 hover:bg-emerald-800 text-white font-extrabold shadow-sm text-xs sm:text-sm whitespace-nowrap shrink-0 rounded-xl"
           >
             <PlusCircle className="size-4" />
             <span>Nueva Operación en Efectivo</span>
@@ -544,18 +544,18 @@ function Agente() {
           <Button
             onClick={() => setOpenTopupModal(true)}
             variant="outline"
-            className="gap-2 border-cyan-500/30 hover:bg-cyan-500/10 text-cyan-400 text-xs sm:text-sm cursor-pointer whitespace-nowrap shrink-0"
+            className="gap-2 bg-cyan-50 hover:bg-cyan-100 border-2 border-cyan-400 text-cyan-800 font-bold text-xs sm:text-sm cursor-pointer whitespace-nowrap shrink-0 rounded-xl shadow-xs"
           >
-            <Smartphone className="size-4 text-cyan-400" />
+            <Smartphone className="size-4 text-cyan-700" />
             <span>Nueva Recarga</span>
           </Button>
 
           <Button
             onClick={() => setOpenClaimModal(true)}
             variant="outline"
-            className="gap-2 border-emerald-500/30 hover:bg-emerald-500/10 text-xs sm:text-sm whitespace-nowrap shrink-0"
+            className="gap-2 bg-slate-50 hover:bg-slate-100 border-2 border-slate-300 text-slate-800 font-bold text-xs sm:text-sm whitespace-nowrap shrink-0 rounded-xl shadow-xs"
           >
-            <Search className="size-4 text-emerald-400" />
+            <Search className="size-4 text-emerald-700" />
             <span>Cobrar con Referencia</span>
           </Button>
         </div>
@@ -567,40 +567,42 @@ function Agente() {
           icon={Banknote}
           label="Billetera Envíos de Dinero"
           value={transfersBalanceLabel}
-          tone="text-[#F2AC00] font-black"
+          tone="text-emerald-800 font-black"
           hint="Saldo para remesas MonCash y NatCash"
         />
         <StatCard
           icon={Smartphone}
           label="Billetera Recargas"
           value={topupsBalanceLabel}
-          tone="text-cyan-400 font-black"
+          tone="text-cyan-800 font-black"
           hint="Saldo para recargas telefónicas Haití"
         />
         <StatCard
           icon={Banknote}
           label="Efectivo en Ventanilla"
           value={totalCashLabel}
-          tone="text-emerald-400 font-bold"
+          tone="text-slate-900 font-black"
           hint="Total recaudado en mano"
         />
         <StatCard
           icon={Coins}
           label="Comisiones Ganadas"
           value={commissionsLabel}
-          tone="text-primary font-bold"
+          tone="text-emerald-700 font-black"
           hint="Ganancia neta acumulada"
         />
         <StatCard
           icon={Clock}
           label="En Proceso"
           value={String(activeOperations.length)}
+          tone="text-amber-700 font-black"
           hint="En entrega o dispersión"
         />
         <StatCard
           icon={CheckCircle2}
           label="Completadas"
           value={String(completedOperations.length)}
+          tone="text-emerald-700 font-black"
           hint="Entregadas exitosamente"
         />
       </div>
@@ -697,36 +699,36 @@ function Agente() {
                     return (
                       <div
                         key={topup.id}
-                        className="flex flex-wrap items-center justify-between gap-3 p-3 rounded-xl border border-border/70 hover:bg-secondary/30 transition-colors"
+                        className="flex flex-wrap items-center justify-between gap-3 p-3.5 rounded-2xl border-2 border-slate-200/90 bg-white hover:bg-slate-50 transition-colors shadow-2xs"
                       >
                         <div className="flex items-center gap-3">
                           <div
                             className={`size-9 rounded-xl grid place-items-center shrink-0 ${
                               isDigicel
-                                ? "bg-red-500/10 text-red-400 border border-red-500/20"
-                                : "bg-cyan-500/10 text-cyan-400 border border-cyan-500/20"
+                                ? "bg-rose-50 text-rose-700 border-2 border-rose-200"
+                                : "bg-cyan-50 text-cyan-800 border-2 border-cyan-200"
                             }`}
                           >
                             <Smartphone className="size-4" />
                           </div>
                           <div>
                             <div className="flex items-center gap-2">
-                              <span className="font-bold text-sm text-foreground">
+                              <span className="font-bold text-sm text-slate-900 font-mono">
                                 {topup.phone}
                               </span>
                               <Badge
                                 variant="outline"
                                 className={
                                   isDigicel
-                                    ? "bg-red-500/10 text-red-400 border-red-500/30 text-[10px]"
-                                    : "bg-cyan-500/10 text-cyan-400 border-cyan-500/30 text-[10px]"
+                                    ? "bg-rose-50 text-rose-700 border-rose-300 text-[10px] font-bold"
+                                    : "bg-cyan-50 text-cyan-800 border-cyan-300 text-[10px] font-bold"
                                 }
                               >
                                 {topup.operator || "Haití"}
                               </Badge>
                             </div>
-                            <p className="text-[11px] text-muted-foreground mt-0.5">
-                              Ref: <span className="font-mono text-slate-300">{topup.reference}</span> ·{" "}
+                            <p className="text-[11px] text-slate-500 font-medium mt-0.5">
+                              Ref: <span className="font-mono font-bold text-slate-700">{topup.reference}</span> ·{" "}
                               {new Date(topup.created_at).toLocaleDateString("es-ES", {
                                 day: "2-digit",
                                 month: "short",
@@ -738,17 +740,17 @@ function Agente() {
                         </div>
 
                         <div className="text-right">
-                          <p className="font-black text-sm text-[#F2AC00] font-mono">
+                          <p className="font-black text-sm text-cyan-900 font-mono">
                             {Number(topup.amount).toLocaleString()} HTG
                           </p>
                           <Badge
                             variant="outline"
-                            className={`text-[10px] mt-0.5 ${
+                            className={`text-[10px] mt-0.5 font-bold ${
                               topup.status === "completed" || topup.status === "successful"
-                                ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/30"
+                                ? "bg-emerald-50 text-emerald-800 border-emerald-300"
                                 : topup.status === "failed"
-                                  ? "bg-red-500/10 text-red-400 border-red-500/30"
-                                  : "bg-amber-500/10 text-amber-400 border-amber-500/30"
+                                  ? "bg-rose-50 text-rose-800 border-rose-300"
+                                  : "bg-amber-50 text-amber-800 border-amber-300"
                             }`}
                           >
                             {topup.status === "completed" || topup.status === "successful"
@@ -838,14 +840,14 @@ function Agente() {
                     return (
                       <div
                         key={tx.id}
-                        className="flex flex-wrap items-center justify-between gap-3 p-3 rounded-xl border border-border/70 hover:bg-secondary/30 transition-colors"
+                        className="flex flex-wrap items-center justify-between gap-3 p-3.5 rounded-2xl border-2 border-slate-200/90 bg-white hover:bg-slate-50 transition-colors shadow-2xs"
                       >
                         <div className="flex items-center gap-3">
                           <div
-                            className={`size-8 rounded-lg grid place-items-center shrink-0 ${
+                            className={`size-9 rounded-xl grid place-items-center shrink-0 ${
                               isPositive
-                                ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
-                                : "bg-slate-500/10 text-slate-400 border border-slate-500/20"
+                                ? "bg-emerald-50 text-emerald-700 border-2 border-emerald-200"
+                                : "bg-slate-100 text-slate-700 border-2 border-slate-200"
                             }`}
                           >
                             {isPositive ? (
@@ -856,22 +858,22 @@ function Agente() {
                           </div>
                           <div>
                             <div className="flex items-center gap-2 flex-wrap">
-                              <span className="font-semibold text-xs text-foreground">
+                              <span className="font-extrabold text-xs text-slate-900">
                                 {tx.description ||
                                   (isPositive ? "Abono de saldo" : "Débito operativo")}
                               </span>
                               <Badge
                                 variant="outline"
-                                className={`text-[9px] ${
+                                className={`text-[10px] font-extrabold ${
                                   isTopup
-                                    ? "bg-cyan-500/10 text-cyan-400 border-cyan-500/30"
-                                    : "bg-emerald-500/10 text-emerald-400 border-emerald-500/30"
+                                    ? "bg-cyan-50 text-cyan-800 border-cyan-300"
+                                    : "bg-emerald-50 text-emerald-800 border-emerald-300"
                                 }`}
                               >
                                 {isTopup ? "📱 Recargas" : "💸 Envíos"}
                               </Badge>
                             </div>
-                            <p className="text-[11px] text-muted-foreground mt-0.5">
+                            <p className="text-[11px] text-slate-500 font-medium mt-0.5">
                               {new Date(tx.created_at).toLocaleDateString("es-ES", {
                                 day: "2-digit",
                                 month: "short",
@@ -884,14 +886,14 @@ function Agente() {
 
                         <div className="text-right">
                           <p
-                            className={`font-mono font-bold text-sm ${
-                              isPositive ? "text-emerald-400" : "text-slate-300"
+                            className={`font-mono font-black text-sm ${
+                              isPositive ? "text-emerald-700" : "text-slate-800"
                             }`}
                           >
                             {isPositive
                               ? `+${Number(tx.amount).toLocaleString()}`
                               : Number(tx.amount).toLocaleString()}{" "}
-                            <span className="text-xs">HTG</span>
+                            <span className="text-xs font-bold text-slate-500">HTG</span>
                           </p>
                         </div>
                       </div>
@@ -921,32 +923,34 @@ function Agente() {
 
       {/* Modal: Nueva Transacción en Efectivo en Ventanilla */}
       <Dialog open={openNewCashModal} onOpenChange={setOpenNewCashModal}>
-        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto bg-white border border-slate-200 shadow-2xl rounded-3xl text-slate-900">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2 text-xl font-bold">
-              <Banknote className="size-5 text-emerald-400" />
+            <DialogTitle className="flex items-center gap-2.5 text-xl font-black text-slate-900">
+              <div className="size-8 rounded-xl bg-emerald-600 text-white grid place-items-center shadow-xs">
+                <Banknote className="size-5" />
+              </div>
               Nueva Transacción en Efectivo
             </DialogTitle>
-            <DialogDescription className="text-xs">
+            <DialogDescription className="text-xs text-slate-600 font-medium">
               Ventanilla de agente: Recibe el efectivo en mano y registra el envío hacia Haití.
             </DialogDescription>
           </DialogHeader>
 
           <form onSubmit={handleCreateCashTransfer} className="space-y-4 pt-2">
             {/* Aviso Solo Efectivo */}
-            <div className="rounded-xl bg-emerald-500/10 border border-emerald-500/20 p-3 text-xs text-emerald-300 flex items-center gap-2">
-              <ShieldCheck className="size-4 shrink-0 text-emerald-400" />
-              <span>
-                <strong>Solo Efectivo:</strong> Debes cobrar el importe físico directamente al
+            <div className="rounded-2xl bg-emerald-50 border-2 border-emerald-200 p-3.5 text-xs text-emerald-950 flex items-center gap-2.5 shadow-2xs">
+              <ShieldCheck className="size-5 shrink-0 text-emerald-700" />
+              <span className="leading-relaxed">
+                <strong className="font-bold text-emerald-900">Solo Efectivo:</strong> Debes cobrar el importe físico directamente al
                 cliente en tu ventanilla antes de confirmar.
               </span>
             </div>
 
             {/* País de Origen del Agente */}
             <div className="space-y-1.5">
-              <Label className="text-xs font-semibold">País de Origen (Moneda de cobro)</Label>
+              <Label className="text-xs font-bold text-slate-800">País de Origen (Moneda de cobro)</Label>
               <Select value={originCountry} onValueChange={setOriginCountry}>
-                <SelectTrigger>
+                <SelectTrigger className="bg-slate-50 border-slate-300 text-slate-900 font-semibold rounded-xl">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -962,7 +966,7 @@ function Agente() {
             {/* Datos del Destinatario en Haití */}
             <div className="grid gap-3 sm:grid-cols-2">
               <div className="space-y-1.5 sm:col-span-2">
-                <Label htmlFor="recipientName" className="text-xs font-semibold">
+                <Label htmlFor="recipientName" className="text-xs font-bold text-slate-800">
                   Nombre Completo del Destinatario
                 </Label>
                 <Input
@@ -971,11 +975,12 @@ function Agente() {
                   value={recipientName}
                   onChange={(e) => setRecipientName(e.target.value)}
                   required
+                  className="bg-slate-50 border-slate-300 text-slate-900 focus:bg-white rounded-xl font-medium"
                 />
               </div>
 
               <div className="space-y-1.5">
-                <Label htmlFor="recipientPhone" className="text-xs font-semibold">
+                <Label htmlFor="recipientPhone" className="text-xs font-bold text-slate-800">
                   Teléfono (Haití +509)
                 </Label>
                 <Input
@@ -984,13 +989,14 @@ function Agente() {
                   value={recipientPhone}
                   onChange={(e) => setRecipientPhone(e.target.value)}
                   required
+                  className="bg-slate-50 border-slate-300 text-slate-900 focus:bg-white rounded-xl font-mono"
                 />
               </div>
 
               <div className="space-y-1.5">
-                <Label className="text-xs font-semibold">Ciudad de Entrega</Label>
+                <Label className="text-xs font-bold text-slate-800">Ciudad de Entrega</Label>
                 <Select value={recipientCity} onValueChange={setRecipientCity}>
-                  <SelectTrigger>
+                  <SelectTrigger className="bg-slate-50 border-slate-300 text-slate-900 font-semibold rounded-xl">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -1006,9 +1012,9 @@ function Agente() {
 
             {/* Método de Entrega en Haití */}
             <div className="space-y-1.5">
-              <Label className="text-xs font-semibold">Método de Entrega en Haití</Label>
+              <Label className="text-xs font-bold text-slate-800">Método de Entrega en Haití</Label>
               <Select value={deliveryMethod} onValueChange={setDeliveryMethod}>
-                <SelectTrigger>
+                <SelectTrigger className="bg-slate-50 border-slate-300 text-slate-900 font-semibold rounded-xl">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -1023,7 +1029,7 @@ function Agente() {
 
             {/* Monto Recibido en Efectivo */}
             <div className="space-y-1.5">
-              <Label htmlFor="amountSend" className="text-xs font-semibold">
+              <Label htmlFor="amountSend" className="text-xs font-bold text-slate-800">
                 Monto en Efectivo a Enviar ({sendCur})
               </Label>
               <Input
@@ -1035,67 +1041,72 @@ function Agente() {
                 value={amountSend}
                 onChange={(e) => setAmountSend(e.target.value)}
                 required
-                className="font-bold text-base"
+                className="bg-slate-50 border-slate-300 text-slate-900 focus:bg-white rounded-xl font-mono font-black text-lg"
               />
             </div>
 
             {/* Desglose de cotización en tiempo real */}
             {parsedAmount > 0 && (
-              <div className="rounded-2xl border border-border/80 bg-secondary/40 p-4 space-y-2 text-xs">
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Tasa de cambio:</span>
-                  <span className="font-semibold">
+              <div className="rounded-2xl border-2 border-slate-200 bg-slate-50/90 p-4 space-y-2.5 text-xs text-slate-800 shadow-xs">
+                <div className="flex justify-between items-center text-slate-600">
+                  <span className="font-semibold">Tasa de cambio:</span>
+                  <span className="font-mono font-bold text-slate-900 bg-white px-2.5 py-0.5 rounded-lg border border-slate-200">
                     1 {sendCur} = {Number(effectiveCfg.rate).toFixed(4)} {recvCur}
                   </span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Tarifa de envío:</span>
-                  <span>{money(q.fee, sendCur)}</span>
+                <div className="flex justify-between items-center text-slate-600">
+                  <span className="font-semibold">Tarifa de envío:</span>
+                  <span className="font-bold text-slate-900">{money(q.fee, sendCur)}</span>
                 </div>
-                <div className="flex justify-between font-bold border-t border-border pt-1.5 text-sm">
+                <div className="flex justify-between items-center font-black border-t border-slate-200 pt-2 text-sm text-slate-900">
                   <span>Total en Efectivo a Cobrar:</span>
-                  <span className="text-emerald-400">{money(q.total, sendCur)}</span>
+                  <span className="text-emerald-700 font-mono text-base font-black">{money(q.total, sendCur)}</span>
                 </div>
-                <div className="flex justify-between font-bold text-sm text-primary">
-                  <span>Destinatario Recibe en Haití:</span>
-                  <span>{money(q.receives, recvCur)}</span>
+                <div className="flex justify-between items-center font-black text-sm text-slate-900 bg-emerald-100/70 border border-emerald-300 p-2.5 rounded-xl">
+                  <span className="text-emerald-950">Destinatario Recibe en Haití:</span>
+                  <span className="text-emerald-800 font-mono text-base font-black">{money(q.receives, recvCur)}</span>
                 </div>
-                <div className="flex justify-between border-t border-border/50 pt-1.5 text-emerald-300 font-medium">
+                <div className="flex justify-between items-center border-t border-slate-200 pt-2 text-emerald-900 font-bold">
                   <span>Tu Comisión como Agente:</span>
-                  <span>+{money(q.commission, sendCur)}</span>
+                  <span className="text-emerald-800 font-mono text-sm bg-emerald-100 px-2.5 py-0.5 rounded-md border border-emerald-300">
+                    +{money(q.commission, sendCur)}
+                  </span>
                 </div>
-                <div className="pt-1 text-[11px] text-muted-foreground flex items-center gap-1">
-                  <CheckCircle2 className="size-3 text-emerald-400" />
+                <div className="pt-1 text-[11px] text-slate-600 flex items-center gap-1.5 font-medium">
+                  <CheckCircle2 className="size-3.5 text-emerald-600" />
                   <span>
-                    Método de pago: <strong>Efectivo en Ventanilla (cash_agent)</strong>
+                    Método de pago: <strong className="text-slate-900">Efectivo en Ventanilla (cash_agent)</strong>
                   </span>
                 </div>
               </div>
             )}
 
             {/* Estado de Billetera de Envíos de Dinero */}
-            <div className="rounded-xl border border-emerald-500/30 bg-emerald-950/20 p-3 text-xs space-y-1">
+            <div className="rounded-2xl border-2 border-emerald-200 bg-emerald-50/90 p-4 text-xs space-y-2 shadow-xs">
               <div className="flex items-center justify-between">
-                <span className="font-bold text-emerald-400 flex items-center gap-1.5">
-                  <Banknote className="size-4" /> Billetera de Envíos de Dinero
+                <span className="font-extrabold text-emerald-950 flex items-center gap-2 text-sm">
+                  <div className="size-7 rounded-lg bg-emerald-600 text-white grid place-items-center shadow-xs">
+                    <Banknote className="size-4" />
+                  </div>
+                  Billetera de Envíos de Dinero
                 </span>
-                <span className="font-extrabold text-[#F2AC00]">
+                <span className="font-mono font-black text-emerald-900 text-base bg-emerald-100 border border-emerald-300 px-3 py-1 rounded-xl shadow-2xs">
                   {transfersBalance.toLocaleString()} HTG
                 </span>
               </div>
               {parsedAmount > 0 && q.receives > transfersBalance ? (
-                <p className="text-red-400 font-semibold">
+                <p className="text-rose-700 bg-rose-50 border border-rose-300 p-2.5 rounded-xl font-bold flex items-center gap-2 text-xs">
                   ⚠️ Saldo insuficiente: Tienes {transfersBalance.toLocaleString()} HTG y esta operación requiere {q.receives.toLocaleString()} HTG. Sin saldo operativo no puedes realizar el envío.
                 </p>
               ) : (
-                <p className="text-slate-300">
+                <p className="text-emerald-950/80 font-medium leading-relaxed">
                   El monto a entregar ({parsedAmount > 0 ? `${q.receives.toLocaleString()} HTG` : "en HTG"}) se descontará de tu Billetera de Envíos de Dinero.
                 </p>
               )}
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="note" className="text-xs">
+              <Label htmlFor="note" className="text-xs font-bold text-slate-800">
                 Nota interna (Opcional)
               </Label>
               <Textarea
@@ -1105,6 +1116,7 @@ function Agente() {
                 value={note}
                 onChange={(e) => setNote(e.target.value)}
                 maxLength={300}
+                className="bg-slate-50 border-slate-300 text-slate-900 focus:bg-white rounded-xl"
               />
             </div>
 
@@ -1114,6 +1126,7 @@ function Agente() {
                 variant="ghost"
                 onClick={() => setOpenNewCashModal(false)}
                 disabled={isSubmittingCash}
+                className="text-slate-600 hover:text-slate-900"
               >
                 Cancelar
               </Button>
@@ -1124,7 +1137,7 @@ function Agente() {
                   parsedAmount <= 0 ||
                   (!isAdmin && (transfersBalance <= 0 || (parsedAmount > 0 && q.receives > transfersBalance)))
                 }
-                className="gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold"
+                className="gap-2 bg-emerald-700 hover:bg-emerald-800 text-white font-extrabold rounded-xl py-2.5 shadow-md"
               >
                 <Banknote className="size-4" />
                 {isSubmittingCash
@@ -1140,13 +1153,15 @@ function Agente() {
 
       {/* Modal: Cobrar con Código de Referencia */}
       <Dialog open={openClaimModal} onOpenChange={setOpenClaimModal}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-w-md bg-white border border-slate-200 shadow-2xl rounded-3xl text-slate-900">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Search className="size-5 text-emerald-400" />
+            <DialogTitle className="flex items-center gap-2.5 text-xl font-black text-slate-900">
+              <div className="size-8 rounded-xl bg-emerald-600 text-white grid place-items-center shadow-xs">
+                <Search className="size-5" />
+              </div>
               Cobrar Transferencia con Referencia
             </DialogTitle>
-            <DialogDescription className="text-xs">
+            <DialogDescription className="text-xs text-slate-600 font-medium">
               Si un cliente creó un envío en la app y seleccionó &ldquo;Efectivo con agente&rdquo;,
               ingresa su código de referencia para cobrar el efectivo en ventanilla y procesarlo.
             </DialogDescription>
@@ -1154,7 +1169,7 @@ function Agente() {
 
           <form onSubmit={handleClaimByReference} className="space-y-4 pt-2">
             <div className="space-y-1.5">
-              <Label htmlFor="claimReference" className="text-xs font-semibold">
+              <Label htmlFor="claimReference" className="text-xs font-bold text-slate-800">
                 Código de Referencia (Ej. LR-123456)
               </Label>
               <Input
@@ -1163,7 +1178,7 @@ function Agente() {
                 value={claimReference}
                 onChange={(e) => setClaimReference(e.target.value.toUpperCase())}
                 required
-                className="font-mono text-base uppercase"
+                className="font-mono text-base font-bold uppercase bg-slate-50 border-slate-300 focus:bg-white text-slate-900 rounded-xl"
               />
             </div>
 
@@ -1173,13 +1188,14 @@ function Agente() {
                 variant="ghost"
                 onClick={() => setOpenClaimModal(false)}
                 disabled={isClaiming}
+                className="text-slate-600 hover:text-slate-900"
               >
                 Cancelar
               </Button>
               <Button
                 type="submit"
                 disabled={isClaiming || !claimReference.trim()}
-                className="gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold"
+                className="gap-2 bg-emerald-700 hover:bg-emerald-800 text-white font-extrabold rounded-xl py-2.5 shadow-md"
               >
                 <CheckCircle2 className="size-4" />
                 {isClaiming ? "Buscando..." : "Confirmar Cobro en Efectivo"}
@@ -1191,13 +1207,15 @@ function Agente() {
 
       {/* Modal: Nueva Recarga Telefónica DingConnect (Integrada en el Panel) */}
       <Dialog open={openTopupModal} onOpenChange={setOpenTopupModal}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-w-md bg-white border border-slate-200 shadow-2xl rounded-3xl text-slate-900">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Smartphone className="size-5 text-cyan-400" />
+            <DialogTitle className="flex items-center gap-2.5 text-xl font-black text-slate-900">
+              <div className="size-8 rounded-xl bg-cyan-600 text-white grid place-items-center shadow-xs">
+                <Smartphone className="size-5" />
+              </div>
               Nueva Recarga Telefónica (Haití)
             </DialogTitle>
-            <DialogDescription className="text-xs">
+            <DialogDescription className="text-xs text-slate-600 font-medium">
               Envía recargas de Digicel o Natcom al instante. El costo se debita directamente de tu
               Billetera de Recargas.
             </DialogDescription>
@@ -1206,30 +1224,30 @@ function Agente() {
           <form onSubmit={handleCreateTopup} className="space-y-4 pt-1">
             {/* Selector de Operador */}
             <div className="space-y-1.5">
-              <Label className="text-xs font-semibold">Operador Telefónico</Label>
+              <Label className="text-xs font-bold text-slate-800">Operador Telefónico</Label>
               <div className="grid grid-cols-2 gap-2">
                 <button
                   type="button"
                   onClick={() => setTopupOperator("Digicel")}
-                  className={`flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl border text-xs font-bold transition-all ${
+                  className={`flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl border-2 text-xs font-extrabold transition-all ${
                     topupOperator === "Digicel"
-                      ? "bg-rose-500/15 border-rose-500 text-rose-400 ring-1 ring-rose-500/30"
-                      : "bg-secondary/40 border-border text-muted-foreground hover:bg-secondary"
+                      ? "bg-rose-50 border-rose-500 text-rose-700 shadow-xs"
+                      : "bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100"
                   }`}
                 >
-                  <span className="size-2 rounded-full bg-rose-500" />
+                  <span className="size-2.5 rounded-full bg-rose-500" />
                   Digicel Haití
                 </button>
                 <button
                   type="button"
                   onClick={() => setTopupOperator("Natcom")}
-                  className={`flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl border text-xs font-bold transition-all ${
+                  className={`flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl border-2 text-xs font-extrabold transition-all ${
                     topupOperator === "Natcom"
-                      ? "bg-cyan-500/15 border-cyan-500 text-cyan-400 ring-1 ring-cyan-500/30"
-                      : "bg-secondary/40 border-border text-muted-foreground hover:bg-secondary"
+                      ? "bg-cyan-50 border-cyan-500 text-cyan-800 shadow-xs"
+                      : "bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100"
                   }`}
                 >
-                  <span className="size-2 rounded-full bg-cyan-500" />
+                  <span className="size-2.5 rounded-full bg-cyan-500" />
                   Natcom Haití
                 </button>
               </div>
@@ -1237,11 +1255,11 @@ function Agente() {
 
             {/* Número de Teléfono */}
             <div className="space-y-1.5">
-              <Label htmlFor="topupPhone" className="text-xs font-semibold">
+              <Label htmlFor="topupPhone" className="text-xs font-bold text-slate-800">
                 Número de Celular (+509)
               </Label>
               <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-mono text-muted-foreground">
+                <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-xs font-mono font-bold text-slate-500">
                   +509
                 </span>
                 <Input
@@ -1251,7 +1269,7 @@ function Agente() {
                   value={topupPhone}
                   onChange={(e) => setTopupPhone(e.target.value.replace(/[^0-9]/g, ""))}
                   required
-                  className="pl-14 font-mono text-base tracking-wider"
+                  className="pl-14 font-mono text-base font-bold tracking-wider bg-slate-50 border-slate-300 focus:bg-white text-slate-900 rounded-xl"
                   maxLength={12}
                 />
               </div>
@@ -1260,10 +1278,10 @@ function Agente() {
             {/* Monto de la Recarga */}
             <div className="space-y-1.5">
               <div className="flex justify-between items-center">
-                <Label htmlFor="topupAmount" className="text-xs font-semibold">
+                <Label htmlFor="topupAmount" className="text-xs font-bold text-slate-800">
                   Monto a Recargar (HTG)
                 </Label>
-                <span className="text-[11px] text-muted-foreground">Moneda: HTG</span>
+                <span className="text-[11px] font-semibold text-slate-500">Moneda: HTG</span>
               </div>
               <Input
                 id="topupAmount"
@@ -1274,7 +1292,7 @@ function Agente() {
                 required
                 min={50}
                 max={5000}
-                className="font-mono text-base font-bold"
+                className="font-mono text-base font-black bg-slate-50 border-slate-300 focus:bg-white text-slate-900 rounded-xl"
               />
               <div className="flex gap-1.5 pt-1">
                 {["100", "250", "500", "1000"].map((preset) => (
@@ -1282,10 +1300,10 @@ function Agente() {
                     key={preset}
                     type="button"
                     onClick={() => setTopupAmount(preset)}
-                    className={`flex-1 py-1 rounded-lg text-xs font-mono font-medium border transition-colors ${
+                    className={`flex-1 py-1.5 rounded-lg text-xs font-mono font-bold border transition-colors ${
                       topupAmount === preset
-                        ? "bg-primary/20 border-primary text-primary"
-                        : "bg-secondary/40 border-border text-muted-foreground hover:bg-secondary"
+                        ? "bg-cyan-600 border-cyan-600 text-white shadow-xs"
+                        : "bg-slate-100 border-slate-200 text-slate-700 hover:bg-slate-200"
                     }`}
                   >
                     {preset} HTG
@@ -1295,21 +1313,24 @@ function Agente() {
             </div>
 
             {/* Estado de Billetera de Recargas */}
-            <div className="rounded-xl border border-cyan-500/30 bg-cyan-950/20 p-3 text-xs space-y-1">
+            <div className="rounded-2xl border-2 border-cyan-200 bg-cyan-50/90 p-4 text-xs space-y-2 shadow-xs">
               <div className="flex items-center justify-between">
-                <span className="font-bold text-cyan-400 flex items-center gap-1.5">
-                  <Smartphone className="size-4" /> Billetera de Recargas
+                <span className="font-extrabold text-cyan-950 flex items-center gap-2 text-sm">
+                  <div className="size-7 rounded-lg bg-cyan-600 text-white grid place-items-center shadow-xs">
+                    <Smartphone className="size-4" />
+                  </div>
+                  Billetera de Recargas
                 </span>
-                <span className="font-extrabold text-[#F2AC00]">
+                <span className="font-mono font-black text-cyan-900 text-base bg-cyan-100 border border-cyan-300 px-3 py-1 rounded-xl shadow-2xs">
                   {topupsBalance.toLocaleString()} HTG
                 </span>
               </div>
               {Number(topupAmount) > 0 && Number(topupAmount) > topupsBalance ? (
-                <p className="text-red-400 font-semibold">
+                <p className="text-rose-700 bg-rose-50 border border-rose-300 p-2.5 rounded-xl font-bold flex items-center gap-2 text-xs">
                   ⚠️ Saldo insuficiente: Tienes {topupsBalance.toLocaleString()} HTG y esta recarga requiere {Number(topupAmount).toLocaleString()} HTG. Sin saldo en tu billetera de recargas no puedes realizar envíos.
                 </p>
               ) : (
-                <p className="text-slate-300">
+                <p className="text-cyan-950/80 font-medium leading-relaxed">
                   El monto ({Number(topupAmount) > 0 ? `${Number(topupAmount).toLocaleString()} HTG` : "en HTG"}) se descontará automáticamente de tu Billetera de Recargas.
                 </p>
               )}
@@ -1321,6 +1342,7 @@ function Agente() {
                 variant="ghost"
                 onClick={() => setOpenTopupModal(false)}
                 disabled={isSubmittingTopup}
+                className="text-slate-600 hover:text-slate-900"
               >
                 Cancelar
               </Button>
@@ -1332,7 +1354,7 @@ function Agente() {
                   Number(topupAmount) <= 0 ||
                   topupsBalance < Number(topupAmount)
                 }
-                className="gap-2 bg-cyan-600 hover:bg-cyan-700 text-white font-semibold"
+                className="gap-2 bg-cyan-600 hover:bg-cyan-700 text-white font-extrabold text-sm shadow-md rounded-xl py-2.5"
               >
                 <Smartphone className="size-4" />
                 {isSubmittingTopup
@@ -1422,29 +1444,29 @@ function Section({
           return (
             <div
               key={t.id}
-              className="flex flex-col gap-3 rounded-2xl border border-border/80 bg-card/60 p-4 transition-all hover:bg-card/90 sm:flex-row sm:items-center sm:justify-between"
+              className="flex flex-col gap-3 rounded-2xl border-2 border-slate-200/90 bg-white p-4 transition-all hover:bg-slate-50/80 shadow-2xs sm:flex-row sm:items-center sm:justify-between"
             >
               {/* Información del Destinatario y Origen/Destino */}
               <div className="space-y-1">
                 <div className="flex flex-wrap items-center gap-2">
-                  <p className="font-semibold text-foreground text-sm sm:text-base">
+                  <p className="font-extrabold text-slate-900 text-sm sm:text-base">
                     {t.recipient_name}
                   </p>
-                  <span className="text-xs text-muted-foreground">({t.recipient_city})</span>
+                  <span className="text-xs font-semibold text-slate-500">({t.recipient_city})</span>
                   {t.payment_method === "cash_agent" && (
                     <Badge
                       variant="outline"
-                      className="border-emerald-500/30 text-emerald-400 bg-emerald-500/10 text-[10px] font-semibold py-0.5"
+                      className="border-emerald-300 text-emerald-800 bg-emerald-50 text-[10px] font-extrabold py-0.5"
                     >
                       💵 Efectivo en Ventanilla
                     </Badge>
                   )}
                 </div>
 
-                <p className="text-xs text-muted-foreground flex flex-wrap items-center gap-2">
-                  <span className="font-mono font-medium text-foreground">{t.reference}</span>
+                <p className="text-xs text-slate-500 font-medium flex flex-wrap items-center gap-2">
+                  <span className="font-mono font-bold text-slate-800">{t.reference}</span>
                   <span>·</span>
-                  <span>
+                  <span className="font-semibold text-slate-700">
                     {t.origin_country} → {t.destination_country}
                   </span>
                   <span>·</span>
@@ -1454,7 +1476,7 @@ function Section({
                 </p>
 
                 {Number(t.agent_commission_send ?? 0) > 0 && (
-                  <p className="text-xs font-semibold text-emerald-400">
+                  <p className="text-xs font-black text-emerald-700">
                     Comisión ganada: +{money(Number(t.agent_commission_send), t.send_currency)}
                   </p>
                 )}
@@ -1463,10 +1485,10 @@ function Section({
               {/* Montos y Estado */}
               <div className="flex flex-wrap items-center gap-3 sm:justify-end">
                 <div className="text-left sm:text-right">
-                  <p className="font-bold text-foreground text-sm sm:text-base">
+                  <p className="font-black text-slate-900 text-sm sm:text-base font-mono">
                     {money(Number(t.total_send || t.amount_send), t.send_currency)}
                   </p>
-                  <p className="text-xs font-medium text-primary">
+                  <p className="text-xs font-bold text-emerald-700">
                     Recibe: {money(Number(t.amount_receive), t.receive_currency)}
                   </p>
                 </div>
@@ -1479,7 +1501,7 @@ function Section({
                 {!readOnly && action && (isMyAgentTransfer || isClaimView) && (
                   <Button
                     size="sm"
-                    className="gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-medium text-xs shadow-sm"
+                    className="gap-1.5 bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs shadow-sm rounded-xl"
                     onClick={() => void advance(t.id, action.to, action.label)}
                   >
                     <CheckCircle2 className="size-3.5" />
@@ -1576,7 +1598,7 @@ function StatCard({
   icon: Icon,
   label,
   value,
-  tone = "text-foreground",
+  tone = "text-slate-900",
   hint,
 }: {
   icon: React.ComponentType<{ className?: string }>;
@@ -1586,14 +1608,16 @@ function StatCard({
   hint?: string;
 }) {
   return (
-    <Card className="relative overflow-hidden border-border/70">
-      <CardContent className="p-4 space-y-1">
+    <Card className="relative overflow-hidden border-2 border-slate-200/90 bg-white shadow-xs rounded-2xl hover:border-emerald-500/40 transition-all">
+      <CardContent className="p-4 space-y-1.5">
         <div className="flex items-center justify-between">
-          <p className="text-xs font-semibold text-muted-foreground">{label}</p>
-          <Icon className="size-4 text-muted-foreground/60" />
+          <p className="text-xs font-bold text-slate-600">{label}</p>
+          <div className="size-7 rounded-lg bg-slate-100 text-slate-700 grid place-items-center shrink-0">
+            <Icon className="size-4" />
+          </div>
         </div>
-        <p className={`font-display text-xl font-bold tracking-tight ${tone}`}>{value}</p>
-        {hint && <p className="text-[11px] text-muted-foreground/80">{hint}</p>}
+        <p className={`font-display text-2xl font-black tracking-tight ${tone}`}>{value}</p>
+        {hint && <p className="text-[11px] font-semibold text-slate-500">{hint}</p>}
       </CardContent>
     </Card>
   );
