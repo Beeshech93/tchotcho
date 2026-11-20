@@ -208,6 +208,7 @@ interface AdminPermissionsModalProps {
   currentRole: "admin" | "agent" | "client";
   currentPerms?: AdminPermissionsConfig | null;
   isSuperAdmin?: boolean;
+  callerAllowedTabs?: AdminTabId[];
 }
 
 export function AdminPermissionsModal({
@@ -217,12 +218,15 @@ export function AdminPermissionsModal({
   currentRole,
   currentPerms,
   isSuperAdmin = false,
+  callerAllowedTabs = ALL_ADMIN_TAB_IDS,
 }: AdminPermissionsModalProps) {
   const qc = useQueryClient();
   const saveRoleAndPerms = useServerFn(setUserRoleAndPermissions);
 
+  const effectiveCallerTabs = isSuperAdmin ? ALL_ADMIN_TAB_IDS : callerAllowedTabs;
+
   const [role, setRole] = useState<"admin" | "agent" | "client">(currentRole);
-  const [selectedTabs, setSelectedTabs] = useState<AdminTabId[]>(OPERATIONAL_TABS);
+  const [selectedTabs, setSelectedTabs] = useState<AdminTabId[]>(effectiveCallerTabs);
   const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
@@ -232,22 +236,29 @@ export function AdminPermissionsModal({
         setSelectedTabs(
           currentPerms?.allowedTabs?.length
             ? (currentPerms.allowedTabs as AdminTabId[])
-            : OPERATIONAL_TABS,
+            : effectiveCallerTabs,
         );
       } else {
-        setSelectedTabs(OPERATIONAL_TABS);
+        setSelectedTabs(effectiveCallerTabs);
       }
     }
-  }, [user, currentRole, currentPerms]);
+  }, [user, currentRole, currentPerms, isSuperAdmin, callerAllowedTabs]);
 
   if (!user) return null;
 
   const toggleTab = (id: AdminTabId) => {
+    if (!isSuperAdmin && !effectiveCallerTabs.includes(id)) {
+      toast.info("Este acceso está reservado y requiere la autorización del Super Administrador.");
+      return;
+    }
     setSelectedTabs((prev) => (prev.includes(id) ? prev.filter((t) => t !== id) : [...prev, id]));
   };
 
-  const handleSelectAll = () => setSelectedTabs([...AVAILABLE_ADMIN_TABS]);
-  const handleSelectOps = () => setSelectedTabs([...OPERATIONAL_TABS]);
+  const handleSelectAll = () => setSelectedTabs([...effectiveCallerTabs]);
+  const handleSelectOps = () => {
+    const ops = OPERATIONAL_TABS.filter((t) => isSuperAdmin || effectiveCallerTabs.includes(t));
+    setSelectedTabs(ops);
+  };
   const handleClearAll = () => setSelectedTabs([]);
 
   const handleSave = async () => {
@@ -342,40 +353,48 @@ export function AdminPermissionsModal({
               {/* Administrador */}
               <button
                 type="button"
-                disabled={!isSuperAdmin}
                 onClick={() => {
-                  if (isSuperAdmin) setRole("admin");
+                  setRole("admin");
+                  if (!currentPerms?.allowedTabs?.length) {
+                    setSelectedTabs(effectiveCallerTabs);
+                  }
                 }}
-                className={`p-3.5 rounded-2xl border text-left transition-all ${
-                  !isSuperAdmin
-                    ? "opacity-50 cursor-not-allowed border-border/40 bg-secondary/10"
-                    : role === "admin"
-                      ? "border-primary bg-primary/10 ring-2 ring-primary/20 cursor-pointer"
-                      : "border-border/60 hover:border-border hover:bg-secondary/40 cursor-pointer"
+                className={`p-3.5 rounded-2xl border text-left transition-all cursor-pointer ${
+                  role === "admin"
+                    ? "border-primary bg-primary/10 ring-2 ring-primary/20"
+                    : "border-border/60 hover:border-border hover:bg-secondary/40"
                 }`}
               >
                 <div className="flex items-center justify-between">
                   <ShieldCheck className="size-5 text-primary" />
                   {role === "admin" && <Check className="size-4 text-primary" />}
-                  {!isSuperAdmin && (
-                    <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/30">
-                      Super Admin
-                    </span>
-                  )}
                 </div>
                 <p className="font-bold text-sm mt-2">Administrador</p>
                 <p className="text-xs text-muted-foreground mt-0.5 leading-snug">
                   {isSuperAdmin
-                    ? "Acceso al panel administrativo con o sin restricciones."
-                    : "Solo el Super Administrador puede crear o modificar Administradores."}
+                    ? "Acceso completo o personalizado a las opciones del panel."
+                    : "Hereda los accesos y módulos que posees como Administrador."}
                 </p>
               </button>
             </div>
           </div>
 
           {/* 2. Opciones de Administrador (Permisos y Opciones Permitidas) */}
-          {role === "admin" && isSuperAdmin && (
+          {role === "admin" && (
             <div className="space-y-4 rounded-2xl bg-secondary/30 p-4 border border-border/50 animate-in fade-in duration-200">
+              {!isSuperAdmin && (
+                <div className="flex items-start gap-2.5 rounded-xl bg-emerald-50 border border-emerald-200 p-3 text-xs text-emerald-950">
+                  <ShieldCheck className="size-4 text-[#15803D] shrink-0 mt-0.5" />
+                  <div>
+                    <p className="font-bold text-emerald-900">
+                      Delegación con tus accesos activos ({effectiveCallerTabs.length} módulos)
+                    </p>
+                    <p className="text-slate-600 mt-0.5">
+                      Como Administrador, otorgas los accesos que actualmente posees. Los módulos adicionales están reservados y requieren la autorización del Super Administrador.
+                    </p>
+                  </div>
+                </div>
+              )}
               <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
                 <div className="space-y-0.5">
                   <div className="flex items-center gap-2">
@@ -397,7 +416,7 @@ export function AdminPermissionsModal({
                     className="h-7 text-xs"
                     onClick={handleSelectAll}
                   >
-                    Todos
+                    {isSuperAdmin ? "Todos" : "Mis Accesos"}
                   </Button>
                   <Button
                     size="sm"
@@ -441,30 +460,44 @@ export function AdminPermissionsModal({
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                           {items.map((tab) => {
                             const checked = selectedTabs.includes(tab.id);
+                            const isLockedForCaller = !isSuperAdmin && !effectiveCallerTabs.includes(tab.id);
                             return (
                               <button
                                 key={tab.id}
                                 type="button"
                                 onClick={() => toggleTab(tab.id)}
-                                className={`flex items-start gap-2.5 p-2.5 rounded-xl border text-left transition-colors cursor-pointer ${
-                                  checked
-                                    ? "border-primary/60 bg-primary/5 text-foreground"
-                                    : "border-border/40 text-muted-foreground hover:bg-secondary/40"
+                                className={`flex items-start gap-2.5 p-2.5 rounded-xl border text-left transition-colors ${
+                                  isLockedForCaller
+                                    ? "border-border/30 bg-secondary/20 opacity-60 cursor-not-allowed"
+                                    : checked
+                                      ? "border-primary/60 bg-primary/5 text-foreground cursor-pointer"
+                                      : "border-border/40 text-muted-foreground hover:bg-secondary/40 cursor-pointer"
                                 }`}
                               >
                                 <div className="mt-0.5 shrink-0">
-                                  {checked ? (
+                                  {isLockedForCaller ? (
+                                    <Lock className="size-4 text-amber-500/80" />
+                                  ) : checked ? (
                                     <CheckSquare className="size-4 text-primary" />
                                   ) : (
                                     <Square className="size-4 text-muted-foreground/60" />
                                   )}
                                 </div>
                                 <div className="min-w-0 flex-1">
-                                  <p className="font-semibold text-xs text-foreground leading-tight">
-                                    {tab.label}
-                                  </p>
+                                  <div className="flex items-center justify-between gap-1">
+                                    <p className="font-semibold text-xs text-foreground leading-tight">
+                                      {tab.label}
+                                    </p>
+                                    {isLockedForCaller && (
+                                      <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-500 border border-amber-500/30 shrink-0">
+                                        Super Admin
+                                      </span>
+                                    )}
+                                  </div>
                                   <p className="text-[11px] text-muted-foreground leading-tight mt-0.5 truncate">
-                                    {tab.desc}
+                                    {isLockedForCaller
+                                      ? "Requiere autorización del Super Admin"
+                                      : tab.desc}
                                   </p>
                                 </div>
                               </button>

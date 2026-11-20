@@ -257,7 +257,32 @@ export const setUserRoleAndPermissions = createServerFn({ method: "POST" })
       throw new Error("La cuenta del Super Administrador no puede ser modificada.");
     }
 
-    // 2. Verificar si el usuario objetivo es Administrador
+    // 2. Obtener las opciones permitidas del administrador que ejecuta la acción (caller)
+    let callerAllowedTabs: AdminTabId[] = ALL_ADMIN_TAB_IDS;
+    if (!isCallerSuperAdmin) {
+      const callerPermKey = getAdminPermissionsStorageKey(context.userId);
+      const { data: callerPermRow } = await supabaseAdmin
+        .from("integration_credentials")
+        .select("value")
+        .eq("name", callerPermKey)
+        .maybeSingle();
+
+      if (callerPermRow?.value) {
+        try {
+          const parsed = JSON.parse(callerPermRow.value);
+          callerAllowedTabs = Array.isArray(parsed.allowedTabs)
+            ? (parsed.allowedTabs as AdminTabId[])
+            : ["tx", "recargas", "kyc", "soporte", "redes"];
+        } catch {
+          callerAllowedTabs = ["tx", "recargas", "kyc", "soporte", "redes"];
+        }
+      } else {
+        callerAllowedTabs = ["tx", "recargas", "kyc", "soporte", "redes"];
+      }
+    }
+
+    // 3. Verificar si el usuario objetivo es Administrador y sus permisos previos
+    const permKey = getAdminPermissionsStorageKey(input.targetUserId);
     const { data: targetAdminRole } = await supabaseAdmin
       .from("user_roles")
       .select("id")
@@ -266,14 +291,58 @@ export const setUserRoleAndPermissions = createServerFn({ method: "POST" })
       .maybeSingle();
 
     const isTargetAdmin = Boolean(targetAdminRole);
+    let targetExistingTabs: AdminTabId[] = [];
+    if (isTargetAdmin) {
+      const { data: targetPermRow } = await supabaseAdmin
+        .from("integration_credentials")
+        .select("value")
+        .eq("name", permKey)
+        .maybeSingle();
 
-    // 3. Solo el Super Administrador puede crear administradores o modificar a otros administradores
-    // Los administradores delegados pueden nombrar agentes o revertir a clientes
-    if (input.role === "admin" || isTargetAdmin) {
-      if (!isCallerSuperAdmin) {
-        throw new Error(
-          "Solo el Super Administrador puede crear, modificar o gestionar Administradores.",
+      if (targetPermRow?.value) {
+        try {
+          const parsed = JSON.parse(targetPermRow.value);
+          if (Array.isArray(parsed.allowedTabs)) {
+            targetExistingTabs = parsed.allowedTabs as AdminTabId[];
+          }
+        } catch {}
+      }
+    }
+
+    // 4. Delegación de permisos según la regla:
+    // Los administradores pueden nombrar administradores con todos los accesos que poseen.
+    // Los demás accesos solo pueden ser otorgados con la autorización del Super Administrador.
+    let finalTabs: AdminTabId[] = [];
+    if (input.role === "admin") {
+      if (isCallerSuperAdmin) {
+        finalTabs =
+          input.allowedTabs && input.allowedTabs.length > 0
+            ? input.allowedTabs
+            : ALL_ADMIN_TAB_IDS;
+      } else {
+        // Administrador normal delegando:
+        // Si no especificó pestañas, hereda todas las que el caller tiene
+        const requested =
+          input.allowedTabs && input.allowedTabs.length > 0
+            ? input.allowedTabs
+            : callerAllowedTabs;
+
+        // Comprobar si intenta otorgar módulos que NO tiene y que el usuario objetivo tampoco tenía por Super Admin
+        const unauthorizedExtra = requested.filter(
+          (t) => !callerAllowedTabs.includes(t) && !targetExistingTabs.includes(t),
         );
+        if (unauthorizedExtra.length > 0) {
+          throw new Error(
+            "No tienes autorización para conceder estos accesos adicionales. Solo el Super Administrador puede otorgarlos.",
+          );
+        }
+
+        // Pestañas permitidas dentro de las que tiene el caller + pestañas previas del Super Admin
+        const allowedWithinCaller = requested.filter((t) => callerAllowedTabs.includes(t));
+        const preservedSuperAdminTabs = targetExistingTabs.filter(
+          (t) => !callerAllowedTabs.includes(t),
+        );
+        finalTabs = Array.from(new Set([...allowedWithinCaller, ...preservedSuperAdminTabs]));
       }
     }
 
@@ -339,9 +408,7 @@ export const setUserRoleAndPermissions = createServerFn({ method: "POST" })
       const permKey = getAdminPermissionsStorageKey(input.targetUserId);
       const isTargetMaster = isMasterSuperAdmin({ id: input.targetUserId });
       const isSuper = isTargetMaster;
-      const tabs = isSuper
-        ? ALL_ADMIN_TAB_IDS
-        : (input.allowedTabs ?? []);
+      const tabs = isSuper ? ALL_ADMIN_TAB_IDS : finalTabs;
 
       const permConfig: AdminPermissionsConfig = {
         isSuperAdmin: isSuper,

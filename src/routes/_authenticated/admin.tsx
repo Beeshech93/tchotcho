@@ -439,7 +439,7 @@ function TxPanel() {
 
 function UsersPanel() {
   const qc = useQueryClient();
-  const { isSuperAdmin } = useAdminPermissions();
+  const { isSuperAdmin, allowedTabs: myAllowedTabs } = useAdminPermissions();
   const [userSearch, setUserSearch] = useState("");
   const [editingUser, setEditingUser] = useState<any>(null);
   const [balanceUser, setBalanceUser] = useState<any>(null);
@@ -709,8 +709,8 @@ function UsersPanel() {
                     </Button>
                   )}
 
-                  {/* Super Admin: puede asignar roles y configurar opciones permitidas */}
-                  {isSuperAdmin && !isMaster && (
+                  {/* Administradores y Super Admin: pueden asignar roles y configurar opciones permitidas */}
+                  {!isMaster && (
                     <Button
                       size="sm"
                       variant={isAdmin ? "default" : "outline"}
@@ -722,24 +722,7 @@ function UsersPanel() {
                       onClick={() => setEditingUser(p)}
                     >
                       <Shield className="size-3.5" />
-                      {isAdmin ? "Opciones Permitidas" : "Asignar Rol"}
-                    </Button>
-                  )}
-
-                  {/* Administradores: pueden nombrar agentes o revertirlos a cliente */}
-                  {!isSuperAdmin && !isAdmin && !isMaster && (
-                    <Button
-                      size="sm"
-                      variant={isAgent ? "outline" : "default"}
-                      className={
-                        isAgent
-                          ? "gap-1.5 border-amber-500/40 text-amber-400 hover:bg-amber-500/10 font-semibold text-xs"
-                          : "gap-1.5 bg-primary text-primary-foreground font-semibold text-xs"
-                      }
-                      onClick={() => setEditingUser(p)}
-                    >
-                      <Users className="size-3.5" />
-                      {isAgent ? "Gestionar Agente" : "Hacer Agente"}
+                      {isAdmin ? "Permisos Admin" : "Asignar Rol"}
                     </Button>
                   )}
                 </div>
@@ -783,6 +766,7 @@ function UsersPanel() {
           }
           currentPerms={adminsMap?.[editingUser.id] ?? null}
           isSuperAdmin={isSuperAdmin}
+          callerAllowedTabs={myAllowedTabs}
         />
       )}
     </Card>
