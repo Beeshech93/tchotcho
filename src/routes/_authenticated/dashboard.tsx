@@ -6,7 +6,6 @@ import {
   Eye,
   EyeOff,
   History,
-  Plus,
   Send,
   ShieldAlert,
   Smartphone,
@@ -75,28 +74,6 @@ export function Dashboard() {
   const formattedBalance = `HTG ${totalHtg.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
   const displayName = profile?.full_name?.split(" ")[0] || "Usuario";
-
-  // Beneficiarios directos para envío en 1 clic
-  const quickContacts = [
-    {
-      name: "Jean Baptiste",
-      phone: "+509 3712-4589",
-      wallet: "MonCash",
-      color: "bg-red-500/20 text-red-400 border-red-500/40",
-    },
-    {
-      name: "Marie Claire",
-      phone: "+509 4823-9012",
-      wallet: "NatCash",
-      color: "bg-cyan-500/20 text-cyan-400 border-cyan-500/40",
-    },
-    {
-      name: "Emmanuel Joseph",
-      phone: "+509 3144-5566",
-      wallet: "MonCash",
-      color: "bg-red-500/20 text-red-400 border-red-500/40",
-    },
-  ];
 
   // Transacciones 100% reales en HTG
   const displayTransfers = (transfers ?? []).map((tx) => ({
@@ -266,54 +243,6 @@ export function Dashboard() {
               <p className="text-[10px] text-slate-300">{t("dash.account_sub")}</p>
             </div>
           </Link>
-        </div>
-      </div>
-
-      {/* BENEFICIARIOS RÁPIDOS EN HAITÍ */}
-      <div className="rounded-[28px] bg-gradient-to-b from-[#131B15] to-[#0A0E0C] border border-white/12 p-6 space-y-4 shadow-xl">
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="font-display font-black text-base text-white">Beneficiarios en Haití</h2>
-            <p className="text-xs text-slate-300">Envío directo en 1 clic</p>
-          </div>
-          <Link
-            to="/enviar"
-            className="inline-flex items-center gap-1 text-xs font-bold text-[#F2AC00] hover:underline"
-          >
-            <Plus className="size-3.5" />
-            <span>Nuevo envío</span>
-          </Link>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          {quickContacts.map((contact) => (
-            <Link
-              key={contact.name}
-              to="/enviar"
-              className="flex items-center justify-between rounded-2xl bg-black/40 border border-white/10 p-3.5 hover:border-[#F2AC00]/60 hover:bg-[#02531C]/30 transition group"
-            >
-              <div className="flex items-center gap-3">
-                <div className="grid size-9 place-items-center rounded-xl bg-[#02531C] text-[#F2AC00] font-black text-xs border border-[#F2AC00]/40">
-                  {contact.name.charAt(0)}
-                </div>
-                <div>
-                  <p className="text-xs font-bold text-white group-hover:text-[#F2AC00] transition">
-                    {contact.name}
-                  </p>
-                  <p className="text-[11px] font-mono text-slate-400">{contact.phone}</p>
-                </div>
-              </div>
-
-              <span
-                className={cn(
-                  "text-[10px] font-bold px-2 py-0.5 rounded-full border",
-                  contact.color,
-                )}
-              >
-                {contact.wallet}
-              </span>
-            </Link>
-          ))}
         </div>
       </div>
 
