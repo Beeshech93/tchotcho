@@ -167,32 +167,32 @@ export function Landing() {
       />
 
       {/* TOP HEADER ELEGANTE */}
-      <header className="relative z-20 mx-auto flex max-w-7xl items-center justify-between px-5 py-6 sm:px-8">
+      <header className="relative z-20 mx-auto flex max-w-7xl items-center justify-between px-3.5 py-3.5 sm:px-8 sm:py-6">
         {/* Logo Tcho-Tcho Oficial bien destacado */}
         <Link
           to="/"
-          className="group inline-flex items-center gap-2.5 sm:gap-3 rounded-full bg-white px-3.5 sm:px-4 py-2 shadow-[0_0_28px_rgba(242,172,0,0.4),0_6px_20px_rgba(0,0,0,0.35)] border-2 border-white hover:scale-105 active:scale-95 transition-all"
+          className="group inline-flex items-center gap-2 sm:gap-3 rounded-full bg-white px-2.5 sm:px-4 py-1.5 sm:py-2 shadow-[0_0_24px_rgba(242,172,0,0.35),0_4px_16px_rgba(0,0,0,0.3)] border-2 border-white hover:scale-105 active:scale-95 transition-all shrink-0"
           aria-label="Tcho-Tcho — Ir a Inicio"
         >
           <img
             src={iconAsset}
             alt="Tcho-Tcho"
-            className="size-7 sm:size-8 object-contain shrink-0 group-hover:rotate-6 transition-transform"
+            className="size-6 sm:size-8 object-contain shrink-0 group-hover:rotate-6 transition-transform"
           />
           <img
             src={logoAsset}
             alt="Tcho-Tcho"
-            className="h-6 sm:h-7 w-auto object-contain shrink-0"
+            className="h-5 sm:h-7 w-auto object-contain shrink-0"
           />
         </Link>
 
         {/* Acciones de cabecera: Idioma, Iniciar sesión y Crear cuenta */}
-        <div className="flex items-center gap-3 sm:gap-4">
-          <LanguageSwitcher className="h-9 rounded-full bg-white/[0.08] border border-white/15 px-3.5 text-xs font-semibold text-white backdrop-blur-md hover:bg-white/[0.12] transition-all" />
+        <div className="flex items-center gap-1.5 sm:gap-4 shrink-0">
+          <LanguageSwitcher className="h-8 sm:h-9 rounded-full bg-white/[0.08] border border-white/15 text-white backdrop-blur-md hover:bg-white/[0.12] transition-all" />
 
           <Link
             to="/auth"
-            className="text-xs sm:text-sm font-semibold text-white/90 hover:text-white transition-colors px-2 py-1"
+            className="hidden sm:inline-block text-xs sm:text-sm font-semibold text-white/90 hover:text-white transition-colors px-2 py-1"
           >
             {t("landing.signin")}
           </Link>
@@ -200,7 +200,7 @@ export function Landing() {
           <Link
             to="/auth"
             search={{ modo: "registro" }}
-            className="rounded-full bg-white text-black font-extrabold px-5 py-2 text-xs sm:text-sm shadow-lg hover:bg-slate-100 hover:scale-[1.02] active:scale-[0.98] transition-all"
+            className="rounded-full bg-white text-black font-extrabold px-3 sm:px-5 py-1.5 sm:py-2 text-[11px] sm:text-sm shadow-lg hover:bg-slate-100 hover:scale-[1.02] active:scale-[0.98] transition-all whitespace-nowrap"
           >
             {t("landing.signup")}
           </Link>
@@ -208,71 +208,77 @@ export function Landing() {
       </header>
 
       {/* HERO SECTION DE 2 COLUMNAS */}
-      <section className="relative z-10 mx-auto grid max-w-7xl items-center gap-10 px-5 pt-8 pb-16 sm:px-8 lg:grid-cols-[1.1fr_1fr] lg:gap-14 lg:pt-14 lg:pb-24">
+      <section className="relative z-10 mx-auto grid max-w-7xl items-center gap-6 sm:gap-10 px-4 pt-3 pb-12 sm:px-8 sm:pt-10 sm:pb-20 lg:grid-cols-[1.1fr_1fr] lg:gap-14 lg:pt-14 lg:pb-24">
         {/* COLUMNA IZQUIERDA: Titular, Subtítulo, Botones y Píldoras de Confianza */}
-        <div className="space-y-6 sm:space-y-7">
+        <div className="space-y-4 sm:space-y-6 flex flex-col items-center lg:items-start text-center lg:text-left">
           {/* Badge superior ultra-moderno con punto pulsante */}
-          <div className="inline-flex items-center gap-2.5 rounded-full bg-gradient-to-r from-emerald-950/70 via-black/80 to-black/60 border border-emerald-500/35 px-4 py-1.5 text-[11px] font-bold uppercase tracking-wider text-emerald-300 backdrop-blur-xl shadow-[0_0_20px_rgba(2,83,28,0.25)]">
-            <span className="flex size-2 rounded-full bg-[#10B981] animate-ping" />
+          <div className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-emerald-950/70 via-black/80 to-black/60 border border-emerald-500/35 px-3 py-1 sm:px-4 sm:py-1.5 text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-emerald-300 backdrop-blur-xl shadow-[0_0_20px_rgba(2,83,28,0.25)]">
+            <span className="flex size-1.5 sm:size-2 rounded-full bg-[#10B981] animate-ping" />
             <span className="font-semibold text-slate-200">{t("landing.badge_fintech")}</span>
             <span className="text-[#F2AC00] font-black">·</span>
             <span>{t("landing.badge_route")}</span>
           </div>
 
           {/* Botones de acción CTA modernos */}
-          <div className="flex flex-wrap items-center gap-4 pt-1">
+          <div className="flex flex-wrap items-center justify-center lg:justify-start gap-2.5 sm:gap-4 pt-0.5">
             <Link
               to="/auth"
               search={{ modo: "registro" }}
-              className="group inline-flex items-center gap-3 rounded-full bg-white text-black font-black px-8 py-4 text-sm sm:text-base shadow-[0_12px_32px_rgba(255,255,255,0.25),0_0_40px_rgba(2,83,28,0.35)] hover:bg-slate-100 hover:scale-[1.02] active:scale-[0.98] transition-all"
+              className="group inline-flex items-center gap-2 sm:gap-3 rounded-full bg-white text-black font-black px-5 py-2.5 sm:px-8 sm:py-4 text-xs sm:text-base shadow-[0_8px_24px_rgba(255,255,255,0.2),0_0_30px_rgba(2,83,28,0.3)] hover:bg-slate-100 hover:scale-[1.02] active:scale-[0.98] transition-all"
             >
               <span>{t("landing.start_now")}</span>
-              <div className="grid size-6 place-items-center rounded-full bg-black text-white group-hover:translate-x-0.5 transition-transform">
-                <ArrowRight className="size-3.5" />
+              <div className="grid size-5 sm:size-6 place-items-center rounded-full bg-black text-white group-hover:translate-x-0.5 transition-transform">
+                <ArrowRight className="size-3 sm:size-3.5" />
               </div>
             </Link>
 
             <Link
               to="/auth"
-              className="inline-flex items-center rounded-full border border-white/20 bg-white/[0.05] text-white font-bold px-7 py-4 text-sm sm:text-base backdrop-blur-xl hover:bg-white/[0.12] hover:border-white/35 transition-all"
+              className="inline-flex items-center rounded-full border border-white/20 bg-white/[0.05] text-white font-bold px-4 py-2.5 sm:px-7 sm:py-4 text-xs sm:text-base backdrop-blur-xl hover:bg-white/[0.12] hover:border-white/35 transition-all"
             >
               {t("landing.signin")}
             </Link>
           </div>
 
-          {/* 3 Tarjetas de Beneficios estilo Fintech Moderno */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
-            <div className="rounded-2xl bg-gradient-to-b from-white/[0.08] to-white/[0.02] border border-white/12 p-4 backdrop-blur-xl shadow-sm space-y-2 hover:border-[#F2AC00]/40 transition-all group">
-              <div className="grid size-8 place-items-center rounded-xl bg-[#02531C] border border-[#F2AC00]/30 text-[#F2AC00] group-hover:scale-110 transition shadow-sm">
-                <Zap className="size-4" />
+          {/* 3 Tarjetas de Beneficios compactas en móvil (1 fila de 3 columnas) y completas en desktop */}
+          <div className="grid grid-cols-3 gap-2 sm:gap-3 pt-1 w-full">
+            <div className="rounded-xl sm:rounded-2xl bg-gradient-to-b from-white/[0.08] to-white/[0.02] border border-white/12 p-2 sm:p-4 backdrop-blur-xl shadow-sm space-y-1 sm:space-y-2 hover:border-[#F2AC00]/40 transition-all group flex flex-col items-center sm:items-start text-center sm:text-left">
+              <div className="grid size-7 sm:size-8 place-items-center rounded-lg sm:rounded-xl bg-[#02531C] border border-[#F2AC00]/30 text-[#F2AC00] group-hover:scale-110 transition shadow-sm">
+                <Zap className="size-3.5 sm:size-4" />
               </div>
               <div>
-                <p className="font-extrabold text-sm text-white">{t("landing.benefit_flash")}</p>
-                <p className="text-[11px] text-slate-300 mt-0.5">
+                <p className="font-extrabold text-[11px] sm:text-sm text-white leading-tight">
+                  {t("landing.benefit_flash")}
+                </p>
+                <p className="text-[9px] sm:text-[11px] text-slate-300 mt-0.5 hidden xs:block">
                   {t("landing.benefit_flash_desc")}
                 </p>
               </div>
             </div>
 
-            <div className="rounded-2xl bg-gradient-to-b from-white/[0.08] to-white/[0.02] border border-white/12 p-4 backdrop-blur-xl shadow-sm space-y-2 hover:border-emerald-400/40 transition-all group">
-              <div className="grid size-8 place-items-center rounded-xl bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 group-hover:scale-110 transition shadow-sm">
-                <ShieldCheck className="size-4" />
+            <div className="rounded-xl sm:rounded-2xl bg-gradient-to-b from-white/[0.08] to-white/[0.02] border border-white/12 p-2 sm:p-4 backdrop-blur-xl shadow-sm space-y-1 sm:space-y-2 hover:border-emerald-400/40 transition-all group flex flex-col items-center sm:items-start text-center sm:text-left">
+              <div className="grid size-7 sm:size-8 place-items-center rounded-lg sm:rounded-xl bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 group-hover:scale-110 transition shadow-sm">
+                <ShieldCheck className="size-3.5 sm:size-4" />
               </div>
               <div>
-                <p className="font-extrabold text-sm text-white">{t("landing.benefit_security")}</p>
-                <p className="text-[11px] text-slate-300 mt-0.5">
+                <p className="font-extrabold text-[11px] sm:text-sm text-white leading-tight">
+                  {t("landing.benefit_security")}
+                </p>
+                <p className="text-[9px] sm:text-[11px] text-slate-300 mt-0.5 hidden xs:block">
                   {t("landing.benefit_security_desc")}
                 </p>
               </div>
             </div>
 
-            <div className="rounded-2xl bg-gradient-to-b from-white/[0.08] to-white/[0.02] border border-white/12 p-4 backdrop-blur-xl shadow-sm space-y-2 hover:border-[#F2AC00]/40 transition-all group">
-              <div className="grid size-8 place-items-center rounded-xl bg-[#02531C] border border-[#F2AC00]/30 text-[#F2AC00] group-hover:scale-110 transition shadow-sm">
-                <BadgePercent className="size-4" />
+            <div className="rounded-xl sm:rounded-2xl bg-gradient-to-b from-white/[0.08] to-white/[0.02] border border-white/12 p-2 sm:p-4 backdrop-blur-xl shadow-sm space-y-1 sm:space-y-2 hover:border-[#F2AC00]/40 transition-all group flex flex-col items-center sm:items-start text-center sm:text-left">
+              <div className="grid size-7 sm:size-8 place-items-center rounded-lg sm:rounded-xl bg-[#02531C] border border-[#F2AC00]/30 text-[#F2AC00] group-hover:scale-110 transition shadow-sm">
+                <BadgePercent className="size-3.5 sm:size-4" />
               </div>
               <div>
-                <p className="font-extrabold text-sm text-white">{t("landing.benefit_rate")}</p>
-                <p className="text-[11px] text-slate-300 mt-0.5">
+                <p className="font-extrabold text-[11px] sm:text-sm text-white leading-tight">
+                  {t("landing.benefit_rate")}
+                </p>
+                <p className="text-[9px] sm:text-[11px] text-slate-300 mt-0.5 hidden xs:block">
                   {t("landing.benefit_rate_desc")}
                 </p>
               </div>
@@ -280,37 +286,37 @@ export function Landing() {
           </div>
 
           {/* Social Proof y confianza */}
-          <div className="flex items-center gap-3 pt-1 text-xs text-slate-300">
-            <div className="flex -space-x-2">
-              <div className="grid size-7 place-items-center rounded-full bg-slate-800 border-2 border-black text-xs shadow-sm">
+          <div className="flex items-center justify-center lg:justify-start gap-2.5 sm:gap-3 pt-0.5 text-xs text-slate-300">
+            <div className="flex -space-x-1.5 sm:-space-x-2">
+              <div className="grid size-6 sm:size-7 place-items-center rounded-full bg-slate-800 border-2 border-black text-[10px] sm:text-xs shadow-sm">
                 🇭🇹
               </div>
-              <div className="grid size-7 place-items-center rounded-full bg-slate-700 border-2 border-black text-xs shadow-sm">
+              <div className="grid size-6 sm:size-7 place-items-center rounded-full bg-slate-700 border-2 border-black text-[10px] sm:text-xs shadow-sm">
                 🇩🇴
               </div>
-              <div className="grid size-7 place-items-center rounded-full bg-slate-800 border-2 border-black text-xs shadow-sm">
+              <div className="grid size-6 sm:size-7 place-items-center rounded-full bg-slate-800 border-2 border-black text-[10px] sm:text-xs shadow-sm">
                 🇲🇽
               </div>
-              <div className="grid size-7 place-items-center rounded-full bg-[#02531C] border-2 border-black text-[10px] font-black text-[#F2AC00]">
+              <div className="grid size-6 sm:size-7 place-items-center rounded-full bg-[#02531C] border-2 border-black text-[9px] sm:text-[10px] font-black text-[#F2AC00]">
                 ★
               </div>
             </div>
-            <div className="leading-tight">
-              <p className="font-bold text-white text-[12px] flex items-center gap-1.5">
+            <div className="leading-tight text-left">
+              <p className="font-bold text-white text-[11px] sm:text-[12px] flex items-center gap-1.5">
                 <span>4.9 / 5</span>
                 <span className="text-[#F2AC00]">★★★★★</span>
               </p>
-              <p className="text-[11px] text-slate-400">{t("landing.social_proof")}</p>
+              <p className="text-[10px] sm:text-[11px] text-slate-400">{t("landing.social_proof")}</p>
             </div>
           </div>
         </div>
 
         {/* COLUMNA DERECHA: LA CALCULADORA DE REMESAS Y RECARGAS */}
-        <div className="relative">
+        <div className="relative w-full">
           {/* Sombra de fondo para profundidad */}
           <div className="absolute -inset-4 rounded-[40px] bg-[#02531C]/30 blur-3xl pointer-events-none" />
 
-          <div className="relative mx-auto w-full max-w-lg rounded-[36px] bg-[#0E1310]/95 border border-white/15 p-6 sm:p-7 shadow-[0_24px_64px_rgba(0,0,0,0.9)] backdrop-blur-2xl space-y-5">
+          <div className="relative mx-auto w-full max-w-lg rounded-[28px] sm:rounded-[36px] bg-[#0E1310]/95 border border-white/15 p-4 sm:p-7 shadow-[0_24px_64px_rgba(0,0,0,0.9)] backdrop-blur-2xl space-y-4 sm:space-y-5">
             {/* Tabs Enviar / Recargas con diseño estilizado */}
             <div className="flex items-center justify-between border-b border-white/10 pb-4">
               <button
