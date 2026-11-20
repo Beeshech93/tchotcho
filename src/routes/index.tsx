@@ -166,44 +166,46 @@ export function Landing() {
         }}
       />
 
-      {/* TOP HEADER ELEGANTE */}
-      <header className="relative z-20 mx-auto flex max-w-7xl items-center justify-between px-3.5 py-3.5 sm:px-8 sm:py-6">
-        {/* Logo Tcho-Tcho Oficial bien destacado */}
-        <Link
-          to="/"
-          className="group inline-flex items-center gap-2 sm:gap-3 rounded-full bg-white px-2.5 sm:px-4 py-1.5 sm:py-2 shadow-[0_0_24px_rgba(242,172,0,0.35),0_4px_16px_rgba(0,0,0,0.3)] border-2 border-white hover:scale-105 active:scale-95 transition-all shrink-0"
-          aria-label="Tcho-Tcho — Ir a Inicio"
-        >
-          <img
-            src={iconAsset}
-            alt="Tcho-Tcho"
-            className="size-6 sm:size-8 object-contain shrink-0 group-hover:rotate-6 transition-transform"
-          />
-          <img
-            src={logoAsset}
-            alt="Tcho-Tcho"
-            className="h-5 sm:h-7 w-auto object-contain shrink-0"
-          />
-        </Link>
-
-        {/* Acciones de cabecera: Idioma, Iniciar sesión y Crear cuenta */}
-        <div className="flex items-center gap-1.5 sm:gap-4 shrink-0">
-          <LanguageSwitcher className="h-8 sm:h-9 rounded-full bg-white/[0.08] border border-white/15 text-white backdrop-blur-md hover:bg-white/[0.12] transition-all" />
-
+      {/* TOP HEADER ELEGANTE Y FIJO (STICKY) */}
+      <header className="sticky top-0 z-50 w-full bg-black/70 backdrop-blur-xl border-b border-white/5 transition-all">
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-3.5 py-2.5 sm:px-8 sm:py-4">
+          {/* Logo Tcho-Tcho Oficial bien destacado */}
           <Link
-            to="/auth"
-            className="hidden sm:inline-block text-xs sm:text-sm font-semibold text-white/90 hover:text-white transition-colors px-2 py-1"
+            to="/"
+            className="group inline-flex items-center gap-2 sm:gap-3 rounded-full bg-white px-2.5 sm:px-4 py-1.5 sm:py-2 shadow-[0_0_24px_rgba(242,172,0,0.35),0_4px_16px_rgba(0,0,0,0.3)] border-2 border-white hover:scale-105 active:scale-95 transition-all shrink-0"
+            aria-label="Tcho-Tcho — Ir a Inicio"
           >
-            {t("landing.signin")}
+            <img
+              src={iconAsset}
+              alt="Tcho-Tcho"
+              className="size-6 sm:size-8 object-contain shrink-0 group-hover:rotate-6 transition-transform"
+            />
+            <img
+              src={logoAsset}
+              alt="Tcho-Tcho"
+              className="h-5 sm:h-7 w-auto object-contain shrink-0"
+            />
           </Link>
 
-          <Link
-            to="/auth"
-            search={{ modo: "registro" }}
-            className="rounded-full bg-white text-black font-extrabold px-3 sm:px-5 py-1.5 sm:py-2 text-[11px] sm:text-sm shadow-lg hover:bg-slate-100 hover:scale-[1.02] active:scale-[0.98] transition-all whitespace-nowrap"
-          >
-            {t("landing.signup")}
-          </Link>
+          {/* Acciones de cabecera: Idioma, Iniciar sesión y Crear cuenta */}
+          <div className="flex items-center gap-1.5 sm:gap-4 shrink-0">
+            <LanguageSwitcher className="h-8 sm:h-9 rounded-full bg-white/[0.08] border border-white/15 text-white backdrop-blur-md hover:bg-white/[0.12] transition-all" />
+
+            <Link
+              to="/auth"
+              className="hidden sm:inline-block text-xs sm:text-sm font-semibold text-white/90 hover:text-white transition-colors px-2 py-1"
+            >
+              {t("landing.signin")}
+            </Link>
+
+            <Link
+              to="/auth"
+              search={{ modo: "registro" }}
+              className="rounded-full bg-white text-black font-extrabold px-3 sm:px-5 py-1.5 sm:py-2 text-[11px] sm:text-sm shadow-lg hover:bg-slate-100 hover:scale-[1.02] active:scale-[0.98] transition-all whitespace-nowrap"
+            >
+              {t("landing.signup")}
+            </Link>
+          </div>
         </div>
       </header>
 
