@@ -25,6 +25,11 @@ export const adminAdjustAgentBalance = createServerFn({ method: "POST" })
       throw new Error("Solo administradores pueden adicionar saldo a los agentes.");
     }
 
+    const { isMasterSuperAdmin } = await import("@/lib/admin-permissions.functions");
+    if (isMasterSuperAdmin({ id: input.agentUserId }) && !isMasterSuperAdmin({ id: context.userId })) {
+      throw new Error("No tienes permisos para modificar el saldo del Super Administrador.");
+    }
+
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     // Verificar que la cuenta de destino sea un agente o administrador (las cuentas clientes no llevan saldo)

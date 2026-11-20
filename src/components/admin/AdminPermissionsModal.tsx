@@ -162,7 +162,7 @@ const TAB_METAS: TabMeta[] = [
   {
     id: "usuarios",
     label: "Gestión de Usuarios",
-    desc: "Asignar roles y restringir permisos a otros admins",
+    desc: "Ver y gestionar clientes y agentes (excepto Super Admin)",
     category: "sistema",
   },
   {
@@ -189,7 +189,7 @@ const CATEGORY_TITLES = {
 
 const OPERATIONAL_TABS: AdminTabId[] = ["tx", "recargas", "kyc", "soporte", "operators"];
 
-const AVAILABLE_ADMIN_TABS: AdminTabId[] = ALL_ADMIN_TAB_IDS.filter((t) => t !== "usuarios");
+const AVAILABLE_ADMIN_TABS: AdminTabId[] = ALL_ADMIN_TAB_IDS;
 
 interface AdminPermissionsModalProps {
   isOpen: boolean;
@@ -223,7 +223,7 @@ export function AdminPermissionsModal({
       if (currentRole === "admin") {
         setSelectedTabs(
           currentPerms?.allowedTabs?.length
-            ? (currentPerms.allowedTabs.filter((t) => t !== "usuarios") as AdminTabId[])
+            ? (currentPerms.allowedTabs as AdminTabId[])
             : OPERATIONAL_TABS,
         );
       } else {

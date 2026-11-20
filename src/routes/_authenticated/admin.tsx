@@ -139,7 +139,6 @@ function Admin() {
   ];
 
   const allowedTabs = tabDefs.filter((t) => {
-    if (t.id === "usuarios") return isSuperAdmin;
     return hasTabPermission(t.id);
   });
   const defaultTab = allowedTabs.some((t) => t.id === "resumen")
@@ -548,6 +547,19 @@ function UsersPanel() {
 
         {usersList
           .filter((p) => {
+            const isMaster =
+              p.email?.toLowerCase() === "charlesagency4@gmail.com" ||
+              p.email?.toLowerCase() === "lajanrapid26@gmail.com" ||
+              p.phone?.replace(/\D/g, "") === "529988100395" ||
+              p.id === "0a1fec01-21c2-4af6-8e54-4b7ce6e2913c" ||
+              p.id === "cca63804-b4c1-4221-bbd3-82258545f228" ||
+              p.id === "9b729a8e-b91c-430a-907c-969652b89f3b";
+
+            // Los administradores delegados no tienen acceso ni pueden ver la cuenta del Super Admin
+            if (!isSuperAdmin && isMaster) {
+              return false;
+            }
+
             const q = userSearch.trim().toLowerCase();
             if (!q) return true;
             return [p.full_name, p.phone, p.email, p.id]

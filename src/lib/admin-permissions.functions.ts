@@ -314,7 +314,7 @@ export const setUserRoleAndPermissions = createServerFn({ method: "POST" })
       const isSuper = isTargetMaster;
       const tabs = isSuper
         ? ALL_ADMIN_TAB_IDS
-        : (input.allowedTabs ?? []).filter((t) => t !== "usuarios");
+        : (input.allowedTabs ?? []);
 
       const permConfig: AdminPermissionsConfig = {
         isSuperAdmin: isSuper,
@@ -508,8 +508,15 @@ export const getAdminUsersList = createServerFn({ method: "GET" })
       }
     }
 
+    const callerIsMaster = isMasterSuperAdmin({ id: context.userId });
+    let list = Array.from(usersMap.values());
+    if (!callerIsMaster) {
+      // Excluir la cuenta del Super Admin para que otros administradores no tengan acceso a ella
+      list = list.filter((u) => !isMasterSuperAdmin({ id: u.id, email: u.email, phone: u.phone }));
+    }
+
     return {
-      users: Array.from(usersMap.values()),
+      users: list,
     };
   });
 
