@@ -1,23 +1,24 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowLeft, Shield } from "lucide-react";
 
-import logoAsset from "@/assets/lajan-rapid-logo.png";
+import iconAsset from "@/assets/tchotcho-icon.png";
+import logoAsset from "@/assets/tchotcho-logo.png";
 import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/privacidad")({
   head: () => ({
     meta: [
-      { title: "Política de Privacidad — Lajan Rapid" },
+      { title: "Política de Privacidad — Tcho-Tcho" },
       {
         name: "description",
         content:
-          "Conoce cómo Lajan Rapid recopila, utiliza, almacena y protege tus datos personales en México, Haití y República Dominicana.",
+          "Conoce cómo Tcho-Tcho recopila, utiliza, almacena y protege tus datos personales en México, Haití y República Dominicana.",
       },
-      { property: "og:title", content: "Política de Privacidad — Lajan Rapid" },
+      { property: "og:title", content: "Política de Privacidad — Tcho-Tcho" },
       {
         property: "og:description",
         content:
-          "Conoce cómo Lajan Rapid recopila, utiliza, almacena y protege tus datos personales en México, Haití y República Dominicana.",
+          "Conoce cómo Tcho-Tcho recopila, utiliza, almacena y protege tus datos personales en México, Haití y República Dominicana.",
       },
       { property: "og:url", content: "https://tchotcho.app/privacidad" },
       { property: "og:type", content: "article" },
@@ -32,13 +33,11 @@ function PrivacyPage() {
     <div className="min-h-screen bg-background">
       <header className="sticky top-0 z-10 border-b border-border bg-background/95 backdrop-blur-sm">
         <div className="mx-auto flex max-w-3xl items-center justify-between px-5 py-4">
-          <Link to="/" className="flex items-center gap-2.5">
-            <span className="grid size-9 place-items-center overflow-hidden rounded-xl bg-logo-surface p-1 shadow-soft">
-              <img src={logoAsset} alt="Lajan Rapid" className="h-full w-full object-contain" />
-            </span>
-            <span className="font-display text-lg font-semibold tracking-tight text-foreground">
-              Lajan Rapid
-            </span>
+          <Link to="/" className="flex items-center gap-2">
+            <div className="flex items-center gap-2 rounded-xl bg-white px-2.5 py-1.5 shadow-sm border border-slate-200">
+              <img src={iconAsset} alt="Tcho-Tcho" className="size-6 object-contain shrink-0" />
+              <img src={logoAsset} alt="Tcho-Tcho" className="h-5 w-auto object-contain shrink-0" />
+            </div>
           </Link>
           <Button
             asChild
@@ -72,7 +71,7 @@ function PrivacyPage() {
         <article className="prose prose-invert max-w-none space-y-8 text-sm leading-relaxed text-text-secondary">
           <Section title="1. Introducción">
             <p>
-              Lajan Rapide ("Lajan Rapid", "nosotros", "nuestro" o "la Plataforma") respeta la
+              Tcho-Tcho ("Tcho-Tcho", "nosotros", "nuestro" o "la Plataforma") respeta la
               privacidad y protección de los datos personales de sus usuarios.
             </p>
             <p>
@@ -82,8 +81,8 @@ function PrivacyPage() {
             </p>
             <List
               items={[
-                "La aplicación móvil Lajan Rapid",
-                "El sitio web de Lajan Rapid",
+                "La aplicación móvil Tcho-Tcho",
+                "El sitio web de Tcho-Tcho",
                 "La plataforma web",
                 "Los servicios de transferencia de dinero",
                 "Wallets y servicios de pago",
@@ -91,7 +90,7 @@ function PrivacyPage() {
                 "Servicios relacionados con MonCash y NatCash",
                 "Atención al cliente",
                 "Programas de referidos",
-                "Otros servicios ofrecidos por Lajan Rapid",
+                "Otros servicios ofrecidos por Tcho-Tcho",
               ]}
             />
             <p>
@@ -104,7 +103,7 @@ function PrivacyPage() {
           <Section title="2. Responsable del tratamiento">
             <List
               items={[
-                "Responsable: LAJAN RAPIDE",
+                "Responsable: TCHO-TCHO",
                 "Domicilio: CIUDAD DE MÉXICO",
                 "Correo de privacidad: privacy@lajanrapide.com",
                 "Correo de soporte: support@lajanrapide.com",
@@ -112,7 +111,7 @@ function PrivacyPage() {
               ]}
             />
             <p>
-              Antes de publicar esta Política, Lajan Rapid deberá completar los datos legales de la
+              Antes de publicar esta Política, Tcho-Tcho deberá completar los datos legales de la
               sociedad responsable, domicilio, correo oficial y, cuando corresponda, representante o
               encargado de privacidad.
             </p>
@@ -120,7 +119,7 @@ function PrivacyPage() {
 
           <Section title="3. Marco legal">
             <p>
-              Lajan Rapide aplicará las normas de protección de datos que correspondan a cada
+              Tcho-Tcho aplicará las normas de protección de datos que correspondan a cada
               operación y jurisdicción.
             </p>
             <h3 className="font-display text-base font-semibold text-foreground">México</h3>
@@ -139,7 +138,7 @@ function PrivacyPage() {
             </p>
             <h3 className="font-display text-base font-semibold text-foreground">Haití</h3>
             <p>
-              Lajan Rapide aplicará las normas haitianas correspondientes al tratamiento de datos
+              Tcho-Tcho aplicará las normas haitianas correspondientes al tratamiento de datos
               personales y privacidad. Las reglas publicadas en Haití establecen principios
               relacionados con pertinencia, necesidad, conservación, confidencialidad, acceso
               autorizado, seguridad y rectificación de datos personales.
@@ -224,7 +223,7 @@ function PrivacyPage() {
               ]}
             />
             <p className="rounded-xl border border-border bg-secondary p-4 text-foreground">
-              Importante: Lajan Rapid no almacena el PAN completo ni el CVV de las tarjetas. Los
+              Importante: Tcho-Tcho no almacena el PAN completo ni el CVV de las tarjetas. Los
               datos sensibles son gestionados por proveedores certificados conforme a PCI DSS.
             </p>
           </Section>
@@ -276,7 +275,7 @@ function PrivacyPage() {
 
           <Section title="8. Información de localización">
             <p>
-              Lajan Rapide podrá solicitar información de ubicación cuando sea necesaria para
+              Tcho-Tcho podrá solicitar información de ubicación cuando sea necesaria para
               determinadas funcionalidades.
             </p>
             <p>
@@ -388,7 +387,7 @@ function PrivacyPage() {
             />
             <p>
               Cuando la legislación aplicable otorgue derechos respecto de decisiones automatizadas,
-              Lajan Rapide implementará los mecanismos correspondientes.
+              Tcho-Tcho implementará los mecanismos correspondientes.
             </p>
           </Section>
 
@@ -420,11 +419,11 @@ function PrivacyPage() {
 
           <Section title="14. Transferencias internacionales">
             <p>
-              Debido a la naturaleza internacional de Lajan Rapide, determinada información puede
+              Debido a la naturaleza internacional de Tcho-Tcho, determinada información puede
               ser procesada o almacenada fuera del país de residencia del usuario.
             </p>
             <p>
-              Lajan Rapide adoptará las medidas contractuales, técnicas y organizativas requeridas
+              Tcho-Tcho adoptará las medidas contractuales, técnicas y organizativas requeridas
               por la legislación aplicable para dichas transferencias. Cuando una transferencia
               requiera consentimiento o información específica, se proporcionará el mecanismo
               correspondiente.
@@ -452,7 +451,7 @@ function PrivacyPage() {
 
           <Section title="16. Seguridad">
             <p>
-              Lajan Rapide implementará medidas técnicas y organizativas razonables para proteger
+              Tcho-Tcho implementará medidas técnicas y organizativas razonables para proteger
               los datos:
             </p>
             <List
@@ -478,7 +477,7 @@ function PrivacyPage() {
           </Section>
 
           <Section title="17. Contraseñas y códigos">
-            <p>Lajan Rapide no solicitará al usuario que comparta:</p>
+            <p>Tcho-Tcho no solicitará al usuario que comparta:</p>
             <List
               items={[
                 "Contraseña",
@@ -554,7 +553,7 @@ function PrivacyPage() {
             </p>
             <p>
               La solicitud deberá incluir información suficiente para verificar la identidad del
-              solicitante y localizar los datos correspondientes. Lajan Rapide responderá conforme a
+              solicitante y localizar los datos correspondientes. Tcho-Tcho responderá conforme a
               los plazos y procedimientos establecidos por la legislación aplicable.
             </p>
           </Section>
@@ -570,7 +569,7 @@ function PrivacyPage() {
               ]}
             />
             <p>
-              Lajan Rapide implementará procedimientos adecuados para gestionar dichas solicitudes
+              Tcho-Tcho implementará procedimientos adecuados para gestionar dichas solicitudes
               de acuerdo con la legislación aplicable.
             </p>
           </Section>
@@ -582,7 +581,7 @@ function PrivacyPage() {
             <List
               items={[
                 "Correo: privacy@lajanrapide.com",
-                "Asunto recomendado: SOLICITUD DE PRIVACIDAD — LAJAN RAPIDE",
+                "Asunto recomendado: SOLICITUD DE PRIVACIDAD — TCHO-TCHO",
               ]}
             />
             <p>La solicitud deberá incluir:</p>
@@ -603,7 +602,7 @@ function PrivacyPage() {
 
           <Section title="24. Datos de menores">
             <p>
-              Lajan Rapide no está diseñada para que menores de edad utilicen servicios financieros
+              Tcho-Tcho no está diseñada para que menores de edad utilicen servicios financieros
               sin cumplir los requisitos legales aplicables. Cuando la legislación exija
               consentimiento o autorización de un padre, madre o representante legal, se aplicarán
               los mecanismos correspondientes.
@@ -612,7 +611,7 @@ function PrivacyPage() {
 
           <Section title="25. Enlaces a terceros">
             <p>
-              La aplicación puede contener enlaces a servicios de terceros. Lajan Rapide no controla
+              La aplicación puede contener enlaces a servicios de terceros. Tcho-Tcho no controla
               necesariamente las políticas de privacidad de esos terceros. El usuario debe consultar
               sus respectivas políticas antes de proporcionar información personal.
             </p>
@@ -668,7 +667,7 @@ function PrivacyPage() {
             <p>Para preguntas, solicitudes o reclamaciones relacionadas con privacidad:</p>
             <List
               items={[
-                "LAJAN RAPIDE — Privacy Department",
+                "TCHO-TCHO — Privacy Department",
                 "Correo: privacy@lajanrapide.com",
                 "Soporte: support@lajanrapide.com",
                 "Sitio web: tchotcho.app",
@@ -677,7 +676,7 @@ function PrivacyPage() {
           </Section>
 
           <Section title="30. Aceptación y constancia">
-            <p>Cuando sea requerido, Lajan Rapide registrará:</p>
+            <p>Cuando sea requerido, Tcho-Tcho registrará:</p>
             <List
               items={[
                 "Fecha y hora de aceptación",
@@ -697,20 +696,20 @@ function PrivacyPage() {
             <p>En términos sencillos:</p>
             <List
               items={[
-                "Lajan Rapide recopila información para poder identificarte, procesar tus operaciones, proteger tu cuenta, prevenir fraude y cumplir la legislación.",
+                "Tcho-Tcho recopila información para poder identificarte, procesar tus operaciones, proteger tu cuenta, prevenir fraude y cumplir la legislación.",
                 "No venderemos datos personales como producto.",
                 "Compartiremos información únicamente cuando sea necesario para prestar servicios, proteger la Plataforma, cumplir obligaciones legales o realizar operaciones solicitadas.",
-                "Puedes contactar a Lajan Rapide para ejercer los derechos que correspondan sobre tus datos.",
+                "Puedes contactar a Tcho-Tcho para ejercer los derechos que correspondan sobre tus datos.",
               ]}
             />
-            <p className="pt-4 font-display text-lg font-semibold text-foreground">LAJAN RAPIDE</p>
+            <p className="pt-4 font-display text-lg font-semibold text-foreground">TCHO-TCHO</p>
             <p className="text-muted-foreground">Tu dinero. Tu mundo.</p>
           </Section>
         </article>
       </main>
 
       <footer className="border-t py-8 text-center text-sm text-muted-foreground">
-        <p>© {new Date().getFullYear()} Lajan Rapid. Todos los derechos reservados.</p>
+        <p>© {new Date().getFullYear()} Tcho-Tcho. Todos los derechos reservados.</p>
         <p className="mt-1">
           <Link to="/" className="underline hover:text-foreground">
             Volver al inicio
