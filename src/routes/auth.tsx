@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
+import { SocialLinks } from "@/components/SocialLinks";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
@@ -540,6 +541,12 @@ function AuthPage() {
               </button>
             </p>
           )}
+
+          {/* Redes sociales */}
+          <div className="pt-4 border-t border-white/10 space-y-2">
+            <p className="text-[11px] text-slate-400 font-medium">Nuestras redes oficiales</p>
+            <SocialLinks iconSize="size-4" className="justify-center gap-2" />
+          </div>
         </div>
       </div>
 

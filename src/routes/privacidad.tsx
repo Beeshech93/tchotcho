@@ -4,6 +4,7 @@ import { ArrowLeft, Shield } from "lucide-react";
 import iconAsset from "@/assets/tchotcho-icon.png";
 import logoAsset from "@/assets/tchotcho-logo.png";
 import { Button } from "@/components/ui/button";
+import { SocialLinks } from "@/components/SocialLinks";
 
 export const Route = createFileRoute("/privacidad")({
   head: () => ({
@@ -708,8 +709,9 @@ function PrivacyPage() {
         </article>
       </main>
 
-      <footer className="border-t py-8 text-center text-sm text-muted-foreground">
+      <footer className="border-t py-8 text-center text-sm text-muted-foreground space-y-3">
         <p>© {new Date().getFullYear()} Tcho-Tcho. Todos los derechos reservados.</p>
+        <SocialLinks iconSize="size-4" className="justify-center gap-2" />
         <p className="mt-1">
           <Link to="/" className="underline hover:text-foreground">
             Volver al inicio

@@ -17,6 +17,7 @@ import { useProfile } from "@/hooks/useProfile";
 import { useCountries, useRate } from "@/hooks/useCorridors";
 import { useWallets } from "@/hooks/useWallet";
 import { Button } from "@/components/ui/button";
+import { SocialLinks } from "@/components/SocialLinks";
 import { shortDate } from "@/lib/remesa";
 import { useI18n } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
@@ -375,6 +376,22 @@ export function Dashboard() {
             </Button>
           </div>
         )}
+      </div>
+
+      {/* Comunidad y Redes Sociales */}
+      <div className="rounded-2xl bg-gradient-to-r from-[#0C1610] via-[#101F15] to-[#0A140E] border border-emerald-500/25 p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-lg">
+        <div className="space-y-0.5">
+          <p className="text-[11px] font-black text-[#F2AC00] uppercase tracking-wider">
+            Comunidad Tcho-Tcho
+          </p>
+          <p className="text-sm font-extrabold text-white">
+            Conéctate con nuestras redes oficiales
+          </p>
+          <p className="text-xs text-slate-400">
+            Atención al cliente, tutoriales y avisos en tiempo real
+          </p>
+        </div>
+        <SocialLinks showLabels className="justify-start sm:justify-end gap-2" />
       </div>
     </div>
   );

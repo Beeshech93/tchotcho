@@ -28,6 +28,7 @@ import { Button } from "@/components/ui/button";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { NotificationBell } from "@/components/NotificationBell";
 import { AdBanner } from "@/components/AdBanner";
+import { SocialLinks } from "@/components/SocialLinks";
 import { useServicesConfig } from "@/hooks/useServicesConfig";
 import { useI18n } from "@/lib/i18n";
 import { useBrand } from "@/hooks/useBrand";
@@ -194,6 +195,14 @@ export function AppShell({ children }: { children: ReactNode }) {
               <ArrowRight className="size-3.5" />
             </Link>
           </div>
+
+          {/* Social Links en Sidebar */}
+          <div className="mt-4 shrink-0 rounded-xl bg-white/[0.02] border border-white/5 p-2.5 space-y-1.5">
+            <p className="text-[10px] font-black uppercase tracking-wider text-slate-400">
+              Redes Oficiales
+            </p>
+            <SocialLinks iconSize="size-3.5" className="justify-start gap-1.5" />
+          </div>
         </div>
 
         {/* Sidebar Footer */}
@@ -280,6 +289,14 @@ export function AppShell({ children }: { children: ReactNode }) {
         >
           <AdBanner className="mb-5" />
           {children}
+
+          <footer className="mt-14 border-t border-white/10 pt-6 pb-2 text-center space-y-2.5">
+            <p className="text-xs font-semibold text-slate-400">Canales oficiales y redes sociales</p>
+            <SocialLinks iconSize="size-4" className="justify-center gap-2" />
+            <p className="text-[11px] text-slate-500">
+              © {new Date().getFullYear()} Tcho-Tcho · {t("landing.footer")}
+            </p>
+          </footer>
         </main>
 
         <nav

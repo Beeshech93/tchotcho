@@ -3,9 +3,11 @@ import { useSocialNetworks } from "@/hooks/useSocialNetworks";
 export function SocialLinks({
   className = "",
   iconSize = "size-5",
+  showLabels = false,
 }: {
   className?: string;
   iconSize?: string;
+  showLabels?: boolean;
 }) {
   const { links, hasAnySocial } = useSocialNetworks();
 
@@ -94,7 +96,7 @@ export function SocialLinks({
   if (items.length === 0) return null;
 
   return (
-    <div className={`flex flex-wrap items-center justify-center gap-3 ${className}`}>
+    <div className={`flex flex-wrap items-center justify-center gap-2.5 ${className}`}>
       {items.map((item) => (
         <a
           key={item.key}
@@ -103,9 +105,14 @@ export function SocialLinks({
           rel="noopener noreferrer"
           aria-label={item.label}
           title={item.label}
-          className={`group flex items-center justify-center size-9 rounded-full border border-white/10 bg-white/5 text-slate-400 transition-all duration-200 hover:scale-110 active:scale-95 ${item.hoverClass}`}
+          className={
+            showLabels
+              ? `group inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-semibold text-slate-300 transition-all duration-200 hover:scale-105 active:scale-95 ${item.hoverClass}`
+              : `group flex items-center justify-center size-9 rounded-full border border-white/10 bg-white/5 text-slate-400 transition-all duration-200 hover:scale-110 active:scale-95 ${item.hoverClass}`
+          }
         >
           {item.svg}
+          {showLabels && <span className="group-hover:text-white transition-colors">{item.label}</span>}
         </a>
       ))}
     </div>

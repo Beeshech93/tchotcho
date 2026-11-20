@@ -3,6 +3,7 @@ import logoAsset from "@/assets/lajan-rapid-logo.png";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { Button } from "@/components/ui/button";
 import { AdBanner } from "@/components/AdBanner";
+import { SocialLinks } from "@/components/SocialLinks";
 import { ArrowRight } from "lucide-react";
 
 export type ContentSection = { title: string; body: string; list?: string[] };
@@ -62,6 +63,11 @@ export function ContentPage({
           </div>
         ))}
       </section>
+
+      <footer className="border-t py-8 text-center text-sm text-muted-foreground space-y-3">
+        <p className="text-xs font-semibold">Síguenos en redes sociales</p>
+        <SocialLinks iconSize="size-4" className="justify-center gap-2" />
+      </footer>
     </div>
   );
 }

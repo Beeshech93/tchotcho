@@ -14,6 +14,7 @@ import { useServicesConfig } from "@/hooks/useServicesConfig";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { InstallAppCard } from "@/components/InstallAppCard";
 import { AdBanner } from "@/components/AdBanner";
+import { SocialLinks } from "@/components/SocialLinks";
 
 export function CorridorLanding({
   originCode,
@@ -236,8 +237,9 @@ export function CorridorLanding({
         <InstallAppCard />
       </section>
 
-      <footer className="border-t py-8 text-center text-sm text-muted-foreground">
+      <footer className="border-t py-8 text-center text-sm text-muted-foreground space-y-3">
         <p>{t("landing.footer")}</p>
+        <SocialLinks iconSize="size-4" className="justify-center gap-2" />
         <p className="mt-2">
           <Link to="/privacidad" className="underline hover:text-foreground">
             Política de Privacidad

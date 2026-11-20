@@ -4,10 +4,11 @@ import { useMemo, useState } from "react";
 import { Volume2 } from "lucide-react";
 import { z } from "zod";
 import { toast } from "sonner";
-import { ArrowLeft, Check, Circle, Shield, X } from "lucide-react";
+import { ArrowLeft, Check, Circle, Share2, Shield, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useProfile } from "@/hooks/useProfile";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { SocialLinks } from "@/components/SocialLinks";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -443,6 +444,22 @@ function Perfil() {
               )}
             </>
           )}
+        </CardContent>
+      </Card>
+
+      {/* Redes Sociales Oficiales */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base flex items-center gap-2">
+            <Share2 className="size-4 text-emerald-500" />
+            Redes Sociales Oficiales
+          </CardTitle>
+          <CardDescription className="text-xs text-muted-foreground">
+            Conoce nuestras cuentas y comunidades oficiales para noticias, promociones y atención directa.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <SocialLinks showLabels className="justify-start gap-2.5" />
         </CardContent>
       </Card>
     </div>
