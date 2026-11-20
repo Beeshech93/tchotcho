@@ -137,9 +137,7 @@ export function Dashboard() {
                   ? t("dash.kyc_pending_title")
                   : t("dash.kyc_none_title")}
               </p>
-              <p className="text-slate-300 truncate">
-                {t("dash.kyc_unlock")}
-              </p>
+              <p className="text-slate-300 truncate">{t("dash.kyc_unlock")}</p>
             </div>
           </div>
           <Button
@@ -168,7 +166,9 @@ export function Dashboard() {
                 <span className="size-2 rounded-full bg-emerald-400 animate-pulse" />
                 {t("dash.official_banking")}
               </p>
-              <h1 className="text-lg sm:text-xl font-black text-white">{t("dash.hello")}, {displayName} 👋</h1>
+              <h1 className="text-lg sm:text-xl font-black text-white">
+                {t("dash.hello")}, {displayName} 👋
+              </h1>
             </div>
           </div>
 
@@ -305,7 +305,9 @@ export function Dashboard() {
       <div className="rounded-[28px] bg-gradient-to-b from-[#131B15] to-[#0A0E0C] border border-white/12 p-6 space-y-4 shadow-xl">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="font-display font-black text-base text-white">{t("dash.recent_activity")}</h2>
+            <h2 className="font-display font-black text-base text-white">
+              {t("dash.recent_activity")}
+            </h2>
             <p className="text-xs text-slate-300">{t("dash.recent_activity_sub")}</p>
           </div>
 
@@ -362,9 +364,7 @@ export function Dashboard() {
             </div>
             <div className="space-y-1">
               <p className="text-sm font-bold text-white">{t("dash.no_activity")}</p>
-              <p className="text-xs text-slate-400 max-w-sm mx-auto">
-                {t("dash.no_activity_sub")}
-              </p>
+              <p className="text-xs text-slate-400 max-w-sm mx-auto">{t("dash.no_activity_sub")}</p>
             </div>
             <Button
               asChild

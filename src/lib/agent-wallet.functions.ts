@@ -35,13 +35,15 @@ export const adminAdjustAgentBalance = createServerFn({ method: "POST" })
       .in("role", ["agent", "admin"]);
 
     if (!roleRows || roleRows.length === 0) {
-      throw new Error("Las cuentas de clientes no requieren saldo operativo. Solo los agentes pueden recibir asignación de saldo.");
+      throw new Error(
+        "Las cuentas de clientes no requieren saldo operativo. Solo los agentes pueden recibir asignación de saldo.",
+      );
     }
 
     const currency = (input.currency || "HTG").toUpperCase();
 
     // 1. Obtener o crear billetera para el agente
-    let { data: wallet, error: fetchErr } = await supabaseAdmin
+    const { data: existingWallet, error: fetchErr } = await supabaseAdmin
       .from("wallets")
       .select("*")
       .eq("user_id", input.agentUserId)
@@ -51,6 +53,8 @@ export const adminAdjustAgentBalance = createServerFn({ method: "POST" })
     if (fetchErr) {
       throw new Error(fetchErr.message);
     }
+
+    let wallet = existingWallet;
 
     if (!wallet) {
       const { data: created, error: createError } = await supabaseAdmin

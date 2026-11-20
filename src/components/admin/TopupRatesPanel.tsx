@@ -35,7 +35,12 @@ export function TopupRatesPanel() {
   const { data: countries } = useCountries();
   const originCountries = (countries ?? []).filter((c) => c.is_origin);
   const destCountries = (countries ?? []).filter(
-    (c) => c.is_destination || c.code === "HT" || c.currency === "HTG" || c.currency === "DOP" || c.currency === "USD",
+    (c) =>
+      c.is_destination ||
+      c.code === "HT" ||
+      c.currency === "HTG" ||
+      c.currency === "DOP" ||
+      c.currency === "USD",
   );
 
   const selectedOriginCountry = originCountries.find((c) => c.currency === from);
@@ -44,8 +49,8 @@ export function TopupRatesPanel() {
   const { data: rates } = useQuery({
     queryKey: ["all-topup-rates"],
     queryFn: async () =>
-      ((await supabase.from("topup_rates").select("*").eq("is_active", true).order("from_currency")).data ??
-        []) as TopupRateRow[],
+      ((await supabase.from("topup_rates").select("*").eq("is_active", true).order("from_currency"))
+        .data ?? []) as TopupRateRow[],
   });
 
   const rate = (rates ?? []).find(
@@ -110,8 +115,8 @@ export function TopupRatesPanel() {
           <CardTitle className="text-base">Tasas de recarga por corredor (DingConnect)</CardTitle>
           <p className="text-xs text-muted-foreground">
             Configuración de tipo de cambio para recargas móviles de DingConnect. Define cuánto
-            saldo recibe el número en la moneda de destino por cada unidad pagada en la moneda de origen.
-            Funciona de manera independiente a las tarifas de envíos de dinero.
+            saldo recibe el número en la moneda de destino por cada unidad pagada en la moneda de
+            origen. Funciona de manera independiente a las tarifas de envíos de dinero.
           </p>
         </CardHeader>
         <CardContent className="space-y-4">

@@ -122,7 +122,9 @@ function AuthPage() {
         .max(72),
     });
     const parsed = credSchema.safeParse({
-      email: String(form.get("email") ?? "").toLowerCase().trim(),
+      email: String(form.get("email") ?? "")
+        .toLowerCase()
+        .trim(),
       password: String(form.get("password") ?? ""),
     });
     if (!parsed.success) {
@@ -169,7 +171,9 @@ function AuthPage() {
         });
         if (error) {
           if (error.message.toLowerCase().includes("email not confirmed")) {
-            toast.error("Correo no confirmado en Supabase. Si eres admin, puedes confirmarlo en el panel o desactivar 'Confirm email' en Supabase.");
+            toast.error(
+              "Correo no confirmado en Supabase. Si eres admin, puedes confirmarlo en el panel o desactivar 'Confirm email' en Supabase.",
+            );
           } else if (error.message.toLowerCase().includes("invalid login credentials")) {
             toast.error("Credenciales inválidas: revisa el correo o contraseña.");
           } else {

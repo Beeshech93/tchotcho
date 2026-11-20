@@ -58,10 +58,7 @@ export const ALL_ADMIN_TAB_IDS: AdminTabId[] = [
   "migracion",
 ];
 
-const MASTER_ADMIN_EMAILS = [
-  "lajanrapid26@gmail.com",
-  "charlesagency4@gmail.com",
-];
+const MASTER_ADMIN_EMAILS = ["lajanrapid26@gmail.com", "charlesagency4@gmail.com"];
 
 const MASTER_ADMIN_USER_IDS = [
   "cca63804-b4c1-4221-bbd3-82258545f228",
@@ -69,9 +66,15 @@ const MASTER_ADMIN_USER_IDS = [
   "0a1fec01-21c2-4af6-8e54-4b7ce6e2913c",
 ];
 
-export function isMasterSuperAdmin(user: { id?: string; email?: string | null; phone?: string | null }): boolean {
+export function isMasterSuperAdmin(user: {
+  id?: string;
+  email?: string | null;
+  phone?: string | null;
+}): boolean {
   if (!user) return false;
-  const email = String(user.email ?? "").toLowerCase().trim();
+  const email = String(user.email ?? "")
+    .toLowerCase()
+    .trim();
   const phone = String(user.phone ?? "").replace(/\D/g, "");
   return (
     MASTER_ADMIN_EMAILS.includes(email) ||
@@ -93,7 +96,9 @@ export const getMyPermissions = createServerFn({ method: "GET" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     // Verificar si es master admin por correo, teléfono o ID
-    const email = String(context.claims?.email ?? "").toLowerCase().trim();
+    const email = String(context.claims?.email ?? "")
+      .toLowerCase()
+      .trim();
     const phone = String(context.claims?.phone ?? "").replace(/\D/g, "");
     if (
       MASTER_ADMIN_EMAILS.includes(email) ||
@@ -134,7 +139,9 @@ export const getMyPermissions = createServerFn({ method: "GET" })
         return { isSuperAdmin: true, allowedTabs: ALL_ADMIN_TAB_IDS };
       }
       const allowed = Array.isArray(parsed.allowedTabs)
-        ? (parsed.allowedTabs.filter((t) => ALL_ADMIN_TAB_IDS.includes(t as AdminTabId)) as AdminTabId[])
+        ? (parsed.allowedTabs.filter((t) =>
+            ALL_ADMIN_TAB_IDS.includes(t as AdminTabId),
+          ) as AdminTabId[])
         : [];
       return {
         isSuperAdmin: false,
@@ -206,7 +213,9 @@ export const setUserRoleAndPermissions = createServerFn({ method: "POST" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     // Exclusivo para Super Administradores: solo el Super Admin puede asignar roles de Agente y Admin
-    const callerEmail = String(context.claims?.email ?? "").toLowerCase().trim();
+    const callerEmail = String(context.claims?.email ?? "")
+      .toLowerCase()
+      .trim();
     let isCallerSuperAdmin = MASTER_ADMIN_EMAILS.includes(callerEmail);
 
     if (!isCallerSuperAdmin) {
@@ -377,7 +386,9 @@ export const getAdminUsersList = createServerFn({ method: "GET" })
     // 1. Obtener lista completa de usuarios directamente desde auth.users (Supabase Admin)
     let authUsers: any[] = [];
     try {
-      const { data: authData, error: authErr } = await supabaseAdmin.auth.admin.listUsers({ perPage: 1000 });
+      const { data: authData, error: authErr } = await supabaseAdmin.auth.admin.listUsers({
+        perPage: 1000,
+      });
       if (!authErr && authData?.users) {
         authUsers = authData.users;
       }
@@ -416,7 +427,9 @@ export const getAdminUsersList = createServerFn({ method: "GET" })
     // 3. Procesar todos los usuarios de auth.users como fuente primaria
     for (const u of authUsers) {
       if (!u.id) continue;
-      const email = String(u.email || "").toLowerCase().trim();
+      const email = String(u.email || "")
+        .toLowerCase()
+        .trim();
       const p = pRows.find((row) => row.id === u.id);
       const userRoles = rRows.filter((r) => r.user_id === u.id).map((r) => r.role);
       const userWallets = wRows.filter((w) => w.user_id === u.id);
@@ -440,8 +453,7 @@ export const getAdminUsersList = createServerFn({ method: "GET" })
         phone: p?.phone || (u.user_metadata as any)?.phone || u.phone || null,
         country: p?.country || "HT",
         language: p?.language || "es",
-        kyc_status:
-          p?.kyc_status || (isMaster ? "approved" : "none"),
+        kyc_status: p?.kyc_status || (isMaster ? "approved" : "none"),
         created_at: p?.created_at || u.created_at,
         roles: finalRoles.length > 0 ? finalRoles : ["client"],
         balanceHTG: Number(htgBal),
@@ -490,7 +502,9 @@ export const getAdminUsersList = createServerFn({ method: "GET" })
             });
           }
         }
-      } catch {}
+      } catch (err) {
+        console.warn("Could not fetch user list via rpc:", err);
+      }
     }
 
     return {

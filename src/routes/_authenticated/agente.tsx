@@ -307,7 +307,7 @@ function Agente() {
     }
   };
 
-  const rows = transfers ?? [];
+  const rows = useMemo(() => transfers ?? [], [transfers]);
 
   // Filtrado de búsqueda
   const filteredRows = useMemo(() => {

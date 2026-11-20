@@ -428,7 +428,9 @@ function Enviar() {
         type="submit"
         size="lg"
         className="w-full text-base font-semibold"
-        disabled={saving || !cfg || (!isAdmin && profile?.kyc_status !== "approved") || !transfersEnabled}
+        disabled={
+          saving || !cfg || (!isAdmin && profile?.kyc_status !== "approved") || !transfersEnabled
+        }
       >
         {!transfersEnabled
           ? t("services.disabled_btn")

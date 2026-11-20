@@ -46,7 +46,9 @@ function createSupabaseAdminClient() {
     SUPABASE_URL = TARGET_URL;
   }
   if (!SUPABASE_SERVICE_ROLE_KEY) {
-    SUPABASE_SERVICE_ROLE_KEY = process.env["VITE_SUPABASE_PUBLISHABLE_KEY"] || "sb_publishable_Zvj-I1zNm7Mn9c1LiYDU1g_plW8yluu";
+    SUPABASE_SERVICE_ROLE_KEY =
+      process.env["VITE_SUPABASE_PUBLISHABLE_KEY"] ||
+      "sb_publishable_Zvj-I1zNm7Mn9c1LiYDU1g_plW8yluu";
   }
 
   return createClient<Database>(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {

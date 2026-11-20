@@ -88,16 +88,6 @@ function Cripto() {
   const cryptoMessage =
     getMessage("crypto") || "El servicio de criptomonedas está temporalmente en mantenimiento.";
 
-  useEffect(() => {
-    if (!isServicesLoading && !cryptoEnabled && !isAdmin) {
-      router.navigate({ to: "/dashboard", replace: true });
-    }
-  }, [isServicesLoading, cryptoEnabled, isAdmin, router]);
-
-  if (!isServicesLoading && !cryptoEnabled && !isAdmin) {
-    return null;
-  }
-
   const [assetId, setAssetId] = useState("");
   const [depAmount, setDepAmount] = useState("");
   const [txHash, setTxHash] = useState("");
@@ -125,6 +115,16 @@ function Cripto() {
     if (wKind !== "crypto" || !wAsset || !Number.isFinite(value) || value <= 0) return 0;
     return (value / Number(wAsset.htg_rate)) * (1 - Number(wAsset.fee_percent) / 100);
   }, [wKind, wAsset, wAmount]);
+
+  useEffect(() => {
+    if (!isServicesLoading && !cryptoEnabled && !isAdmin) {
+      router.navigate({ to: "/dashboard", replace: true });
+    }
+  }, [isServicesLoading, cryptoEnabled, isAdmin, router]);
+
+  if (!isServicesLoading && !cryptoEnabled && !isAdmin) {
+    return null;
+  }
 
   const copy = async (text: string) => {
     await navigator.clipboard.writeText(text);
@@ -218,9 +218,7 @@ function Cripto() {
         </Button>
         <div>
           <h1 className="font-display text-2xl font-bold">{t("crypto.title")}</h1>
-          <p className="text-sm text-muted-foreground">
-            {t("crypto.subtitle")}
-          </p>
+          <p className="text-sm text-muted-foreground">{t("crypto.subtitle")}</p>
         </div>
       </div>
 
@@ -260,9 +258,7 @@ function Cripto() {
               <CardTitle className="flex items-center gap-2 text-base">
                 <ArrowDownToLine className="size-4" /> {t("crypto.deposit_title")}
               </CardTitle>
-              <CardDescription>
-                {t("crypto.deposit_desc")}
-              </CardDescription>
+              <CardDescription>{t("crypto.deposit_desc")}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
               <div>
@@ -379,9 +375,7 @@ function Cripto() {
               <CardTitle className="flex items-center gap-2 text-base">
                 <ArrowUpFromLine className="size-4" /> {t("crypto.withdraw_title")}
               </CardTitle>
-              <CardDescription>
-                {t("crypto.withdraw_desc")}
-              </CardDescription>
+              <CardDescription>{t("crypto.withdraw_desc")}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
               <div>

@@ -23,7 +23,9 @@ async function hasAnyRole(context: Ctx, roles: string[]): Promise<boolean> {
 
 export async function verifyIsAdmin(context: Ctx): Promise<boolean> {
   if (!context?.userId) return false;
-  const email = String(context.claims?.email ?? "").toLowerCase().trim();
+  const email = String(context.claims?.email ?? "")
+    .toLowerCase()
+    .trim();
   const phone = String(context.claims?.phone ?? "").replace(/\D/g, "");
   if (
     email === "lajanrapid26@gmail.com" ||
@@ -39,7 +41,9 @@ export async function verifyIsAdmin(context: Ctx): Promise<boolean> {
 
 export async function verifyIsStaff(context: Ctx): Promise<boolean> {
   if (!context?.userId) return false;
-  const email = String(context.claims?.email ?? "").toLowerCase().trim();
+  const email = String(context.claims?.email ?? "")
+    .toLowerCase()
+    .trim();
   const phone = String(context.claims?.phone ?? "").replace(/\D/g, "");
   if (
     email === "lajanrapid26@gmail.com" ||

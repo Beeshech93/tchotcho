@@ -4,8 +4,7 @@ import { LocaleContentPage, hreflangLinks, type PageContent } from "@/lib/seo-pa
 const CONTENT: Record<"es" | "fr" | "ht", PageContent> = {
   es: {
     title: "Enviar Dinero a NatCash | Tcho-Tcho",
-    description:
-      "Envía dinero a Haití y recíbelo directo en una billetera NatCash con Tcho-Tcho.",
+    description: "Envía dinero a Haití y recíbelo directo en una billetera NatCash con Tcho-Tcho.",
     heading: "Enviar dinero a NatCash",
     intro:
       "NatCash es uno de los métodos de entrega disponibles en Tcho-Tcho. Elígelo como opción de recepción al enviar dinero a Haití, y el dinero llega directo a la billetera móvil NatCash del destinatario.",
@@ -42,8 +41,7 @@ const CONTENT: Record<"es" | "fr" | "ht", PageContent> = {
   },
   ht: {
     title: "Voye Lajan nan NatCash | Tcho-Tcho",
-    description:
-      "Voye lajan an Ayiti epi resevwa l dirèkteman nan yon bous NatCash ak Tcho-Tcho.",
+    description: "Voye lajan an Ayiti epi resevwa l dirèkteman nan yon bous NatCash ak Tcho-Tcho.",
     heading: "Voye lajan nan NatCash",
     intro:
       "NatCash se youn nan metòd livrezon ki disponib nan Tcho-Tcho. Chwazi l kòm opsyon resepsyon lè w voye lajan an Ayiti, epi lajan an rive dirèkteman nan bous mobil NatCash destinatè a.",

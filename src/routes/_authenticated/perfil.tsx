@@ -327,7 +327,9 @@ function Perfil() {
                     </span>
                   </h4>
                   <p className="mt-1 text-sm text-muted-foreground">
-                    Esta cuenta cuenta con privilegios de <strong>Super Administrador</strong>: acceso completo a todos los módulos y operaciones del sistema, y exención total de verificación KYC.
+                    Esta cuenta cuenta con privilegios de <strong>Super Administrador</strong>:
+                    acceso completo a todos los módulos y operaciones del sistema, y exención total
+                    de verificación KYC.
                   </p>
                 </div>
               </div>
@@ -350,17 +352,25 @@ function Perfil() {
                       label: t("profile.step_review"),
                       done: kyc === "pending" || kyc === "approved",
                     },
-                    { key: "approved", label: t("profile.step_approved"), done: kyc === "approved" },
+                    {
+                      key: "approved",
+                      label: t("profile.step_approved"),
+                      done: kyc === "approved",
+                    },
                   ].map((s, i, arr) => (
                     <li key={s.key} className="flex flex-1 items-center gap-1.5">
                       <span
                         className={`grid size-6 shrink-0 place-items-center rounded-full ${
-                          s.done ? "bg-accent text-accent-foreground" : "bg-muted text-muted-foreground"
+                          s.done
+                            ? "bg-accent text-accent-foreground"
+                            : "bg-muted text-muted-foreground"
                         }`}
                       >
                         {s.done ? <Check className="size-3.5" /> : <Circle className="size-2.5" />}
                       </span>
-                      <span className={`text-xs font-medium ${s.done ? "" : "text-muted-foreground"}`}>
+                      <span
+                        className={`text-xs font-medium ${s.done ? "" : "text-muted-foreground"}`}
+                      >
                         {s.label}
                       </span>
                       {i < arr.length - 1 && <span className="h-px flex-1 bg-border" />}

@@ -131,7 +131,9 @@ export function AgentBalanceModal({ isOpen, onClose, user, onSuccess }: AgentBal
             <div className="flex items-center justify-between text-xs pt-1 border-t border-white/10">
               <span className="text-slate-400 font-medium">Saldo actual ({currency}):</span>
               <span className="font-extrabold text-[#F2AC00]">
-                {isLoadingWallets ? "Cargando..." : `${currentBalance.toLocaleString()} ${currency}`}
+                {isLoadingWallets
+                  ? "Cargando..."
+                  : `${currentBalance.toLocaleString()} ${currency}`}
               </span>
             </div>
           </div>
@@ -229,7 +231,9 @@ export function AgentBalanceModal({ isOpen, onClose, user, onSuccess }: AgentBal
               className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold gap-2"
             >
               <Coins className="size-4" />
-              {isSubmitting ? "Acreditando..." : `Adicionar ${numAmount ? numAmount.toLocaleString() : ""} ${currency}`}
+              {isSubmitting
+                ? "Acreditando..."
+                : `Adicionar ${numAmount ? numAmount.toLocaleString() : ""} ${currency}`}
             </Button>
           </DialogFooter>
         </form>

@@ -40,9 +40,7 @@ const ADMIN_STATUS_LABEL: Record<string, string> = {
  */
 export const adminSetTransferStatus = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((input: z.infer<typeof adminSetStatusSchema>) =>
-    adminSetStatusSchema.parse(input),
-  )
+  .validator((input: z.infer<typeof adminSetStatusSchema>) => adminSetStatusSchema.parse(input))
   .handler(async ({ data, context }) => {
     const { verifyIsAdmin, verifyIsStaff } = await import("@/lib/admin.server");
     const isAdminData = await verifyIsAdmin(context);
@@ -320,9 +318,7 @@ const agentCreateCashSchema = z.object({
  */
 export const agentCreateCashTransfer = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((input: z.infer<typeof agentCreateCashSchema>) =>
-    agentCreateCashSchema.parse(input),
-  )
+  .validator((input: z.infer<typeof agentCreateCashSchema>) => agentCreateCashSchema.parse(input))
   .handler(async ({ data, context }) => {
     const { verifyIsAdmin, verifyIsStaff } = await import("@/lib/admin.server");
     const isAdminData = await verifyIsAdmin(context);
@@ -445,8 +441,7 @@ export const agentCreateCashTransfer = createServerFn({ method: "POST" })
       }
 
       if (agentWallet) {
-        const requiredAmount =
-          agentWallet.currency === dc.currency ? amountReceive : totalSend;
+        const requiredAmount = agentWallet.currency === dc.currency ? amountReceive : totalSend;
         const currentBal = Number(agentWallet.balance) || 0;
         if (currentBal < requiredAmount) {
           throw new Error(
@@ -528,9 +523,7 @@ const agentConfirmCashSchema = z.object({
  */
 export const agentConfirmCashPayment = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((input: z.infer<typeof agentConfirmCashSchema>) =>
-    agentConfirmCashSchema.parse(input),
-  )
+  .validator((input: z.infer<typeof agentConfirmCashSchema>) => agentConfirmCashSchema.parse(input))
   .handler(async ({ data, context }) => {
     const { verifyIsAdmin, verifyIsStaff } = await import("@/lib/admin.server");
     const isAdminData = await verifyIsAdmin(context);

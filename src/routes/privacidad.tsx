@@ -71,8 +71,8 @@ function PrivacyPage() {
         <article className="prose prose-invert max-w-none space-y-8 text-sm leading-relaxed text-text-secondary">
           <Section title="1. Introducción">
             <p>
-              Tcho-Tcho ("Tcho-Tcho", "nosotros", "nuestro" o "la Plataforma") respeta la
-              privacidad y protección de los datos personales de sus usuarios.
+              Tcho-Tcho ("Tcho-Tcho", "nosotros", "nuestro" o "la Plataforma") respeta la privacidad
+              y protección de los datos personales de sus usuarios.
             </p>
             <p>
               Esta Política de Privacidad explica cómo recopilamos, utilizamos, almacenamos,
@@ -119,8 +119,8 @@ function PrivacyPage() {
 
           <Section title="3. Marco legal">
             <p>
-              Tcho-Tcho aplicará las normas de protección de datos que correspondan a cada
-              operación y jurisdicción.
+              Tcho-Tcho aplicará las normas de protección de datos que correspondan a cada operación
+              y jurisdicción.
             </p>
             <h3 className="font-display text-base font-semibold text-foreground">México</h3>
             <p>
@@ -223,8 +223,8 @@ function PrivacyPage() {
               ]}
             />
             <p className="rounded-xl border border-border bg-secondary p-4 text-foreground">
-              Importante: Tcho-Tcho no almacena el PAN completo ni el CVV de las tarjetas. Los
-              datos sensibles son gestionados por proveedores certificados conforme a PCI DSS.
+              Importante: Tcho-Tcho no almacena el PAN completo ni el CVV de las tarjetas. Los datos
+              sensibles son gestionados por proveedores certificados conforme a PCI DSS.
             </p>
           </Section>
 
@@ -419,13 +419,13 @@ function PrivacyPage() {
 
           <Section title="14. Transferencias internacionales">
             <p>
-              Debido a la naturaleza internacional de Tcho-Tcho, determinada información puede
-              ser procesada o almacenada fuera del país de residencia del usuario.
+              Debido a la naturaleza internacional de Tcho-Tcho, determinada información puede ser
+              procesada o almacenada fuera del país de residencia del usuario.
             </p>
             <p>
-              Tcho-Tcho adoptará las medidas contractuales, técnicas y organizativas requeridas
-              por la legislación aplicable para dichas transferencias. Cuando una transferencia
-              requiera consentimiento o información específica, se proporcionará el mecanismo
+              Tcho-Tcho adoptará las medidas contractuales, técnicas y organizativas requeridas por
+              la legislación aplicable para dichas transferencias. Cuando una transferencia requiera
+              consentimiento o información específica, se proporcionará el mecanismo
               correspondiente.
             </p>
           </Section>
@@ -451,8 +451,8 @@ function PrivacyPage() {
 
           <Section title="16. Seguridad">
             <p>
-              Tcho-Tcho implementará medidas técnicas y organizativas razonables para proteger
-              los datos:
+              Tcho-Tcho implementará medidas técnicas y organizativas razonables para proteger los
+              datos:
             </p>
             <List
               items={[
@@ -569,8 +569,8 @@ function PrivacyPage() {
               ]}
             />
             <p>
-              Tcho-Tcho implementará procedimientos adecuados para gestionar dichas solicitudes
-              de acuerdo con la legislación aplicable.
+              Tcho-Tcho implementará procedimientos adecuados para gestionar dichas solicitudes de
+              acuerdo con la legislación aplicable.
             </p>
           </Section>
 
@@ -602,10 +602,10 @@ function PrivacyPage() {
 
           <Section title="24. Datos de menores">
             <p>
-              Tcho-Tcho no está diseñada para que menores de edad utilicen servicios financieros
-              sin cumplir los requisitos legales aplicables. Cuando la legislación exija
-              consentimiento o autorización de un padre, madre o representante legal, se aplicarán
-              los mecanismos correspondientes.
+              Tcho-Tcho no está diseñada para que menores de edad utilicen servicios financieros sin
+              cumplir los requisitos legales aplicables. Cuando la legislación exija consentimiento
+              o autorización de un padre, madre o representante legal, se aplicarán los mecanismos
+              correspondientes.
             </p>
           </Section>
 

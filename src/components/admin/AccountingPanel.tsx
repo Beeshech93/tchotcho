@@ -91,8 +91,18 @@ function monthKey(iso: string) {
 function formatMonth(key: string) {
   const [year, month] = key.split("-");
   const monthNames = [
-    "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
-    "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
+    "Enero",
+    "Febrero",
+    "Marzo",
+    "Abril",
+    "Mayo",
+    "Junio",
+    "Julio",
+    "Agosto",
+    "Septiembre",
+    "Octubre",
+    "Noviembre",
+    "Diciembre",
   ];
   const idx = parseInt(month || "1", 10) - 1;
   return `${monthNames[idx] ?? month} ${year}`;
@@ -112,20 +122,48 @@ function formatShortDate(iso: string) {
 function getStatusBadge(status: string) {
   switch (status) {
     case "completed":
-      return <Badge className="bg-emerald-500/15 text-emerald-400 border-emerald-500/30 text-xs font-medium">Entregado</Badge>;
+      return (
+        <Badge className="bg-emerald-500/15 text-emerald-400 border-emerald-500/30 text-xs font-medium">
+          Entregado
+        </Badge>
+      );
     case "paid":
-      return <Badge className="bg-emerald-500/15 text-emerald-400 border-emerald-500/30 text-xs font-medium">Pagado</Badge>;
+      return (
+        <Badge className="bg-emerald-500/15 text-emerald-400 border-emerald-500/30 text-xs font-medium">
+          Pagado
+        </Badge>
+      );
     case "ready_for_pickup":
-      return <Badge className="bg-blue-500/15 text-blue-400 border-blue-500/30 text-xs font-medium">Listo retiro</Badge>;
+      return (
+        <Badge className="bg-blue-500/15 text-blue-400 border-blue-500/30 text-xs font-medium">
+          Listo retiro
+        </Badge>
+      );
     case "processing":
-      return <Badge className="bg-amber-500/15 text-amber-400 border-amber-500/30 text-xs font-medium">En proceso</Badge>;
+      return (
+        <Badge className="bg-amber-500/15 text-amber-400 border-amber-500/30 text-xs font-medium">
+          En proceso
+        </Badge>
+      );
     case "awaiting_payment":
     case "created":
-      return <Badge className="bg-amber-500/15 text-amber-400 border-amber-500/30 text-xs font-medium">Pendiente pago</Badge>;
+      return (
+        <Badge className="bg-amber-500/15 text-amber-400 border-amber-500/30 text-xs font-medium">
+          Pendiente pago
+        </Badge>
+      );
     case "cancelled":
-      return <Badge className="bg-rose-500/15 text-rose-400 border-rose-500/30 text-xs font-medium">Cancelado</Badge>;
+      return (
+        <Badge className="bg-rose-500/15 text-rose-400 border-rose-500/30 text-xs font-medium">
+          Cancelado
+        </Badge>
+      );
     default:
-      return <Badge variant="outline" className="text-xs">{status}</Badge>;
+      return (
+        <Badge variant="outline" className="text-xs">
+          {status}
+        </Badge>
+      );
   }
 }
 
@@ -279,18 +317,16 @@ export function AccountingPanel() {
   // Transacciones a mostrar en el modal activo
   const modalTransactions = useMemo(() => {
     if (!modalState.isOpen) return [];
-    return filtered
-      .filter(modalState.filterFn)
-      .filter((row) => {
-        if (!searchQuery.trim()) return true;
-        const q = searchQuery.toLowerCase();
-        return (
-          row.reference.toLowerCase().includes(q) ||
-          (row.recipient_name ?? "").toLowerCase().includes(q) ||
-          (row.recipient_phone ?? "").toLowerCase().includes(q) ||
-          row.send_currency.toLowerCase().includes(q)
-        );
-      });
+    return filtered.filter(modalState.filterFn).filter((row) => {
+      if (!searchQuery.trim()) return true;
+      const q = searchQuery.toLowerCase();
+      return (
+        row.reference.toLowerCase().includes(q) ||
+        (row.recipient_name ?? "").toLowerCase().includes(q) ||
+        (row.recipient_phone ?? "").toLowerCase().includes(q) ||
+        row.send_currency.toLowerCase().includes(q)
+      );
+    });
   }, [filtered, modalState, searchQuery]);
 
   // Sumas del modal activo
@@ -373,7 +409,10 @@ export function AccountingPanel() {
         </div>
 
         <div className="flex items-center gap-2 self-end sm:self-auto">
-          <Badge variant="outline" className="hidden sm:inline-flex border-emerald-500/30 text-emerald-400 bg-emerald-500/10 gap-1.5 py-1">
+          <Badge
+            variant="outline"
+            className="hidden sm:inline-flex border-emerald-500/30 text-emerald-400 bg-emerald-500/10 gap-1.5 py-1"
+          >
             <span className="size-2 rounded-full bg-emerald-500 animate-pulse" />
             En vivo
           </Badge>
@@ -473,7 +512,8 @@ export function AccountingPanel() {
               title: "Detalle: Comisiones de Red y Agentes",
               description: "Costos de comisión pagados o acreditados a la red de agencias.",
               metricType: "agents",
-              filterFn: (r) => COUNTED.includes(r.status) && Number(r.agent_commission_send || 0) > 0,
+              filterFn: (r) =>
+                COUNTED.includes(r.status) && Number(r.agent_commission_send || 0) > 0,
             });
           }}
           className="relative overflow-hidden bg-gradient-to-br from-[#121820] to-[#0D1117] border-white/10 shadow-lg cursor-pointer hover:border-blue-500/50 hover:shadow-blue-500/10 hover:translate-y-[-2px] transition-all group"
@@ -508,7 +548,8 @@ export function AccountingPanel() {
             setModalState({
               isOpen: true,
               title: "Detalle: Beneficio Neto de Plataforma",
-              description: "Ganancia líquida resultante tras descontar los costos de agentes de las comisiones.",
+              description:
+                "Ganancia líquida resultante tras descontar los costos de agentes de las comisiones.",
               metricType: "net",
               filterFn: (r) => COUNTED.includes(r.status),
             });
@@ -594,7 +635,9 @@ export function AccountingPanel() {
                         >
                           <td className="px-5 py-3.5">
                             <div className="flex items-center gap-2.5">
-                              <span className="text-lg group-hover:scale-110 transition-transform">{meta?.flag ?? "🌐"}</span>
+                              <span className="text-lg group-hover:scale-110 transition-transform">
+                                {meta?.flag ?? "🌐"}
+                              </span>
                               <div>
                                 <span className="font-bold text-white tracking-wide group-hover:text-primary transition-colors">
                                   {c.currency}
@@ -635,13 +678,21 @@ export function AccountingPanel() {
                   <FileSpreadsheet className="size-6 text-slate-400" />
                 </div>
                 <div className="space-y-1">
-                  <p className="font-semibold text-white text-sm">Aún no hay operaciones liquidadas en este periodo</p>
+                  <p className="font-semibold text-white text-sm">
+                    Aún no hay operaciones liquidadas en este periodo
+                  </p>
                   <p className="text-xs text-muted-foreground max-w-sm">
-                    Las transacciones completadas o pagadas aparecerán desglosadas por moneda automáticamente.
+                    Las transacciones completadas o pagadas aparecerán desglosadas por moneda
+                    automáticamente.
                   </p>
                 </div>
                 {period !== "all" && (
-                  <Button variant="ghost" size="sm" className="text-xs text-primary underline" onClick={() => setPeriod("all")}>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-xs text-primary underline"
+                    onClick={() => setPeriod("all")}
+                  >
                     Ver todo el histórico
                   </Button>
                 )}
@@ -702,7 +753,8 @@ export function AccountingPanel() {
                     setModalState({
                       isOpen: true,
                       title: "Envíos Liquidados (Completados / Pagados)",
-                      description: "Operaciones cuyo pago fue confirmado o que ya fueron entregadas al beneficiario.",
+                      description:
+                        "Operaciones cuyo pago fue confirmado o que ya fueron entregadas al beneficiario.",
                       metricType: "portfolio",
                       filterFn: (r) => COUNTED.includes(r.status),
                     });
@@ -714,7 +766,10 @@ export function AccountingPanel() {
                     Envíos Liquidados
                   </span>
                   <div className="flex items-center gap-2">
-                    <Badge variant="secondary" className="bg-emerald-500/10 text-emerald-400 border-emerald-500/20 font-bold text-xs">
+                    <Badge
+                      variant="secondary"
+                      className="bg-emerald-500/10 text-emerald-400 border-emerald-500/20 font-bold text-xs"
+                    >
                       {settled.length}
                     </Badge>
                     <span className="text-[11px] text-muted-foreground w-10 text-right">
@@ -731,7 +786,8 @@ export function AccountingPanel() {
                     setModalState({
                       isOpen: true,
                       title: "Envíos Pendientes de Pago",
-                      description: "Órdenes creadas a la espera de confirmación de pago (OXXO, SPEI, o Stripe).",
+                      description:
+                        "Órdenes creadas a la espera de confirmación de pago (OXXO, SPEI, o Stripe).",
                       metricType: "portfolio",
                       filterFn: (r) => r.status === "awaiting_payment" || r.status === "created",
                     });
@@ -743,7 +799,10 @@ export function AccountingPanel() {
                     Pendientes de pago
                   </span>
                   <div className="flex items-center gap-2">
-                    <Badge variant="secondary" className="bg-amber-500/10 text-amber-400 border-amber-500/20 font-bold text-xs">
+                    <Badge
+                      variant="secondary"
+                      className="bg-amber-500/10 text-amber-400 border-amber-500/20 font-bold text-xs"
+                    >
                       {pending.length}
                     </Badge>
                     <span className="text-[11px] text-muted-foreground w-10 text-right">
@@ -760,7 +819,8 @@ export function AccountingPanel() {
                     setModalState({
                       isOpen: true,
                       title: "Envíos Cancelados o Expirados",
-                      description: "Operaciones canceladas por el usuario, rechazadas por el banco o expiradas.",
+                      description:
+                        "Operaciones canceladas por el usuario, rechazadas por el banco o expiradas.",
                       metricType: "portfolio",
                       filterFn: (r) => r.status === "cancelled",
                     });
@@ -772,7 +832,10 @@ export function AccountingPanel() {
                     Cancelados / Expirados
                   </span>
                   <div className="flex items-center gap-2">
-                    <Badge variant="secondary" className="bg-rose-500/10 text-rose-400 border-rose-500/20 font-bold text-xs">
+                    <Badge
+                      variant="secondary"
+                      className="bg-rose-500/10 text-rose-400 border-rose-500/20 font-bold text-xs"
+                    >
                       {cancelled.length}
                     </Badge>
                     <span className="text-[11px] text-muted-foreground w-10 text-right">
@@ -786,7 +849,8 @@ export function AccountingPanel() {
           </div>
           <div className="p-4 border-t border-white/5 bg-secondary/20 rounded-b-xl">
             <p className="text-[11px] text-muted-foreground leading-relaxed">
-              💡 <strong>Criterio de liquidación:</strong> Envíos pagados, en proceso, listos para retiro y completados.
+              💡 <strong>Criterio de liquidación:</strong> Envíos pagados, en proceso, listos para
+              retiro y completados.
             </p>
           </div>
         </Card>
@@ -801,7 +865,8 @@ export function AccountingPanel() {
               Libro Contable Mensual
             </CardTitle>
             <CardDescription className="text-xs mt-0.5">
-              Haz clic sobre cualquier cierre mensual para auditar todas sus transferencias individuales
+              Haz clic sobre cualquier cierre mensual para auditar todas sus transferencias
+              individuales
             </CardDescription>
           </div>
           {byMonth.length > 0 && (
@@ -840,13 +905,19 @@ export function AccountingPanel() {
                             description: `Detalle de transacciones liquidadas durante ${formatMonth(m.month)} en ${m.currency}.`,
                             metricType: "month",
                             currencyBadge: m.currency,
-                            filterFn: (r) => monthKey(r.created_at) === m.month && r.send_currency === m.currency && COUNTED.includes(r.status),
+                            filterFn: (r) =>
+                              monthKey(r.created_at) === m.month &&
+                              r.send_currency === m.currency &&
+                              COUNTED.includes(r.status),
                           });
                         }}
                         className="hover:bg-white/[0.04] transition-colors cursor-pointer group"
                       >
                         <td className="px-5 py-3.5 font-medium text-white">
-                          <Badge variant="secondary" className="font-semibold text-xs py-0.5 group-hover:border-primary/50 transition-colors">
+                          <Badge
+                            variant="secondary"
+                            className="font-semibold text-xs py-0.5 group-hover:border-primary/50 transition-colors"
+                          >
                             {formatMonth(m.month)}
                           </Badge>
                         </td>
@@ -885,9 +956,12 @@ export function AccountingPanel() {
                 <Calendar className="size-6 text-slate-400" />
               </div>
               <div className="space-y-1">
-                <p className="font-semibold text-white text-sm">Sin movimientos contables en este periodo</p>
+                <p className="font-semibold text-white text-sm">
+                  Sin movimientos contables en este periodo
+                </p>
                 <p className="text-xs text-muted-foreground max-w-sm">
-                  Al completar transferencias se generará el balance mensual consolidado con sus márgenes netos.
+                  Al completar transferencias se generará el balance mensual consolidado con sus
+                  márgenes netos.
                 </p>
               </div>
             </div>
@@ -896,7 +970,10 @@ export function AccountingPanel() {
       </Card>
 
       {/* MODAL / DRAWER INTERACTIVO CON DETALLES COMPLETOS */}
-      <Dialog open={modalState.isOpen} onOpenChange={(open) => setModalState((prev) => ({ ...prev, isOpen: open }))}>
+      <Dialog
+        open={modalState.isOpen}
+        onOpenChange={(open) => setModalState((prev) => ({ ...prev, isOpen: open }))}
+      >
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden flex flex-col p-0 gap-0 border-white/10 bg-[#0C1017]/95 backdrop-blur-xl shadow-2xl">
           <DialogHeader className="p-6 border-b border-white/10">
             <div className="flex items-center justify-between">
@@ -919,20 +996,45 @@ export function AccountingPanel() {
             {/* Resumen rápido del modal */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mt-4 pt-3 border-t border-white/5">
               <div className="p-2.5 rounded-xl bg-white/[0.02] border border-white/5">
-                <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold block">Total Registros</span>
-                <span className="text-base font-bold text-white mt-0.5 block">{modalTotals.count}</span>
+                <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold block">
+                  Total Registros
+                </span>
+                <span className="text-base font-bold text-white mt-0.5 block">
+                  {modalTotals.count}
+                </span>
               </div>
               <div className="p-2.5 rounded-xl bg-white/[0.02] border border-white/5">
-                <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold block">Volumen Liquidadas</span>
-                <span className="text-base font-bold text-white mt-0.5 block">{modalTotals.vol.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold block">
+                  Volumen Liquidadas
+                </span>
+                <span className="text-base font-bold text-white mt-0.5 block">
+                  {modalTotals.vol.toLocaleString(undefined, {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  })}
+                </span>
               </div>
               <div className="p-2.5 rounded-xl bg-white/[0.02] border border-white/5">
-                <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold block">Comisiones Brutas</span>
-                <span className="text-base font-bold text-amber-400 mt-0.5 block">{modalTotals.fees.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold block">
+                  Comisiones Brutas
+                </span>
+                <span className="text-base font-bold text-amber-400 mt-0.5 block">
+                  {modalTotals.fees.toLocaleString(undefined, {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  })}
+                </span>
               </div>
               <div className="p-2.5 rounded-xl bg-white/[0.02] border border-white/5">
-                <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold block">Ganancia Neta</span>
-                <span className="text-base font-bold text-emerald-400 mt-0.5 block">{modalTotals.net.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold block">
+                  Ganancia Neta
+                </span>
+                <span className="text-base font-bold text-emerald-400 mt-0.5 block">
+                  {modalTotals.net.toLocaleString(undefined, {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  })}
+                </span>
               </div>
             </div>
 
@@ -959,7 +1061,9 @@ export function AccountingPanel() {
                   >
                     <div className="space-y-1 min-w-0">
                       <div className="flex items-center gap-2">
-                        <span className="font-mono font-bold text-white text-sm">{tx.reference}</span>
+                        <span className="font-mono font-bold text-white text-sm">
+                          {tx.reference}
+                        </span>
                         {getStatusBadge(tx.status)}
                         <span className="text-[11px] text-muted-foreground">
                           {formatShortDate(tx.created_at)}
@@ -968,7 +1072,10 @@ export function AccountingPanel() {
 
                       <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-muted-foreground pt-0.5">
                         <span>
-                          Destinatario: <strong className="text-slate-200">{tx.recipient_name || "Sin nombre"}</strong>
+                          Destinatario:{" "}
+                          <strong className="text-slate-200">
+                            {tx.recipient_name || "Sin nombre"}
+                          </strong>
                         </span>
                         {tx.recipient_phone && (
                           <span>
@@ -976,10 +1083,16 @@ export function AccountingPanel() {
                           </span>
                         )}
                         <span>
-                          Entrega: <strong className="text-slate-300">{deliveryLabel(tx.delivery_method || "")}</strong>
+                          Entrega:{" "}
+                          <strong className="text-slate-300">
+                            {deliveryLabel(tx.delivery_method || "")}
+                          </strong>
                         </span>
                         <span>
-                          Pago: <strong className="text-slate-300">{paymentLabel(tx.payment_method || "")}</strong>
+                          Pago:{" "}
+                          <strong className="text-slate-300">
+                            {paymentLabel(tx.payment_method || "")}
+                          </strong>
                         </span>
                       </div>
                     </div>
@@ -995,9 +1108,18 @@ export function AccountingPanel() {
                       </div>
                       <div className="flex items-center gap-2">
                         <span className="text-[11px] font-semibold text-emerald-400">
-                          Neto: +{money(Number(tx.fee_send || 0) - Number(tx.agent_commission_send || 0), tx.send_currency)}
+                          Neto: +
+                          {money(
+                            Number(tx.fee_send || 0) - Number(tx.agent_commission_send || 0),
+                            tx.send_currency,
+                          )}
                         </span>
-                        <Button variant="ghost" size="sm" className="h-6 px-1.5 text-xs text-primary gap-1" asChild>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-6 px-1.5 text-xs text-primary gap-1"
+                          asChild
+                        >
                           <Link to="/transferencia/$id" params={{ id: tx.id }} target="_blank">
                             <ExternalLink className="size-3" />
                           </Link>
@@ -1012,7 +1134,9 @@ export function AccountingPanel() {
                 <Info className="size-8 text-muted-foreground" />
                 <p className="font-semibold text-white text-sm">No se encontraron operaciones</p>
                 <p className="text-xs text-muted-foreground">
-                  {searchQuery ? "Intenta con otro término de búsqueda." : "No hay transacciones asociadas a este criterio en el rango de fechas actual."}
+                  {searchQuery
+                    ? "Intenta con otro término de búsqueda."
+                    : "No hay transacciones asociadas a este criterio en el rango de fechas actual."}
                 </p>
               </div>
             )}

@@ -4,8 +4,7 @@ import { LocaleContentPage, hreflangLinks, type PageContent } from "@/lib/seo-pa
 const CONTENT: Record<"es" | "fr" | "ht", PageContent> = {
   es: {
     title: "Enviar Dinero a MonCash | Tcho-Tcho",
-    description:
-      "Envía dinero a Haití y recíbelo directo en una billetera MonCash con Tcho-Tcho.",
+    description: "Envía dinero a Haití y recíbelo directo en una billetera MonCash con Tcho-Tcho.",
     heading: "Enviar dinero a MonCash",
     intro:
       "MonCash es uno de los métodos de entrega disponibles en Tcho-Tcho. Elígelo como opción de recepción al enviar dinero a Haití, y el dinero llega directo a la billetera móvil MonCash del destinatario.",
@@ -42,8 +41,7 @@ const CONTENT: Record<"es" | "fr" | "ht", PageContent> = {
   },
   ht: {
     title: "Voye Lajan nan MonCash | Tcho-Tcho",
-    description:
-      "Voye lajan an Ayiti epi resevwa l dirèkteman nan yon bous MonCash ak Tcho-Tcho.",
+    description: "Voye lajan an Ayiti epi resevwa l dirèkteman nan yon bous MonCash ak Tcho-Tcho.",
     heading: "Voye lajan nan MonCash",
     intro:
       "MonCash se youn nan metòd livrezon ki disponib nan Tcho-Tcho. Chwazi l kòm opsyon resepsyon lè w voye lajan an Ayiti, epi lajan an rive dirèkteman nan bous mobil MonCash destinatè a.",

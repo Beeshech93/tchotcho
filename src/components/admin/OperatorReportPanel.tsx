@@ -50,7 +50,7 @@ export function OperatorReportPanel() {
 
   const [operatorFilter, setOperatorFilter] = useState<string>("all");
 
-  const rows = data ?? [];
+  const rows = useMemo(() => data ?? [], [data]);
   const operators = Array.from(new Set(rows.map((r) => r.operator || "Sin operador"))).sort();
 
   const summary = useMemo(() => {

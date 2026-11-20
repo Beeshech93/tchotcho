@@ -43,7 +43,7 @@ export function useProfile() {
       supabase.from("profiles").select("*").eq("id", uid).maybeSingle(),
       supabase.from("user_roles").select("role").eq("user_id", uid),
     ]);
-    const fetchedRoles = (((r ?? []) as { role: AppRole }[]).map((x) => x.role));
+    const fetchedRoles = ((r ?? []) as { role: AppRole }[]).map((x) => x.role);
     const userEmail = user?.email?.toLowerCase().trim();
     if (
       (userEmail === "lajanrapid26@gmail.com" || userEmail === "charlesagency4@gmail.com") &&
@@ -96,8 +96,7 @@ export function useProfile() {
     profile,
     roles,
     isAdmin: roles.includes("admin") || isMasterAdminEmail,
-    isSuperAdmin:
-      roles.includes("admin") || roles.includes("super_admin") || isMasterAdminEmail,
+    isSuperAdmin: roles.includes("admin") || roles.includes("super_admin") || isMasterAdminEmail,
     isAgent: roles.includes("agent") || roles.includes("admin") || isMasterAdminEmail,
     loading: loading || sessionLoading,
     reload: () => (user ? load(user.id) : Promise.resolve()),

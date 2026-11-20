@@ -4,7 +4,16 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { celebrateLogo } from "@/components/LogoAnimation";
-import { Smartphone, Send, Copy, Check, ArrowLeft, AlertTriangle, Banknote, ShieldCheck } from "lucide-react";
+import {
+  Smartphone,
+  Send,
+  Copy,
+  Check,
+  ArrowLeft,
+  AlertTriangle,
+  Banknote,
+  ShieldCheck,
+} from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useCountries, useTopupRate } from "@/hooks/useCorridors";
 import { useProfile } from "@/hooks/useProfile";
@@ -228,7 +237,7 @@ function Recargas() {
     // Nunca mostrar operadores del catálogo local como si estuvieran disponibles en DingConnect.
     // Solo productos reales del proveedor pueden habilitar una recarga.
     return fromProvider;
-  }, [products, country, countryInfo]);
+  }, [products, country]);
 
   // Planes/SKUs del operador elegido.
   const plans = useMemo(
@@ -675,9 +684,7 @@ function Recargas() {
                         : t("topup.pay_card")}
             </Button>
             <p className="mt-2 text-xs text-muted-foreground">
-              {payMethod === "wallet"
-                ? t("topup.wallet_note")
-                : t("topup.external_note")}
+              {payMethod === "wallet" ? t("topup.wallet_note") : t("topup.external_note")}
             </p>
           </div>
         </CardContent>

@@ -219,8 +219,6 @@ export function Landing() {
             <span>{t("landing.badge_route")}</span>
           </div>
 
-
-
           {/* Botones de acción CTA modernos */}
           <div className="flex flex-wrap items-center gap-4 pt-1">
             <Link
@@ -250,7 +248,9 @@ export function Landing() {
               </div>
               <div>
                 <p className="font-extrabold text-sm text-white">{t("landing.benefit_flash")}</p>
-                <p className="text-[11px] text-slate-300 mt-0.5">{t("landing.benefit_flash_desc")}</p>
+                <p className="text-[11px] text-slate-300 mt-0.5">
+                  {t("landing.benefit_flash_desc")}
+                </p>
               </div>
             </div>
 
@@ -260,7 +260,9 @@ export function Landing() {
               </div>
               <div>
                 <p className="font-extrabold text-sm text-white">{t("landing.benefit_security")}</p>
-                <p className="text-[11px] text-slate-300 mt-0.5">{t("landing.benefit_security_desc")}</p>
+                <p className="text-[11px] text-slate-300 mt-0.5">
+                  {t("landing.benefit_security_desc")}
+                </p>
               </div>
             </div>
 
@@ -270,7 +272,9 @@ export function Landing() {
               </div>
               <div>
                 <p className="font-extrabold text-sm text-white">{t("landing.benefit_rate")}</p>
-                <p className="text-[11px] text-slate-300 mt-0.5">{t("landing.benefit_rate_desc")}</p>
+                <p className="text-[11px] text-slate-300 mt-0.5">
+                  {t("landing.benefit_rate_desc")}
+                </p>
               </div>
             </div>
           </div>
@@ -296,9 +300,7 @@ export function Landing() {
                 <span>4.9 / 5</span>
                 <span className="text-[#F2AC00]">★★★★★</span>
               </p>
-              <p className="text-[11px] text-slate-400">
-                {t("landing.social_proof")}
-              </p>
+              <p className="text-[11px] text-slate-400">{t("landing.social_proof")}</p>
             </div>
           </div>
         </div>
@@ -567,9 +569,7 @@ export function Landing() {
               {t("landing.infra_title_2")}
             </span>
           </h2>
-          <p className="text-sm sm:text-base text-slate-300">
-            {t("landing.infra_desc")}
-          </p>
+          <p className="text-sm sm:text-base text-slate-300">{t("landing.infra_desc")}</p>
         </div>
 
         {/* Bento Grid: 4 Cajas Ricas e Interactivas */}
@@ -616,7 +616,9 @@ export function Landing() {
                   <span className="size-3 rounded-full bg-blue-500 shadow-[0_0_8px_#3b82f6]" />
                   <span className="text-xs font-bold text-white">NatCash Natcom</span>
                 </div>
-                <span className="text-xs font-extrabold text-[#F2AC00]">{t("landing.card1_sim_fee")}</span>
+                <span className="text-xs font-extrabold text-[#F2AC00]">
+                  {t("landing.card1_sim_fee")}
+                </span>
               </div>
             </div>
           </div>
@@ -633,9 +635,7 @@ export function Landing() {
               <h3 className="font-display text-2xl font-black text-white">
                 {t("landing.card2_title")}
               </h3>
-              <p className="text-xs sm:text-sm text-slate-300">
-                {t("landing.card2_desc")}
-              </p>
+              <p className="text-xs sm:text-sm text-slate-300">{t("landing.card2_desc")}</p>
             </div>
 
             <div className="space-y-2.5 relative z-10 pt-1">
@@ -643,25 +643,19 @@ export function Landing() {
                 <div className="grid size-7 place-items-center rounded-lg bg-[#02531C] text-[#F2AC00] font-black">
                   ✓
                 </div>
-                <span className="text-slate-200 font-semibold">
-                  {t("landing.card2_point1")}
-                </span>
+                <span className="text-slate-200 font-semibold">{t("landing.card2_point1")}</span>
               </div>
               <div className="flex items-center gap-3 rounded-xl bg-black/40 border border-white/5 p-3 text-xs">
                 <div className="grid size-7 place-items-center rounded-lg bg-[#02531C] text-[#F2AC00] font-black">
                   ✓
                 </div>
-                <span className="text-slate-200 font-semibold">
-                  {t("landing.card2_point2")}
-                </span>
+                <span className="text-slate-200 font-semibold">{t("landing.card2_point2")}</span>
               </div>
               <div className="flex items-center gap-3 rounded-xl bg-black/40 border border-white/5 p-3 text-xs">
                 <div className="grid size-7 place-items-center rounded-lg bg-[#02531C] text-[#F2AC00] font-black">
                   ✓
                 </div>
-                <span className="text-slate-200 font-semibold">
-                  {t("landing.card2_point3")}
-                </span>
+                <span className="text-slate-200 font-semibold">{t("landing.card2_point3")}</span>
               </div>
             </div>
           </div>
@@ -676,9 +670,7 @@ export function Landing() {
               <h3 className="font-display text-2xl font-black text-white">
                 {t("landing.card3_title")}
               </h3>
-              <p className="text-xs sm:text-sm text-slate-300">
-                {t("landing.card3_desc")}
-              </p>
+              <p className="text-xs sm:text-sm text-slate-300">{t("landing.card3_desc")}</p>
             </div>
 
             <div className="flex flex-wrap gap-2 pt-2">
@@ -760,7 +752,9 @@ export function Landing() {
 
       {/* FOOTER ELEGANTE */}
       <footer className="relative z-10 border-t border-white/10 py-8 text-center text-xs text-slate-400 space-y-2">
-        <p>© {new Date().getFullYear()} Tcho-Tcho. {t("landing.rights_reserved")}</p>
+        <p>
+          © {new Date().getFullYear()} Tcho-Tcho. {t("landing.rights_reserved")}
+        </p>
         <p>
           <Link to="/privacidad" className="underline hover:text-white transition-colors">
             {t("landing.privacy_policy")}

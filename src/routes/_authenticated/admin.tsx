@@ -506,7 +506,8 @@ function UsersPanel() {
               </span>
             </CardTitle>
             <p className="text-xs text-muted-foreground mt-0.5">
-              Los nuevos usuarios se registran como clientes. Solo el Super Administrador puede asignar roles de Agente y Administrador.
+              Los nuevos usuarios se registran como clientes. Solo el Super Administrador puede
+              asignar roles de Agente y Administrador.
             </p>
           </div>
           <Button
@@ -572,7 +573,9 @@ function UsersPanel() {
               >
                 <div>
                   <div className="flex items-center gap-2">
-                    <p className="font-semibold text-sm">{p.full_name || p.email || "Sin nombre"}</p>
+                    <p className="font-semibold text-sm">
+                      {p.full_name || p.email || "Sin nombre"}
+                    </p>
                     {isAdmin && (
                       <span
                         className="size-2 rounded-full bg-primary"
@@ -581,7 +584,9 @@ function UsersPanel() {
                     )}
                   </div>
                   <div className="flex flex-col text-xs text-muted-foreground">
-                    {p.email && <span className="font-mono text-[11px] text-slate-300">{p.email}</span>}
+                    {p.email && (
+                      <span className="font-mono text-[11px] text-slate-300">{p.email}</span>
+                    )}
                     <span>{p.phone || "sin teléfono"}</span>
                   </div>
                   <p className="text-xs font-semibold text-emerald-400 mt-0.5">
@@ -622,7 +627,9 @@ function UsersPanel() {
                     </Badge>
                   )}
                   <Badge
-                    className={KYC_TONE[p.kyc_status as KycStatus] || "bg-muted text-muted-foreground"}
+                    className={
+                      KYC_TONE[p.kyc_status as KycStatus] || "bg-muted text-muted-foreground"
+                    }
                     variant="secondary"
                   >
                     {KYC_LABEL[p.kyc_status as KycStatus] || p.kyc_status}
@@ -645,7 +652,9 @@ function UsersPanel() {
                       size="sm"
                       variant={isAdmin ? "default" : "outline"}
                       className={
-                        isAdmin ? "gap-1.5 bg-primary text-primary-foreground font-semibold" : "gap-1.5"
+                        isAdmin
+                          ? "gap-1.5 bg-primary text-primary-foreground font-semibold"
+                          : "gap-1.5"
                       }
                       onClick={() => setEditingUser(p)}
                     >
@@ -768,7 +777,7 @@ function RatesPanel() {
           is_active: true,
           updated_at: new Date().toISOString(),
         },
-        { onConflict: "from_currency,to_currency" }
+        { onConflict: "from_currency,to_currency" },
       );
       if (error) {
         console.error("[exchange_rates error]", error);
@@ -945,15 +954,20 @@ function RatesPanel() {
                 </div>
                 <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
                   <span className="text-emerald-400 font-medium">
-                    1 {r.from_currency} = {Number(r.rate).toLocaleString(undefined, { maximumFractionDigits: 4 })}{" "}
+                    1 {r.from_currency} ={" "}
+                    {Number(r.rate).toLocaleString(undefined, { maximumFractionDigits: 4 })}{" "}
                     {r.to_currency}
                   </span>
                   <span>·</span>
-                  <span>Comisión: {Number(r.fee_percent)}% + {Number(r.fee_fixed)} {r.from_currency}</span>
+                  <span>
+                    Comisión: {Number(r.fee_percent)}% + {Number(r.fee_fixed)} {r.from_currency}
+                  </span>
                   {Number(r.agent_commission_percent || 0) > 0 && (
                     <>
                       <span>·</span>
-                      <span className="text-amber-400/90">Agente: {Number(r.agent_commission_percent)}%</span>
+                      <span className="text-amber-400/90">
+                        Agente: {Number(r.agent_commission_percent)}%
+                      </span>
                     </>
                   )}
                 </div>
