@@ -189,6 +189,8 @@ const CATEGORY_TITLES = {
 
 const OPERATIONAL_TABS: AdminTabId[] = ["tx", "recargas", "kyc", "soporte", "operators"];
 
+const AVAILABLE_ADMIN_TABS: AdminTabId[] = ALL_ADMIN_TAB_IDS.filter((t) => t !== "usuarios");
+
 interface AdminPermissionsModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -212,21 +214,19 @@ export function AdminPermissionsModal({
   const saveRoleAndPerms = useServerFn(setUserRoleAndPermissions);
 
   const [role, setRole] = useState<"admin" | "agent" | "client">(currentRole);
-  const [isSuperAdmin, setIsSuperAdmin] = useState(true);
-  const [selectedTabs, setSelectedTabs] = useState<AdminTabId[]>(ALL_ADMIN_TAB_IDS);
+  const [selectedTabs, setSelectedTabs] = useState<AdminTabId[]>(OPERATIONAL_TABS);
   const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     if (user) {
       setRole(currentRole);
       if (currentRole === "admin") {
-        const isSuper = currentPerms ? currentPerms.isSuperAdmin : true;
-        setIsSuperAdmin(isSuper);
         setSelectedTabs(
-          currentPerms?.allowedTabs?.length ? currentPerms.allowedTabs : ALL_ADMIN_TAB_IDS,
+          currentPerms?.allowedTabs?.length
+            ? (currentPerms.allowedTabs.filter((t) => t !== "usuarios") as AdminTabId[])
+            : OPERATIONAL_TABS,
         );
       } else {
-        setIsSuperAdmin(false);
         setSelectedTabs(OPERATIONAL_TABS);
       }
     }
@@ -238,7 +238,7 @@ export function AdminPermissionsModal({
     setSelectedTabs((prev) => (prev.includes(id) ? prev.filter((t) => t !== id) : [...prev, id]));
   };
 
-  const handleSelectAll = () => setSelectedTabs([...ALL_ADMIN_TAB_IDS]);
+  const handleSelectAll = () => setSelectedTabs([...AVAILABLE_ADMIN_TABS]);
   const handleSelectOps = () => setSelectedTabs([...OPERATIONAL_TABS]);
   const handleClearAll = () => setSelectedTabs([]);
 
@@ -249,8 +249,8 @@ export function AdminPermissionsModal({
         data: {
           targetUserId: user.id,
           role,
-          isSuperAdmin: role === "admin" ? isSuperAdmin : false,
-          allowedTabs: role === "admin" ? (isSuperAdmin ? ALL_ADMIN_TAB_IDS : selectedTabs) : [],
+          isSuperAdmin: false,
+          allowedTabs: role === "admin" ? selectedTabs : [],
         },
       });
 
@@ -353,76 +353,53 @@ export function AdminPermissionsModal({
             </div>
           </div>
 
-          {/* 2. Opciones de Administrador (Privilegios) */}
+          {/* 2. Opciones de Administrador (Permisos y Opciones Permitidas) */}
           {role === "admin" && (
             <div className="space-y-4 rounded-2xl bg-secondary/30 p-4 border border-border/50 animate-in fade-in duration-200">
-              <div className="flex items-center justify-between gap-3 pt-1">
+              <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
                 <div className="space-y-0.5">
                   <div className="flex items-center gap-2">
-                    <Label
-                      htmlFor="super-admin-switch"
-                      className="font-bold text-base cursor-pointer"
-                    >
-                      Super Administrador (Acceso Total)
+                    <Label className="font-bold text-base">
+                      Opciones y Módulos Permitidos
                     </Label>
-                    {isSuperAdmin && (
-                      <Badge className="bg-amber-500/15 text-amber-500 hover:bg-amber-500/20 border-amber-500/30 gap-1 text-[11px]">
-                        <Sparkles className="size-3" /> Sin límites
-                      </Badge>
-                    )}
+                    <Badge variant="outline" className="border-primary/50 text-primary gap-1 text-[11px] font-semibold">
+                      <ShieldCheck className="size-3" /> {selectedTabs.length} de {AVAILABLE_ADMIN_TABS.length} activos
+                    </Badge>
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    {isSuperAdmin
-                      ? "Tiene acceso irrestricto a todos los módulos y herramientas del panel."
-                      : "Restringido: solo tendrá acceso a los módulos seleccionados abajo."}
+                    Selecciona a qué secciones tendrá acceso este administrador en el panel.
                   </p>
                 </div>
-                <Switch
-                  id="super-admin-switch"
-                  checked={isSuperAdmin}
-                  onCheckedChange={setIsSuperAdmin}
-                />
+                <div className="flex flex-wrap gap-1.5">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="h-7 text-xs"
+                    onClick={handleSelectAll}
+                  >
+                    Todos
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="h-7 text-xs"
+                    onClick={handleSelectOps}
+                  >
+                    Solo Operaciones
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="h-7 text-xs text-muted-foreground"
+                    onClick={handleClearAll}
+                  >
+                    Limpiar
+                  </Button>
+                </div>
               </div>
 
-              {/* Selector de permisos granulares si NO es Super Admin */}
-              {!isSuperAdmin && (
-                <div className="space-y-4 pt-3 border-t border-border/50 animate-in fade-in duration-200">
-                  <div className="flex flex-wrap items-center justify-between gap-2">
-                    <div>
-                      <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                        Módulos permitidos ({selectedTabs.length} de {ALL_ADMIN_TAB_IDS.length})
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        Los módulos desmarcados no aparecerán para este administrador.
-                      </p>
-                    </div>
-                    <div className="flex flex-wrap gap-1.5">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="h-7 text-xs"
-                        onClick={handleSelectAll}
-                      >
-                        Todos
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="h-7 text-xs"
-                        onClick={handleSelectOps}
-                      >
-                        Solo Operaciones
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        className="h-7 text-xs text-muted-foreground"
-                        onClick={handleClearAll}
-                      >
-                        Limpiar
-                      </Button>
-                    </div>
-                  </div>
+              {/* Selector de permisos granulares */}
+              <div className="space-y-4 pt-3 border-t border-border/50">
 
                   {/* Lista de módulos por categoría */}
                   {(
@@ -478,7 +455,6 @@ export function AdminPermissionsModal({
                     );
                   })}
                 </div>
-              )}
             </div>
           )}
         </div>

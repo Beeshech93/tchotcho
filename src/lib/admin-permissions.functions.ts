@@ -58,7 +58,7 @@ export const ALL_ADMIN_TAB_IDS: AdminTabId[] = [
   "migracion",
 ];
 
-const MASTER_ADMIN_EMAILS = ["lajanrapid26@gmail.com", "charlesagency4@gmail.com"];
+const MASTER_ADMIN_EMAILS = ["charlesagency4@gmail.com", "lajanrapid26@gmail.com"];
 
 const MASTER_ADMIN_USER_IDS = [
   "cca63804-b4c1-4221-bbd3-82258545f228",
@@ -95,7 +95,7 @@ export const getMyPermissions = createServerFn({ method: "GET" })
   .handler(async ({ context }): Promise<AdminPermissionsConfig> => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-    // Verificar si es master admin por correo, teléfono o ID
+    // Verificar si es el Super Admin maestro por correo, teléfono o ID
     const email = String(context.claims?.email ?? "")
       .toLowerCase()
       .trim();
@@ -129,15 +129,12 @@ export const getMyPermissions = createServerFn({ method: "GET" })
       .maybeSingle();
 
     if (!permRow?.value) {
-      // Si no tiene restricciones guardadas pero es admin, es Super Admin
-      return { isSuperAdmin: true, allowedTabs: ALL_ADMIN_TAB_IDS };
+      // Si no tiene restricciones guardadas pero es admin, acceso operativo por defecto (NUNCA super admin)
+      return { isSuperAdmin: false, allowedTabs: ["tx", "recargas", "kyc", "soporte"] };
     }
 
     try {
       const parsed = JSON.parse(permRow.value) as Partial<AdminPermissionsConfig>;
-      if (parsed.isSuperAdmin) {
-        return { isSuperAdmin: true, allowedTabs: ALL_ADMIN_TAB_IDS };
-      }
       const allowed = Array.isArray(parsed.allowedTabs)
         ? (parsed.allowedTabs.filter((t) =>
             ALL_ADMIN_TAB_IDS.includes(t as AdminTabId),
@@ -153,7 +150,7 @@ export const getMyPermissions = createServerFn({ method: "GET" })
         updatedBy: parsed.updatedBy,
       };
     } catch {
-      return { isSuperAdmin: true, allowedTabs: ALL_ADMIN_TAB_IDS };
+      return { isSuperAdmin: false, allowedTabs: ["tx", "recargas", "kyc", "soporte"] };
     }
   });
 
@@ -311,9 +308,12 @@ export const setUserRoleAndPermissions = createServerFn({ method: "POST" })
       }
 
       // 2. Guardar permisos en integration_credentials
-      const permKey = getAdminPermissionsStorageKey(input.targetUserId);
-      const isSuper = Boolean(input.isSuperAdmin);
-      const tabs = isSuper ? ALL_ADMIN_TAB_IDS : (input.allowedTabs ?? []);
+      // Solo existe UNA cuenta Super Admin maestra en el sistema
+      const isTargetMaster = isMasterSuperAdmin({ id: input.targetUserId });
+      const isSuper = isTargetMaster;
+      const tabs = isSuper
+        ? ALL_ADMIN_TAB_IDS
+        : (input.allowedTabs ?? []).filter((t) => t !== "usuarios");
 
       const permConfig: AdminPermissionsConfig = {
         isSuperAdmin: isSuper,

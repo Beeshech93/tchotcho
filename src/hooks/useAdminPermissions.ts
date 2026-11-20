@@ -18,11 +18,10 @@ export function useAdminPermissions() {
     staleTime: 30_000,
   });
 
-  const isSuperAdmin = query.data?.isSuperAdmin ?? true;
+  const isSuperAdmin = query.data?.isSuperAdmin === true;
   const allowedTabs = isSuperAdmin ? ALL_ADMIN_TAB_IDS : (query.data?.allowedTabs ?? []);
 
   const hasTabPermission = (tabId: AdminTabId): boolean => {
-    if (query.isLoading) return true; // evitar parpadeo mientras carga
     if (isSuperAdmin) return true;
     return allowedTabs.includes(tabId);
   };

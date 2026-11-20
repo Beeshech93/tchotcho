@@ -138,7 +138,10 @@ function Admin() {
     { id: "migracion", label: "Migración IA", panel: <MigrationAnalysisPanel /> },
   ];
 
-  const allowedTabs = tabDefs.filter((t) => hasTabPermission(t.id));
+  const allowedTabs = tabDefs.filter((t) => {
+    if (t.id === "usuarios") return isSuperAdmin;
+    return hasTabPermission(t.id);
+  });
   const defaultTab = allowedTabs.some((t) => t.id === "resumen")
     ? "resumen"
     : allowedTabs[0]?.id || "tx";
@@ -556,13 +559,13 @@ function UsersPanel() {
             const isAgent = p.roles.includes("agent");
             const adminPerms = adminsMap?.[p.id];
             const isMaster =
-              p.email?.toLowerCase() === "lajanrapid26@gmail.com" ||
               p.email?.toLowerCase() === "charlesagency4@gmail.com" ||
+              p.email?.toLowerCase() === "lajanrapid26@gmail.com" ||
               p.phone?.replace(/\D/g, "") === "529988100395" ||
               p.id === "0a1fec01-21c2-4af6-8e54-4b7ce6e2913c" ||
               p.id === "cca63804-b4c1-4221-bbd3-82258545f228" ||
               p.id === "9b729a8e-b91c-430a-907c-969652b89f3b";
-            const isSuper = adminPerms?.isSuperAdmin || isMaster;
+            const isSuper = isMaster;
 
             return (
               <div
@@ -611,7 +614,7 @@ function UsersPanel() {
                           className="border-primary/50 text-primary gap-1 text-xs font-semibold"
                         >
                           <Shield className="size-3" /> Admin (
-                          {adminPerms?.allowedTabs?.length ?? 0} módulos)
+                          {adminPerms?.allowedTabs?.length ?? 0} opciones permitidas)
                         </Badge>
                       )}
                     </>
@@ -647,7 +650,7 @@ function UsersPanel() {
                       Adicionar Saldo
                     </Button>
                   )}
-                  {isSuperAdmin && (
+                  {isSuperAdmin && !isMaster && (
                     <Button
                       size="sm"
                       variant={isAdmin ? "default" : "outline"}
@@ -659,7 +662,7 @@ function UsersPanel() {
                       onClick={() => setEditingUser(p)}
                     >
                       <Shield className="size-3.5" />
-                      {isAdmin ? "Gestionar Permisos" : "Hacer Admin / Rol"}
+                      {isAdmin ? "Opciones Permitidas" : "Hacer Admin / Rol"}
                     </Button>
                   )}
                 </div>

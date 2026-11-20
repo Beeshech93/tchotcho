@@ -89,15 +89,15 @@ export function useProfile() {
 
   const email = user?.email?.toLowerCase().trim();
   const isMasterAdminEmail =
-    email === "lajanrapid26@gmail.com" || email === "charlesagency4@gmail.com";
+    email === "charlesagency4@gmail.com" || email === "lajanrapid26@gmail.com";
 
   return {
     user,
     profile,
     roles,
     isAdmin: roles.includes("admin") || isMasterAdminEmail,
-    isSuperAdmin: roles.includes("admin") || roles.includes("super_admin") || isMasterAdminEmail,
-    isAgent: roles.includes("agent") || roles.includes("admin") || isMasterAdminEmail,
+    isSuperAdmin: isMasterAdminEmail,
+    isAgent: roles.includes("agent") || isMasterAdminEmail,
     loading: loading || sessionLoading,
     reload: () => (user ? load(user.id) : Promise.resolve()),
   };
