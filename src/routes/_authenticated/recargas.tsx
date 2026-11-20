@@ -88,7 +88,7 @@ function Recargas() {
   const [phone, setPhone] = useState("");
   const [amount, setAmount] = useState("");
   const [payOrigin, setPayOrigin] = useState("MX");
-  const [payMethod, setPayMethod] = useState("wallet");
+  const [payMethod, setPayMethod] = useState("card");
   const [payCurrency, setPayCurrency] = useState("");
   const [pendingResult, setPendingResult] = useState<
     | { mode: "voucher"; voucher: OxxoVoucher }
@@ -109,27 +109,15 @@ function Recargas() {
 
   const payOrigins = (countries ?? []).filter((c) => c.is_origin);
   const payMethods = useMemo(
-    () =>
-      isAgent
-        ? [
-            {
-              value: "wallet",
-              label: t("topup.wallet_balance"),
-              hint: "Instantáneo",
-            },
-          ]
-        : [
-            { value: "wallet", label: t("topup.wallet_balance"), hint: "Instantáneo" },
-            ...paymentMethods(payOrigin).filter((m) => m.value !== "cash_agent"),
-          ],
-    [payOrigin, isAgent, t],
+    () => paymentMethods(payOrigin).filter((m) => m.value !== "cash_agent"),
+    [payOrigin],
   );
 
   useEffect(() => {
-    if (isAgent) {
-      setPayMethod("wallet");
+    if (!payMethods.some((m) => m.value === payMethod)) {
+      setPayMethod(payMethods[0]?.value ?? "card");
     }
-  }, [isAgent]);
+  }, [payMethods, payMethod]);
 
   // Usar la primera billetera disponible como defecto
   const wallet = useMemo(() => (wallets ?? [])[0], [wallets]);
@@ -140,8 +128,7 @@ function Recargas() {
   // escrita siga representando el mismo valor real.
   useEffect(() => {
     const originInfo = (countries ?? []).find((c) => c.is_origin && c.code === payOrigin);
-    const nextCurrency =
-      payMethod === "wallet" ? (wallet?.currency ?? "") : (originInfo?.currency ?? "");
+    const nextCurrency = originInfo?.currency ?? "USD";
     if (!nextCurrency || nextCurrency === payCurrency) return;
 
     const value = Number(amount);
@@ -346,24 +333,6 @@ function Recargas() {
         );
       }
 
-      if (payMethod === "wallet") {
-        return {
-          kind: "wallet" as const,
-          result: await sendTopup({
-            data: {
-              walletId,
-              skuCode: sku || operator,
-              operator,
-              countryCode: country,
-              phone: phoneCheck.e164,
-              amount: value,
-              topupAmount: receivedAmount,
-              topupCurrency: receivedCurrency,
-            },
-          }),
-        };
-      }
-
       return {
         kind: "checkout" as const,
         result: await createCheckout({
@@ -383,24 +352,6 @@ function Recargas() {
       };
     },
     onSuccess: (r) => {
-      if (r.kind === "wallet") {
-        toast.success(interpolate(t("topup.success_sent"), { reference: r.result.reference }));
-        celebrateLogo();
-        setPhone("");
-        setAmount("");
-        refreshWallet();
-        void qc.invalidateQueries({ queryKey: ["topups"] });
-        return;
-      }
-
-      if (r.result.mode === "checkout") {
-        setPendingResult(r.result);
-        setPhone("");
-        setAmount("");
-        void qc.invalidateQueries({ queryKey: ["topups"] });
-        return;
-      }
-
       setPendingResult(r.result);
       setPhone("");
       setAmount("");
@@ -463,7 +414,8 @@ function Recargas() {
               value={payOrigin}
               onValueChange={(v) => {
                 setPayOrigin(v);
-                setPayMethod("wallet");
+                const nextMethods = paymentMethods(v).filter((m) => m.value !== "cash_agent");
+                setPayMethod(nextMethods[0]?.value ?? "card");
               }}
             >
               <SelectTrigger>
@@ -488,7 +440,7 @@ function Recargas() {
               <SelectContent>
                 {payMethods.map((m) => (
                   <SelectItem key={m.value} value={m.value}>
-                    {m.value === "wallet" ? t("topup.wallet_balance") : paymentLabel(m.value)}
+                    {paymentLabel(m.value)}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -675,16 +627,14 @@ function Recargas() {
                 ? t("services.disabled_btn")
                 : sendMut.isPending
                   ? t("topup.sending")
-                  : payMethod === "wallet"
-                    ? t("topup.send_recharge")
-                    : payMethod === "oxxo"
-                      ? t("topup.generate_oxxo")
-                      : payMethod === "spei"
-                        ? t("topup.generate_spei")
-                        : t("topup.pay_card")}
+                  : payMethod === "oxxo"
+                    ? t("topup.generate_oxxo")
+                    : payMethod === "spei"
+                      ? t("topup.generate_spei")
+                      : t("topup.pay_card")}
             </Button>
             <p className="mt-2 text-xs text-muted-foreground">
-              {payMethod === "wallet" ? t("topup.wallet_note") : t("topup.external_note")}
+              {t("topup.external_note")}
             </p>
           </div>
         </CardContent>
