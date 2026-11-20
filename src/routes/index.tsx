@@ -166,9 +166,9 @@ export function Landing() {
         }}
       />
 
-      {/* TOP HEADER ELEGANTE Y FIJO (STICKY) */}
-      <header className="sticky top-0 z-50 w-full bg-black/70 backdrop-blur-xl border-b border-white/5 transition-all">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-3.5 py-2.5 sm:px-8 sm:py-4">
+      {/* TOP HEADER 100% FIJO (FIXED) SIN MOVERSE AL HACER SCROLL */}
+      <header className="fixed top-0 inset-x-0 z-50 w-full bg-black/90 backdrop-blur-2xl border-b border-white/10 shadow-[0_4px_24px_rgba(0,0,0,0.85)] transition-all">
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-3.5 py-2.5 sm:px-8 sm:py-3.5">
           {/* Logo Tcho-Tcho Oficial bien destacado */}
           <Link
             to="/"
@@ -209,8 +209,8 @@ export function Landing() {
         </div>
       </header>
 
-      {/* HERO SECTION DE 2 COLUMNAS */}
-      <section className="relative z-10 mx-auto grid max-w-7xl items-center gap-6 sm:gap-10 px-4 pt-3 pb-12 sm:px-8 sm:pt-10 sm:pb-20 lg:grid-cols-[1.1fr_1fr] lg:gap-14 lg:pt-14 lg:pb-24">
+      {/* HERO SECTION DE 2 COLUMNAS (con espaciado superior para el header fixed) */}
+      <section className="relative z-10 mx-auto grid max-w-7xl items-center gap-6 sm:gap-10 px-4 pt-20 pb-12 sm:px-8 sm:pt-28 sm:pb-20 lg:grid-cols-[1.1fr_1fr] lg:gap-14 lg:pt-32 lg:pb-24">
         {/* COLUMNA IZQUIERDA: Titular, Subtítulo, Botones y Píldoras de Confianza */}
         <div className="space-y-4 sm:space-y-6 flex flex-col items-center lg:items-start text-center lg:text-left">
           {/* Badge superior ultra-moderno con punto pulsante */}
