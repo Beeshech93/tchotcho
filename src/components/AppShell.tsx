@@ -86,7 +86,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const topupsEnabled = isEnabled("topups");
 
   const coreNav = [
-    { to: "/dashboard", label: t("shell.dashboard"), icon: Home },
+    ...(!isAgent ? [{ to: "/dashboard", label: t("shell.dashboard"), icon: Home }] : []),
     ...(transfersEnabled && !isAgent ? [{ to: "/enviar", label: t("shell.send_money"), icon: Send }] : []),
     ...(topupsEnabled && !isAgent ? [{ to: "/recargas", label: t("shell.topups"), icon: Smartphone }] : []),
     { to: isAgent ? "/agente" : "/historial", label: isAgent ? "Panel de Agente" : t("shell.transactions"), icon: isAgent ? Briefcase : History },
@@ -110,7 +110,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         <div className="flex flex-col gap-2">
           {/* Organization Switcher Header con Logo Tcho-Tcho bien destacado */}
           <div className="flex items-center justify-between gap-2 p-2 rounded-xl bg-white border border-slate-200/80 shadow-xs">
-            <Link to="/dashboard" className="flex min-w-0 items-center gap-2">
+            <Link to={isAgent ? "/agente" : "/dashboard"} className="flex min-w-0 items-center gap-2">
               <img src={iconAsset} alt="Tcho-Tcho" className="size-7 object-contain shrink-0" />
               <img src={logoAsset} alt="Tcho-Tcho" className="h-5 w-auto object-contain shrink-0" />
             </Link>
@@ -246,7 +246,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       <div className="flex min-h-screen flex-1 flex-col">
         {/* Mobile Header - Fijo al tope en versión móvil */}
         <header className="fixed top-0 inset-x-0 z-40 flex items-center justify-between gap-2 border-b border-slate-200 bg-white/95 px-4 py-3 pt-[calc(0.75rem+env(safe-area-inset-top,0px))] backdrop-blur-xl md:hidden shadow-xs">
-          <Link to="/dashboard" className="flex min-w-0 items-center gap-2">
+          <Link to={isAgent ? "/agente" : "/dashboard"} className="flex min-w-0 items-center gap-2">
             <span className="inline-flex items-center gap-2 rounded-xl bg-white px-2.5 py-1 shadow-xs border border-slate-200">
               <img src={iconAsset} alt="Tcho-Tcho" className="size-6 object-contain shrink-0" />
               <img src={logoAsset} alt="Tcho-Tcho" className="h-5 w-auto object-contain shrink-0" />
@@ -302,20 +302,22 @@ export function AppShell({ children }: { children: ReactNode }) {
         >
           <div className="mx-auto max-w-sm">
             <ul className="flex items-center justify-around gap-1">
-              <li>
-                <Link
-                  to="/dashboard"
-                  className={cn(
-                    "flex items-center justify-center transition-all duration-200 active:scale-95",
-                    pathname === "/dashboard"
-                      ? "size-11 rounded-full bg-[#DCFCE7] text-[#15803D] shadow-sm border-2 border-emerald-500/70 scale-105"
-                      : "size-10 rounded-full bg-slate-100 border border-slate-200 text-slate-600 hover:border-emerald-300 hover:text-[#15803D] hover:bg-emerald-50",
-                  )}
-                  aria-label={t("nav.home")}
-                >
-                  <Home className="size-5" />
-                </Link>
-              </li>
+              {!isAgent && (
+                <li>
+                  <Link
+                    to="/dashboard"
+                    className={cn(
+                      "flex items-center justify-center transition-all duration-200 active:scale-95",
+                      pathname === "/dashboard"
+                        ? "size-11 rounded-full bg-[#DCFCE7] text-[#15803D] shadow-sm border-2 border-emerald-500/70 scale-105"
+                        : "size-10 rounded-full bg-slate-100 border border-slate-200 text-slate-600 hover:border-emerald-300 hover:text-[#15803D] hover:bg-emerald-50",
+                    )}
+                    aria-label={t("nav.home")}
+                  >
+                    <Home className="size-5" />
+                  </Link>
+                </li>
+              )}
 
               {topupsEnabled && !isAgent && (
                 <li>

@@ -1,6 +1,6 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   ArrowRight,
   Eye,
@@ -37,10 +37,18 @@ export const Route = createFileRoute("/_authenticated/dashboard")({
 });
 
 export function Dashboard() {
-  const { profile, user, isAdmin } = useProfile();
+  const { profile, user, isAdmin, isAgent, loading: profileLoading } = useProfile();
+  const router = useRouter();
   const { t } = useI18n();
   const { data: countries } = useCountries();
   const [hideBalance, setHideBalance] = useState(false);
+
+  // Si el usuario es un agente operativo, redirigir a su panel central de agente
+  useEffect(() => {
+    if (!profileLoading && isAgent && !isAdmin) {
+      router.navigate({ to: "/agente", replace: true });
+    }
+  }, [profileLoading, isAgent, isAdmin, router]);
 
   const origins = (countries ?? []).filter((c) => c.is_origin);
   const destinations = (countries ?? []).filter((c) => c.is_destination && c.code !== "DO");
