@@ -167,14 +167,14 @@ export function AppShell({ children }: { children: ReactNode }) {
                     className={cn(
                       "flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs transition-all",
                       isActive
-                        ? "bg-emerald-50 text-emerald-800 border-2 border-emerald-300 shadow-2xs font-black"
-                        : "text-slate-700 hover:bg-slate-100 hover:text-slate-950 border border-transparent font-bold",
+                        ? "bg-emerald-50 text-emerald-900 border-2 border-emerald-300 shadow-2xs font-black"
+                        : "text-slate-800 hover:bg-slate-100 hover:text-slate-950 border border-transparent font-bold",
                     )}
                   >
                     <item.icon
                       className={cn(
                         "size-4 shrink-0",
-                        isActive ? "text-emerald-700" : "text-slate-500",
+                        isActive ? "text-emerald-700" : "text-slate-700",
                       )}
                     />
                     <span>{item.label}</span>
@@ -292,12 +292,12 @@ export function AppShell({ children }: { children: ReactNode }) {
           <AdBanner className="mb-5" />
           {children}
 
-          <footer className="mt-14 border-t border-slate-200 pt-6 pb-2 text-center space-y-2.5">
-            <p className="text-xs font-semibold text-slate-500">
+          <footer className="mt-14 border-t-2 border-slate-200 pt-6 pb-2 text-center space-y-2.5">
+            <p className="text-xs font-bold text-slate-700">
               Canales oficiales y redes sociales
             </p>
             <SocialLinks iconSize="size-4" className="justify-center gap-2" />
-            <p className="text-[11px] text-slate-400">
+            <p className="text-xs font-bold text-slate-600">
               © {new Date().getFullYear()} Tcho-Tcho · {t("landing.footer")}
             </p>
           </footer>

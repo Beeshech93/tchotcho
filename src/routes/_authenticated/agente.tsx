@@ -543,19 +543,17 @@ function Agente() {
 
           <Button
             onClick={() => setOpenTopupModal(true)}
-            variant="outline"
-            className="gap-2 bg-cyan-50 hover:bg-cyan-100 border-2 border-cyan-400 text-cyan-800 font-bold text-xs sm:text-sm cursor-pointer whitespace-nowrap shrink-0 rounded-xl shadow-xs"
+            className="gap-2 bg-sky-700 hover:bg-sky-800 text-white font-extrabold shadow-sm text-xs sm:text-sm whitespace-nowrap shrink-0 rounded-xl"
           >
-            <Smartphone className="size-4 text-cyan-700" />
+            <Smartphone className="size-4" />
             <span>Nueva Recarga</span>
           </Button>
 
           <Button
             onClick={() => setOpenClaimModal(true)}
-            variant="outline"
-            className="gap-2 bg-slate-50 hover:bg-slate-100 border-2 border-slate-300 text-slate-800 font-bold text-xs sm:text-sm whitespace-nowrap shrink-0 rounded-xl shadow-xs"
+            className="gap-2 bg-slate-900 hover:bg-slate-800 text-white font-extrabold shadow-sm text-xs sm:text-sm whitespace-nowrap shrink-0 rounded-xl"
           >
-            <Search className="size-4 text-emerald-700" />
+            <Search className="size-4" />
             <span>Cobrar con Referencia</span>
           </Button>
         </div>
@@ -938,19 +936,19 @@ function Agente() {
 
           <form onSubmit={handleCreateCashTransfer} className="space-y-4 pt-2">
             {/* Aviso Solo Efectivo */}
-            <div className="rounded-2xl bg-emerald-50 border-2 border-emerald-200 p-3.5 text-xs text-emerald-950 flex items-center gap-2.5 shadow-2xs">
-              <ShieldCheck className="size-5 shrink-0 text-emerald-700" />
+            <div className="rounded-2xl bg-emerald-100/90 border-2 border-emerald-400 p-3.5 text-xs text-emerald-950 flex items-center gap-2.5 shadow-2xs">
+              <ShieldCheck className="size-5 shrink-0 text-emerald-800" />
               <span className="leading-relaxed">
-                <strong className="font-bold text-emerald-900">Solo Efectivo:</strong> Debes cobrar el importe físico directamente al
+                <strong className="font-black text-emerald-950">Solo Efectivo:</strong> Debes cobrar el importe físico directamente al
                 cliente en tu ventanilla antes de confirmar.
               </span>
             </div>
 
             {/* País de Origen del Agente */}
             <div className="space-y-1.5">
-              <Label className="text-xs font-bold text-slate-800">País de Origen (Moneda de cobro)</Label>
+              <Label className="text-xs font-black text-slate-900">País de Origen (Moneda de cobro)</Label>
               <Select value={originCountry} onValueChange={setOriginCountry}>
-                <SelectTrigger className="bg-slate-50 border-slate-300 text-slate-900 font-semibold rounded-xl">
+                <SelectTrigger className="bg-white border-2 border-slate-300 text-slate-900 font-bold rounded-xl focus:border-emerald-600">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -966,7 +964,7 @@ function Agente() {
             {/* Datos del Destinatario en Haití */}
             <div className="grid gap-3 sm:grid-cols-2">
               <div className="space-y-1.5 sm:col-span-2">
-                <Label htmlFor="recipientName" className="text-xs font-bold text-slate-800">
+                <Label htmlFor="recipientName" className="text-xs font-black text-slate-900">
                   Nombre Completo del Destinatario
                 </Label>
                 <Input
@@ -975,12 +973,12 @@ function Agente() {
                   value={recipientName}
                   onChange={(e) => setRecipientName(e.target.value)}
                   required
-                  className="bg-slate-50 border-slate-300 text-slate-900 focus:bg-white rounded-xl font-medium"
+                  className="bg-white border-2 border-slate-300 text-slate-900 focus:border-emerald-600 rounded-xl font-bold"
                 />
               </div>
 
               <div className="space-y-1.5">
-                <Label htmlFor="recipientPhone" className="text-xs font-bold text-slate-800">
+                <Label htmlFor="recipientPhone" className="text-xs font-black text-slate-900">
                   Teléfono (Haití +509)
                 </Label>
                 <Input
@@ -989,14 +987,14 @@ function Agente() {
                   value={recipientPhone}
                   onChange={(e) => setRecipientPhone(e.target.value)}
                   required
-                  className="bg-slate-50 border-slate-300 text-slate-900 focus:bg-white rounded-xl font-mono"
+                  className="bg-white border-2 border-slate-300 text-slate-900 focus:border-emerald-600 rounded-xl font-mono font-bold"
                 />
               </div>
 
               <div className="space-y-1.5">
-                <Label className="text-xs font-bold text-slate-800">Ciudad de Entrega</Label>
+                <Label className="text-xs font-black text-slate-900">Ciudad de Entrega</Label>
                 <Select value={recipientCity} onValueChange={setRecipientCity}>
-                  <SelectTrigger className="bg-slate-50 border-slate-300 text-slate-900 font-semibold rounded-xl">
+                  <SelectTrigger className="bg-white border-2 border-slate-300 text-slate-900 font-bold rounded-xl focus:border-emerald-600">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -1012,9 +1010,9 @@ function Agente() {
 
             {/* Método de Entrega en Haití */}
             <div className="space-y-1.5">
-              <Label className="text-xs font-bold text-slate-800">Método de Entrega en Haití</Label>
+              <Label className="text-xs font-black text-slate-900">Método de Entrega en Haití</Label>
               <Select value={deliveryMethod} onValueChange={setDeliveryMethod}>
-                <SelectTrigger className="bg-slate-50 border-slate-300 text-slate-900 font-semibold rounded-xl">
+                <SelectTrigger className="bg-white border-2 border-slate-300 text-slate-900 font-bold rounded-xl focus:border-emerald-600">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -1029,7 +1027,7 @@ function Agente() {
 
             {/* Monto Recibido en Efectivo */}
             <div className="space-y-1.5">
-              <Label htmlFor="amountSend" className="text-xs font-bold text-slate-800">
+              <Label htmlFor="amountSend" className="text-xs font-black text-slate-900">
                 Monto en Efectivo a Enviar ({sendCur})
               </Label>
               <Input
@@ -1041,7 +1039,7 @@ function Agente() {
                 value={amountSend}
                 onChange={(e) => setAmountSend(e.target.value)}
                 required
-                className="bg-slate-50 border-slate-300 text-slate-900 focus:bg-white rounded-xl font-mono font-black text-lg"
+                className="bg-white border-2 border-slate-300 text-slate-900 focus:border-emerald-600 rounded-xl font-mono font-black text-lg"
               />
             </div>
 
@@ -1082,31 +1080,31 @@ function Agente() {
             )}
 
             {/* Estado de Billetera de Envíos de Dinero */}
-            <div className="rounded-2xl border-2 border-emerald-200 bg-emerald-50/90 p-4 text-xs space-y-2 shadow-xs">
+            <div className="rounded-2xl border-2 border-emerald-300 bg-emerald-50/90 p-4 text-xs space-y-2 shadow-xs">
               <div className="flex items-center justify-between">
-                <span className="font-extrabold text-emerald-950 flex items-center gap-2 text-sm">
-                  <div className="size-7 rounded-lg bg-emerald-600 text-white grid place-items-center shadow-xs">
+                <span className="font-black text-emerald-950 flex items-center gap-2 text-sm">
+                  <div className="size-7 rounded-lg bg-emerald-700 text-white grid place-items-center shadow-xs">
                     <Banknote className="size-4" />
                   </div>
                   Billetera de Envíos de Dinero
                 </span>
-                <span className="font-mono font-black text-emerald-900 text-base bg-emerald-100 border border-emerald-300 px-3 py-1 rounded-xl shadow-2xs">
+                <span className="font-mono font-black text-emerald-950 text-base bg-white border-2 border-emerald-400 px-3 py-1 rounded-xl shadow-2xs">
                   {transfersBalance.toLocaleString()} HTG
                 </span>
               </div>
               {parsedAmount > 0 && q.receives > transfersBalance ? (
-                <p className="text-rose-700 bg-rose-50 border border-rose-300 p-2.5 rounded-xl font-bold flex items-center gap-2 text-xs">
+                <p className="text-rose-900 bg-rose-50 border-2 border-rose-300 p-2.5 rounded-xl font-bold flex items-center gap-2 text-xs">
                   ⚠️ Saldo insuficiente: Tienes {transfersBalance.toLocaleString()} HTG y esta operación requiere {q.receives.toLocaleString()} HTG. Sin saldo operativo no puedes realizar el envío.
                 </p>
               ) : (
-                <p className="text-emerald-950/80 font-medium leading-relaxed">
+                <p className="text-emerald-950 font-bold leading-relaxed">
                   El monto a entregar ({parsedAmount > 0 ? `${q.receives.toLocaleString()} HTG` : "en HTG"}) se descontará de tu Billetera de Envíos de Dinero.
                 </p>
               )}
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="note" className="text-xs font-bold text-slate-800">
+              <Label htmlFor="note" className="text-xs font-black text-slate-900">
                 Nota interna (Opcional)
               </Label>
               <Textarea
@@ -1116,7 +1114,7 @@ function Agente() {
                 value={note}
                 onChange={(e) => setNote(e.target.value)}
                 maxLength={300}
-                className="bg-slate-50 border-slate-300 text-slate-900 focus:bg-white rounded-xl"
+                className="bg-white border-2 border-slate-300 text-slate-900 focus:border-emerald-600 rounded-xl font-medium"
               />
             </div>
 

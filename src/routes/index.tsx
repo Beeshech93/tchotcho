@@ -462,12 +462,12 @@ export function Landing() {
                   </div>
                 </div>
 
-                {/* DESTACADO INFERIOR: TU FAMILIA RECIBE (BANNER VERDE ESMERALDA VIVO) */}
-                <div className="rounded-2xl bg-[#00D084] p-4 text-black shadow-[0_12px_28px_rgba(0,208,132,0.45)] flex flex-col justify-center">
-                  <p className="text-[10px] font-black uppercase tracking-wider text-black/80">
+                {/* DESTACADO INFERIOR: TU FAMILIA RECIBE (BANNER VERDE ESMERALDA VIVO DE ALTO CONTRASTE) */}
+                <div className="rounded-2xl bg-gradient-to-r from-emerald-600 via-emerald-700 to-emerald-800 p-4 text-white shadow-lg border border-emerald-500/30 flex flex-col justify-center">
+                  <p className="text-[11px] font-black uppercase tracking-wider text-emerald-100">
                     {t("landing.family_receives")}
                   </p>
-                  <p className="mt-0.5 font-display text-3xl font-black tracking-tight text-black">
+                  <p className="mt-0.5 font-display text-3xl font-black tracking-tight text-white drop-shadow-sm">
                     {money(q.receives, receiveCurrency)}
                   </p>
                 </div>
