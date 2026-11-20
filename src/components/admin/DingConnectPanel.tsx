@@ -54,7 +54,13 @@ export function DingConnectPanel() {
   const { data: info } = useQuery({ queryKey: ["dingconnect_status"], queryFn: () => status() });
 
   const [creds, setCreds] = useState<Record<CredKey, string>>(EMPTY);
-  const setCred = (k: CredKey, v: string) => setCreds((p) => ({ ...p, [k]: v }));
+  const setCred = (k: CredKey, v: string) => {
+    const cleaned =
+      k === "DINGCONNECT_API_KEY" || k === "DINGCONNECT_WEBHOOK_SECRET"
+        ? v.replace(/^api[_-]?key:\s*/i, "").replace(/^key:\s*/i, "").replace(/^bearer\s+/i, "").trim()
+        : v.trim();
+    setCreds((p) => ({ ...p, [k]: cleaned }));
+  };
 
   const saveMut = useMutation({
     mutationFn: () => {

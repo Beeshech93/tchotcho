@@ -12,6 +12,17 @@ export type DingCredName = (typeof DING_CRED_NAMES)[number];
 
 const DEFAULT_BASE_URL = "https://api.dingconnect.com/api/V1";
 
+export function sanitizeDingKey(val: string | undefined | null): string {
+  if (!val) return "";
+  return String(val)
+    .replace(/^api[_-]?key:\s*/i, "")
+    .replace(/^key:\s*/i, "")
+    .replace(/^bearer\s+/i, "")
+    .replace(/^["']/, "")
+    .replace(/["']$/, "")
+    .trim();
+}
+
 // Cache en memoria en caso de que la tabla integration_credentials en Supabase
 // tenga restricciones RLS o falle el fetch. Se actualiza con saveDingCred.
 const inMemoryCreds: Record<string, string> = {};
@@ -41,7 +52,12 @@ export async function loadDingCreds(client?: any): Promise<Record<string, string
   }
 }
 
-export async function saveDingCred(name: string, value: string, userId: string, client?: any) {
+export async function saveDingCred(name: string, rawValue: string, userId: string, client?: any) {
+  let value = (rawValue ?? "").trim();
+  if (name === "DINGCONNECT_API_KEY" || name === "DINGCONNECT_WEBHOOK_SECRET") {
+    value = sanitizeDingKey(value);
+  }
+
   // Siempre actualizar la cache en memoria primero
   if (value) {
     inMemoryCreds[name] = value;
@@ -100,7 +116,8 @@ export async function dingStatusInfo(client?: any) {
 
 async function dingFetch(path: string, init?: RequestInit) {
   const stored = await loadDingCreds();
-  const apiKey = pick(stored, "DINGCONNECT_API_KEY");
+  const rawApiKey = pick(stored, "DINGCONNECT_API_KEY");
+  const apiKey = sanitizeDingKey(rawApiKey);
   const configuredBaseUrl = (pick(stored, "DINGCONNECT_BASE_URL") ?? DEFAULT_BASE_URL)
     .trim()
     .replace(/\/$/, "");
@@ -337,7 +354,8 @@ export async function verifyDingWebhook(opts: {
   rawBody: string;
 }): Promise<{ ok: boolean; reason?: string }> {
   const stored = await loadDingCreds();
-  const secret = pick(stored, "DINGCONNECT_WEBHOOK_SECRET");
+  const rawSecret = pick(stored, "DINGCONNECT_WEBHOOK_SECRET");
+  const secret = sanitizeDingKey(rawSecret);
   if (!secret) return { ok: false, reason: "Falta DINGCONNECT_WEBHOOK_SECRET" };
 
   if (opts.sharedSecretHeader && timingSafeEqual(opts.sharedSecretHeader.trim(), secret)) {
