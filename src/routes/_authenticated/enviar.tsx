@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { toast } from "sonner";
-import { ArrowLeft, AlertTriangle, Banknote, ShieldCheck } from "lucide-react";
+import { ArrowLeft, AlertTriangle, Banknote } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useProfile } from "@/hooks/useProfile";
 import { useCountries, useRate, fallbackRate } from "@/hooks/useCorridors";
@@ -257,15 +257,6 @@ function Enviar() {
         </div>
       )}
 
-      {isAdmin && (
-        <div className="flex items-center gap-3 rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-3.5 text-sm text-emerald-400">
-          <ShieldCheck className="size-5 shrink-0" />
-          <p className="font-medium">
-            Modo Administrador: Transacción directa al API exenta de pasarelas de pago.
-          </p>
-        </div>
-      )}
-
       {!isAdmin && isAgent && (
         <div className="flex items-center gap-3 rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-3.5 text-sm text-emerald-400">
           <Banknote className="size-5 shrink-0" />
@@ -425,26 +416,7 @@ function Enviar() {
         </CardContent>
       </Card>
 
-      {isAdmin ? (
-        <Card className="border-emerald-500/30 bg-emerald-500/5">
-          <CardHeader>
-            <CardTitle className="text-base flex items-center gap-2 text-emerald-400">
-              <ShieldCheck className="size-5" />
-              <span>Transacción Directa (Admin — Sin pasarela de pago)</span>
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="rounded-xl border border-emerald-500/20 bg-background/50 p-4">
-              <p className="font-semibold text-sm text-foreground">
-                Exento de pasarela externa de pagos
-              </p>
-              <p className="text-xs text-muted-foreground mt-1">
-                Esta remesa va directamente al API de dispersión (Bazik / MonCash / NatCash) sin requerir pago previo con tarjeta ni pasarelas externas.
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-      ) : isAgent ? (
+      {isAdmin ? null : isAgent ? (
         <Card className="border-emerald-500/30 bg-emerald-500/5">
           <CardHeader>
             <CardTitle className="text-base flex items-center gap-2 text-emerald-400">
