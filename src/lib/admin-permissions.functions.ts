@@ -463,6 +463,7 @@ export interface AdminUserListItem {
   created_at?: string;
   roles: string[];
   balanceHTG: number;
+  balanceTopupsHTG?: number;
 }
 
 /**
@@ -529,6 +530,7 @@ export const getAdminUsersList = createServerFn({ method: "GET" })
       const userRoles = rRows.filter((r) => r.user_id === u.id).map((r) => r.role);
       const userWallets = wRows.filter((w) => w.user_id === u.id);
       const htgBal = userWallets.find((w) => w.currency === "HTG")?.balance ?? 0;
+      const topupBal = userWallets.find((w) => w.currency === "HTG_RECARGAS")?.balance ?? 0;
 
       // Asegurar que administradores principales siempre tengan rol 'admin'
       const finalRoles = [...userRoles];
@@ -552,6 +554,7 @@ export const getAdminUsersList = createServerFn({ method: "GET" })
         created_at: p?.created_at || u.created_at,
         roles: finalRoles.length > 0 ? finalRoles : ["client"],
         balanceHTG: Number(htgBal),
+        balanceTopupsHTG: Number(topupBal),
       });
     }
 
@@ -561,6 +564,7 @@ export const getAdminUsersList = createServerFn({ method: "GET" })
         const userRoles = rRows.filter((r) => r.user_id === p.id).map((r) => r.role);
         const userWallets = wRows.filter((w) => w.user_id === p.id);
         const htgBal = userWallets.find((w) => w.currency === "HTG")?.balance ?? 0;
+        const topupBal = userWallets.find((w) => w.currency === "HTG_RECARGAS")?.balance ?? 0;
 
         usersMap.set(p.id, {
           id: p.id,
@@ -573,6 +577,7 @@ export const getAdminUsersList = createServerFn({ method: "GET" })
           created_at: p.created_at,
           roles: userRoles.length > 0 ? userRoles : ["client"],
           balanceHTG: Number(htgBal),
+          balanceTopupsHTG: Number(topupBal),
         });
       }
     }

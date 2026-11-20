@@ -170,6 +170,118 @@ export const dingCreateTopupCheckout = createServerFn({ method: "POST" })
       }
     }
 
+    // BILLETERA DE RECARGAS DE AGENTE: Descuento directo de saldo operativo
+    if (data.paymentMethod === "agent_wallet") {
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+      // Verificar que el usuario tenga rol de agente o admin
+      const { data: roleRows } = await supabaseAdmin
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", context.userId)
+        .in("role", ["agent", "admin"]);
+
+      if (!roleRows || roleRows.length === 0) {
+        throw new Error("Solo agentes autorizados pueden enviar recargas desde su Billetera de Recargas.");
+      }
+
+      // Buscar Billetera de Recargas (HTG_RECARGAS)
+      let { data: topupWallet } = await supabaseAdmin
+        .from("wallets")
+        .select("*")
+        .eq("user_id", context.userId)
+        .eq("currency", "HTG_RECARGAS")
+        .maybeSingle();
+
+      if (!topupWallet) {
+        // Fallback si aún no tiene HTG_RECARGAS
+        const { data: generalWallet } = await supabaseAdmin
+          .from("wallets")
+          .select("*")
+          .eq("user_id", context.userId)
+          .eq("currency", "HTG")
+          .maybeSingle();
+        topupWallet = generalWallet;
+      }
+
+      if (!topupWallet) {
+        throw new Error(
+          "No tienes una Billetera de Recargas configurada. Sin saldo operativo no puedes enviar recargas. Contacta a un administrador para recargar tu cuenta.",
+        );
+      }
+
+      const currentBal = Number(topupWallet.balance) || 0;
+      const requiredAmount = data.topupAmount; // Monto HTG a enviar a Haití
+
+      if (currentBal < requiredAmount || currentBal <= 0) {
+        throw new Error(
+          `Saldo insuficiente en tu Billetera de Recargas. Tu saldo actual es de ${currentBal.toLocaleString()} HTG y esta recarga requiere ${requiredAmount.toLocaleString()} HTG. Sin saldo no puedes realizar envíos.`,
+        );
+      }
+
+      // Descontar saldo de la billetera de recargas
+      const nextBal = Math.round((currentBal - requiredAmount) * 100) / 100;
+      await supabaseAdmin
+        .from("wallets")
+        .update({ balance: nextBal, updated_at: new Date().toISOString() })
+        .eq("id", topupWallet.id);
+
+      await supabaseAdmin.from("wallet_transactions").insert({
+        wallet_id: topupWallet.id,
+        user_id: context.userId,
+        kind: "agent_topup_out",
+        amount: -requiredAmount,
+        currency: topupWallet.currency,
+        description: `Recarga de saldo a ${data.phone} · ${data.operator ?? ""} (Ref: ${topup.reference})`,
+      });
+
+      // Disparar envío real a DingConnect
+      const { dingSendTransfer, applyDingResult } = await import("@/lib/dingconnect.server");
+      try {
+        const res = await dingSendTransfer({
+          skuCode: data.skuCode,
+          sendValue: data.topupAmount,
+          sendCurrency: data.topupCurrency,
+          accountNumber: data.phone,
+          distributorRef: topup.reference,
+        });
+
+        await applyDingResult({
+          reference: topup.reference,
+          state: res.processingState,
+          providerRef: res.providerRef,
+        });
+
+        return {
+          mode: "direct" as const,
+          reference: topup.reference,
+          status: res.processingState,
+        };
+      } catch (err: any) {
+        // Revertir y reembolsar a la Billetera de Recargas si falla DingConnect
+        await supabaseAdmin
+          .from("wallets")
+          .update({ balance: currentBal, updated_at: new Date().toISOString() })
+          .eq("id", topupWallet.id);
+
+        await supabaseAdmin.from("wallet_transactions").insert({
+          wallet_id: topupWallet.id,
+          user_id: context.userId,
+          kind: "agent_topup_refund",
+          amount: requiredAmount,
+          currency: topupWallet.currency,
+          description: `Reembolso por error de proveedor en recarga ${topup.reference}: ${err?.message || "Fallo técnico"}`,
+        });
+
+        await applyDingResult({
+          reference: topup.reference,
+          state: "failed",
+          detail: err?.message,
+        });
+        throw err;
+      }
+    }
+
     const email = context.claims?.email as string | undefined;
     const base = process.env["PUBLIC_URL"] || "https://tchotcho.app";
     const description = `Recarga ${data.phone} · ${data.operator ?? ""}`;

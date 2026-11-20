@@ -383,6 +383,31 @@ export const agentCreateCashTransfer = createServerFn({ method: "POST" })
       }
     }
 
+    // REGLA AGENTES: Sin saldo en su Billetera de Envíos de Dinero no pueden enviar nada.
+    let agentWallet: { id: string; balance: number; currency: string } | null = null;
+    if (!isAdminData) {
+      const { data: w } = await supabaseAdmin
+        .from("wallets")
+        .select("id, balance, currency")
+        .eq("user_id", context.userId)
+        .eq("currency", dc.currency)
+        .maybeSingle();
+
+      agentWallet = w;
+      if (!agentWallet) {
+        throw new Error(
+          "No tienes activa tu Billetera de Envíos de Dinero. Sin saldo operativo no puedes realizar transferencias. Contacta a un administrador para recargar tu cuenta.",
+        );
+      }
+
+      const currentBal = Number(agentWallet.balance) || 0;
+      if (currentBal < amountReceive || currentBal <= 0) {
+        throw new Error(
+          `Saldo insuficiente en tu Billetera de Envíos de Dinero. Tu saldo actual es de ${currentBal.toLocaleString()} HTG y esta operación requiere ${amountReceive.toLocaleString()} HTG. Sin saldo operativo no puedes realizar envíos.`,
+        );
+      }
+    }
+
     // Insertar transferencia en efectivo por el agente o directa por el administrador
     const { data: newTransfer, error: insertError } = await supabaseAdmin
       .from("transfers")
@@ -423,58 +448,23 @@ export const agentCreateCashTransfer = createServerFn({ method: "POST" })
         : `Pago en efectivo recibido en ventanilla por el agente. Cobrado: ${totalSend} ${oc.currency}. Comisión ganada: ${agentCommission} ${oc.currency}.`,
     });
 
-    // Descontar saldo de la billetera del agente si cuenta con saldo precargado (solo para agentes)
-    if (!isAdminData) {
-      try {
-        let { data: agentWallet } = await supabaseAdmin
-          .from("wallets")
-          .select("*")
-          .eq("user_id", context.userId)
-          .eq("currency", dc.currency)
-          .maybeSingle();
+    // Descontar saldo de la Billetera de Envíos de Dinero del agente
+    if (!isAdminData && agentWallet) {
+      const currentBal = Number(agentWallet.balance) || 0;
+      const nextBal = Math.round((currentBal - amountReceive) * 100) / 100;
+      await supabaseAdmin
+        .from("wallets")
+        .update({ balance: nextBal, updated_at: new Date().toISOString() })
+        .eq("id", agentWallet.id);
 
-        if (!agentWallet) {
-          const { data: fallbackWallet } = await supabaseAdmin
-            .from("wallets")
-            .select("*")
-            .eq("user_id", context.userId)
-            .eq("currency", oc.currency)
-            .maybeSingle();
-          agentWallet = fallbackWallet;
-        }
-
-        if (agentWallet) {
-          const requiredAmount = agentWallet.currency === dc.currency ? amountReceive : totalSend;
-          const currentBal = Number(agentWallet.balance) || 0;
-          if (currentBal < requiredAmount) {
-            throw new Error(
-              `Saldo insuficiente en tu billetera de agente (${currentBal.toLocaleString()} ${agentWallet.currency}). Esta operación requiere ${requiredAmount.toLocaleString()} ${agentWallet.currency}. Contacta a un administrador para adicionar saldo a tu cuenta.`,
-            );
-          }
-
-          const nextBal = Math.round((currentBal - requiredAmount) * 100) / 100;
-          await supabaseAdmin
-            .from("wallets")
-            .update({ balance: nextBal, updated_at: new Date().toISOString() })
-            .eq("id", agentWallet.id);
-
-          await supabaseAdmin.from("wallet_transactions").insert({
-            wallet_id: agentWallet.id,
-            user_id: context.userId,
-            kind: "agent_transfer_out",
-            amount: -requiredAmount,
-            currency: agentWallet.currency,
-            description: `Envío ${data.deliveryMethod.toUpperCase()} a ${data.recipientPhone} (Ref: ${newTransfer.reference})`,
-          });
-        }
-      } catch (balErr) {
-        if (balErr instanceof Error && balErr.message.includes("Saldo insuficiente")) {
-          // Revertir inserción de transferencia
-          await supabaseAdmin.from("transfers").delete().eq("id", newTransfer.id);
-          throw balErr;
-        }
-        console.error("Error al descontar saldo de agente:", balErr);
-      }
+      await supabaseAdmin.from("wallet_transactions").insert({
+        wallet_id: agentWallet.id,
+        user_id: context.userId,
+        kind: "agent_transfer_out",
+        amount: -amountReceive,
+        currency: agentWallet.currency,
+        description: `Envío ${data.deliveryMethod.toUpperCase()} a ${data.recipientPhone} (Ref: ${newTransfer.reference})`,
+      });
     }
 
     // Si es MonCash y Bazik está activo, disparar pago automático al beneficiario
@@ -553,6 +543,32 @@ export const agentConfirmCashPayment = createServerFn({ method: "POST" })
       throw new Error("Este envío no tiene método de pago en efectivo con agente.");
     }
 
+    // REGLA AGENTES: Verificar que el agente cuente con saldo en su Billetera de Envíos de Dinero
+    let agentWallet: { id: string; balance: number; currency: string } | null = null;
+    if (!isAdminData) {
+      const { data: w } = await supabaseAdmin
+        .from("wallets")
+        .select("id, balance, currency")
+        .eq("user_id", context.userId)
+        .eq("currency", t.receive_currency)
+        .maybeSingle();
+
+      agentWallet = w;
+      if (!agentWallet) {
+        throw new Error(
+          "No tienes activa tu Billetera de Envíos de Dinero. Contacta a un administrador para recargar tu cuenta.",
+        );
+      }
+
+      const currentBal = Number(agentWallet.balance) || 0;
+      const required = Number(t.amount_receive);
+      if (currentBal < required || currentBal <= 0) {
+        throw new Error(
+          `Saldo insuficiente en tu Billetera de Envíos de Dinero (${currentBal.toLocaleString()} HTG). Para procesar esta entrega requieres ${required.toLocaleString()} HTG.`,
+        );
+      }
+    }
+
     // Asignar al agente actual y marcar como processing
     const { error: updErr } = await supabaseAdmin
       .from("transfers")
@@ -563,6 +579,26 @@ export const agentConfirmCashPayment = createServerFn({ method: "POST" })
       .eq("id", t.id);
 
     if (updErr) throw new Error(updErr.message);
+
+    // Descontar saldo de la Billetera de Envíos de Dinero del agente
+    if (!isAdminData && agentWallet) {
+      const currentBal = Number(agentWallet.balance) || 0;
+      const required = Number(t.amount_receive);
+      const nextBal = Math.round((currentBal - required) * 100) / 100;
+      await supabaseAdmin
+        .from("wallets")
+        .update({ balance: nextBal, updated_at: new Date().toISOString() })
+        .eq("id", agentWallet.id);
+
+      await supabaseAdmin.from("wallet_transactions").insert({
+        wallet_id: agentWallet.id,
+        user_id: context.userId,
+        kind: "agent_transfer_out",
+        amount: -required,
+        currency: agentWallet.currency,
+        description: `Cobro en ventanilla de ${t.reference} (${t.delivery_method.toUpperCase()} a ${t.recipient_phone})`,
+      });
+    }
 
     await supabaseAdmin.from("transfer_events").insert({
       transfer_id: t.id,

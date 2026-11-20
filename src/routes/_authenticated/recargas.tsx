@@ -110,6 +110,14 @@ function Recargas() {
   }, [isServicesLoading, topupsEnabled, isAdmin, router]);
 
   const payOrigins = (countries ?? []).filter((c) => c.is_origin);
+  const topupWallet = useMemo(
+    () =>
+      (wallets ?? []).find((w) => w.currency === "HTG_RECARGAS") ??
+      (wallets ?? []).find((w) => w.currency === "HTG"),
+    [wallets],
+  );
+  const topupBalance = Number(topupWallet?.balance) || 0;
+
   const payMethods = useMemo(() => {
     const gatewayMethods = paymentMethods(payOrigin).filter((m) => m.value !== "cash_agent");
     if (isAdmin) {
@@ -122,16 +130,27 @@ function Recargas() {
         ...gatewayMethods,
       ];
     }
+    if (isAgent) {
+      return [
+        {
+          value: "agent_wallet",
+          label: `📱 Billetera de Recargas de Agente (${topupBalance.toLocaleString()} HTG)`,
+          hint: "Saldo operativo para recargas",
+        },
+      ];
+    }
     return gatewayMethods;
-  }, [payOrigin, isAdmin]);
+  }, [payOrigin, isAdmin, isAgent, topupBalance]);
 
   useEffect(() => {
-    if (isAdmin && (!payMethod || payMethod === "card")) {
+    if (isAdmin) {
       setPayMethod("direct");
+    } else if (isAgent) {
+      setPayMethod("agent_wallet");
     } else if (!payMethods.some((m) => m.value === payMethod)) {
-      setPayMethod(isAdmin ? "direct" : (payMethods[0]?.value ?? "card"));
+      setPayMethod(payMethods[0]?.value ?? "card");
     }
-  }, [payMethods, payMethod, isAdmin]);
+  }, [payMethods, payMethod, isAdmin, isAgent]);
 
   // Usar la primera billetera disponible como defecto
   const wallet = useMemo(() => (wallets ?? [])[0], [wallets]);
@@ -349,6 +368,15 @@ function Recargas() {
         );
       }
 
+      if (
+        payMethod === "agent_wallet" &&
+        (topupBalance <= 0 || (receivedAmount != null && topupBalance < receivedAmount))
+      ) {
+        throw new Error(
+          `Saldo insuficiente en tu Billetera de Recargas (${topupBalance.toLocaleString()} HTG). Requieres ${receivedAmount?.toLocaleString()} HTG. Sin saldo no puedes realizar envíos.`,
+        );
+      }
+
       return {
         kind: "checkout" as const,
         result: await createCheckout({
@@ -370,11 +398,15 @@ function Recargas() {
     onSuccess: (r) => {
       if ((r.result as any).mode === "direct") {
         toast.success(
-          `¡Recarga directa enviada con éxito! Referencia: ${(r.result as any).reference}`,
+          payMethod === "agent_wallet"
+            ? `¡Recarga procesada exitosamente con saldo de agente! Ref: ${(r.result as any).reference}`
+            : `¡Recarga directa enviada con éxito! Referencia: ${(r.result as any).reference}`,
         );
         celebrateLogo();
         setPhone("");
         setAmount("");
+        refreshWallet();
+        void qc.invalidateQueries({ queryKey: ["wallets"] });
         void qc.invalidateQueries({ queryKey: ["topups"] });
         return;
       }
@@ -481,7 +513,7 @@ function Recargas() {
               <SelectContent>
                 {payMethods.map((m) => (
                   <SelectItem key={m.value} value={m.value}>
-                    {paymentLabel(m.value)}
+                    {m.label || paymentLabel(m.value)}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -651,15 +683,38 @@ function Recargas() {
           </div>
 
           <div className="sm:col-span-2">
+            {isAgent && (
+              <div className="rounded-xl border border-cyan-500/30 bg-cyan-950/20 p-3 text-xs space-y-1 mb-3">
+                <div className="flex items-center justify-between">
+                  <span className="font-bold text-cyan-400 flex items-center gap-1.5">
+                    <Smartphone className="size-4" /> Billetera de Recargas (Saldo de Agente)
+                  </span>
+                  <span className="font-extrabold text-[#F2AC00]">
+                    {topupBalance.toLocaleString()} HTG
+                  </span>
+                </div>
+                {receivedAmount != null && receivedAmount > topupBalance ? (
+                  <p className="text-red-400 font-semibold">
+                    ⚠️ Saldo insuficiente: Tienes {topupBalance.toLocaleString()} HTG y esta recarga requiere {receivedAmount.toLocaleString()} HTG. Sin saldo operativo no puedes enviar recargas.
+                  </p>
+                ) : (
+                  <p className="text-slate-300">
+                    Esta recarga se descontará directamente de tu Billetera de Recargas.
+                  </p>
+                )}
+              </div>
+            )}
+
             <Button
               className="w-full"
               disabled={
                 !topupsEnabled ||
                 sendMut.isPending ||
                 !phoneCheck.ok ||
-                (!isAdmin && profile?.kyc_status !== "approved") ||
+                (!isAdmin && !isAgent && profile?.kyc_status !== "approved") ||
                 missingRate ||
-                !providerAmountValid
+                !providerAmountValid ||
+                (isAgent && (topupBalance <= 0 || (receivedAmount != null && topupBalance < receivedAmount)))
               }
               onClick={() => sendMut.mutate()}
             >
@@ -670,16 +725,22 @@ function Recargas() {
                   ? t("topup.sending")
                   : payMethod === "direct"
                     ? "⚡ Enviar recarga directa (Admin)"
-                    : payMethod === "oxxo"
-                      ? t("topup.generate_oxxo")
-                      : payMethod === "spei"
-                        ? t("topup.generate_spei")
-                        : t("topup.pay_card")}
+                    : payMethod === "agent_wallet"
+                      ? receivedAmount != null && topupBalance < receivedAmount
+                        ? "Saldo insuficiente en Billetera de Recargas"
+                        : `⚡ Enviar recarga con saldo de agente (${receivedAmount?.toLocaleString() ?? amount} HTG)`
+                      : payMethod === "oxxo"
+                        ? t("topup.generate_oxxo")
+                        : payMethod === "spei"
+                          ? t("topup.generate_spei")
+                          : t("topup.pay_card")}
             </Button>
             <p className="mt-2 text-xs text-muted-foreground">
               {payMethod === "direct"
                 ? "⚡ Transacción directa autorizada como Administrador: la recarga se procesa de inmediato en DingConnect sin cobro externo."
-                : t("topup.external_note")}
+                : payMethod === "agent_wallet"
+                  ? "📱 Modo Agente: La recarga se descontará de tu saldo operativo de recargas y se enviará de inmediato al teléfono de destino."
+                  : t("topup.external_note")}
             </p>
           </div>
         </CardContent>

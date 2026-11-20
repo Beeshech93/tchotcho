@@ -649,9 +649,15 @@ function UsersPanel() {
                     <span>{p.phone || "sin teléfono"}</span>
                   </div>
                   {isAgent && (
-                    <p className="text-xs font-semibold text-emerald-400 mt-0.5">
-                      Saldo operativo agente: {p.balanceHTG.toLocaleString()} HTG
-                    </p>
+                    <div className="flex flex-wrap items-center gap-x-2 text-xs font-semibold mt-0.5">
+                      <span className="text-emerald-400">
+                        Envíos: {p.balanceHTG.toLocaleString()} HTG
+                      </span>
+                      <span className="text-slate-500">·</span>
+                      <span className="text-cyan-400">
+                        Recargas: {(p.balanceTopupsHTG ?? 0).toLocaleString()} HTG
+                      </span>
+                    </div>
                   )}
                 </div>
                 <div className="flex flex-wrap items-center gap-1.5">

@@ -6,6 +6,7 @@ const adjustAgentBalanceSchema = z.object({
   agentUserId: z.string().uuid("ID de usuario inválido"),
   amount: z.number().refine((val) => val !== 0, "El monto debe ser diferente de cero"),
   currency: z.string().trim().default("HTG"),
+  walletType: z.enum(["transfers", "topups"]).default("transfers"),
   description: z.string().trim().optional(),
 });
 
@@ -13,6 +14,9 @@ export type AdjustAgentBalanceInput = z.infer<typeof adjustAgentBalanceSchema>;
 
 /**
  * Permite a los administradores adicionar o ajustar saldo a la billetera de un agente.
+ * Soporta de forma separada:
+ * - walletType "transfers": Billetera de Envíos de Dinero (MonCash/NatCash/Efectivo) -> currency: 'HTG'
+ * - walletType "topups": Billetera de Recargas Telefónicas (DingConnect) -> currency: 'HTG_RECARGAS'
  */
 export const adminAdjustAgentBalance = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -45,14 +49,19 @@ export const adminAdjustAgentBalance = createServerFn({ method: "POST" })
       );
     }
 
-    const currency = (input.currency || "HTG").toUpperCase();
+    const targetCurrency =
+      input.walletType === "topups" ? "HTG_RECARGAS" : (input.currency || "HTG").toUpperCase();
+    const walletLabel =
+      input.walletType === "topups"
+        ? "Billetera de Recargas Telefónicas"
+        : "Billetera de Envíos de Dinero";
 
-    // 1. Obtener o crear billetera para el agente
+    // 1. Obtener o crear billetera específica para el agente
     const { data: existingWallet, error: fetchErr } = await supabaseAdmin
       .from("wallets")
       .select("*")
       .eq("user_id", input.agentUserId)
-      .eq("currency", currency)
+      .eq("currency", targetCurrency)
       .maybeSingle();
 
     if (fetchErr) {
@@ -66,7 +75,7 @@ export const adminAdjustAgentBalance = createServerFn({ method: "POST" })
         .from("wallets")
         .insert({
           user_id: input.agentUserId,
-          currency,
+          currency: targetCurrency,
           balance: 0,
           status: "active",
         })
@@ -74,7 +83,7 @@ export const adminAdjustAgentBalance = createServerFn({ method: "POST" })
         .single();
 
       if (createError || !created) {
-        throw new Error(createError?.message || "No se pudo crear la billetera para el agente.");
+        throw new Error(createError?.message || `No se pudo crear la ${walletLabel} para el agente.`);
       }
       wallet = created;
     }
@@ -83,7 +92,7 @@ export const adminAdjustAgentBalance = createServerFn({ method: "POST" })
     const newBalance = Math.round((currentBalance + input.amount) * 100) / 100;
     if (newBalance < 0) {
       throw new Error(
-        `El saldo resultante no puede ser negativo. Saldo actual: ${currentBalance} ${currency}.`,
+        `El saldo resultante no puede ser negativo. Saldo actual en ${walletLabel}: ${currentBalance.toLocaleString()} HTG.`,
       );
     }
 
@@ -112,15 +121,15 @@ export const adminAdjustAgentBalance = createServerFn({ method: "POST" })
     const customNote = input.description?.trim();
     const actionLabel = input.amount > 0 ? `+${input.amount}` : `${input.amount}`;
     const desc = customNote
-      ? `${customNote} (Por: ${adminName})`
-      : `Saldo ${input.amount > 0 ? "acreditado" : "ajustado"} (${actionLabel} ${currency}) por Admin: ${adminName}`;
+      ? `${customNote} (${walletLabel} · Por: ${adminName})`
+      : `Saldo ${input.amount > 0 ? "acreditado" : "ajustado"} (${actionLabel} HTG) en ${walletLabel} por Admin: ${adminName}`;
 
     await supabaseAdmin.from("wallet_transactions").insert({
       wallet_id: wallet.id,
       user_id: input.agentUserId,
       kind: input.amount > 0 ? "admin_deposit" : "admin_deduct",
       amount: input.amount,
-      currency,
+      currency: targetCurrency,
       description: desc,
     });
 
@@ -129,8 +138,9 @@ export const adminAdjustAgentBalance = createServerFn({ method: "POST" })
       walletId: wallet.id,
       previousBalance: currentBalance,
       newBalance,
-      currency,
-      message: `Saldo ${input.amount > 0 ? "adicionado" : "ajustado"} con éxito. Nuevo balance: ${newBalance.toLocaleString()} ${currency}.`,
+      currency: targetCurrency,
+      walletType: input.walletType,
+      message: `Saldo ${input.amount > 0 ? "adicionado" : "ajustado"} con éxito en ${walletLabel}. Nuevo balance: ${newBalance.toLocaleString()} HTG.`,
     };
   });
 
@@ -211,6 +221,7 @@ export const getAgentBalanceHistory = createServerFn({ method: "POST" })
 
 /**
  * Consulta las billeteras y saldos de un usuario específico (para el panel de administración).
+ * Garantiza que existan tanto la billetera de Envíos de Dinero (HTG) como la de Recargas (HTG_RECARGAS).
  */
 export const getAgentWallets = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -224,6 +235,34 @@ export const getAgentWallets = createServerFn({ method: "POST" })
     }
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    // Asegurar que ambas billeteras existan para el usuario agente
+    const { data: existingWallets } = await supabaseAdmin
+      .from("wallets")
+      .select("*")
+      .eq("user_id", input.userId);
+
+    const hasTransfers = existingWallets?.some((w) => w.currency === "HTG");
+    const hasTopups = existingWallets?.some((w) => w.currency === "HTG_RECARGAS");
+
+    if (!hasTransfers) {
+      await supabaseAdmin.from("wallets").insert({
+        user_id: input.userId,
+        currency: "HTG",
+        balance: 0,
+        status: "active",
+      });
+    }
+
+    if (!hasTopups) {
+      await supabaseAdmin.from("wallets").insert({
+        user_id: input.userId,
+        currency: "HTG_RECARGAS",
+        balance: 0,
+        status: "active",
+      });
+    }
+
     const { data, error } = await supabaseAdmin
       .from("wallets")
       .select("*")
@@ -231,5 +270,50 @@ export const getAgentWallets = createServerFn({ method: "POST" })
       .order("currency");
 
     if (error) throw new Error(error.message);
+    return data ?? [];
+  });
+
+/**
+ * Asegura que el agente autenticado tenga activas sus 2 billeteras:
+ * 1. Envíos de Dinero (HTG)
+ * 2. Recargas Telefónicas (HTG_RECARGAS)
+ */
+export const ensureMyAgentWallets = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const { data: existing } = await supabaseAdmin
+      .from("wallets")
+      .select("*")
+      .eq("user_id", context.userId);
+
+    const hasTransfers = existing?.some((w) => w.currency === "HTG");
+    const hasTopups = existing?.some((w) => w.currency === "HTG_RECARGAS");
+
+    if (!hasTransfers) {
+      await supabaseAdmin.from("wallets").insert({
+        user_id: context.userId,
+        currency: "HTG",
+        balance: 0,
+        status: "active",
+      });
+    }
+
+    if (!hasTopups) {
+      await supabaseAdmin.from("wallets").insert({
+        user_id: context.userId,
+        currency: "HTG_RECARGAS",
+        balance: 0,
+        status: "active",
+      });
+    }
+
+    const { data } = await supabaseAdmin
+      .from("wallets")
+      .select("*")
+      .eq("user_id", context.userId)
+      .order("currency");
+
     return data ?? [];
   });

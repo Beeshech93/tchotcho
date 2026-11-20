@@ -120,13 +120,20 @@ function Agente() {
   const { data: countries } = useCountries();
   const { data: wallets } = useWallets();
 
-  const agentWallet = useMemo(
-    () => (wallets ?? []).find((w) => w.currency === "HTG") ?? (wallets ?? [])[0],
+  const transfersWallet = useMemo(
+    () => (wallets ?? []).find((w) => w.currency === "HTG"),
     [wallets],
   );
-  const agentBalanceLabel = agentWallet
-    ? `${Number(agentWallet.balance).toLocaleString()} ${agentWallet.currency}`
-    : "0.00 HTG";
+  const topupsWallet = useMemo(
+    () => (wallets ?? []).find((w) => w.currency === "HTG_RECARGAS"),
+    [wallets],
+  );
+
+  const transfersBalance = Number(transfersWallet?.balance) || 0;
+  const topupsBalance = Number(topupsWallet?.balance) || 0;
+
+  const transfersBalanceLabel = `${transfersBalance.toLocaleString()} HTG`;
+  const topupsBalanceLabel = `${topupsBalance.toLocaleString()} HTG`;
 
   // Estados de control para modales
   const [openNewCashModal, setOpenNewCashModal] = useState(false);
@@ -249,6 +256,13 @@ function Agente() {
       return;
     }
 
+    if (!isAdmin && (transfersBalance <= 0 || q.receives > transfersBalance)) {
+      toast.error(
+        `Saldo insuficiente en tu Billetera de Envíos de Dinero. Tu saldo actual es de ${transfersBalance.toLocaleString()} HTG y esta operación requiere ${q.receives.toLocaleString()} HTG. Sin saldo no puedes realizar envíos.`,
+      );
+      return;
+    }
+
     setIsSubmittingCash(true);
     try {
       const res = await createCashTransfer({
@@ -272,6 +286,7 @@ function Agente() {
         setAmountSend("");
         setNote("");
         qc.invalidateQueries({ queryKey: ["agent-transfers"] });
+        qc.invalidateQueries({ queryKey: ["wallets"] });
       }
     } catch (err) {
       toast.error(
@@ -299,6 +314,7 @@ function Agente() {
         setClaimReference("");
         setOpenClaimModal(false);
         qc.invalidateQueries({ queryKey: ["agent-transfers"] });
+        qc.invalidateQueries({ queryKey: ["wallets"] });
       }
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "No se pudo cobrar la referencia");
@@ -442,14 +458,21 @@ function Agente() {
         </div>
       </div>
 
-      {/* Tarjetas KPI de Rendimiento del Agente */}
-      <div className="grid gap-3 sm:grid-cols-5">
+      {/* Tarjetas KPI de Rendimiento del Agente (Dos billeteras independientes) */}
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-6">
         <StatCard
-          icon={Wallet}
-          label="Saldo Billetera Agente"
-          value={agentBalanceLabel}
+          icon={Banknote}
+          label="Billetera Envíos de Dinero"
+          value={transfersBalanceLabel}
           tone="text-[#F2AC00] font-black"
-          hint="Saldo operativo asignado por admin"
+          hint="Saldo para remesas MonCash y NatCash"
+        />
+        <StatCard
+          icon={Smartphone}
+          label="Billetera Recargas"
+          value={topupsBalanceLabel}
+          tone="text-cyan-400 font-black"
+          hint="Saldo para recargas telefónicas Haití"
         />
         <StatCard
           icon={Banknote}
@@ -701,6 +724,27 @@ function Agente() {
               </div>
             )}
 
+            {/* Estado de Billetera de Envíos de Dinero */}
+            <div className="rounded-xl border border-emerald-500/30 bg-emerald-950/20 p-3 text-xs space-y-1">
+              <div className="flex items-center justify-between">
+                <span className="font-bold text-emerald-400 flex items-center gap-1.5">
+                  <Banknote className="size-4" /> Billetera de Envíos de Dinero
+                </span>
+                <span className="font-extrabold text-[#F2AC00]">
+                  {transfersBalance.toLocaleString()} HTG
+                </span>
+              </div>
+              {parsedAmount > 0 && q.receives > transfersBalance ? (
+                <p className="text-red-400 font-semibold">
+                  ⚠️ Saldo insuficiente: Tienes {transfersBalance.toLocaleString()} HTG y esta operación requiere {q.receives.toLocaleString()} HTG. Sin saldo operativo no puedes realizar el envío.
+                </p>
+              ) : (
+                <p className="text-slate-300">
+                  El monto a entregar ({parsedAmount > 0 ? `${q.receives.toLocaleString()} HTG` : "en HTG"}) se descontará de tu Billetera de Envíos de Dinero.
+                </p>
+              )}
+            </div>
+
             <div className="space-y-1.5">
               <Label htmlFor="note" className="text-xs">
                 Nota interna (Opcional)
@@ -726,11 +770,19 @@ function Agente() {
               </Button>
               <Button
                 type="submit"
-                disabled={isSubmittingCash || parsedAmount <= 0}
+                disabled={
+                  isSubmittingCash ||
+                  parsedAmount <= 0 ||
+                  (!isAdmin && (transfersBalance <= 0 || (parsedAmount > 0 && q.receives > transfersBalance)))
+                }
                 className="gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold"
               >
                 <Banknote className="size-4" />
-                {isSubmittingCash ? "Registrando..." : "Cobrar en Efectivo y Procesar"}
+                {isSubmittingCash
+                  ? "Registrando..."
+                  : !isAdmin && parsedAmount > 0 && q.receives > transfersBalance
+                    ? "Saldo insuficiente para enviar"
+                    : "Cobrar en Efectivo y Procesar"}
               </Button>
             </DialogFooter>
           </form>

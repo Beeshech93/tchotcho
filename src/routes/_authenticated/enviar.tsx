@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { ArrowLeft, AlertTriangle, Banknote } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useProfile } from "@/hooks/useProfile";
+import { useWallets } from "@/hooks/useWallet";
 import { useCountries, useRate, fallbackRate } from "@/hooks/useCorridors";
 import { useServicesConfig } from "@/hooks/useServicesConfig";
 import { agentCreateCashTransfer } from "@/lib/transfers.functions";
@@ -51,6 +52,13 @@ function Enviar() {
   const createCashTransfer = useServerFn(agentCreateCashTransfer);
   const { t } = useI18n();
   const { data: countries } = useCountries();
+  const { data: wallets } = useWallets();
+
+  const transfersWallet = useMemo(
+    () => (wallets ?? []).find((w) => w.currency === "HTG"),
+    [wallets],
+  );
+  const transfersBalance = Number(transfersWallet?.balance) || 0;
 
   const schema = useMemo(
     () =>
@@ -282,11 +290,24 @@ function Enviar() {
       )}
 
       {!isAdmin && isAgent && (
-        <div className="flex items-center gap-3 rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-3.5 text-sm text-emerald-400">
-          <Banknote className="size-5 shrink-0" />
-          <p className="font-medium">
-            Modo Agente: Registro directo con cobro de efectivo en ventanilla física.
-          </p>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-3.5 text-sm text-emerald-400">
+          <div className="flex items-center gap-3">
+            <Banknote className="size-5 shrink-0" />
+            <div>
+              <p className="font-bold">
+                Modo Agente: Cobro de efectivo en ventanilla física.
+              </p>
+              <p className="text-xs text-slate-300 mt-0.5">
+                La remesa se descuenta de tu Billetera de Envíos de Dinero ({transfersBalance.toLocaleString()} HTG disponibles).
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2 font-bold text-xs shrink-0">
+            <span className="text-slate-300">Saldo Envíos:</span>
+            <span className="text-[#F2AC00] text-sm font-extrabold">
+              {transfersBalance.toLocaleString()} HTG
+            </span>
+          </div>
         </div>
       )}
 
@@ -477,7 +498,11 @@ function Enviar() {
         size="lg"
         className="w-full text-base font-semibold"
         disabled={
-          saving || !cfg || (!isAdmin && profile?.kyc_status !== "approved") || !transfersEnabled
+          saving ||
+          !cfg ||
+          (!isAdmin && !isAgent && profile?.kyc_status !== "approved") ||
+          !transfersEnabled ||
+          (!isAdmin && isAgent && (transfersBalance <= 0 || q.receives > transfersBalance))
         }
       >
         {!transfersEnabled
@@ -486,7 +511,9 @@ function Enviar() {
             ? t("send.creating")
             : isAdmin
               ? `⚡ Enviar transferencia directa (${money(q.total, sendCur)})`
-              : `${t("send.confirm")} ${money(q.total, sendCur)}`}
+              : !isAdmin && isAgent && (transfersBalance <= 0 || q.receives > transfersBalance)
+                ? "Saldo insuficiente en Billetera de Envíos"
+                : `${t("send.confirm")} ${money(q.total, sendCur)}`}
       </Button>
     </form>
   );
