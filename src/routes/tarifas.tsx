@@ -3,12 +3,12 @@ import { ContentPage } from "@/components/ContentPage";
 import { hreflangLinks } from "@/lib/seo-page-helpers";
 
 export const CONTENT = {
-  title: "Fees | Lajan Rapid",
+  title: "Fees | Tcho-Tcho",
   description:
-    "See exactly what you pay to send money to Haiti with Lajan Rapid: exchange rate, fee, and the exact amount your family receives, before you confirm.",
+    "See exactly what you pay to send money to Haiti with Tcho-Tcho: exchange rate, fee, and the exact amount your family receives, before you confirm.",
   heading: "Transparent fees",
   intro:
-    "Lajan Rapid shows the exchange rate, fee, and the exact amount your recipient will receive before you confirm any transfer — no hidden costs.",
+    "Tcho-Tcho shows the exchange rate, fee, and the exact amount your recipient will receive before you confirm any transfer — no hidden costs.",
   sections: [
     {
       title: "What you see before confirming",

@@ -3,12 +3,12 @@ import { ContentPage } from "@/components/ContentPage";
 import { hreflangLinks } from "@/lib/seo-page-helpers";
 
 export const CONTENT = {
-  title: "Send Money to Haiti | Lajan Rapid",
+  title: "Send Money to Haiti | Tcho-Tcho",
   description:
-    "Find out how to send money to Haiti with Lajan Rapid: available countries, payment methods, receiving options, fees, and tracking.",
+    "Find out how to send money to Haiti with Tcho-Tcho: available countries, payment methods, receiving options, fees, and tracking.",
   heading: "Send money to Haiti",
   intro:
-    "Lajan Rapid is a platform designed to make transfers to Haiti easier. Availability of each country, payment method, and receiving method depends on what's currently enabled on the platform.",
+    "Tcho-Tcho is a platform designed to make transfers to Haiti easier. Availability of each country, payment method, and receiving method depends on what's currently enabled on the platform.",
   sections: [
     {
       title: "Countries available to send from",
@@ -50,9 +50,9 @@ export const Route = createFileRoute("/enviar-dinero-a-haiti")({
         children: JSON.stringify({
           "@context": "https://schema.org",
           "@type": "Service",
-          name: "Send Money to Haiti — Lajan Rapid",
+          name: "Send Money to Haiti — Tcho-Tcho",
           serviceType: "Money transfer",
-          provider: { "@type": "Organization", name: "Lajan Rapid" },
+          provider: { "@type": "Organization", name: "Tcho-Tcho" },
           areaServed: "Haiti",
         }),
       },

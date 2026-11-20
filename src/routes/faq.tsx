@@ -4,42 +4,42 @@ import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 
 const FAQ_ITEMS = [
   {
-    q: "What is Lajan Rapid?",
-    a: "Lajan Rapid is an international money transfer and remittance service designed to facilitate transfers to Haiti.",
+    q: "What is Tcho-Tcho?",
+    a: "Tcho-Tcho is an international money transfer and remittance service designed to facilitate transfers to Haiti.",
   },
   {
     q: "Can I send money to Haiti from the United States?",
-    a: "Lajan Rapid provides a platform for international money transfers to Haiti. Availability of specific payment and payout methods depends on the user's location and the services currently supported.",
+    a: "Tcho-Tcho provides a platform for international money transfers to Haiti. Availability of specific payment and payout methods depends on the user's location and the services currently supported.",
   },
   {
     q: "Can I send money to Haiti from Canada?",
-    a: "Lajan Rapid is designed to support international remittances to Haiti, subject to available services and applicable requirements.",
+    a: "Tcho-Tcho is designed to support international remittances to Haiti, subject to available services and applicable requirements.",
   },
   {
     q: "Can I send money from Mexico to Haiti?",
-    a: "Lajan Rapid is designed for international transfers from supported markets to Haiti.",
+    a: "Tcho-Tcho is designed for international transfers from supported markets to Haiti.",
   },
   {
     q: "Can recipients receive money in Haiti?",
-    a: "Available receiving methods depend on the services supported by Lajan Rapid at the time of the transaction.",
+    a: "Available receiving methods depend on the services supported by Tcho-Tcho at the time of the transaction.",
   },
 ];
 
 export const Route = createFileRoute("/faq")({
   head: () => ({
     meta: [
-      { title: "Frequently Asked Questions | Lajan Rapid" },
+      { title: "Frequently Asked Questions | Tcho-Tcho" },
       {
         name: "description",
         content:
-          "Answers to common questions about Lajan Rapid: sending money to Haiti from the USA, Canada, Mexico and other countries.",
+          "Answers to common questions about Tcho-Tcho: sending money to Haiti from the USA, Canada, Mexico and other countries.",
       },
       { name: "robots", content: "index, follow" },
-      { property: "og:title", content: "Frequently Asked Questions | Lajan Rapid" },
+      { property: "og:title", content: "Frequently Asked Questions | Tcho-Tcho" },
       {
         property: "og:description",
         content:
-          "Answers to common questions about Lajan Rapid: sending money to Haiti from the USA, Canada, Mexico and other countries.",
+          "Answers to common questions about Tcho-Tcho: sending money to Haiti from the USA, Canada, Mexico and other countries.",
       },
     ],
     links: [{ rel: "canonical", href: "https://tchotcho.app/faq" }],
@@ -67,16 +67,16 @@ function FaqPage() {
       <header className="mx-auto flex max-w-3xl items-center justify-between px-5 py-5">
         <Link to="/" className="flex items-center gap-2.5">
           <span className="grid size-9 place-items-center overflow-hidden rounded-xl bg-logo-surface p-1 shadow-soft">
-            <img src={logoAsset} alt="Lajan Rapid" className="h-full w-full object-contain" />
+            <img src={logoAsset} alt="Tcho-Tcho" className="h-full w-full object-contain" />
           </span>
-          <span className="font-display text-lg font-semibold tracking-tight">Lajan Rapid</span>
+          <span className="font-display text-lg font-semibold tracking-tight">Tcho-Tcho</span>
         </Link>
         <LanguageSwitcher className="h-9 w-[132px] text-xs" />
       </header>
 
       <section className="mx-auto max-w-3xl space-y-8 px-5 pb-20 pt-4">
         <h1 className="font-display text-3xl font-bold">
-          Frequently Asked Questions About Lajan Rapid
+          Frequently Asked Questions About Tcho-Tcho
         </h1>
 
         <div className="space-y-6">
@@ -90,7 +90,7 @@ function FaqPage() {
 
         <p className="pt-4 text-sm text-muted-foreground">
           <Link to="/" className="underline hover:text-foreground">
-            Lajan Rapid
+            Tcho-Tcho
           </Link>
         </p>
       </section>

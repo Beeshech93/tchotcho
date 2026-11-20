@@ -3,19 +3,19 @@ import { ContentPage } from "@/components/ContentPage";
 import { hreflangLinks } from "@/lib/seo-page-helpers";
 
 export const CONTENT = {
-  title: "Send Money to NatCash | Lajan Rapid",
+  title: "Send Money to NatCash | Tcho-Tcho",
   description:
-    "Send money to Haiti and have it delivered directly to a NatCash mobile wallet with Lajan Rapid.",
+    "Send money to Haiti and have it delivered directly to a NatCash mobile wallet with Tcho-Tcho.",
   heading: "Send money to NatCash",
   intro:
-    "NatCash is one of the delivery methods available on Lajan Rapid. Choose it as the receiving option when you send money to Haiti, and the funds go straight to the recipient's NatCash mobile wallet.",
+    "NatCash is one of the delivery methods available on Tcho-Tcho. Choose it as the receiving option when you send money to Haiti, and the funds go straight to the recipient's NatCash mobile wallet.",
   sections: [
     {
       title: "What you need",
       body: "The recipient's NatCash-registered mobile number in Haiti. That's it — no bank account required.",
     },
     {
-      title: "How it works with Lajan Rapid",
+      title: "How it works with Tcho-Tcho",
       body: "When creating your transfer, select NatCash as the delivery method and enter the recipient's phone number. Once your payment is confirmed, the transfer is processed and the funds are sent to that NatCash wallet.",
     },
   ],

@@ -269,7 +269,7 @@ function normalisePhoneToWallet(phone: string): string {
 function splitName(fullName: string): { firstName: string; lastName: string } {
   const trimmed = fullName.trim();
   const idx = trimmed.indexOf(" ");
-  if (idx === -1) return { firstName: trimmed || "Cliente", lastName: "Lajan Rapid" };
+  if (idx === -1) return { firstName: trimmed || "Cliente", lastName: "Tcho-Tcho" };
   return { firstName: trimmed.slice(0, idx), lastName: trimmed.slice(idx + 1) };
 }
 
@@ -330,7 +330,7 @@ export async function bazikPayout(input: BazikPayoutInput): Promise<BazikResult>
   const body: Record<string, unknown> = {
     gdes: input.amount,
     wallet: normalisePhoneToWallet(input.phone),
-    description: `Lajan Rapid · ${input.reference}`,
+    description: `Tcho-Tcho · ${input.reference}`,
     referenceId: input.reference,
     customerFirstName: firstName,
     customerLastName: lastName,

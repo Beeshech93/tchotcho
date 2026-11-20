@@ -3,12 +3,12 @@ import { LocaleContentPage, hreflangLinks, type PageContent } from "@/lib/seo-pa
 
 const CONTENT: Record<"es" | "fr" | "ht", PageContent> = {
   es: {
-    title: "Tarifas | Lajan Rapid",
+    title: "Tarifas | Tcho-Tcho",
     description:
-      "Consulta exactamente cuánto pagas al enviar dinero a Haití con Lajan Rapid: tipo de cambio, comisión, y el monto exacto que recibe tu familia, antes de confirmar.",
+      "Consulta exactamente cuánto pagas al enviar dinero a Haití con Tcho-Tcho: tipo de cambio, comisión, y el monto exacto que recibe tu familia, antes de confirmar.",
     heading: "Tarifas transparentes",
     intro:
-      "Lajan Rapid te muestra el tipo de cambio, la comisión, y el monto exacto que va a recibir tu destinatario antes de confirmar cualquier envío — sin costos ocultos.",
+      "Tcho-Tcho te muestra el tipo de cambio, la comisión, y el monto exacto que va a recibir tu destinatario antes de confirmar cualquier envío — sin costos ocultos.",
     sections: [
       {
         title: "Lo que ves antes de confirmar",
@@ -28,12 +28,12 @@ const CONTENT: Record<"es" | "fr" | "ht", PageContent> = {
     cta: "Calcular un envío",
   },
   fr: {
-    title: "Frais | Lajan Rapid",
+    title: "Frais | Tcho-Tcho",
     description:
-      "Consultez exactement ce que vous payez pour envoyer de l'argent en Haïti avec Lajan Rapid : taux de change, frais, et le montant exact que votre famille reçoit, avant de confirmer.",
+      "Consultez exactement ce que vous payez pour envoyer de l'argent en Haïti avec Tcho-Tcho : taux de change, frais, et le montant exact que votre famille reçoit, avant de confirmer.",
     heading: "Frais transparents",
     intro:
-      "Lajan Rapid affiche le taux de change, les frais, et le montant exact que votre destinataire recevra avant que vous ne confirmiez un envoi — sans coûts cachés.",
+      "Tcho-Tcho affiche le taux de change, les frais, et le montant exact que votre destinataire recevra avant que vous ne confirmiez un envoi — sans coûts cachés.",
     sections: [
       {
         title: "Ce que vous voyez avant de confirmer",
@@ -53,12 +53,12 @@ const CONTENT: Record<"es" | "fr" | "ht", PageContent> = {
     cta: "Calculer un envoi",
   },
   ht: {
-    title: "Frè | Lajan Rapid",
+    title: "Frè | Tcho-Tcho",
     description:
-      "Gade egzakteman konbyen w peye lè w voye lajan an Ayiti ak Lajan Rapid: to chanj, frè, ak montan egzak fanmi w resevwa, anvan w konfime.",
+      "Gade egzakteman konbyen w peye lè w voye lajan an Ayiti ak Tcho-Tcho: to chanj, frè, ak montan egzak fanmi w resevwa, anvan w konfime.",
     heading: "Frè transparan",
     intro:
-      "Lajan Rapid montre w to chanj lan, frè a, ak montan egzak destinatè w ap resevwa anvan w konfime nenpòt voyaj — san okenn kòt kache.",
+      "Tcho-Tcho montre w to chanj lan, frè a, ak montan egzak destinatè w ap resevwa anvan w konfime nenpòt voyaj — san okenn kòt kache.",
     sections: [
       {
         title: "Sa w wè anvan w konfime",

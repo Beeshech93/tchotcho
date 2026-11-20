@@ -36,13 +36,13 @@ import { interpolate, useI18n } from "@/lib/i18n";
 export const Route = createFileRoute("/_authenticated/recargas")({
   head: () => ({
     meta: [
-      { title: "Recargas de saldo móvil — Lajan Rapid" },
+      { title: "Recargas de saldo móvil — Tcho-Tcho" },
       {
         name: "description",
         content:
-          "Envía recargas de saldo móvil a Haití y otros países desde tu billetera Lajan Rapid.",
+          "Envía recargas de saldo móvil a Haití y otros países desde tu billetera Tcho-Tcho.",
       },
-      { property: "og:title", content: "Recargas de saldo móvil — Lajan Rapid" },
+      { property: "og:title", content: "Recargas de saldo móvil — Tcho-Tcho" },
       {
         property: "og:description",
         content: "Top-up internacional instantáneo desde tu billetera.",

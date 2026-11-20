@@ -14,9 +14,9 @@ import { useI18n } from "@/lib/i18n";
 export const Route = createFileRoute("/_authenticated/historial")({
   head: () => ({
     meta: [
-      { title: "Historial de envíos — Lajan Rapid" },
+      { title: "Historial de envíos — Tcho-Tcho" },
       { name: "description", content: "Consulta todos tus envíos de dinero a Haití y su estado." },
-      { property: "og:title", content: "Historial de envíos — Lajan Rapid" },
+      { property: "og:title", content: "Historial de envíos — Tcho-Tcho" },
       { property: "og:description", content: "Todos tus envíos y su estado actual." },
     ],
   }),

@@ -957,7 +957,7 @@ const fr: Dict = {
 };
 
 const ht: Dict = {
-  "app.tagline": "Voye lajan rapid nan Ayiti ak Repiblik Dominikèn",
+  "app.tagline": "Voye Tcho-Tcho nan Ayiti ak Repiblik Dominikèn",
   "services.disabled_alert": "Sèvis sa a tanporèman pa disponib pou antretyen.",
   "services.disabled_btn": "Sèvis an antretyen",
   "services.disabled_badge": "Antretyen",

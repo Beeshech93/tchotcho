@@ -4,18 +4,18 @@ import { CorridorLanding } from "@/components/CorridorLanding";
 export const Route = createFileRoute("/usa-to-haiti")({
   head: () => ({
     meta: [
-      { title: "Send Money from USA to Haiti | Lajan Rapid" },
+      { title: "Send Money from USA to Haiti | Tcho-Tcho" },
       {
         name: "description",
         content:
-          "Send money from the United States to Haiti with Lajan Rapid. Fast and secure international remittances to Haiti.",
+          "Send money from the United States to Haiti with Tcho-Tcho. Fast and secure international remittances to Haiti.",
       },
       { name: "robots", content: "index, follow" },
-      { property: "og:title", content: "Send Money from USA to Haiti | Lajan Rapid" },
+      { property: "og:title", content: "Send Money from USA to Haiti | Tcho-Tcho" },
       {
         property: "og:description",
         content:
-          "Send money from the United States to Haiti with Lajan Rapid. Fast and secure international remittances to Haiti.",
+          "Send money from the United States to Haiti with Tcho-Tcho. Fast and secure international remittances to Haiti.",
       },
     ],
     links: [{ rel: "canonical", href: "https://tchotcho.app/usa-to-haiti" }],

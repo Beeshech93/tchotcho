@@ -38,7 +38,7 @@ export async function logAndAlertSecurityEvent(opts: {
       to: alertEmail,
       subject: `⚠️ Alerta de seguridad: ${opts.eventType}`,
       html: `
-        <h2>Se detectó actividad sospechosa en Lajan Rapid</h2>
+        <h2>Se detectó actividad sospechosa en Tcho-Tcho</h2>
         <p><strong>Tipo:</strong> ${opts.eventType}</p>
         <p><strong>Severidad:</strong> ${opts.severity ?? "warning"}</p>
         <p><strong>Usuario:</strong> ${opts.userId ?? "no autenticado"}</p>

@@ -3,12 +3,12 @@ import { ContentPage } from "@/components/ContentPage";
 import { hreflangLinks } from "@/lib/seo-page-helpers";
 
 export const CONTENT = {
-  title: "About Us | Lajan Rapid",
+  title: "About Us | Tcho-Tcho",
   description:
-    "Lajan Rapid is a money transfer platform focused on making it easier to send money to Haiti, with transparent fees and real-time tracking.",
-  heading: "About Lajan Rapid",
+    "Tcho-Tcho is a money transfer platform focused on making it easier to send money to Haiti, with transparent fees and real-time tracking.",
+  heading: "About Tcho-Tcho",
   intro:
-    "Lajan Rapid is a platform designed to facilitate money transfers to Haiti, from the countries and payment methods currently available on our platform.",
+    "Tcho-Tcho is a platform designed to facilitate money transfers to Haiti, from the countries and payment methods currently available on our platform.",
   sections: [
     {
       title: "What we offer",

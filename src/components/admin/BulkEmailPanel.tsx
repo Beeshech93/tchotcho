@@ -50,7 +50,7 @@ export function BulkEmailPanel() {
             value={subject}
             maxLength={150}
             onChange={(event) => setSubject(event.target.value)}
-            placeholder="Ej. Novedades de Lajan Rapid"
+            placeholder="Ej. Novedades de Tcho-Tcho"
           />
         </div>
         <div className="space-y-1.5">

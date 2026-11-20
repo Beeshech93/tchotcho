@@ -3,12 +3,12 @@ import { LocaleContentPage, hreflangLinks, type PageContent } from "@/lib/seo-pa
 
 const CONTENT: Record<"es" | "fr" | "ht", PageContent> = {
   es: {
-    title: "Sobre Nosotros | Lajan Rapid",
+    title: "Sobre Nosotros | Tcho-Tcho",
     description:
-      "Lajan Rapid es una plataforma de envío de dinero enfocada en facilitar el envío hacia Haití, con tarifas transparentes y seguimiento en tiempo real.",
-    heading: "Sobre Lajan Rapid",
+      "Tcho-Tcho es una plataforma de envío de dinero enfocada en facilitar el envío hacia Haití, con tarifas transparentes y seguimiento en tiempo real.",
+    heading: "Sobre Tcho-Tcho",
     intro:
-      "Lajan Rapid es una plataforma diseñada para facilitar transferencias de dinero hacia Haití, desde los países y métodos de pago actualmente disponibles en nuestra plataforma.",
+      "Tcho-Tcho es una plataforma diseñada para facilitar transferencias de dinero hacia Haití, desde los países y métodos de pago actualmente disponibles en nuestra plataforma.",
     sections: [
       {
         title: "Lo que ofrecemos",
@@ -29,12 +29,12 @@ const CONTENT: Record<"es" | "fr" | "ht", PageContent> = {
     cta: "Crear una cuenta",
   },
   fr: {
-    title: "À Propos | Lajan Rapid",
+    title: "À Propos | Tcho-Tcho",
     description:
-      "Lajan Rapid est une plateforme de transfert d'argent dédiée à faciliter l'envoi d'argent en Haïti, avec des frais transparents et un suivi en temps réel.",
-    heading: "À propos de Lajan Rapid",
+      "Tcho-Tcho est une plateforme de transfert d'argent dédiée à faciliter l'envoi d'argent en Haïti, avec des frais transparents et un suivi en temps réel.",
+    heading: "À propos de Tcho-Tcho",
     intro:
-      "Lajan Rapid est une plateforme conçue pour faciliter les transferts d'argent vers Haïti, depuis les pays et modes de paiement actuellement disponibles sur notre plateforme.",
+      "Tcho-Tcho est une plateforme conçue pour faciliter les transferts d'argent vers Haïti, depuis les pays et modes de paiement actuellement disponibles sur notre plateforme.",
     sections: [
       {
         title: "Ce que nous offrons",
@@ -55,12 +55,12 @@ const CONTENT: Record<"es" | "fr" | "ht", PageContent> = {
     cta: "Créer un compte",
   },
   ht: {
-    title: "Konsènan Nou | Lajan Rapid",
+    title: "Konsènan Nou | Tcho-Tcho",
     description:
-      "Lajan Rapid se yon platfòm transfè lajan ki konsantre sou fasilite voye lajan an Ayiti, ak frè transparan ak swiv an tan reyèl.",
-    heading: "Konsènan Lajan Rapid",
+      "Tcho-Tcho se yon platfòm transfè lajan ki konsantre sou fasilite voye lajan an Ayiti, ak frè transparan ak swiv an tan reyèl.",
+    heading: "Konsènan Tcho-Tcho",
     intro:
-      "Lajan Rapid se yon platfòm ki fèt pou fasilite transfè lajan vè Ayiti, soti nan peyi ak metòd peman ki disponib kounye a sou platfòm nou an.",
+      "Tcho-Tcho se yon platfòm ki fèt pou fasilite transfè lajan vè Ayiti, soti nan peyi ak metòd peman ki disponib kounye a sou platfòm nou an.",
     sections: [
       {
         title: "Sa nou ofri",

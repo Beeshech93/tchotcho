@@ -88,12 +88,12 @@ const ALL_STATUSES: TransferStatus[] = [
 export const Route = createFileRoute("/_authenticated/agente")({
   head: () => ({
     meta: [
-      { title: "Panel de Agente Independiente — Lajan Rapid" },
+      { title: "Panel de Agente Independiente — Tcho-Tcho" },
       {
         name: "description",
         content: "Ventanilla de transacciones en efectivo y comisiones de agente.",
       },
-      { property: "og:title", content: "Panel de Agente Independiente — Lajan Rapid" },
+      { property: "og:title", content: "Panel de Agente Independiente — Tcho-Tcho" },
       {
         property: "og:description",
         content: "Gestión autónoma de transacciones en efectivo y comisiones.",

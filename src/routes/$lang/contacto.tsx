@@ -11,16 +11,16 @@ import { useI18n } from "@/lib/i18n";
 
 const TITLES: Record<"es" | "fr" | "ht", { title: string; description: string }> = {
   es: {
-    title: "Contacto | Lajan Rapid",
-    description: "Contacta al soporte de Lajan Rapid por WhatsApp o correo.",
+    title: "Contacto | Tcho-Tcho",
+    description: "Contacta al soporte de Tcho-Tcho por WhatsApp o correo.",
   },
   fr: {
-    title: "Contact | Lajan Rapid",
-    description: "Contactez le support de Lajan Rapid par WhatsApp ou e-mail.",
+    title: "Contact | Tcho-Tcho",
+    description: "Contactez le support de Tcho-Tcho par WhatsApp ou e-mail.",
   },
   ht: {
-    title: "Kontak | Lajan Rapid",
-    description: "Kontakte sipò Lajan Rapid pa WhatsApp oswa imèl.",
+    title: "Kontak | Tcho-Tcho",
+    description: "Kontakte sipò Tcho-Tcho pa WhatsApp oswa imèl.",
   },
 };
 
@@ -73,9 +73,9 @@ function LocaleContacto() {
       <header className="mx-auto flex max-w-3xl items-center justify-between px-5 py-5">
         <Link to="/" className="flex items-center gap-2.5">
           <span className="grid size-9 place-items-center overflow-hidden rounded-xl bg-logo-surface p-1 shadow-soft">
-            <img src={logoAsset} alt="Lajan Rapid" className="h-full w-full object-contain" />
+            <img src={logoAsset} alt="Tcho-Tcho" className="h-full w-full object-contain" />
           </span>
-          <span className="font-display text-lg font-semibold tracking-tight">Lajan Rapid</span>
+          <span className="font-display text-lg font-semibold tracking-tight">Tcho-Tcho</span>
         </Link>
         <LanguageSwitcher className="h-9 w-[132px] text-xs" />
       </header>

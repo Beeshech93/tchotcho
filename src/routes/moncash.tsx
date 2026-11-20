@@ -3,19 +3,19 @@ import { ContentPage } from "@/components/ContentPage";
 import { hreflangLinks } from "@/lib/seo-page-helpers";
 
 export const CONTENT = {
-  title: "Send Money to MonCash | Lajan Rapid",
+  title: "Send Money to MonCash | Tcho-Tcho",
   description:
-    "Send money to Haiti and have it delivered directly to a MonCash mobile wallet with Lajan Rapid.",
+    "Send money to Haiti and have it delivered directly to a MonCash mobile wallet with Tcho-Tcho.",
   heading: "Send money to MonCash",
   intro:
-    "MonCash is one of the delivery methods available on Lajan Rapid. Choose it as the receiving option when you send money to Haiti, and the funds go straight to the recipient's MonCash mobile wallet.",
+    "MonCash is one of the delivery methods available on Tcho-Tcho. Choose it as the receiving option when you send money to Haiti, and the funds go straight to the recipient's MonCash mobile wallet.",
   sections: [
     {
       title: "What you need",
       body: "The recipient's MonCash-registered mobile number in Haiti. That's it — no bank account required.",
     },
     {
-      title: "How it works with Lajan Rapid",
+      title: "How it works with Tcho-Tcho",
       body: "When creating your transfer, select MonCash as the delivery method and enter the recipient's phone number. Once your payment is confirmed, the transfer is processed and the funds are sent to that MonCash wallet.",
     },
   ],

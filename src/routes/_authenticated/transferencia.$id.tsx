@@ -44,9 +44,9 @@ import { interpolate, useI18n } from "@/lib/i18n";
 export const Route = createFileRoute("/_authenticated/transferencia/$id")({
   head: () => ({
     meta: [
-      { title: "Detalle del envío — Lajan Rapid" },
+      { title: "Detalle del envío — Tcho-Tcho" },
       { name: "description", content: "Sigue en tiempo real el estado de tu envío a Haití." },
-      { property: "og:title", content: "Detalle del envío — Lajan Rapid" },
+      { property: "og:title", content: "Detalle del envío — Tcho-Tcho" },
       { property: "og:description", content: "Seguimiento en tiempo real de tu remesa." },
     ],
   }),

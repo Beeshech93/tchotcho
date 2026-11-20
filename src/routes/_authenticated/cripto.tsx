@@ -39,13 +39,13 @@ import {
 export const Route = createFileRoute("/_authenticated/cripto")({
   head: () => ({
     meta: [
-      { title: "Cripto — Lajan Rapid" },
+      { title: "Cripto — Tcho-Tcho" },
       {
         name: "description",
         content:
           "Recibe USDT, Bitcoin y USDC, conviértelos en gourdes y retira por MonCash o NatCash.",
       },
-      { property: "og:title", content: "Cripto — Lajan Rapid" },
+      { property: "og:title", content: "Cripto — Tcho-Tcho" },
       {
         property: "og:description",
         content: "Depósitos cripto convertidos a gourdes y retiros MonCash / NatCash.",

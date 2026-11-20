@@ -3,12 +3,12 @@ import { LocaleContentPage, hreflangLinks, type PageContent } from "@/lib/seo-pa
 
 const CONTENT: Record<"es" | "fr" | "ht", PageContent> = {
   es: {
-    title: "Enviar Dinero a Haití | Lajan Rapid",
+    title: "Enviar Dinero a Haití | Tcho-Tcho",
     description:
-      "Descubre cómo enviar dinero a Haití con Lajan Rapid: países disponibles, métodos de pago, opciones de recepción, tarifas y seguimiento.",
+      "Descubre cómo enviar dinero a Haití con Tcho-Tcho: países disponibles, métodos de pago, opciones de recepción, tarifas y seguimiento.",
     heading: "Enviar dinero a Haití",
     intro:
-      "Lajan Rapid es una plataforma diseñada para facilitar transferencias hacia Haití. La disponibilidad de cada país, método de pago y método de recepción depende de las opciones habilitadas en la plataforma.",
+      "Tcho-Tcho es una plataforma diseñada para facilitar transferencias hacia Haití. La disponibilidad de cada país, método de pago y método de recepción depende de las opciones habilitadas en la plataforma.",
     sections: [
       {
         title: "Países desde donde puedes enviar",
@@ -27,12 +27,12 @@ const CONTENT: Record<"es" | "fr" | "ht", PageContent> = {
     cta: "Enviar dinero ahora",
   },
   fr: {
-    title: "Envoyer de l'Argent en Haïti | Lajan Rapid",
+    title: "Envoyer de l'Argent en Haïti | Tcho-Tcho",
     description:
-      "Découvrez comment envoyer de l'argent en Haïti avec Lajan Rapid : pays disponibles, modes de paiement, options de réception, frais et suivi.",
+      "Découvrez comment envoyer de l'argent en Haïti avec Tcho-Tcho : pays disponibles, modes de paiement, options de réception, frais et suivi.",
     heading: "Envoyer de l'argent en Haïti",
     intro:
-      "Lajan Rapid est une plateforme conçue pour faciliter les transferts vers Haïti. La disponibilité de chaque pays, mode de paiement et mode de réception dépend des options activées sur la plateforme.",
+      "Tcho-Tcho est une plateforme conçue pour faciliter les transferts vers Haïti. La disponibilité de chaque pays, mode de paiement et mode de réception dépend des options activées sur la plateforme.",
     sections: [
       {
         title: "Pays depuis lesquels vous pouvez envoyer",
@@ -51,12 +51,12 @@ const CONTENT: Record<"es" | "fr" | "ht", PageContent> = {
     cta: "Envoyer de l'argent maintenant",
   },
   ht: {
-    title: "Voye Lajan an Ayiti | Lajan Rapid",
+    title: "Voye Lajan an Ayiti | Tcho-Tcho",
     description:
-      "Dekouvri kijan pou voye lajan an Ayiti ak Lajan Rapid: peyi ki disponib, metòd peman, opsyon resepsyon, frè, ak swiv.",
+      "Dekouvri kijan pou voye lajan an Ayiti ak Tcho-Tcho: peyi ki disponib, metòd peman, opsyon resepsyon, frè, ak swiv.",
     heading: "Voye lajan an Ayiti",
     intro:
-      "Lajan Rapid se yon platfòm ki fèt pou fasilite transfè vè Ayiti. Disponiblite chak peyi, metòd peman, ak metòd resepsyon depann de opsyon ki aktive sou platfòm lan.",
+      "Tcho-Tcho se yon platfòm ki fèt pou fasilite transfè vè Ayiti. Disponiblite chak peyi, metòd peman, ak metòd resepsyon depann de opsyon ki aktive sou platfòm lan.",
     sections: [
       {
         title: "Peyi kote w ka voye soti",

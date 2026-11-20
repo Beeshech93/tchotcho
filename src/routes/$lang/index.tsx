@@ -8,28 +8,28 @@ const SEO_META: Record<
   { title: string; description: string; ogTitle: string; ogDescription: string }
 > = {
   es: {
-    title: "Lajan Rapid | Envía Dinero a Haití desde Diferentes Países",
+    title: "Tcho-Tcho | Envía Dinero a Haití desde Diferentes Países",
     description:
-      "Envía dinero a Haití de forma sencilla con Lajan Rapid. Consulta métodos disponibles, tarifas y opciones de recepción para beneficiarios en Haití.",
-    ogTitle: "Lajan Rapid | Envía Dinero a Haití desde Diferentes Países",
+      "Envía dinero a Haití de forma sencilla con Tcho-Tcho. Consulta métodos disponibles, tarifas y opciones de recepción para beneficiarios en Haití.",
+    ogTitle: "Tcho-Tcho | Envía Dinero a Haití desde Diferentes Países",
     ogDescription:
-      "Envía dinero a Haití de forma sencilla con Lajan Rapid. Consulta métodos disponibles, tarifas y opciones de recepción para beneficiarios en Haití.",
+      "Envía dinero a Haití de forma sencilla con Tcho-Tcho. Consulta métodos disponibles, tarifas y opciones de recepción para beneficiarios en Haití.",
   },
   fr: {
-    title: "Lajan Rapid | Envoyez de l'argent en Haïti depuis différents pays",
+    title: "Tcho-Tcho | Envoyez de l'argent en Haïti depuis différents pays",
     description:
-      "Envoyez de l'argent en Haïti facilement avec Lajan Rapid. Consultez les méthodes disponibles, les frais et les options de réception pour vos bénéficiaires en Haïti.",
-    ogTitle: "Lajan Rapid | Envoyez de l'argent en Haïti depuis différents pays",
+      "Envoyez de l'argent en Haïti facilement avec Tcho-Tcho. Consultez les méthodes disponibles, les frais et les options de réception pour vos bénéficiaires en Haïti.",
+    ogTitle: "Tcho-Tcho | Envoyez de l'argent en Haïti depuis différents pays",
     ogDescription:
-      "Envoyez de l'argent en Haïti facilement avec Lajan Rapid. Consultez les méthodes disponibles, les frais et les options de réception pour vos bénéficiaires en Haïti.",
+      "Envoyez de l'argent en Haïti facilement avec Tcho-Tcho. Consultez les méthodes disponibles, les frais et les options de réception pour vos bénéficiaires en Haïti.",
   },
   ht: {
-    title: "Lajan Rapid | Voye Lajan an Ayiti soti nan plizyè peyi",
+    title: "Tcho-Tcho | Voye Lajan an Ayiti soti nan plizyè peyi",
     description:
-      "Voye lajan an Ayiti fasilman ak Lajan Rapid. Gade metòd ki disponib, frè, ak opsyon resepsyon pou moun k ap resevwa yo an Ayiti.",
-    ogTitle: "Lajan Rapid | Voye Lajan an Ayiti soti nan plizyè peyi",
+      "Voye lajan an Ayiti fasilman ak Tcho-Tcho. Gade metòd ki disponib, frè, ak opsyon resepsyon pou moun k ap resevwa yo an Ayiti.",
+    ogTitle: "Tcho-Tcho | Voye Lajan an Ayiti soti nan plizyè peyi",
     ogDescription:
-      "Voye lajan an Ayiti fasilman ak Lajan Rapid. Gade metòd ki disponib, frè, ak opsyon resepsyon pou moun k ap resevwa yo an Ayiti.",
+      "Voye lajan an Ayiti fasilman ak Tcho-Tcho. Gade metòd ki disponib, frè, ak opsyon resepsyon pou moun k ap resevwa yo an Ayiti.",
   },
 };
 

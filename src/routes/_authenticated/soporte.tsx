@@ -16,9 +16,9 @@ import { useI18n } from "@/lib/i18n";
 export const Route = createFileRoute("/_authenticated/soporte")({
   head: () => ({
     meta: [
-      { title: "Soporte — Lajan Rapid" },
+      { title: "Soporte — Tcho-Tcho" },
       { name: "description", content: "Resuelve dudas sobre envíos, pagos y verificación." },
-      { property: "og:title", content: "Soporte — Lajan Rapid" },
+      { property: "og:title", content: "Soporte — Tcho-Tcho" },
       { property: "og:description", content: "Preguntas frecuentes y canales de atención." },
     ],
   }),

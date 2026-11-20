@@ -57,7 +57,7 @@ export const resendSendTest = createServerFn({ method: "POST" })
     const { AccountReadyEmail } = await import("@/lib/email-templates/account-ready");
     const base = process.env["PUBLIC_URL"] || "https://tchotcho.app";
     const html = await render(
-      AccountReadyEmail({ siteName: "Lajan Rapid", siteUrl: base, fullName: "Prueba" }),
+      AccountReadyEmail({ siteName: "Tcho-Tcho", siteUrl: base, fullName: "Prueba" }),
     );
     return resendSendEmail({ to: email, subject: "Prueba: correo de bienvenida", html });
   });
@@ -90,10 +90,10 @@ export const resendSendAnnouncement = createServerFn({ method: "POST" })
         .replace(/"/g, "&quot;")
         .replace(/'/g, "&#39;");
     const html = `<div style="font-family:Arial,sans-serif;line-height:1.6;color:#222;max-width:640px;margin:0 auto">
-      <h2 style="margin-bottom:20px">Lajan Rapid</h2>
+      <h2 style="margin-bottom:20px">Tcho-Tcho</h2>
       <div style="white-space:pre-wrap">${escapeHtml(data.message)}</div>
       <hr style="margin-top:32px;border:0;border-top:1px solid #ddd"/>
-      <p style="font-size:12px;color:#666">Mensaje enviado por Lajan Rapid.</p>
+      <p style="font-size:12px;color:#666">Mensaje enviado por Tcho-Tcho.</p>
     </div>`;
 
     let page = 1;

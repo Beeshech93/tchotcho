@@ -13,7 +13,7 @@ import { useI18n } from "@/lib/i18n";
 
 export const Route = createFileRoute("/restablecer-password")({
   head: () => ({
-    meta: [{ title: "Restablecer contraseña — Lajan Rapid" }],
+    meta: [{ title: "Restablecer contraseña — Tcho-Tcho" }],
   }),
   component: ResetPasswordPage,
 });
@@ -92,13 +92,13 @@ function ResetPasswordPage() {
           <Link
             to="/"
             className="group inline-flex flex-col items-center gap-2 rounded-2xl p-2 transition-transform hover:scale-105 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-            aria-label="Lajan Rapid - Ir a la página de inicio"
+            aria-label="Tcho-Tcho - Ir a la página de inicio"
           >
             <span className="grid size-14 place-items-center overflow-hidden rounded-2xl bg-logo-surface p-1.5 shadow-soft">
-              <img src={logoAsset} alt="Lajan Rapid" className="h-full w-full object-contain" />
+              <img src={logoAsset} alt="Tcho-Tcho" className="h-full w-full object-contain" />
             </span>
             <span className="mt-1 font-display text-2xl font-bold tracking-tight text-foreground transition-colors group-hover:text-foreground/90">
-              Lajan Rapid
+              Tcho-Tcho
             </span>
           </Link>
         </div>

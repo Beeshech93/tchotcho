@@ -23,9 +23,9 @@ export function ContentPage({
       <header className="mx-auto flex max-w-3xl items-center justify-between px-5 py-5">
         <Link to="/" className="flex items-center gap-2.5">
           <span className="grid size-9 place-items-center overflow-hidden rounded-xl bg-logo-surface p-1 shadow-soft">
-            <img src={logoAsset} alt="Lajan Rapid" className="h-full w-full object-contain" />
+            <img src={logoAsset} alt="Tcho-Tcho" className="h-full w-full object-contain" />
           </span>
-          <span className="font-display text-lg font-semibold tracking-tight">Lajan Rapid</span>
+          <span className="font-display text-lg font-semibold tracking-tight">Tcho-Tcho</span>
         </Link>
         <LanguageSwitcher className="h-9 w-[132px] text-xs" />
       </header>

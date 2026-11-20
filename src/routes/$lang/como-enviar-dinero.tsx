@@ -3,12 +3,12 @@ import { LocaleContentPage, hreflangLinks, type PageContent } from "@/lib/seo-pa
 
 const CONTENT: Record<"es" | "fr" | "ht", PageContent> = {
   es: {
-    title: "Cómo Enviar Dinero a Haití | Lajan Rapid",
+    title: "Cómo Enviar Dinero a Haití | Tcho-Tcho",
     description:
-      "Guía paso a paso para enviar dinero a Haití con Lajan Rapid: elige tu país, ingresa el monto, elige un método de pago, y sigue tu envío en tiempo real.",
+      "Guía paso a paso para enviar dinero a Haití con Tcho-Tcho: elige tu país, ingresa el monto, elige un método de pago, y sigue tu envío en tiempo real.",
     heading: "Cómo enviar dinero a Haití",
     intro:
-      "Enviar dinero con Lajan Rapid toma unos pocos pasos simples, desde elegir tu país hasta confirmar que tu familia recibió el dinero.",
+      "Enviar dinero con Tcho-Tcho toma unos pocos pasos simples, desde elegir tu país hasta confirmar que tu familia recibió el dinero.",
     sections: [
       {
         title: "Pasos",
@@ -35,12 +35,12 @@ const CONTENT: Record<"es" | "fr" | "ht", PageContent> = {
     cta: "Enviar dinero",
   },
   fr: {
-    title: "Comment Envoyer de l'Argent en Haïti | Lajan Rapid",
+    title: "Comment Envoyer de l'Argent en Haïti | Tcho-Tcho",
     description:
-      "Guide étape par étape pour envoyer de l'argent en Haïti avec Lajan Rapid : choisissez votre pays, entrez le montant, choisissez un mode de paiement, et suivez votre envoi en temps réel.",
+      "Guide étape par étape pour envoyer de l'argent en Haïti avec Tcho-Tcho : choisissez votre pays, entrez le montant, choisissez un mode de paiement, et suivez votre envoi en temps réel.",
     heading: "Comment envoyer de l'argent en Haïti",
     intro:
-      "Envoyer de l'argent avec Lajan Rapid ne prend que quelques étapes simples, du choix de votre pays à la confirmation que votre famille a bien reçu les fonds.",
+      "Envoyer de l'argent avec Tcho-Tcho ne prend que quelques étapes simples, du choix de votre pays à la confirmation que votre famille a bien reçu les fonds.",
     sections: [
       {
         title: "Étapes",
@@ -67,12 +67,12 @@ const CONTENT: Record<"es" | "fr" | "ht", PageContent> = {
     cta: "Envoyer de l'argent",
   },
   ht: {
-    title: "Kijan pou Voye Lajan an Ayiti | Lajan Rapid",
+    title: "Kijan pou Voye Lajan an Ayiti | Tcho-Tcho",
     description:
-      "Gid etap pa etap pou voye lajan an Ayiti ak Lajan Rapid: chwazi peyi w, antre montan an, chwazi yon metòd peman, epi swiv voyaj ou an tan reyèl.",
+      "Gid etap pa etap pou voye lajan an Ayiti ak Tcho-Tcho: chwazi peyi w, antre montan an, chwazi yon metòd peman, epi swiv voyaj ou an tan reyèl.",
     heading: "Kijan pou voye lajan an Ayiti",
     intro:
-      "Voye lajan ak Lajan Rapid pran sèlman kèk etap senp, soti nan chwazi peyi w rive nan konfime fanmi w resevwa lajan an.",
+      "Voye lajan ak Tcho-Tcho pran sèlman kèk etap senp, soti nan chwazi peyi w rive nan konfime fanmi w resevwa lajan an.",
     sections: [
       {
         title: "Etap yo",

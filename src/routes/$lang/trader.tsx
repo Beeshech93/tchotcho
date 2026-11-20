@@ -17,9 +17,9 @@ const CONTENT: Record<
   }
 > = {
   es: {
-    title: "Retira tu criptomoneda a MonCash y NatCash | Lajan Rapid",
+    title: "Retira tu criptomoneda a MonCash y NatCash | Tcho-Tcho",
     description:
-      "Traders y tenedores de criptomonedas pueden retirar BTC, USDT y USDC directo a MonCash o NatCash en Haití con Lajan Rapid.",
+      "Traders y tenedores de criptomonedas pueden retirar BTC, USDT y USDC directo a MonCash o NatCash en Haití con Tcho-Tcho.",
     heading: "Retira tu criptomoneda a MonCash o NatCash",
     subheading:
       "Para traders y tenedores de cripto en Haití: retira BTC, USDT o USDC directo a tu billetera MonCash o NatCash — sin pasar por un exchange externo.",
@@ -35,9 +35,9 @@ const CONTENT: Record<
     cta: "Abrir mi cuenta",
   },
   fr: {
-    title: "Retirez vos cryptomonnaies vers MonCash et NatCash | Lajan Rapid",
+    title: "Retirez vos cryptomonnaies vers MonCash et NatCash | Tcho-Tcho",
     description:
-      "Les traders et détenteurs de cryptomonnaies peuvent retirer BTC, USDT et USDC directement vers MonCash ou NatCash en Haïti avec Lajan Rapid.",
+      "Les traders et détenteurs de cryptomonnaies peuvent retirer BTC, USDT et USDC directement vers MonCash ou NatCash en Haïti avec Tcho-Tcho.",
     heading: "Retirez vos cryptomonnaies vers MonCash ou NatCash",
     subheading:
       "Pour les traders et détenteurs de crypto en Haïti : retirez BTC, USDT ou USDC directement vers votre portefeuille MonCash ou NatCash — sans passer par un exchange externe.",
@@ -53,9 +53,9 @@ const CONTENT: Record<
     cta: "Ouvrir mon compte",
   },
   ht: {
-    title: "Retire kriptomone ou nan MonCash ak NatCash | Lajan Rapid",
+    title: "Retire kriptomone ou nan MonCash ak NatCash | Tcho-Tcho",
     description:
-      "Trader ak moun ki gen kriptomone ka retire BTC, USDT ak USDC dirèkteman nan MonCash oswa NatCash an Ayiti ak Lajan Rapid.",
+      "Trader ak moun ki gen kriptomone ka retire BTC, USDT ak USDC dirèkteman nan MonCash oswa NatCash an Ayiti ak Tcho-Tcho.",
     heading: "Retire kriptomone ou nan MonCash oswa NatCash",
     subheading:
       "Pou trader ak moun ki gen kripto an Ayiti: retire BTC, USDT oswa USDC dirèkteman nan bous MonCash oswa NatCash ou — san w pa pase pa yon exchange deyò.",

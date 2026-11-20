@@ -40,7 +40,7 @@ export const Route = createFileRoute("/api/public/auth/welcome")({
         const base = process.env["PUBLIC_URL"] || "https://tchotcho.app";
         const html = await render(
           AccountReadyEmail({
-            siteName: "Lajan Rapid",
+            siteName: "Tcho-Tcho",
             siteUrl: base,
             ...(body.full_name ? { fullName: body.full_name } : {}),
           }),
@@ -48,7 +48,7 @@ export const Route = createFileRoute("/api/public/auth/welcome")({
 
         const result = await resendSendEmail({
           to: email,
-          subject: "¡Tu cuenta de Lajan Rapid ya está lista! 🚀",
+          subject: "¡Tu cuenta de Tcho-Tcho ya está lista! 🚀",
           html,
         });
 

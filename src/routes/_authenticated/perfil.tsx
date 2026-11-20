@@ -31,9 +31,9 @@ import {
 export const Route = createFileRoute("/_authenticated/perfil")({
   head: () => ({
     meta: [
-      { title: "Mi perfil y verificación — Lajan Rapid" },
+      { title: "Mi perfil y verificación — Tcho-Tcho" },
       { name: "description", content: "Actualiza tus datos y verifica tu identidad (KYC)." },
-      { property: "og:title", content: "Mi perfil y verificación — Lajan Rapid" },
+      { property: "og:title", content: "Mi perfil y verificación — Tcho-Tcho" },
       { property: "og:description", content: "Datos personales y estado de verificación KYC." },
     ],
   }),

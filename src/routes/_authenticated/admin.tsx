@@ -62,9 +62,9 @@ import {
 export const Route = createFileRoute("/_authenticated/admin")({
   head: () => ({
     meta: [
-      { title: "Administración — Lajan Rapid" },
+      { title: "Administración — Tcho-Tcho" },
       { name: "description", content: "Gestiona usuarios, KYC, tipos de cambio y transacciones." },
-      { property: "og:title", content: "Administración — Lajan Rapid" },
+      { property: "og:title", content: "Administración — Tcho-Tcho" },
       { property: "og:description", content: "Panel de control de la operación de remesas." },
     ],
   }),

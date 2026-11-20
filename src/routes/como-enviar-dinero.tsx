@@ -3,12 +3,12 @@ import { ContentPage } from "@/components/ContentPage";
 import { hreflangLinks } from "@/lib/seo-page-helpers";
 
 export const CONTENT = {
-  title: "How to Send Money to Haiti | Lajan Rapid",
+  title: "How to Send Money to Haiti | Tcho-Tcho",
   description:
-    "Step-by-step guide to sending money to Haiti with Lajan Rapid: choose a country, enter the amount, pick a payment method, and track your transfer in real time.",
+    "Step-by-step guide to sending money to Haiti with Tcho-Tcho: choose a country, enter the amount, pick a payment method, and track your transfer in real time.",
   heading: "How to send money and top up to Haiti",
   intro:
-    "Sending money with Lajan Rapid takes a few simple steps, from choosing your country to confirming that your family received the funds.",
+    "Sending money with Tcho-Tcho takes a few simple steps, from choosing your country to confirming that your family received the funds.",
   sections: [
     {
       title: "Steps",

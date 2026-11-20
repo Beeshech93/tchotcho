@@ -147,7 +147,7 @@ async function saveToFallback(supabaseAdmin: any, tenants: Tenant[]): Promise<vo
 
 /**
  * Obtener todos los tenants (marcas) configuradas.
- * Garantiza que Lajan Rapid siempre esté presente como la marca predeterminada.
+ * Garantiza que Tcho-Tcho siempre esté presente como la marca predeterminada.
  */
 export const getWhiteLabelTenants = createServerFn({ method: "GET" }).handler(
   async (): Promise<Tenant[]> => {
@@ -181,7 +181,7 @@ export const getWhiteLabelTenants = createServerFn({ method: "GET" }).handler(
 
 /**
  * Buscar un tenant por slug o dominio.
- * Si no se encuentra, retorna la marca principal Lajan Rapid.
+ * Si no se encuentra, retorna la marca principal Tcho-Tcho.
  */
 export const getTenantBySlugOrDomain = createServerFn({ method: "GET" })
   .validator((input: { slugOrDomain?: string | null | undefined }) => input)
@@ -420,7 +420,7 @@ export const saveWhiteLabelTenant = createServerFn({ method: "POST" })
 
 /**
  * Eliminar una marca aliada.
- * Lajan Rapid (isDefault: true) NO se puede eliminar jamás.
+ * Tcho-Tcho (isDefault: true) NO se puede eliminar jamás.
  */
 export const deleteWhiteLabelTenant = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -439,7 +439,7 @@ export const deleteWhiteLabelTenant = createServerFn({ method: "POST" })
       target === "default" ||
       target === "lajan-rapid"
     ) {
-      throw new Error("No es posible eliminar la marca principal Lajan Rapid.");
+      throw new Error("No es posible eliminar la marca principal Tcho-Tcho.");
     }
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");

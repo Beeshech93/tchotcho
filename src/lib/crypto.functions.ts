@@ -45,7 +45,7 @@ export const payCryptoWithdrawal = createServerFn({ method: "POST" })
       amount: Number(row.amount_htg),
       currency: "HTG",
       reference: row.reference,
-      recipientName: profile?.full_name || "Cliente Lajan Rapid",
+      recipientName: profile?.full_name || "Cliente Tcho-Tcho",
     });
 
     if (!result.ok) {
