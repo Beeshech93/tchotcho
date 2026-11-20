@@ -290,21 +290,21 @@ function Enviar() {
       )}
 
       {!isAdmin && isAgent && (
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-3.5 text-sm text-emerald-400">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-2xl border-2 border-emerald-300 bg-emerald-50/90 p-4 text-sm text-emerald-950 shadow-2xs">
           <div className="flex items-center gap-3">
-            <Banknote className="size-5 shrink-0" />
+            <Banknote className="size-5 shrink-0 text-emerald-700" />
             <div>
-              <p className="font-bold">
+              <p className="font-black text-emerald-950">
                 Modo Agente: Cobro de efectivo en ventanilla física.
               </p>
-              <p className="text-xs text-slate-300 mt-0.5">
+              <p className="text-xs text-emerald-800 font-medium mt-0.5">
                 La remesa se descuenta de tu Billetera de Envíos de Dinero ({transfersBalance.toLocaleString()} HTG disponibles).
               </p>
             </div>
           </div>
           <div className="flex items-center gap-2 font-bold text-xs shrink-0">
-            <span className="text-slate-300">Saldo Envíos:</span>
-            <span className="text-[#F2AC00] text-sm font-extrabold">
+            <span className="text-emerald-800 font-semibold">Saldo Envíos:</span>
+            <span className="text-emerald-950 text-sm font-black bg-white px-2.5 py-1 rounded-xl border border-emerald-200 shadow-2xs">
               {transfersBalance.toLocaleString()} HTG
             </span>
           </div>
@@ -453,17 +453,17 @@ function Enviar() {
       </Card>
 
       {isAdmin ? null : isAgent ? (
-        <Card className="border-emerald-500/30 bg-emerald-500/5">
+        <Card className="border-2 border-emerald-200 bg-emerald-50/50 shadow-2xs rounded-2xl">
           <CardHeader>
-            <CardTitle className="text-base flex items-center gap-2 text-emerald-400">
-              <Banknote className="size-5" />
+            <CardTitle className="text-base flex items-center gap-2 text-emerald-800 font-extrabold">
+              <Banknote className="size-5 text-emerald-700" />
               <span>Pago en Efectivo en Ventanilla (Agente)</span>
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="rounded-xl border border-emerald-500/20 bg-background/50 p-4">
-              <p className="font-semibold text-sm text-foreground">Cobro en ventanilla física</p>
-              <p className="text-xs text-muted-foreground mt-1">
+            <div className="rounded-xl border border-emerald-200 bg-white p-4 shadow-2xs">
+              <p className="font-extrabold text-sm text-slate-900">Cobro en ventanilla física</p>
+              <p className="text-xs text-slate-600 font-medium mt-1">
                 El cliente te entrega el efectivo directamente. La transferencia se procesa
                 inmediatamente y se descuenta de tu saldo de agente.
               </p>

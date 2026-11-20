@@ -18,13 +18,13 @@ export const STATUS_LABEL: Record<TransferStatus, string> = {
 };
 
 export const STATUS_TONE: Record<TransferStatus, string> = {
-  created: "bg-muted text-muted-foreground",
-  awaiting_payment: "bg-warning/15 text-warning",
-  paid: "bg-accent/15 text-accent",
-  processing: "bg-accent/15 text-accent",
-  ready_for_pickup: "bg-accent/15 text-accent",
-  completed: "bg-success/15 text-success",
-  cancelled: "bg-destructive/10 text-destructive",
+  created: "bg-slate-100 text-slate-800 border border-slate-300 font-bold",
+  awaiting_payment: "bg-amber-50 text-amber-900 border border-amber-300 font-bold",
+  paid: "bg-blue-50 text-blue-900 border border-blue-300 font-bold",
+  processing: "bg-purple-50 text-purple-900 border border-purple-300 font-bold",
+  ready_for_pickup: "bg-cyan-50 text-cyan-900 border border-cyan-300 font-bold",
+  completed: "bg-emerald-50 text-emerald-900 border border-emerald-300 font-bold",
+  cancelled: "bg-rose-50 text-rose-900 border border-rose-300 font-bold",
 };
 
 export const STATUS_FLOW: TransferStatus[] = ["awaiting_payment", "processing", "completed"];
@@ -39,10 +39,10 @@ export const KYC_LABEL: Record<KycStatus, string> = {
 };
 
 export const KYC_TONE: Record<KycStatus, string> = {
-  none: "bg-muted text-muted-foreground",
-  pending: "bg-warning/15 text-warning",
-  approved: "bg-success/15 text-success",
-  rejected: "bg-destructive/10 text-destructive",
+  none: "bg-slate-100 text-slate-800 border border-slate-300 font-semibold",
+  pending: "bg-amber-50 text-amber-900 border border-amber-300 font-bold",
+  approved: "bg-emerald-50 text-emerald-900 border border-emerald-300 font-bold",
+  rejected: "bg-rose-50 text-rose-900 border border-rose-300 font-bold",
 };
 
 export type Country = {

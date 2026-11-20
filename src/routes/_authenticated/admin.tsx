@@ -370,8 +370,8 @@ function TxPanel() {
                 <div className="flex items-center gap-2 flex-wrap">
                   <p className="font-semibold text-sm">{t.recipient_name}</p>
                   {agentName && (
-                    <Badge className="bg-emerald-500/15 text-emerald-400 border-emerald-500/30 text-[11px] font-semibold gap-1 py-0 px-2">
-                      <UserCheck className="size-3" />
+                    <Badge className="bg-emerald-50 text-emerald-800 border-2 border-emerald-200 text-[11px] font-bold gap-1 py-0 px-2 shadow-2xs">
+                      <UserCheck className="size-3 text-emerald-700" />
                       Agente: {agentName}
                     </Badge>
                   )}
@@ -549,10 +549,10 @@ function UsersPanel() {
             <Button
               size="sm"
               variant="outline"
-              className="gap-1.5 font-semibold text-xs border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/10"
+              className="gap-1.5 font-bold text-xs border-2 border-emerald-600 bg-emerald-50 text-emerald-800 hover:bg-emerald-100 shadow-2xs rounded-xl"
               onClick={() => setOpenGlobalHistory(true)}
             >
-              <History className="size-3.5" />
+              <History className="size-3.5 text-emerald-700" />
               Historial de Saldo a Agentes
             </Button>
             <Button
@@ -644,17 +644,17 @@ function UsersPanel() {
                   </div>
                   <div className="flex flex-col text-xs text-muted-foreground">
                     {p.email && (
-                      <span className="font-mono text-[11px] text-slate-300">{p.email}</span>
+                      <span className="font-mono text-[11px] text-slate-600 font-semibold">{p.email}</span>
                     )}
-                    <span>{p.phone || "sin teléfono"}</span>
+                    <span className="text-slate-800 font-bold">{p.phone || "sin teléfono"}</span>
                   </div>
                   {isAgent && (
-                    <div className="flex flex-wrap items-center gap-x-2 text-xs font-semibold mt-0.5">
-                      <span className="text-emerald-400">
+                    <div className="flex flex-wrap items-center gap-x-2 text-xs font-bold mt-1">
+                      <span className="text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
                         Envíos: {p.balanceHTG.toLocaleString()} HTG
                       </span>
-                      <span className="text-slate-500">·</span>
-                      <span className="text-cyan-400">
+                      <span className="text-slate-400">·</span>
+                      <span className="text-cyan-800 bg-cyan-50 px-2 py-0.5 rounded-md border border-cyan-200">
                         Recargas: {(p.balanceTopupsHTG ?? 0).toLocaleString()} HTG
                       </span>
                     </div>
@@ -664,18 +664,18 @@ function UsersPanel() {
                   {isAdmin && (
                     <>
                       {adminPerms?.tenantName && (
-                        <Badge className="bg-blue-500/15 text-blue-400 border-blue-500/30 gap-1 text-xs font-semibold">
+                        <Badge className="bg-blue-50 text-blue-800 border-2 border-blue-200 gap-1 text-xs font-bold">
                           🏢 {adminPerms.tenantName}
                         </Badge>
                       )}
                       {isSuper ? (
-                        <Badge className="bg-amber-500/15 text-amber-500 border-amber-500/30 gap-1 text-xs">
+                        <Badge className="bg-amber-50 text-amber-900 border-2 border-amber-300 gap-1 text-xs font-bold">
                           <Shield className="size-3" /> Super Admin
                         </Badge>
                       ) : (
                         <Badge
                           variant="outline"
-                          className="border-primary/50 text-primary gap-1 text-xs font-semibold"
+                          className="border-2 border-emerald-600 bg-emerald-50 text-emerald-800 gap-1 text-xs font-bold"
                         >
                           <Shield className="size-3" /> Admin (
                           {adminPerms?.allowedTabs?.length ?? 0} opciones permitidas)
@@ -684,12 +684,12 @@ function UsersPanel() {
                     </>
                   )}
                   {isAgent && !isAdmin && (
-                    <Badge variant="secondary" className="text-xs">
+                    <Badge variant="secondary" className="text-xs font-bold bg-slate-100 text-slate-800 border border-slate-200">
                       Agente
                     </Badge>
                   )}
                   {!isAdmin && !isAgent && (
-                    <Badge variant="outline" className="text-xs text-muted-foreground">
+                    <Badge variant="outline" className="text-xs text-slate-600 border border-slate-300 font-semibold">
                       Cliente
                     </Badge>
                   )}
@@ -707,7 +707,7 @@ function UsersPanel() {
                     <Button
                       size="sm"
                       variant="outline"
-                      className="gap-1.5 border-emerald-500/40 text-emerald-400 hover:bg-emerald-500/10 font-semibold text-xs"
+                      className="gap-1.5 border-2 border-emerald-600 bg-emerald-50 text-emerald-800 hover:bg-emerald-100 font-black text-xs rounded-xl shadow-2xs"
                       onClick={() => setBalanceUser(p)}
                     >
                       <Coins className="size-3.5" />

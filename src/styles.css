@@ -76,26 +76,26 @@
   --radius: 1.25rem;
 
   /* ---- Tcho-Tcho Design System: Clean Light Fintech (Mega Chans inspired) ---- */
-  --primary: #15803d; /* Vibrant Emerald Green */
-  --primary-dark: #166534; /* Deep Forest */
-  --primary-light: #22c55e; /* Bright Green Glow */
+  --primary: #059669; /* Deep, vivid Emerald Green with optimal contrast */
+  --primary-dark: #047857; /* Deep Forest */
+  --primary-light: #10b981; /* Bright Green Glow */
 
-  --background: #f4f7f5; /* Clean light gray-mint background matching reference */
+  --background: #f8fafc; /* Clean modern slate background */
   --surface: #ffffff; /* Crisp pure white cards */
-  --surface-secondary: #f8faf9; /* Inner containers and light gray elements */
+  --surface-secondary: #f1f5f9; /* Slate 100 inner containers */
   --surface-elevated: #ffffff; /* Modals, dropdowns, popovers */
   --logo-surface: transparent;
 
   --text-primary: #0f172a; /* Slate 900 for high-contrast crisp text */
-  --text-secondary: #475569; /* Slate 600 */
-  --text-muted: #64748b; /* Slate 500 */
+  --text-secondary: #334155; /* Slate 700 for clear secondary text */
+  --text-muted: #475569; /* Slate 600 for sharp, easily legible muted text */
 
-  --success: #16a34a; /* Green metric color */
+  --success: #059669; /* Green metric color */
   --warning: #d97706; /* Amber */
-  --error: #ef4444; /* Rose Red (Admin badge) */
+  --error: #dc2626; /* Red (Admin badge) */
 
-  --border: #e2e8f0; /* Crisp subtle border */
-  --border-strong: #cbd5e1;
+  --border: #cbd5e1; /* Slate 300 - clearly defined outlines */
+  --border-strong: #94a3b8; /* Slate 400 */
 
   --card-gradient-start: #ffffff;
   --card-gradient-end: #f8faf9;
@@ -113,11 +113,11 @@
   --secondary: var(--surface-secondary);
   --secondary-foreground: var(--text-primary);
 
-  --muted: #f1f5f3;
+  --muted: #f1f5f9;
   --muted-foreground: var(--text-muted);
 
   --accent: #dcfce7; /* Soft pastel mint pill for active nav items */
-  --accent-foreground: #15803d; /* Deep emerald text for active items */
+  --accent-foreground: #047857; /* Deep emerald text for active items */
 
   --destructive: var(--error);
   --destructive-foreground: #ffffff;

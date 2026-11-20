@@ -102,17 +102,17 @@ export function AgentBalanceModal({ isOpen, onClose, user, onSuccess }: AgentBal
   return (
     <>
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-w-md bg-[#101713] border-white/10 text-white">
+      <DialogContent className="max-w-md bg-white border-2 border-slate-200 text-slate-900 shadow-2xl rounded-3xl">
         <DialogHeader>
-          <div className="flex items-center gap-2 text-emerald-400">
-            <span className="grid size-9 place-items-center rounded-xl bg-emerald-500/15 border border-emerald-500/30">
+          <div className="flex items-center gap-2.5 text-emerald-700">
+            <span className="grid size-10 place-items-center rounded-xl bg-emerald-50 border-2 border-emerald-200 text-emerald-700 shadow-2xs">
               <Coins className="size-5" />
             </span>
             <div>
-              <DialogTitle className="text-lg font-bold text-white">
+              <DialogTitle className="text-lg font-black text-slate-900">
                 Billeteras de Agente · Asignar Saldo
               </DialogTitle>
-              <DialogDescription className="text-xs text-slate-300">
+              <DialogDescription className="text-xs text-slate-600 font-medium">
                 Selecciona la billetera específica (Envíos de Dinero o Recargas) para recargar saldo.
               </DialogDescription>
             </div>
@@ -121,25 +121,25 @@ export function AgentBalanceModal({ isOpen, onClose, user, onSuccess }: AgentBal
 
         <form onSubmit={handleSubmit} className="space-y-4 pt-2">
           {/* Tarjeta de Información del Usuario */}
-          <div className="rounded-xl border border-white/10 bg-white/[0.04] p-3 space-y-1.5">
+          <div className="rounded-2xl border-2 border-slate-200 bg-slate-50 p-3.5 space-y-2 shadow-2xs">
             <div className="flex items-center justify-between text-xs">
-              <span className="text-slate-400 font-medium">Agente:</span>
-              <span className="font-bold text-white">{user.full_name || "Sin nombre"}</span>
+              <span className="text-slate-600 font-bold">Agente:</span>
+              <span className="font-extrabold text-slate-900">{user.full_name || "Sin nombre"}</span>
             </div>
             <div className="flex items-center justify-between text-xs">
-              <span className="text-slate-400 font-medium">Teléfono:</span>
-              <span className="font-semibold text-emerald-300">{user.phone || "Sin teléfono"}</span>
+              <span className="text-slate-600 font-bold">Teléfono:</span>
+              <span className="font-extrabold text-emerald-700">{user.phone || "Sin teléfono"}</span>
             </div>
-            <div className="flex items-center justify-between text-xs pt-1 border-t border-white/10">
-              <span className="text-slate-400 font-medium">Historial de movimientos:</span>
+            <div className="flex items-center justify-between text-xs pt-2 border-t border-slate-200">
+              <span className="text-slate-600 font-medium">Historial de movimientos:</span>
               <Button
                 type="button"
                 variant="ghost"
                 size="sm"
                 onClick={() => setOpenHistory(true)}
-                className="h-6 px-2 text-[11px] text-emerald-400 hover:text-emerald-300 hover:bg-emerald-500/10 gap-1"
+                className="h-7 px-2.5 text-xs font-bold text-emerald-700 hover:text-emerald-800 hover:bg-emerald-100/70 gap-1 rounded-lg"
               >
-                <History className="size-3" />
+                <History className="size-3.5" />
                 Ver Historial Completo
               </Button>
             </div>
@@ -147,26 +147,26 @@ export function AgentBalanceModal({ isOpen, onClose, user, onSuccess }: AgentBal
 
           {/* Selector de Billetera a Acreditar (Envíos vs Recargas) */}
           <div className="space-y-2">
-            <Label className="text-xs text-slate-300 font-bold">Selecciona la Billetera a Acreditar</Label>
+            <Label className="text-xs text-slate-800 font-extrabold">Selecciona la Billetera a Acreditar</Label>
             <div className="grid grid-cols-2 gap-2">
               <button
                 type="button"
                 onClick={() => setWalletType("transfers")}
-                className={`p-3 rounded-xl border text-left transition-all cursor-pointer ${
+                className={`p-3 rounded-2xl border-2 text-left transition-all cursor-pointer shadow-2xs ${
                   walletType === "transfers"
-                    ? "border-emerald-500 bg-emerald-500/15 ring-2 ring-emerald-500/30"
-                    : "border-white/10 bg-white/[0.03] hover:bg-white/[0.06]"
+                    ? "border-emerald-600 bg-emerald-50/90 ring-2 ring-emerald-500/20"
+                    : "border-slate-200 bg-white hover:bg-slate-50"
                 }`}
               >
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-1.5 text-emerald-400 font-bold text-xs">
-                    <Banknote className="size-4" />
+                  <div className="flex items-center gap-1.5 text-emerald-800 font-black text-xs">
+                    <Banknote className="size-4 text-emerald-700" />
                     <span>Envíos de Dinero</span>
                   </div>
-                  {walletType === "transfers" && <span className="size-2 rounded-full bg-emerald-400" />}
+                  {walletType === "transfers" && <span className="size-2 rounded-full bg-emerald-600 ring-2 ring-emerald-300" />}
                 </div>
-                <p className="text-[10px] text-slate-400 mt-1">Remesas MonCash / NatCash</p>
-                <p className="text-sm font-extrabold text-[#F2AC00] mt-1.5">
+                <p className="text-[10px] text-slate-600 font-medium mt-1">Remesas MonCash / NatCash</p>
+                <p className="text-base font-black text-emerald-800 mt-1.5">
                   {isLoadingWallets ? "..." : `${transfersBalance.toLocaleString()} HTG`}
                 </p>
               </button>
@@ -174,21 +174,21 @@ export function AgentBalanceModal({ isOpen, onClose, user, onSuccess }: AgentBal
               <button
                 type="button"
                 onClick={() => setWalletType("topups")}
-                className={`p-3 rounded-xl border text-left transition-all cursor-pointer ${
+                className={`p-3 rounded-2xl border-2 text-left transition-all cursor-pointer shadow-2xs ${
                   walletType === "topups"
-                    ? "border-cyan-500 bg-cyan-500/15 ring-2 ring-cyan-500/30"
-                    : "border-white/10 bg-white/[0.03] hover:bg-white/[0.06]"
+                    ? "border-cyan-600 bg-cyan-50/90 ring-2 ring-cyan-500/20"
+                    : "border-slate-200 bg-white hover:bg-slate-50"
                 }`}
               >
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-1.5 text-cyan-400 font-bold text-xs">
-                    <Smartphone className="size-4" />
+                  <div className="flex items-center gap-1.5 text-cyan-800 font-black text-xs">
+                    <Smartphone className="size-4 text-cyan-700" />
                     <span>Recargas Haití</span>
                   </div>
-                  {walletType === "topups" && <span className="size-2 rounded-full bg-cyan-400" />}
+                  {walletType === "topups" && <span className="size-2 rounded-full bg-cyan-600 ring-2 ring-cyan-300" />}
                 </div>
-                <p className="text-[10px] text-slate-400 mt-1">DingConnect / Telefonía</p>
-                <p className="text-sm font-extrabold text-[#F2AC00] mt-1.5">
+                <p className="text-[10px] text-slate-600 font-medium mt-1">DingConnect / Telefonía</p>
+                <p className="text-base font-black text-cyan-800 mt-1.5">
                   {isLoadingWallets ? "..." : `${topupsBalance.toLocaleString()} HTG`}
                 </p>
               </button>
@@ -198,11 +198,11 @@ export function AgentBalanceModal({ isOpen, onClose, user, onSuccess }: AgentBal
           {/* Campo de Monto a Acreditar */}
           <div className="space-y-1.5">
             <div className="flex items-center justify-between">
-              <Label className="text-xs text-slate-300 font-semibold">
+              <Label className="text-xs text-slate-800 font-extrabold">
                 Monto a Acreditar ({walletType === "topups" ? "Billetera Recargas" : "Billetera Envíos"})
               </Label>
-              <span className="text-[11px] text-slate-400">
-                Saldo actual: <strong className="text-white">{currentBalance.toLocaleString()} HTG</strong>
+              <span className="text-[11px] text-slate-600 font-medium">
+                Saldo actual: <strong className="text-slate-900 font-black">{currentBalance.toLocaleString()} HTG</strong>
               </span>
             </div>
             <div className="relative">
@@ -213,10 +213,10 @@ export function AgentBalanceModal({ isOpen, onClose, user, onSuccess }: AgentBal
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
                 placeholder="Ej. 10000"
-                className="bg-black/40 border-white/15 text-white font-bold pl-3 pr-14"
+                className="bg-white border-2 border-slate-300 focus:border-emerald-600 text-slate-900 font-black text-base rounded-xl pl-3 pr-14"
                 required
               />
-              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-emerald-400">
+              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-black text-emerald-700">
                 HTG
               </span>
             </div>
@@ -224,14 +224,14 @@ export function AgentBalanceModal({ isOpen, onClose, user, onSuccess }: AgentBal
 
           {/* Botones de Monto Rápido */}
           <div className="space-y-1.5">
-            <Label className="text-[11px] text-slate-400">Montos rápidos sugeridos</Label>
+            <Label className="text-[11px] text-slate-600 font-bold">Montos rápidos sugeridos</Label>
             <div className="flex flex-wrap gap-1.5">
               {QUICK_AMOUNTS.map((val) => (
                 <button
                   key={val}
                   type="button"
                   onClick={() => setAmount(String(val))}
-                  className="rounded-lg bg-white/[0.06] hover:bg-emerald-500/20 border border-white/10 hover:border-emerald-500/40 px-2.5 py-1 text-xs font-semibold text-slate-200 transition cursor-pointer"
+                  className="rounded-xl bg-slate-100 hover:bg-emerald-50 border-2 border-slate-200 hover:border-emerald-500 px-2.5 py-1 text-xs font-bold text-slate-800 hover:text-emerald-800 transition cursor-pointer"
                 >
                   +{val.toLocaleString()} HTG
                 </button>
@@ -241,26 +241,26 @@ export function AgentBalanceModal({ isOpen, onClose, user, onSuccess }: AgentBal
 
           {/* Concepto / Nota */}
           <div className="space-y-1.5">
-            <Label className="text-xs text-slate-300">Nota / Motivo (Opcional)</Label>
+            <Label className="text-xs text-slate-700 font-semibold">Nota / Motivo (Opcional)</Label>
             <Input
               type="text"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder={`Ej. Asignación de saldo para ${walletType === "topups" ? "recargas DingConnect" : "remesas MonCash"}`}
-              className="bg-black/40 border-white/15 text-white text-xs"
+              className="bg-white border-2 border-slate-300 text-slate-900 text-xs rounded-xl"
               maxLength={150}
             />
           </div>
 
           {/* Vista previa del nuevo balance */}
-          <div className="rounded-xl bg-emerald-950/30 border border-emerald-500/30 p-3 flex items-center justify-between">
+          <div className="rounded-2xl bg-emerald-50 border-2 border-emerald-300 p-3.5 flex items-center justify-between shadow-2xs">
             <div className="flex items-center gap-2">
-              <CheckCircle2 className="size-4 text-emerald-400" />
-              <span className="text-xs text-emerald-200 font-medium">
+              <CheckCircle2 className="size-4 text-emerald-700 shrink-0" />
+              <span className="text-xs text-emerald-950 font-bold">
                 Nuevo balance estimado ({walletType === "topups" ? "Recargas" : "Envíos"}):
               </span>
             </div>
-            <span className="text-sm font-black text-emerald-400">
+            <span className="text-base font-black text-emerald-800">
               {expectedNewBalance.toLocaleString()} HTG
             </span>
           </div>
@@ -268,17 +268,17 @@ export function AgentBalanceModal({ isOpen, onClose, user, onSuccess }: AgentBal
           <DialogFooter className="pt-2 gap-2">
             <Button
               type="button"
-              variant="ghost"
+              variant="outline"
               onClick={onClose}
               disabled={isSubmitting}
-              className="text-slate-400 hover:text-white"
+              className="border-2 border-slate-200 text-slate-700 hover:bg-slate-100 font-bold rounded-xl"
             >
               Cancelar
             </Button>
             <Button
               type="submit"
               disabled={isSubmitting || numAmount <= 0}
-              className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold gap-2"
+              className="bg-emerald-600 hover:bg-emerald-700 text-white font-black gap-2 rounded-xl shadow-md"
             >
               <Coins className="size-4" />
               {isSubmitting

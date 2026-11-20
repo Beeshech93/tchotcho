@@ -520,7 +520,7 @@ function Agente() {
               <h1 className="text-2xl font-bold tracking-tight">Panel de Agente Independiente</h1>
               <Badge
                 variant="outline"
-                className="border-emerald-500/30 bg-emerald-500/10 text-emerald-400 font-semibold"
+                className="border-2 border-emerald-300 bg-emerald-50 text-emerald-800 font-bold"
               >
                 Solo Efectivo
               </Badge>
@@ -658,7 +658,7 @@ function Agente() {
             <CardHeader className="flex flex-row items-center justify-between pb-3">
               <div>
                 <CardTitle className="text-base flex items-center gap-2">
-                  <Smartphone className="size-4 text-cyan-400" />
+                  <Smartphone className="size-4 text-cyan-700" />
                   <span>Recargas Telefónicas de tu Agencia</span>
                 </CardTitle>
                 <CardDescription className="text-xs">
@@ -668,7 +668,7 @@ function Agente() {
               <Button
                 size="sm"
                 onClick={() => setOpenTopupModal(true)}
-                className="gap-1.5 bg-cyan-600 hover:bg-cyan-700 text-white font-semibold text-xs"
+                className="gap-1.5 bg-cyan-600 hover:bg-cyan-700 text-white font-bold text-xs shadow-xs rounded-xl"
               >
                 <PlusCircle className="size-3.5" />
                 <span>Nueva Recarga</span>
@@ -686,7 +686,7 @@ function Agente() {
                     size="sm"
                     variant="outline"
                     onClick={() => setOpenTopupModal(true)}
-                    className="gap-1.5 text-xs text-cyan-400 border-cyan-500/30 hover:bg-cyan-500/10"
+                    className="gap-1.5 text-xs text-cyan-800 border-2 border-cyan-400 bg-cyan-50 hover:bg-cyan-100 font-bold rounded-xl"
                   >
                     <Smartphone className="size-3.5" />
                     <span>Realizar Primera Recarga</span>
@@ -805,7 +805,7 @@ function Agente() {
             <CardHeader className="flex flex-row items-center justify-between pb-3">
               <div>
                 <CardTitle className="text-base flex items-center gap-2">
-                  <Coins className="size-4 text-emerald-400" />
+                  <Coins className="size-4 text-emerald-700" />
                   <span>Historial de Movimientos de Saldo</span>
                 </CardTitle>
                 <CardDescription className="text-xs">

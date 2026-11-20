@@ -27,11 +27,11 @@ type TopupRow = {
 };
 
 const STATUS_TONE: Record<string, string> = {
-  pending: "bg-warning/15 text-warning",
-  processing: "bg-accent/15 text-accent",
-  completed: "bg-success/15 text-success",
-  failed: "bg-destructive/15 text-destructive",
-  refunded: "bg-muted text-muted-foreground",
+  pending: "bg-amber-50 text-amber-900 border border-amber-300 font-bold",
+  processing: "bg-blue-50 text-blue-900 border border-blue-300 font-bold",
+  completed: "bg-emerald-50 text-emerald-900 border border-emerald-300 font-bold",
+  failed: "bg-rose-50 text-rose-900 border border-rose-300 font-bold",
+  refunded: "bg-slate-100 text-slate-800 border border-slate-300 font-semibold",
 };
 
 export function OperatorReportPanel() {

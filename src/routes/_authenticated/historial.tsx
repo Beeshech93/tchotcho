@@ -77,16 +77,16 @@ function Historial() {
       </div>
 
       {user?.role === "agent" && (
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-2xl bg-emerald-950/20 border border-emerald-500/30 text-emerald-300">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-2xl bg-emerald-50/90 border-2 border-emerald-200 text-emerald-950 shadow-2xs">
           <div className="flex items-center gap-3">
-            <div className="size-9 rounded-xl bg-emerald-500/20 text-emerald-400 grid place-items-center shrink-0">
+            <div className="size-10 rounded-xl bg-emerald-100 text-emerald-700 border-2 border-emerald-200 grid place-items-center shrink-0">
               <Briefcase className="size-5" />
             </div>
             <div>
-              <p className="text-sm font-bold text-foreground">
+              <p className="text-sm font-black text-slate-900">
                 ¿Eres Agente de Tcho-Tcho?
               </p>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-xs text-slate-600 font-medium">
                 Tus cobros en efectivo, envíos de remesas, recargas telefónicas y movimientos de saldo están unificados en tu Panel de Agente.
               </p>
             </div>
@@ -94,11 +94,10 @@ function Historial() {
           <Button
             asChild
             size="sm"
-            className="gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs shrink-0"
+            className="shrink-0 bg-emerald-600 hover:bg-emerald-700 text-white font-black shadow-xs rounded-xl"
           >
             <Link to="/agente">
-              Ir al Panel de Agente
-              <ArrowRight className="size-4" />
+              Ir a mi Panel de Agente
             </Link>
           </Button>
         </div>

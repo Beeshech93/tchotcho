@@ -354,8 +354,8 @@ function Detalle() {
       </Card>
 
       {isAgentPayment && (
-        <div className="flex items-center gap-2 rounded-xl bg-emerald-500/10 border border-emerald-500/20 px-3.5 py-2.5 text-xs text-emerald-300 font-medium">
-          <Banknote className="size-4 text-emerald-400 shrink-0" />
+        <div className="flex items-center gap-2 rounded-2xl bg-emerald-50 border-2 border-emerald-200 px-3.5 py-2.5 text-xs text-emerald-950 font-bold shadow-2xs">
+          <Banknote className="size-4 text-emerald-700 shrink-0" />
           <span>
             Transacción de Agente Autorizado: Operación directa en efectivo sin intermediarios ni
             pasarelas de pago externas.

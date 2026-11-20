@@ -117,8 +117,8 @@ export function ServicesPanel() {
         <CardHeader>
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div>
-              <CardTitle className="flex items-center gap-2 text-lg">
-                <Power className="size-5 text-accent" /> Control de Servicios para Clientes
+              <CardTitle className="flex items-center gap-2 text-lg text-slate-900 font-extrabold">
+                <Power className="size-5 text-emerald-700" /> Control de Servicios para Clientes
               </CardTitle>
               <CardDescription className="mt-1 text-sm">
                 Activa o desactiva de forma inmediata el acceso a los servicios clave de la
@@ -157,8 +157,8 @@ export function ServicesPanel() {
                     <span
                       className={`grid size-10 place-items-center rounded-xl ${
                         isEnabled
-                          ? "bg-accent/15 text-accent"
-                          : "bg-destructive/15 text-destructive"
+                          ? "bg-emerald-50 text-emerald-700 border-2 border-emerald-200"
+                          : "bg-destructive/15 text-destructive border-2 border-destructive/20"
                       }`}
                     >
                       <Icon className="size-5" />

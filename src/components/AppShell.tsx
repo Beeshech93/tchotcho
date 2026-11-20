@@ -56,14 +56,14 @@ function NavItem({ item, active, label }: { item: NavEntry; active: boolean; lab
       <Link
         to={item.to}
         className={cn(
-          "press flex flex-col items-center gap-0.5 py-1.5 text-[10px] font-semibold transition-colors",
-          active ? "text-accent" : "text-muted-foreground",
+          "press flex flex-col items-center gap-0.5 py-1.5 text-[10px] transition-colors",
+          active ? "text-emerald-800 font-black" : "text-slate-600 font-bold hover:text-slate-900",
         )}
       >
         <span
           className={cn(
             "grid size-9 place-items-center rounded-xl transition-colors",
-            active ? "bg-accent/12" : "bg-transparent",
+            active ? "bg-emerald-100 text-emerald-800 border border-emerald-300 shadow-2xs" : "bg-transparent",
           )}
         >
           <item.icon className="size-5" />
@@ -134,16 +134,16 @@ export function AppShell({ children }: { children: ReactNode }) {
                   key={item.label}
                   to={item.to}
                   className={cn(
-                    "flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-bold transition-all",
+                    "flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs transition-all",
                     isActive
-                      ? "bg-[#DCFCE7] text-[#15803D] border border-emerald-300/40 shadow-xs"
-                      : "text-slate-600 hover:bg-slate-100/80 hover:text-slate-900 border border-transparent font-medium",
+                      ? "bg-emerald-50 text-emerald-800 border-2 border-emerald-300 shadow-2xs font-black"
+                      : "text-slate-700 hover:bg-slate-100 hover:text-slate-950 border border-transparent font-bold",
                   )}
                 >
                   <item.icon
                     className={cn(
                       "size-4 shrink-0",
-                      isActive ? "text-[#15803D]" : "text-slate-500",
+                      isActive ? "text-emerald-700" : "text-slate-500",
                     )}
                   />
                   <span>{item.label}</span>
@@ -165,16 +165,16 @@ export function AppShell({ children }: { children: ReactNode }) {
                     key={item.label}
                     to={item.to}
                     className={cn(
-                      "flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-bold transition-all",
+                      "flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs transition-all",
                       isActive
-                        ? "bg-[#DCFCE7] text-[#15803D] border border-emerald-300/40 shadow-xs"
-                        : "text-slate-600 hover:bg-slate-100/80 hover:text-slate-900 border border-transparent font-medium",
+                        ? "bg-emerald-50 text-emerald-800 border-2 border-emerald-300 shadow-2xs font-black"
+                        : "text-slate-700 hover:bg-slate-100 hover:text-slate-950 border border-transparent font-bold",
                     )}
                   >
                     <item.icon
                       className={cn(
                         "size-4 shrink-0",
-                        isActive ? "text-[#15803D]" : "text-slate-500",
+                        isActive ? "text-emerald-700" : "text-slate-500",
                       )}
                     />
                     <span>{item.label}</span>

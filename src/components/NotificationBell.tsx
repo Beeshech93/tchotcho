@@ -134,7 +134,7 @@ export function NotificationBell({ triggerClassName }: { triggerClassName?: stri
         <div className="border-t p-2">
           <Link
             to="/dashboard"
-            className="block rounded-md px-2 py-1.5 text-center text-xs font-medium text-accent hover:bg-accent/10"
+            className="block rounded-xl px-2 py-1.5 text-center text-xs font-bold text-emerald-700 hover:text-emerald-800 hover:bg-emerald-50 transition"
           >
             Ver todo en el inicio
           </Link>

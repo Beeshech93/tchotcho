@@ -684,21 +684,21 @@ function Recargas() {
 
           <div className="sm:col-span-2">
             {isAgent && (
-              <div className="rounded-xl border border-cyan-500/30 bg-cyan-950/20 p-3 text-xs space-y-1 mb-3">
+              <div className="rounded-2xl border-2 border-cyan-300 bg-cyan-50/90 p-4 text-xs space-y-2 mb-3 shadow-2xs">
                 <div className="flex items-center justify-between">
-                  <span className="font-bold text-cyan-400 flex items-center gap-1.5">
-                    <Smartphone className="size-4" /> Billetera de Recargas (Saldo de Agente)
+                  <span className="font-black text-cyan-950 flex items-center gap-1.5">
+                    <Smartphone className="size-4 text-cyan-700" /> Billetera de Recargas (Saldo de Agente)
                   </span>
-                  <span className="font-extrabold text-[#F2AC00]">
+                  <span className="font-black text-sm text-cyan-950 bg-white px-2.5 py-1 rounded-xl border border-cyan-200 shadow-2xs">
                     {topupBalance.toLocaleString()} HTG
                   </span>
                 </div>
                 {receivedAmount != null && receivedAmount > topupBalance ? (
-                  <p className="text-red-400 font-semibold">
+                  <p className="text-rose-800 font-bold bg-rose-100/90 p-2.5 rounded-xl border border-rose-300">
                     ⚠️ Saldo insuficiente: Tienes {topupBalance.toLocaleString()} HTG y esta recarga requiere {receivedAmount.toLocaleString()} HTG. Sin saldo operativo no puedes enviar recargas.
                   </p>
                 ) : (
-                  <p className="text-slate-300">
+                  <p className="text-cyan-800 font-semibold">
                     Esta recarga se descontará directamente de tu Billetera de Recargas.
                   </p>
                 )}
