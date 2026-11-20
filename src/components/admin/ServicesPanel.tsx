@@ -38,7 +38,7 @@ const SERVICES_META: ServiceMeta[] = [
   {
     key: "transfers",
     title: "Envío de Dinero (Remesas)",
-    description: "Envíos directos a Haití y República Dominicana (MonCash, Natcash, etc.).",
+    description: "Envíos directos a Haití (MonCash, Natcash, etc.).",
     impact: "Si se desactiva, los clientes no podrán crear nuevas transferencias desde /enviar.",
     icon: Send,
     defaultMsg: "El servicio de transferencias está temporalmente en mantenimiento.",

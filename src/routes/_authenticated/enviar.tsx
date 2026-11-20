@@ -34,12 +34,12 @@ export const Route = createFileRoute("/_authenticated/enviar")({
       {
         name: "description",
         content:
-          "Envía dinero desde América o Europa hacia Haití y República Dominicana con comisión transparente.",
+          "Envía dinero desde América o Europa hacia Haití con comisión transparente.",
       },
       { property: "og:title", content: "Enviar dinero — Tcho-Tcho" },
       {
         property: "og:description",
-        content: "Calcula, elige método de pago y envía a Haití o República Dominicana.",
+        content: "Calcula, elige método de pago y envía a Haití.",
       },
     ],
   }),

@@ -28,7 +28,7 @@ export const AccountReadyEmail = ({ siteName, siteUrl, fullName }: AccountReadyE
           Tu cuenta de {siteName} está confirmada y activa. Ya puedes empezar a usar todos nuestros
           servicios:
         </Text>
-        <Text style={item}>💸 Enviar dinero a Haití y República Dominicana</Text>
+        <Text style={item}>💸 Enviar dinero a Haití</Text>
         <Text style={item}>📱 Recargar saldo de celular al instante</Text>
         <Text style={item}>💳 Pagar con tarjeta, OXXO, SPEI o transferencia</Text>
         <Button style={button} href={siteUrl}>

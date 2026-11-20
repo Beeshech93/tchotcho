@@ -13,7 +13,7 @@ export type Lang = (typeof LANGUAGES)[number]["code"];
 type Dict = Record<string, string>;
 
 const es: Dict = {
-  "app.tagline": "Envíos rápidos a Haití y República Dominicana",
+  "app.tagline": "Envíos rápidos a Haití",
   "services.disabled_alert":
     "Este servicio se encuentra temporalmente deshabilitado por mantenimiento.",
   "services.disabled_btn": "Servicio en mantenimiento",
@@ -61,10 +61,10 @@ const es: Dict = {
   "auth.sending": "Enviando…",
   "auth.reset_link_sent": "Revisa tu correo para restablecer tu contraseña",
   "auth.back_to_signin": "Volver a iniciar sesión",
-  "landing.badge": "América y Europa → Haití y R. Dominicana",
+  "landing.badge": "América y Europa → Haití",
   "landing.title": "Envía dinero a casa sin sorpresas",
   "landing.subtitle":
-    "Tipo de cambio claro, comisión visible antes de pagar y seguimiento en tiempo real hasta que tu familia recibe el dinero en Haití o República Dominicana.",
+    "Tipo de cambio claro, comisión visible antes de pagar y seguimiento en tiempo real hasta que tu familia recibe el dinero en Haití.",
   "landing.cta": "Enviar dinero",
   "landing.have_account": "Ya tengo cuenta",
   "landing.stat_minutes": "Minutos",
@@ -80,7 +80,7 @@ const es: Dict = {
   "landing.total": "Total a pagar",
   "landing.unavailable": "No disponible",
   "landing.family_gets": "Tu familia recibe",
-  "landing.footer": "Tcho-Tcho · Remesas hacia Haití y República Dominicana",
+  "landing.footer": "Remesas hacia Haití",
   "install.title": "Instala la app en tu teléfono",
   "install.subtitle":
     "Agrega Tcho-Tcho a tu pantalla de inicio para abrirla como una app, sin buscarla en el navegador cada vez.",
@@ -491,7 +491,7 @@ const es: Dict = {
 };
 
 const fr: Dict = {
-  "app.tagline": "Transferts rapides vers Haïti et la République dominicaine",
+  "app.tagline": "Transferts rapides vers Haïti",
   "services.disabled_alert": "Ce service est temporairement désactivé pour maintenance.",
   "services.disabled_btn": "Service en maintenance",
   "services.disabled_badge": "Maintenance",
@@ -539,10 +539,10 @@ const fr: Dict = {
   "auth.sending": "Envoi…",
   "auth.reset_link_sent": "Vérifiez votre e-mail pour réinitialiser votre mot de passe",
   "auth.back_to_signin": "Retour à la connexion",
-  "landing.badge": "Amériques et Europe → Haïti et Rép. dominicaine",
+  "landing.badge": "Amériques et Europe → Haïti",
   "landing.title": "Envoyez de l'argent à la maison, sans surprises",
   "landing.subtitle":
-    "Taux de change clair, frais visibles avant de payer et suivi en temps réel jusqu'à ce que votre famille reçoive l'argent en Haïti ou en République dominicaine.",
+    "Taux de change clair, frais visibles avant de payer et suivi en temps réel jusqu'à ce que votre famille reçoive l'argent en Haïti.",
   "landing.cta": "Envoyer de l'argent",
   "landing.have_account": "J'ai déjà un compte",
   "landing.stat_minutes": "Minutes",
@@ -558,7 +558,7 @@ const fr: Dict = {
   "landing.total": "Total à payer",
   "landing.unavailable": "Indisponible",
   "landing.family_gets": "Votre famille reçoit",
-  "landing.footer": "Tcho-Tcho · Transferts vers Haïti et la République dominicaine",
+  "landing.footer": "Transferts vers Haïti",
   "install.title": "Installez l'app sur votre téléphone",
   "install.subtitle":
     "Ajoutez Tcho-Tcho à votre écran d'accueil pour l'ouvrir comme une app, sans avoir à la rechercher dans le navigateur.",
@@ -975,7 +975,7 @@ const fr: Dict = {
 };
 
 const ht: Dict = {
-  "app.tagline": "Voye Tcho-Tcho nan Ayiti ak Repiblik Dominikèn",
+  "app.tagline": "Voye Tcho-Tcho nan Ayiti",
   "services.disabled_alert": "Sèvis sa a tanporèman pa disponib pou antretyen.",
   "services.disabled_btn": "Sèvis an antretyen",
   "services.disabled_badge": "Antretyen",
@@ -1022,10 +1022,10 @@ const ht: Dict = {
   "auth.sending": "N ap voye…",
   "auth.reset_link_sent": "Gade imèl ou pou refè modpas ou",
   "auth.back_to_signin": "Tounen nan koneksyon",
-  "landing.badge": "Amerik ak Ewòp → Ayiti ak Rep. Dominikèn",
+  "landing.badge": "Amerik ak Ewòp → Ayiti",
   "landing.title": "Voye lajan lakay san sipriz",
   "landing.subtitle":
-    "To chanj klè, frè ou wè anvan ou peye, ak swivi an tan reyèl jiskaske fanmi w resevwa lajan an ann Ayiti oswa nan Repiblik Dominikèn.",
+    "To chanj klè, frè ou wè anvan ou peye, ak swivi an tan reyèl jiskaske fanmi w resevwa lajan an ann Ayiti.",
   "landing.cta": "Voye lajan",
   "landing.have_account": "Mwen gen yon kont deja",
   "landing.stat_minutes": "Minit",
@@ -1041,7 +1041,7 @@ const ht: Dict = {
   "landing.total": "Total pou peye",
   "landing.unavailable": "Pa disponib",
   "landing.family_gets": "Fanmi w resevwa",
-  "landing.footer": "Tcho-Tcho · Transfè nan Ayiti ak Repiblik Dominikèn",
+  "landing.footer": "Transfè nan Ayiti",
   "install.title": "Enstale app la nan telefòn ou",
   "install.subtitle":
     "Ajoute Tcho-Tcho sou ekran akèy ou pou ouvri l tankou yon app, san w pa bezwen chèche l nan navigatè a chak fwa.",
@@ -1448,7 +1448,7 @@ const ht: Dict = {
 };
 
 const en: Dict = {
-  "app.tagline": "Fast transfers to Haiti and the Dominican Republic",
+  "app.tagline": "Fast transfers to Haiti",
   "services.disabled_alert": "This service is temporarily disabled for maintenance.",
   "services.disabled_btn": "Service in maintenance",
   "services.disabled_badge": "Maintenance",
@@ -1495,10 +1495,10 @@ const en: Dict = {
   "auth.sending": "Sending…",
   "auth.reset_link_sent": "Check your email to reset your password",
   "auth.back_to_signin": "Back to sign in",
-  "landing.badge": "Americas & Europe → Haiti and Dominican Rep.",
+  "landing.badge": "Americas & Europe → Haiti",
   "landing.title": "Send money home with no surprises",
   "landing.subtitle":
-    "Clear exchange rate, fees shown before you pay and real-time tracking until your family receives the money in Haiti or the Dominican Republic.",
+    "Clear exchange rate, fees shown before you pay and real-time tracking until your family receives the money in Haiti.",
   "landing.cta": "Send money",
   "landing.have_account": "I already have an account",
   "landing.stat_minutes": "Minutes",
@@ -1514,7 +1514,7 @@ const en: Dict = {
   "landing.total": "Total to pay",
   "landing.unavailable": "Unavailable",
   "landing.family_gets": "Your family receives",
-  "landing.footer": "Tcho-Tcho · Remittances to Haiti and the Dominican Republic",
+  "landing.footer": "Remittances to Haiti",
   "install.title": "Install the app on your phone",
   "install.subtitle":
     "Add Tcho-Tcho to your home screen to open it like an app, without searching for it in your browser every time.",
