@@ -441,11 +441,10 @@ function Enviar() {
           </CardHeader>
           <CardContent>
             <div className="rounded-xl border border-emerald-500/20 bg-background/50 p-4">
-              <p className="font-semibold text-sm text-foreground">
-                Cobro en ventanilla física
-              </p>
+              <p className="font-semibold text-sm text-foreground">Cobro en ventanilla física</p>
               <p className="text-xs text-muted-foreground mt-1">
-                El cliente te entrega el efectivo directamente. La transferencia se procesa inmediatamente y se descuenta de tu saldo de agente.
+                El cliente te entrega el efectivo directamente. La transferencia se procesa
+                inmediatamente y se descuenta de tu saldo de agente.
               </p>
             </div>
           </CardContent>

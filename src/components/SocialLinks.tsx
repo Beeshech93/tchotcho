@@ -112,7 +112,9 @@ export function SocialLinks({
           }
         >
           {item.svg}
-          {showLabels && <span className="group-hover:text-white transition-colors">{item.label}</span>}
+          {showLabels && (
+            <span className="group-hover:text-white transition-colors">{item.label}</span>
+          )}
         </a>
       ))}
     </div>

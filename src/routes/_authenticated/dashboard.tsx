@@ -138,8 +138,8 @@ export function Dashboard() {
                   {profile.kyc_status === "pending"
                     ? "Verificación KYC en revisión"
                     : profile.kyc_status === "rejected"
-                    ? "Verificación KYC rechazada"
-                    : "Paso obligatorio: Verifica tu identidad (KYC)"}
+                      ? "Verificación KYC rechazada"
+                      : "Paso obligatorio: Verifica tu identidad (KYC)"}
                 </p>
                 <span className="inline-block rounded-full bg-[#F2AC00]/20 border border-[#F2AC00]/40 px-2 py-0.5 text-[10px] font-extrabold text-[#F2AC00]">
                   Requerido
@@ -149,8 +149,8 @@ export function Dashboard() {
                 {profile.kyc_status === "pending"
                   ? "Tus documentos están siendo revisados por nuestro equipo. Te avisaremos en cuanto se aprueben."
                   : profile.kyc_status === "rejected"
-                  ? "Tu documentación anterior fue rechazada. Por favor sube una identificación válida para operar."
-                  : "Por seguridad, las cuentas de clientes deben completar la verificación de identidad antes de poder realizar envíos o recargas."}
+                    ? "Tu documentación anterior fue rechazada. Por favor sube una identificación válida para operar."
+                    : "Por seguridad, las cuentas de clientes deben completar la verificación de identidad antes de poder realizar envíos o recargas."}
               </p>
             </div>
           </div>

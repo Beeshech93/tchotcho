@@ -282,7 +282,8 @@ function Recargas() {
   const destinationCurrency =
     (countries ?? []).find((c) => c.is_destination && c.code === country)?.currency ||
     (country === "HT" ? "HTG" : "");
-  const operatorCurrency = country === "HT" ? "HTG" : (selected?.currency || destinationCurrency || "HTG");
+  const operatorCurrency =
+    country === "HT" ? "HTG" : selected?.currency || destinationCurrency || "HTG";
   const sameCurrency = !!payCurrency && !!operatorCurrency && payCurrency === operatorCurrency;
   const { data: topupRate } = useTopupRate(
     sameCurrency ? undefined : payCurrency || undefined,
@@ -304,18 +305,17 @@ function Recargas() {
   const isHaitiTarget = country === "HT";
   const rawMin = Number(selected?.minValue ?? 0);
   const rawMax = Number(selected?.maxValue ?? selected?.minValue ?? 0);
-  const isUsdProductForHaiti = isHaitiTarget && selected?.currency === "USD" && rawMin > 0 && rawMin < 200;
+  const isUsdProductForHaiti =
+    isHaitiTarget && selected?.currency === "USD" && rawMin > 0 && rawMin < 200;
 
   const providerMin = isUsdProductForHaiti ? Math.round(rawMin * 130) : rawMin;
   const providerMax = isUsdProductForHaiti ? Math.round(rawMax * 130) : rawMax;
-  const providerCurrency = isHaitiTarget ? "HTG" : (selected?.currency || "HTG");
+  const providerCurrency = isHaitiTarget ? "HTG" : selected?.currency || "HTG";
   const providerRangeKnown = selected?.minValue != null;
 
   const providerAmountValid =
     !providerRangeKnown ||
-    (receivedAmount != null &&
-      receivedAmount >= providerMin &&
-      receivedAmount <= providerMax);
+    (receivedAmount != null && receivedAmount >= providerMin && receivedAmount <= providerMax);
   const suggestedPayAmount =
     topupRate && Number(topupRate.rate) > 0 && providerMin > 0
       ? Math.ceil((providerMin / Number(topupRate.rate)) * 100) / 100
@@ -339,10 +339,7 @@ function Recargas() {
       // DingConnect's product limits apply to the provider send amount and
       // currency, not to the MXN amount paid by the customer. Keep this guard
       // explicit and do not silently send an out-of-range amount.
-      if (
-        providerRangeKnown &&
-        (receivedAmount < providerMin || receivedAmount > providerMax)
-      ) {
+      if (providerRangeKnown && (receivedAmount < providerMin || receivedAmount > providerMax)) {
         throw new Error(
           interpolate(t("topup.err_range"), {
             min: providerMin,
@@ -372,7 +369,9 @@ function Recargas() {
     },
     onSuccess: (r) => {
       if ((r.result as any).mode === "direct") {
-        toast.success(`¡Recarga directa enviada con éxito! Referencia: ${(r.result as any).reference}`);
+        toast.success(
+          `¡Recarga directa enviada con éxito! Referencia: ${(r.result as any).reference}`,
+        );
         celebrateLogo();
         setPhone("");
         setAmount("");
@@ -629,7 +628,8 @@ function Recargas() {
             {providerRangeKnown && (
               <div className="space-y-1">
                 <p className="text-xs text-muted-foreground">
-                  Recarga disponible con el proveedor: {providerMin} – {providerMax} {providerCurrency}
+                  Recarga disponible con el proveedor: {providerMin} – {providerMax}{" "}
+                  {providerCurrency}
                 </p>
                 {providerMin === providerMax && (
                   <p className="text-xs text-muted-foreground">

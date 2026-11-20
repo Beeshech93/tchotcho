@@ -127,6 +127,25 @@ function Detalle() {
 
   const status = t?.status as TransferStatus | undefined;
   const isAgentPayment = t ? t.payment_method === "cash_agent" || Boolean(t.agent_id) : false;
+  const agentUserId = t
+    ? (t as any).agent_id || (t.payment_method === "cash_agent" ? t.user_id : null)
+    : null;
+  const { data: agentProfile } = useQuery({
+    queryKey: ["transfer-agent-profile", agentUserId],
+    queryFn: async () => {
+      if (!agentUserId) return null;
+      const { data } = await supabase
+        .from("profiles")
+        .select("id, full_name, phone")
+        .eq("id", agentUserId)
+        .maybeSingle();
+      return data;
+    },
+    enabled: Boolean(agentUserId),
+  });
+  const agentName =
+    agentProfile?.full_name || agentProfile?.phone || (agentUserId ? "Agente autorizado" : null);
+
   const isCardPayment =
     t && !isAgentPayment
       ? ["mercado_pago", "mercadopago", "card", "tarjeta"].includes(t.payment_method)
@@ -170,18 +189,6 @@ function Detalle() {
   const currentIndex = STATUS_FLOW.indexOf(definiteStatus);
   const paymentName = paymentLabel(t.payment_method);
   const deliveryName = deliveryLabel(t.delivery_method);
-
-  const agentUserId = (t as any)?.agent_id || (t?.payment_method === "cash_agent" ? t?.user_id : null);
-  const { data: agentProfile } = useQuery({
-    queryKey: ["transfer-agent-profile", agentUserId],
-    queryFn: async () => {
-      if (!agentUserId) return null;
-      const { data } = await supabase.from("profiles").select("id, full_name, phone").eq("id", agentUserId).maybeSingle();
-      return data;
-    },
-    enabled: Boolean(agentUserId),
-  });
-  const agentName = agentProfile?.full_name || agentProfile?.phone || (agentUserId ? "Agente autorizado" : null);
 
   return (
     <div className="mx-auto max-w-3xl space-y-5 text-white">

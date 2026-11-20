@@ -21,9 +21,11 @@ export function KycRequiredGate({
   const status = profile?.kyc_status ?? "none";
 
   return (
-    <Card className={`border-amber-500/30 bg-gradient-to-b from-[#161C14] to-[#0D120E] text-white shadow-2xl relative overflow-hidden ${className}`}>
+    <Card
+      className={`border-amber-500/30 bg-gradient-to-b from-[#161C14] to-[#0D120E] text-white shadow-2xl relative overflow-hidden ${className}`}
+    >
       <div className="absolute top-0 right-0 size-48 rounded-full bg-amber-500/10 blur-3xl pointer-events-none" />
-      
+
       <CardHeader className="text-center pb-2 relative z-10">
         <div className="mx-auto mb-3 grid size-16 place-items-center rounded-2xl bg-amber-500/15 border-2 border-amber-500/30 text-amber-400 shadow-inner">
           {status === "pending" ? (
@@ -55,16 +57,16 @@ export function KycRequiredGate({
           {status === "pending"
             ? "Verificación de Identidad en Proceso"
             : status === "rejected"
-            ? "Verificación de Identidad Rechazada"
-            : "Verificación de Identidad Requerida (KYC)"}
+              ? "Verificación de Identidad Rechazada"
+              : "Verificación de Identidad Requerida (KYC)"}
         </CardTitle>
 
         <CardDescription className="text-xs sm:text-sm text-slate-300 max-w-md mx-auto mt-1.5">
           {status === "pending"
             ? `Tu solicitud de verificación fue recibida. Nuestro equipo está revisando tus documentos para habilitar tus permisos de ${operationName}.`
             : status === "rejected"
-            ? `Tu documentación anterior no pudo ser validada. Por favor actualiza tus datos y sube documentos oficiales legibles para desbloquear tus operaciones.`
-            : `Por normativas de seguridad financiera y prevención de fraude, las cuentas de clientes deben verificar su identidad antes de poder ${operationName}.`}
+              ? `Tu documentación anterior no pudo ser validada. Por favor actualiza tus datos y sube documentos oficiales legibles para desbloquear tus operaciones.`
+              : `Por normativas de seguridad financiera y prevención de fraude, las cuentas de clientes deben verificar su identidad antes de poder ${operationName}.`}
         </CardDescription>
       </CardHeader>
 
