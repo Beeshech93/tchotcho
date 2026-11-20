@@ -85,17 +85,17 @@ export function AppShell({ children }: { children: ReactNode }) {
   const topupsEnabled = isEnabled("topups");
 
   const coreNav = [
-    { to: "/dashboard", label: "Dashboard", icon: Home },
-    ...(transfersEnabled ? [{ to: "/enviar", label: "Enviar Dinero", icon: Send }] : []),
-    ...(topupsEnabled ? [{ to: "/recargas", label: "Recargas Haití", icon: Smartphone }] : []),
-    { to: "/historial", label: "Transacciones", icon: History },
-    { to: "/perfil", label: "Mi Cuenta", icon: User },
+    { to: "/dashboard", label: t("shell.dashboard"), icon: Home },
+    ...(transfersEnabled ? [{ to: "/enviar", label: t("shell.send_money"), icon: Send }] : []),
+    ...(topupsEnabled ? [{ to: "/recargas", label: t("shell.topups"), icon: Smartphone }] : []),
+    { to: "/historial", label: t("shell.transactions"), icon: History },
+    { to: "/perfil", label: t("shell.my_account"), icon: User },
   ];
 
   const workflowNav = [
-    { to: "/soporte", label: "Centro de Ayuda", icon: LifeBuoy },
-    ...(isAdmin ? [{ to: "/admin", label: "Panel Admin", icon: Shield }] : []),
-    ...(isAgent ? [{ to: "/agente", label: "Portal de Agente", icon: Briefcase }] : []),
+    { to: "/soporte", label: t("shell.help_center"), icon: LifeBuoy },
+    ...(isAdmin ? [{ to: "/admin", label: t("shell.admin_panel"), icon: Shield }] : []),
+    ...(isAgent ? [{ to: "/agente", label: t("shell.agent_portal"), icon: Briefcase }] : []),
   ];
 
   const signOut = async () => {
@@ -190,7 +190,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               to="/enviar"
               className="mt-3 inline-flex w-full items-center justify-center gap-1.5 rounded-xl bg-[#F2AC00] px-3.5 py-2 text-xs font-black text-black shadow-[0_0_15px_rgba(242,172,0,0.4)] hover:bg-[#FBBF24] transition"
             >
-              Enviar Dinero
+              {t("shell.send_money")}
               <ArrowRight className="size-3.5" />
             </Link>
           </div>

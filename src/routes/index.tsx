@@ -194,7 +194,7 @@ export function Landing() {
             to="/auth"
             className="text-xs sm:text-sm font-semibold text-white/90 hover:text-white transition-colors px-2 py-1"
           >
-            Iniciar sesión
+            {t("landing.signin")}
           </Link>
 
           <Link
@@ -202,7 +202,7 @@ export function Landing() {
             search={{ modo: "registro" }}
             className="rounded-full bg-white text-black font-extrabold px-5 py-2 text-xs sm:text-sm shadow-lg hover:bg-slate-100 hover:scale-[1.02] active:scale-[0.98] transition-all"
           >
-            Crear cuenta
+            {t("landing.signup")}
           </Link>
         </div>
       </header>
@@ -214,25 +214,22 @@ export function Landing() {
           {/* Badge superior ultra-moderno con punto pulsante */}
           <div className="inline-flex items-center gap-2.5 rounded-full bg-gradient-to-r from-emerald-950/70 via-black/80 to-black/60 border border-emerald-500/35 px-4 py-1.5 text-[11px] font-bold uppercase tracking-wider text-emerald-300 backdrop-blur-xl shadow-[0_0_20px_rgba(2,83,28,0.25)]">
             <span className="flex size-2 rounded-full bg-[#10B981] animate-ping" />
-            <span className="font-semibold text-slate-200">Fintech de Próxima Generación</span>
+            <span className="font-semibold text-slate-200">{t("landing.badge_fintech")}</span>
             <span className="text-[#F2AC00] font-black">·</span>
-            <span>América & Europa → Haití</span>
+            <span>{t("landing.badge_route")}</span>
           </div>
 
           {/* Titular Principal moderno y poderoso */}
           <h1 className="font-display text-4xl sm:text-5xl lg:text-[3.85rem] font-black tracking-tight text-white leading-[1.03] max-w-xl">
-            Tu dinero en casa,{" "}
+            {t("landing.hero_title_1")}{" "}
             <span className="bg-gradient-to-r from-emerald-300 via-[#F2AC00] to-white bg-clip-text text-transparent">
-              al instante y sin límites.
+              {t("landing.hero_title_2")}
             </span>
           </h1>
 
           {/* Subtítulo descriptivo moderno */}
           <p className="max-w-xl text-base sm:text-lg text-slate-300/90 leading-relaxed font-normal">
-            Mueve tu dinero al instante directo a cuentas{" "}
-            <strong className="text-white font-semibold">MonCash</strong>,{" "}
-            <strong className="text-white font-semibold">NatCash</strong> y bancos locales. Con la
-            mejor tasa garantizada en tiempo real y cero comisiones sorpresa.
+            {t("landing.hero_subtitle")}
           </p>
 
           {/* Botones de acción CTA modernos */}
@@ -242,7 +239,7 @@ export function Landing() {
               search={{ modo: "registro" }}
               className="group inline-flex items-center gap-3 rounded-full bg-white text-black font-black px-8 py-4 text-sm sm:text-base shadow-[0_12px_32px_rgba(255,255,255,0.25),0_0_40px_rgba(2,83,28,0.35)] hover:bg-slate-100 hover:scale-[1.02] active:scale-[0.98] transition-all"
             >
-              <span>Comenzar ahora</span>
+              <span>{t("landing.start_now")}</span>
               <div className="grid size-6 place-items-center rounded-full bg-black text-white group-hover:translate-x-0.5 transition-transform">
                 <ArrowRight className="size-3.5" />
               </div>
@@ -252,7 +249,7 @@ export function Landing() {
               to="/auth"
               className="inline-flex items-center rounded-full border border-white/20 bg-white/[0.05] text-white font-bold px-7 py-4 text-sm sm:text-base backdrop-blur-xl hover:bg-white/[0.12] hover:border-white/35 transition-all"
             >
-              Iniciar sesión
+              {t("landing.signin")}
             </Link>
           </div>
 
@@ -263,8 +260,8 @@ export function Landing() {
                 <Zap className="size-4" />
               </div>
               <div>
-                <p className="font-extrabold text-sm text-white">Acreditación Flash</p>
-                <p className="text-[11px] text-slate-300 mt-0.5">En segundos en su billetera</p>
+                <p className="font-extrabold text-sm text-white">{t("landing.benefit_flash")}</p>
+                <p className="text-[11px] text-slate-300 mt-0.5">{t("landing.benefit_flash_desc")}</p>
               </div>
             </div>
 
@@ -273,8 +270,8 @@ export function Landing() {
                 <ShieldCheck className="size-4" />
               </div>
               <div>
-                <p className="font-extrabold text-sm text-white">Seguridad Blindada</p>
-                <p className="text-[11px] text-slate-300 mt-0.5">Cifrado bancario 256-bit</p>
+                <p className="font-extrabold text-sm text-white">{t("landing.benefit_security")}</p>
+                <p className="text-[11px] text-slate-300 mt-0.5">{t("landing.benefit_security_desc")}</p>
               </div>
             </div>
 
@@ -283,8 +280,8 @@ export function Landing() {
                 <BadgePercent className="size-4" />
               </div>
               <div>
-                <p className="font-extrabold text-sm text-white">Tasa Máxima Real</p>
-                <p className="text-[11px] text-slate-300 mt-0.5">Más dinero para tu familia</p>
+                <p className="font-extrabold text-sm text-white">{t("landing.benefit_rate")}</p>
+                <p className="text-[11px] text-slate-300 mt-0.5">{t("landing.benefit_rate_desc")}</p>
               </div>
             </div>
           </div>
@@ -311,7 +308,7 @@ export function Landing() {
                 <span className="text-[#F2AC00]">★★★★★</span>
               </p>
               <p className="text-[11px] text-slate-400">
-                Elegido por más de 50,000 familias cada mes
+                {t("landing.social_proof")}
               </p>
             </div>
           </div>
@@ -339,7 +336,7 @@ export function Landing() {
                     activeTab === "envios" ? "text-[#F2AC00]" : "text-slate-400",
                   )}
                 />
-                <span>Enviar</span>
+                <span>{t("landing.tab_send")}</span>
                 {activeTab === "envios" && (
                   <span className="absolute -bottom-4 inset-x-8 h-0.5 bg-[#F2AC00] rounded-full shadow-[0_0_8px_#F2AC00]" />
                 )}
@@ -359,7 +356,7 @@ export function Landing() {
                     activeTab === "recargas" ? "text-[#F2AC00]" : "text-slate-400",
                   )}
                 />
-                <span>Recargas</span>
+                <span>{t("landing.tab_topups")}</span>
                 {activeTab === "recargas" && (
                   <span className="absolute -bottom-4 inset-x-8 h-0.5 bg-[#F2AC00] rounded-full shadow-[0_0_8px_#F2AC00]" />
                 )}
@@ -373,7 +370,7 @@ export function Landing() {
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-1.5">
                     <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                      Desde
+                      {t("landing.origin_country")}
                     </span>
                     <Select value={origin} onValueChange={setOrigin}>
                       <SelectTrigger className="h-11 rounded-2xl bg-[#161D18] border border-white/15 text-xs font-bold text-white focus:ring-1 focus:ring-[#F2AC00]">
@@ -401,7 +398,7 @@ export function Landing() {
 
                   <div className="space-y-1.5">
                     <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                      Hacia
+                      {t("landing.dest_country")}
                     </span>
                     <Select value={destination} onValueChange={setDestination}>
                       <SelectTrigger className="h-11 rounded-2xl bg-[#161D18] border border-white/15 text-xs font-bold text-white focus:ring-1 focus:ring-[#F2AC00]">
@@ -429,7 +426,7 @@ export function Landing() {
                 {/* CAMPO DE MONTO TÚ ENVÍAS */}
                 <div className="space-y-1.5 pt-1">
                   <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                    Tú envías ({sendCurrency})
+                    {t("landing.you_send_cur")} ({sendCurrency})
                   </span>
                   <div className="relative">
                     <input
@@ -448,17 +445,17 @@ export function Landing() {
                 {/* DESGLOSE DE COSTOS */}
                 <div className="space-y-2 rounded-2xl bg-black/40 border border-white/5 p-4 text-xs">
                   <div className="flex items-center justify-between text-slate-300">
-                    <span>Tipo de cambio</span>
+                    <span>{t("landing.exchange_rate")}</span>
                     <span className="font-bold text-white font-mono">
                       1 {sendCurrency} = {Number(effectiveCfg.rate).toFixed(4)} {receiveCurrency}
                     </span>
                   </div>
                   <div className="flex items-center justify-between text-slate-300">
-                    <span>Comisión</span>
+                    <span>{t("landing.fee_label")}</span>
                     <span className="font-bold text-white font-mono">{sendCurrency} 0.00</span>
                   </div>
                   <div className="flex items-center justify-between text-slate-300 pt-1 border-t border-white/5">
-                    <span className="font-bold text-white">Total a pagar</span>
+                    <span className="font-bold text-white">{t("landing.total_to_pay")}</span>
                     <span className="font-black text-white font-mono text-sm">
                       {money(Number(amount) || 0, sendCurrency)}
                     </span>
@@ -468,7 +465,7 @@ export function Landing() {
                 {/* DESTACADO INFERIOR: TU FAMILIA RECIBE (BANNER VERDE ESMERALDA VIVO) */}
                 <div className="rounded-2xl bg-[#00D084] p-4 text-black shadow-[0_12px_28px_rgba(0,208,132,0.45)] flex flex-col justify-center">
                   <p className="text-[10px] font-black uppercase tracking-wider text-black/80">
-                    Tu familia recibe
+                    {t("landing.family_receives")}
                   </p>
                   <p className="mt-0.5 font-display text-3xl font-black tracking-tight text-black">
                     {money(q.receives, receiveCurrency)}
@@ -483,7 +480,7 @@ export function Landing() {
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-1.5">
                     <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                      País de pago
+                      {t("landing.topup_pay_country")}
                     </span>
                     <Select value={topupOrigin} onValueChange={setTopupOrigin}>
                       <SelectTrigger className="h-11 rounded-2xl bg-[#161D18] border border-white/15 text-xs font-bold text-white">
@@ -505,7 +502,7 @@ export function Landing() {
 
                   <div className="space-y-1.5">
                     <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                      País de recarga
+                      {t("landing.topup_recharge_country")}
                     </span>
                     <Select value={topupDestination} onValueChange={setTopupDestination}>
                       <SelectTrigger className="h-11 rounded-2xl bg-[#161D18] border border-white/15 text-xs font-bold text-white">
@@ -528,7 +525,7 @@ export function Landing() {
 
                 <div className="space-y-1.5">
                   <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                    Monto a recargar ({topupSendCurrency})
+                    {t("landing.topup_amount")} ({topupSendCurrency})
                   </span>
                   <input
                     type="text"
@@ -541,21 +538,21 @@ export function Landing() {
 
                 <div className="space-y-2 rounded-2xl bg-black/40 border border-white/5 p-4 text-xs">
                   <div className="flex items-center justify-between text-slate-300">
-                    <span>Tasa de recarga</span>
+                    <span>{t("landing.topup_rate")}</span>
                     <span className="font-bold text-white font-mono">
                       1 {topupSendCurrency} = {Number(effectiveTopupRate).toFixed(4)}{" "}
                       {topupDestCurrency}
                     </span>
                   </div>
                   <div className="flex items-center justify-between text-slate-300">
-                    <span>Comisión</span>
+                    <span>{t("landing.fee_label")}</span>
                     <span className="font-bold text-white font-mono">0.00 {topupSendCurrency}</span>
                   </div>
                 </div>
 
                 <div className="rounded-2xl bg-[#00D084] p-4 text-black shadow-[0_12px_28px_rgba(0,208,132,0.45)]">
                   <p className="text-[10px] font-black uppercase tracking-wider text-black/80">
-                    El número recibe
+                    {t("landing.phone_receives")}
                   </p>
                   <p className="mt-0.5 font-display text-3xl font-black tracking-tight text-black">
                     {money(topupReceived, topupDestCurrency)}
@@ -573,17 +570,16 @@ export function Landing() {
         <div className="text-center max-w-2xl mx-auto space-y-3">
           <div className="inline-flex items-center gap-2 rounded-full bg-emerald-950/60 border border-emerald-500/35 px-4 py-1 text-[11px] font-bold uppercase tracking-wider text-emerald-300 backdrop-blur-xl shadow-sm">
             <Sparkles className="size-3 text-[#F2AC00]" />
-            <span>Infraestructura Financiera 2026</span>
+            <span>{t("landing.infra_badge")}</span>
           </div>
           <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight">
-            Diseñado para mover tu dinero{" "}
+            {t("landing.infra_title_1")}{" "}
             <span className="bg-gradient-to-r from-emerald-300 via-[#F2AC00] to-white bg-clip-text text-transparent">
-              sin fronteras.
+              {t("landing.infra_title_2")}
             </span>
           </h2>
           <p className="text-sm sm:text-base text-slate-300">
-            Tecnología bancaria instantánea, seguridad criptográfica y la mejor experiencia móvil
-            para conectar con tu familia en Haití.
+            {t("landing.infra_desc")}
           </p>
         </div>
 
@@ -597,14 +593,13 @@ export function Landing() {
               <div className="space-y-1">
                 <div className="inline-flex items-center gap-2 text-xs font-bold text-[#10B981] bg-[#02531C]/60 border border-[#10B981]/30 px-3 py-1 rounded-full shadow-sm">
                   <Zap className="size-3.5 text-[#F2AC00]" />
-                  <span>Entrega en menos de 120 segundos</span>
+                  <span>{t("landing.card1_speed")}</span>
                 </div>
                 <h3 className="font-display text-2xl font-black text-white pt-2">
-                  Acreditación Flash a MonCash & NatCash
+                  {t("landing.card1_title")}
                 </h3>
                 <p className="text-xs sm:text-sm text-slate-300 max-w-md">
-                  El dinero viaja de inmediato desde tu tarjeta o banco directo al saldo del
-                  teléfono del beneficiario, listo para retirar en cualquier agente.
+                  {t("landing.card1_desc")}
                 </p>
               </div>
             </div>
@@ -612,10 +607,10 @@ export function Landing() {
             {/* Simulador visual de entrega en tiempo real */}
             <div className="rounded-2xl bg-black/60 border border-white/10 p-4 space-y-3 relative z-10">
               <div className="flex items-center justify-between text-xs font-mono">
-                <span className="text-slate-400">Origen: México (MXN)</span>
+                <span className="text-slate-400">{t("landing.card1_sim_origin")}</span>
                 <span className="text-[#10B981] font-bold flex items-center gap-1.5">
                   <span className="size-2 rounded-full bg-[#10B981] animate-ping" />
-                  Estado: Acreditado
+                  {t("landing.card1_sim_status")}
                 </span>
               </div>
 
@@ -632,7 +627,7 @@ export function Landing() {
                   <span className="size-3 rounded-full bg-blue-500 shadow-[0_0_8px_#3b82f6]" />
                   <span className="text-xs font-bold text-white">NatCash Natcom</span>
                 </div>
-                <span className="text-xs font-extrabold text-[#F2AC00]">Comisión $0.00</span>
+                <span className="text-xs font-extrabold text-[#F2AC00]">{t("landing.card1_sim_fee")}</span>
               </div>
             </div>
           </div>
@@ -644,14 +639,13 @@ export function Landing() {
             <div className="space-y-2 relative z-10">
               <div className="inline-flex items-center gap-2 text-xs font-bold text-[#F2AC00] bg-amber-500/10 border border-[#F2AC00]/30 px-3 py-1 rounded-full">
                 <ShieldCheck className="size-3.5" />
-                <span>Custodia Segura Regulada</span>
+                <span>{t("landing.card2_badge")}</span>
               </div>
               <h3 className="font-display text-2xl font-black text-white">
-                100% Protegido & Blindado
+                {t("landing.card2_title")}
               </h3>
               <p className="text-xs sm:text-sm text-slate-300">
-                Cada centavo está respaldado con encriptación militar y verificación de identidad
-                bancaria.
+                {t("landing.card2_desc")}
               </p>
             </div>
 
@@ -661,7 +655,7 @@ export function Landing() {
                   ✓
                 </div>
                 <span className="text-slate-200 font-semibold">
-                  Cifrado de extremo a extremo SHA-256
+                  {t("landing.card2_point1")}
                 </span>
               </div>
               <div className="flex items-center gap-3 rounded-xl bg-black/40 border border-white/5 p-3 text-xs">
@@ -669,7 +663,7 @@ export function Landing() {
                   ✓
                 </div>
                 <span className="text-slate-200 font-semibold">
-                  Verificación biométrica KYC instantánea
+                  {t("landing.card2_point2")}
                 </span>
               </div>
               <div className="flex items-center gap-3 rounded-xl bg-black/40 border border-white/5 p-3 text-xs">
@@ -677,7 +671,7 @@ export function Landing() {
                   ✓
                 </div>
                 <span className="text-slate-200 font-semibold">
-                  Garantía total de entrega o reembolso
+                  {t("landing.card2_point3")}
                 </span>
               </div>
             </div>
@@ -688,14 +682,13 @@ export function Landing() {
             <div className="space-y-2">
               <div className="inline-flex items-center gap-2 text-xs font-bold text-emerald-300 bg-emerald-500/10 border border-emerald-500/30 px-3 py-1 rounded-full">
                 <Globe className="size-3.5" />
-                <span>+30 Corredores Activos</span>
+                <span>{t("landing.card3_badge")}</span>
               </div>
               <h3 className="font-display text-2xl font-black text-white">
-                Sin Fronteras hacia Haití
+                {t("landing.card3_title")}
               </h3>
               <p className="text-xs sm:text-sm text-slate-300">
-                Transfiere fondos desde los principales países donde reside la diáspora con
-                liquidación en Gourdes (HTG).
+                {t("landing.card3_desc")}
               </p>
             </div>
 
@@ -726,14 +719,13 @@ export function Landing() {
               <div className="space-y-3 text-center sm:text-left">
                 <div className="inline-flex items-center gap-2 text-xs font-bold text-[#F2AC00] bg-amber-500/10 border border-[#F2AC00]/30 px-3 py-1 rounded-full">
                   <Smartphone className="size-3.5" />
-                  <span>Experiencia Móvil Nativa PWA</span>
+                  <span>{t("landing.card4_badge")}</span>
                 </div>
                 <h3 className="font-display text-2xl font-black text-white">
-                  Instala Tcho-Tcho en tu Teléfono
+                  {t("landing.card4_title")}
                 </h3>
                 <p className="text-xs sm:text-sm text-slate-300 max-w-sm">
-                  Abre la app con un solo toque desde tu pantalla de inicio. Sin descargas pesadas
-                  de tienda, ligera y segura.
+                  {t("landing.card4_desc")}
                 </p>
 
                 <div className="flex flex-wrap items-center gap-3 pt-2 justify-center sm:justify-start">
@@ -748,12 +740,12 @@ export function Landing() {
                     className="inline-flex items-center gap-2.5 rounded-full bg-[#F2AC00] text-black font-black px-6 py-3 text-xs sm:text-sm shadow-[0_0_20px_rgba(242,172,0,0.35)] hover:bg-[#FBBF24] hover:scale-105 active:scale-95 transition-all"
                   >
                     <Download className="size-4" />
-                    <span>Instalar App Gratis</span>
+                    <span>{t("landing.card4_install_btn")}</span>
                   </button>
 
                   <div className="flex items-center gap-2 text-xs text-slate-400">
                     <span className="inline-block size-2 rounded-full bg-emerald-400" />
-                    <span>Android & iPhone</span>
+                    <span>{t("landing.card4_devices")}</span>
                   </div>
                 </div>
               </div>
@@ -765,11 +757,11 @@ export function Landing() {
                 </div>
                 <p className="text-xs font-bold text-white">Tcho-Tcho</p>
                 <div className="rounded-xl bg-black/60 p-2 space-y-1">
-                  <p className="text-[9px] text-slate-400">Balance</p>
+                  <p className="text-[9px] text-slate-400">{t("landing.card4_balance")}</p>
                   <p className="text-xs font-extrabold text-[#10B981]">$ 23,094.57</p>
                 </div>
                 <span className="inline-block text-[9px] text-[#F2AC00] font-semibold">
-                  Listo para enviar
+                  {t("landing.card4_ready")}
                 </span>
               </div>
             </div>
@@ -779,10 +771,10 @@ export function Landing() {
 
       {/* FOOTER ELEGANTE */}
       <footer className="relative z-10 border-t border-white/10 py-8 text-center text-xs text-slate-400 space-y-2">
-        <p>© {new Date().getFullYear()} Tcho-Tcho. Todos los derechos reservados.</p>
+        <p>© {new Date().getFullYear()} Tcho-Tcho. {t("landing.rights_reserved")}</p>
         <p>
           <Link to="/privacidad" className="underline hover:text-white transition-colors">
-            Política de Privacidad
+            {t("landing.privacy_policy")}
           </Link>
         </p>
       </footer>

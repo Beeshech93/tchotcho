@@ -134,11 +134,11 @@ export function Dashboard() {
             <div className="min-w-0 text-xs">
               <p className="font-bold text-white text-sm">
                 {profile.kyc_status === "pending"
-                  ? "Verificación en revisión"
-                  : "Verifica tu cuenta"}
+                  ? t("dash.kyc_pending_title")
+                  : t("dash.kyc_none_title")}
               </p>
               <p className="text-slate-300 truncate">
-                Desbloquea límites más altos de envío a Haití.
+                {t("dash.kyc_unlock")}
               </p>
             </div>
           </div>
@@ -147,7 +147,7 @@ export function Dashboard() {
             size="sm"
             className="h-8 px-3 rounded-xl bg-[#F2AC00] text-black font-extrabold text-xs hover:bg-[#FBBF24]"
           >
-            <Link to="/perfil">Verificar</Link>
+            <Link to="/perfil">{t("dash.verify")}</Link>
           </Button>
         </div>
       )}
@@ -166,21 +166,21 @@ export function Dashboard() {
             <div className="space-y-0.5">
               <p className="text-[11px] font-bold text-emerald-400 uppercase tracking-wider flex items-center gap-1.5">
                 <span className="size-2 rounded-full bg-emerald-400 animate-pulse" />
-                Banca Oficial
+                {t("dash.official_banking")}
               </p>
-              <h1 className="text-lg sm:text-xl font-black text-white">Hola, {displayName} 👋</h1>
+              <h1 className="text-lg sm:text-xl font-black text-white">{t("dash.hello")}, {displayName} 👋</h1>
             </div>
           </div>
 
           <div className="inline-flex items-center gap-1.5 rounded-full bg-[#02531C] border border-[#F2AC00]/40 px-3.5 py-1.5 text-xs font-black text-[#F2AC00] shadow-sm">
-            <span>🇭🇹 Billetera 100% HTG</span>
+            <span>🇭🇹 {t("dash.htg_wallet")}</span>
           </div>
         </div>
 
         {/* Saldo Central Grande 100% en HTG */}
         <div className="space-y-1 relative z-10">
           <p className="text-xs font-bold uppercase tracking-wider text-slate-400">
-            Saldo Disponible (Gourdes)
+            {t("dash.available_balance_htg")}
           </p>
           <div className="flex items-center gap-3">
             <span className="text-4xl sm:text-5xl font-black tracking-tight text-white">
@@ -207,8 +207,8 @@ export function Dashboard() {
               <Send className="size-5" />
             </div>
             <div className="text-center">
-              <p className="text-sm font-black text-white">Enviar Dinero</p>
-              <p className="text-[10px] text-emerald-200">MonCash &amp; NatCash</p>
+              <p className="text-sm font-black text-white">{t("dash.send_money")}</p>
+              <p className="text-[10px] text-emerald-200">{t("dash.send_money_sub")}</p>
             </div>
           </Link>
 
@@ -220,8 +220,8 @@ export function Dashboard() {
               <Smartphone className="size-5" />
             </div>
             <div className="text-center">
-              <p className="text-sm font-black text-white">Recargas Haití</p>
-              <p className="text-[10px] text-slate-300">Digicel &amp; Natcom</p>
+              <p className="text-sm font-black text-white">{t("dash.topups_haiti")}</p>
+              <p className="text-[10px] text-slate-300">{t("dash.topups_sub")}</p>
             </div>
           </Link>
 
@@ -233,8 +233,8 @@ export function Dashboard() {
               <History className="size-5" />
             </div>
             <div className="text-center">
-              <p className="text-sm font-black text-white">Historial</p>
-              <p className="text-[10px] text-slate-300">Movimientos</p>
+              <p className="text-sm font-black text-white">{t("dash.history_title")}</p>
+              <p className="text-[10px] text-slate-300">{t("dash.history_sub")}</p>
             </div>
           </Link>
 
@@ -246,8 +246,8 @@ export function Dashboard() {
               <User className="size-5" />
             </div>
             <div className="text-center">
-              <p className="text-sm font-black text-white">Mi Cuenta</p>
-              <p className="text-[10px] text-slate-300">Perfil &amp; Ajustes</p>
+              <p className="text-sm font-black text-white">{t("dash.account_title")}</p>
+              <p className="text-[10px] text-slate-300">{t("dash.account_sub")}</p>
             </div>
           </Link>
         </div>
@@ -305,15 +305,15 @@ export function Dashboard() {
       <div className="rounded-[28px] bg-gradient-to-b from-[#131B15] to-[#0A0E0C] border border-white/12 p-6 space-y-4 shadow-xl">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="font-display font-black text-base text-white">Últimos Movimientos</h2>
-            <p className="text-xs text-slate-300">Historial reciente de remesas</p>
+            <h2 className="font-display font-black text-base text-white">{t("dash.recent_activity")}</h2>
+            <p className="text-xs text-slate-300">{t("dash.recent_activity_sub")}</p>
           </div>
 
           <Link
             to="/historial"
             className="inline-flex items-center gap-1.5 text-xs font-bold text-[#F2AC00] hover:underline"
           >
-            <span>Ver todo</span>
+            <span>{t("dash.see_all")}</span>
             <ArrowRight className="size-3.5" />
           </Link>
         </div>
@@ -361,9 +361,9 @@ export function Dashboard() {
               <History className="size-6" />
             </div>
             <div className="space-y-1">
-              <p className="text-sm font-bold text-white">Sin movimientos recientes</p>
+              <p className="text-sm font-bold text-white">{t("dash.no_activity")}</p>
               <p className="text-xs text-slate-400 max-w-sm mx-auto">
-                Tus envíos a MonCash, NatCash o recargas a Haití aparecerán aquí en tiempo real.
+                {t("dash.no_activity_sub")}
               </p>
             </div>
             <Button
@@ -371,7 +371,7 @@ export function Dashboard() {
               size="sm"
               className="rounded-xl bg-[#02531C] text-[#F2AC00] border border-[#F2AC00]/40 font-bold hover:bg-[#036B25]"
             >
-              <Link to="/enviar">Hacer mi primer envío</Link>
+              <Link to="/enviar">{t("dash.send_money")}</Link>
             </Button>
           </div>
         )}

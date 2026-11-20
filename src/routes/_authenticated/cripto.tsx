@@ -28,6 +28,7 @@ import {
 } from "@/components/ui/select";
 import { money, shortDate } from "@/lib/remesa";
 import { useWallets, useWalletTransactions, useRefreshWallet } from "@/hooks/useWallet";
+import { useI18n } from "@/lib/i18n";
 import {
   useCryptoAssets,
   useCryptoDeposits,
@@ -72,6 +73,7 @@ const KIND_LABEL: Record<string, string> = {
 
 function Cripto() {
   const router = useRouter();
+  const { t } = useI18n();
   const { isAdmin } = useProfile();
   const { data: assets } = useCryptoAssets();
   const { data: wallets } = useWallets();
@@ -215,9 +217,9 @@ function Cripto() {
           </Link>
         </Button>
         <div>
-          <h1 className="font-display text-2xl font-bold">Cripto</h1>
+          <h1 className="font-display text-2xl font-bold">{t("crypto.title")}</h1>
           <p className="text-sm text-muted-foreground">
-            Recibe cripto, conviértelo en gourdes y retira por MonCash o NatCash.
+            {t("crypto.subtitle")}
           </p>
         </div>
       </div>
@@ -232,7 +234,7 @@ function Cripto() {
       <Card className="bg-brand text-primary-foreground">
         <CardContent className="flex items-center justify-between p-5">
           <div>
-            <p className="text-xs opacity-80">Saldo disponible</p>
+            <p className="text-xs opacity-80">{t("dash.balance_label")}</p>
             <p className="font-display text-3xl font-bold">{money(balance, "HTG")}</p>
           </div>
           <Coins className="size-10 opacity-80" />
@@ -242,13 +244,13 @@ function Cripto() {
       <Tabs defaultValue="recibir">
         <TabsList className="w-full">
           <TabsTrigger value="recibir" className="flex-1">
-            Recibir
+            {t("crypto.tab_deposit")}
           </TabsTrigger>
           <TabsTrigger value="retirar" className="flex-1">
-            Retirar
+            {t("crypto.tab_withdraw")}
           </TabsTrigger>
           <TabsTrigger value="movimientos" className="flex-1">
-            Movimientos
+            {t("crypto.tab_history")}
           </TabsTrigger>
         </TabsList>
 
@@ -256,10 +258,10 @@ function Cripto() {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-base">
-                <ArrowDownToLine className="size-4" /> Depositar cripto
+                <ArrowDownToLine className="size-4" /> {t("crypto.deposit_title")}
               </CardTitle>
               <CardDescription>
-                Envía a la dirección de la red correcta y sube el hash de tu transacción.
+                {t("crypto.deposit_desc")}
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
@@ -375,10 +377,10 @@ function Cripto() {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-base">
-                <ArrowUpFromLine className="size-4" /> Retirar saldo
+                <ArrowUpFromLine className="size-4" /> {t("crypto.withdraw_title")}
               </CardTitle>
               <CardDescription>
-                Cobra en MonCash o NatCash, o envía cripto a una dirección externa.
+                {t("crypto.withdraw_desc")}
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
