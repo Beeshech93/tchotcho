@@ -81,21 +81,29 @@ export function AppShell({ children }: { children: ReactNode }) {
   const router = useRouter();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
 
+  // Ocultar opciones de cliente/dashboard únicamente para los agentes que no son administradores
+  const isAgentOnly = isAgent && !isAdmin;
+
   const { isEnabled } = useServicesConfig();
   const transfersEnabled = isEnabled("transfers");
   const topupsEnabled = isEnabled("topups");
 
   const coreNav = [
-    ...(!isAgent ? [{ to: "/dashboard", label: t("shell.dashboard"), icon: Home }] : []),
-    ...(transfersEnabled && !isAgent ? [{ to: "/enviar", label: t("shell.send_money"), icon: Send }] : []),
-    ...(topupsEnabled && !isAgent ? [{ to: "/recargas", label: t("shell.topups"), icon: Smartphone }] : []),
-    { to: isAgent ? "/agente" : "/historial", label: isAgent ? "Panel de Agente" : t("shell.transactions"), icon: isAgent ? Briefcase : History },
+    ...(!isAgentOnly ? [{ to: "/dashboard", label: t("shell.dashboard"), icon: Home }] : []),
+    ...(transfersEnabled && !isAgentOnly ? [{ to: "/enviar", label: t("shell.send_money"), icon: Send }] : []),
+    ...(topupsEnabled && !isAgentOnly ? [{ to: "/recargas", label: t("shell.topups"), icon: Smartphone }] : []),
+    {
+      to: isAgentOnly ? "/agente" : "/historial",
+      label: isAgentOnly ? "Panel de Agente" : t("shell.transactions"),
+      icon: isAgentOnly ? Briefcase : History,
+    },
     { to: "/perfil", label: t("shell.my_account"), icon: User },
   ];
 
   const workflowNav = [
     { to: "/soporte", label: t("shell.help_center"), icon: LifeBuoy },
     ...(isAdmin ? [{ to: "/admin", label: t("shell.admin_panel"), icon: Shield }] : []),
+    ...(isAdmin && isAgent ? [{ to: "/agente", label: t("shell.agent_portal"), icon: Briefcase }] : []),
   ];
 
   const signOut = async () => {
@@ -110,7 +118,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         <div className="flex flex-col gap-2">
           {/* Organization Switcher Header con Logo Tcho-Tcho bien destacado */}
           <div className="flex items-center justify-between gap-2 p-2 rounded-xl bg-white border border-slate-200/80 shadow-xs">
-            <Link to={isAgent ? "/agente" : "/dashboard"} className="flex min-w-0 items-center gap-2">
+            <Link to={isAgentOnly ? "/agente" : "/dashboard"} className="flex min-w-0 items-center gap-2">
               <img src={iconAsset} alt="Tcho-Tcho" className="size-7 object-contain shrink-0" />
               <img src={logoAsset} alt="Tcho-Tcho" className="h-5 w-auto object-contain shrink-0" />
             </Link>
@@ -177,7 +185,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           </div>
 
           {/* Mini-Badge compacto de envíos directos a Haití */}
-          {!isAgent && (
+          {!isAgentOnly && (
             <Link
               to="/enviar"
               className="rounded-xl bg-[#F8FAF9] border border-slate-200 p-2.5 text-center shadow-xs hover:border-emerald-500/40 transition group block"
@@ -246,7 +254,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       <div className="flex min-h-screen flex-1 flex-col">
         {/* Mobile Header - Fijo al tope en versión móvil */}
         <header className="fixed top-0 inset-x-0 z-40 flex items-center justify-between gap-2 border-b border-slate-200 bg-white/95 px-4 py-3 pt-[calc(0.75rem+env(safe-area-inset-top,0px))] backdrop-blur-xl md:hidden shadow-xs">
-          <Link to={isAgent ? "/agente" : "/dashboard"} className="flex min-w-0 items-center gap-2">
+          <Link to={isAgentOnly ? "/agente" : "/dashboard"} className="flex min-w-0 items-center gap-2">
             <span className="inline-flex items-center gap-2 rounded-xl bg-white px-2.5 py-1 shadow-xs border border-slate-200">
               <img src={iconAsset} alt="Tcho-Tcho" className="size-6 object-contain shrink-0" />
               <img src={logoAsset} alt="Tcho-Tcho" className="h-5 w-auto object-contain shrink-0" />
@@ -302,7 +310,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         >
           <div className="mx-auto max-w-sm">
             <ul className="flex items-center justify-around gap-1">
-              {!isAgent && (
+              {!isAgentOnly && (
                 <li>
                   <Link
                     to="/dashboard"
@@ -319,7 +327,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                 </li>
               )}
 
-              {topupsEnabled && !isAgent && (
+              {topupsEnabled && !isAgentOnly && (
                 <li>
                   <Link
                     to="/recargas"
@@ -336,7 +344,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                 </li>
               )}
 
-              {transfersEnabled && !isAgent && (
+              {transfersEnabled && !isAgentOnly && (
                 <li>
                   <Link
                     to="/enviar"
@@ -355,18 +363,18 @@ export function AppShell({ children }: { children: ReactNode }) {
 
               <li>
                 <Link
-                  to={isAgent ? "/agente" : "/historial"}
+                  to={isAgentOnly ? "/agente" : "/historial"}
                   className={cn(
                     "flex items-center justify-center transition-all duration-200 active:scale-95",
-                    (isAgent
+                    (isAgentOnly
                       ? pathname.startsWith("/agente")
                       : pathname.startsWith("/historial") || pathname.startsWith("/transferencia"))
                       ? "size-11 rounded-full bg-[#DCFCE7] text-[#15803D] shadow-sm border-2 border-emerald-500/70 scale-105"
                       : "size-10 rounded-full bg-slate-100 border border-slate-200 text-slate-600 hover:border-emerald-300 hover:text-[#15803D] hover:bg-emerald-50",
                   )}
-                  aria-label={isAgent ? "Panel y Operaciones del Agente" : t("nav.history")}
+                  aria-label={isAgentOnly ? "Panel y Operaciones del Agente" : t("nav.history")}
                 >
-                  {isAgent ? <Briefcase className="size-5" /> : <History className="size-5" />}
+                  {isAgentOnly ? <Briefcase className="size-5" /> : <History className="size-5" />}
                 </Link>
               </li>
 
