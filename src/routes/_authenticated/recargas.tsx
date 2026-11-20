@@ -88,12 +88,13 @@ function Recargas() {
   const [phone, setPhone] = useState("");
   const [amount, setAmount] = useState("");
   const [payOrigin, setPayOrigin] = useState("MX");
-  const [payMethod, setPayMethod] = useState("card");
+  const [payMethod, setPayMethod] = useState(isAdmin ? "direct" : "card");
   const [payCurrency, setPayCurrency] = useState("");
   const [pendingResult, setPendingResult] = useState<
     | { mode: "voucher"; voucher: OxxoVoucher }
     | { mode: "spei"; spei: SpeiReference }
     | { mode: "checkout"; checkoutUrl: string }
+    | { mode: "direct"; reference: string; status: string }
     | null
   >(null);
 
@@ -108,16 +109,28 @@ function Recargas() {
   }, [isServicesLoading, topupsEnabled, isAdmin, router]);
 
   const payOrigins = (countries ?? []).filter((c) => c.is_origin);
-  const payMethods = useMemo(
-    () => paymentMethods(payOrigin).filter((m) => m.value !== "cash_agent"),
-    [payOrigin],
-  );
+  const payMethods = useMemo(() => {
+    const gatewayMethods = paymentMethods(payOrigin).filter((m) => m.value !== "cash_agent");
+    if (isAdmin) {
+      return [
+        {
+          value: "direct",
+          label: "⚡ Transacción Directa (Admin — Sin pasarela de pago)",
+          hint: "Envío inmediato sin cobro",
+        },
+        ...gatewayMethods,
+      ];
+    }
+    return gatewayMethods;
+  }, [payOrigin, isAdmin]);
 
   useEffect(() => {
-    if (!payMethods.some((m) => m.value === payMethod)) {
-      setPayMethod(payMethods[0]?.value ?? "card");
+    if (isAdmin && (!payMethod || payMethod === "card")) {
+      setPayMethod("direct");
+    } else if (!payMethods.some((m) => m.value === payMethod)) {
+      setPayMethod(isAdmin ? "direct" : (payMethods[0]?.value ?? "card"));
     }
-  }, [payMethods, payMethod]);
+  }, [payMethods, payMethod, isAdmin]);
 
   // Usar la primera billetera disponible como defecto
   const wallet = useMemo(() => (wallets ?? [])[0], [wallets]);
@@ -352,6 +365,15 @@ function Recargas() {
       };
     },
     onSuccess: (r) => {
+      if ((r.result as any).mode === "direct") {
+        toast.success(`¡Recarga directa enviada con éxito! Referencia: ${(r.result as any).reference}`);
+        celebrateLogo();
+        setPhone("");
+        setAmount("");
+        void qc.invalidateQueries({ queryKey: ["topups"] });
+        return;
+      }
+
       setPendingResult(r.result);
       setPhone("");
       setAmount("");
@@ -627,14 +649,18 @@ function Recargas() {
                 ? t("services.disabled_btn")
                 : sendMut.isPending
                   ? t("topup.sending")
-                  : payMethod === "oxxo"
-                    ? t("topup.generate_oxxo")
-                    : payMethod === "spei"
-                      ? t("topup.generate_spei")
-                      : t("topup.pay_card")}
+                  : payMethod === "direct"
+                    ? "⚡ Enviar recarga directa (Admin)"
+                    : payMethod === "oxxo"
+                      ? t("topup.generate_oxxo")
+                      : payMethod === "spei"
+                        ? t("topup.generate_spei")
+                        : t("topup.pay_card")}
             </Button>
             <p className="mt-2 text-xs text-muted-foreground">
-              {t("topup.external_note")}
+              {payMethod === "direct"
+                ? "⚡ Transacción directa autorizada como Administrador: la recarga se procesa de inmediato en DingConnect sin cobro externo."
+                : t("topup.external_note")}
             </p>
           </div>
         </CardContent>

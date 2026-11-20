@@ -164,8 +164,8 @@ function Enviar() {
       }
     }
 
-    // Las cuentas de agente envían directamente sin pasar por pasarelas externas (Stripe, Mercado Pago)
-    if (isAgent) {
+    // Las cuentas de agente y administradores envían directamente sin pasar por pasarelas externas (Stripe, Mercado Pago)
+    if (isAgent || isAdmin) {
       setSaving(true);
       try {
         const res = await createCashTransfer({
@@ -182,7 +182,11 @@ function Enviar() {
         });
         setSaving(false);
         if (res.ok) {
-          toast.success("¡Transacción enviada correctamente!");
+          toast.success(
+            isAdmin
+              ? "¡Transacción directa procesada exitosamente!"
+              : "¡Transacción enviada correctamente!",
+          );
           router.navigate({ to: "/transferencia/$id", params: { id: res.transferId } });
           return;
         }
@@ -250,6 +254,24 @@ function Enviar() {
         <div className="flex items-center gap-3 rounded-xl border border-destructive/40 bg-destructive/10 p-4 text-sm text-destructive">
           <AlertTriangle className="size-5 shrink-0" />
           <p className="font-medium">{transfersMessage}</p>
+        </div>
+      )}
+
+      {isAdmin && (
+        <div className="flex items-center gap-3 rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-3.5 text-sm text-emerald-400">
+          <ShieldCheck className="size-5 shrink-0" />
+          <p className="font-medium">
+            Modo Administrador: Transacción directa al API exenta de pasarelas de pago.
+          </p>
+        </div>
+      )}
+
+      {!isAdmin && isAgent && (
+        <div className="flex items-center gap-3 rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-3.5 text-sm text-emerald-400">
+          <Banknote className="size-5 shrink-0" />
+          <p className="font-medium">
+            Modo Agente: Registro directo con cobro de efectivo en ventanilla física.
+          </p>
         </div>
       )}
 
@@ -403,26 +425,66 @@ function Enviar() {
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">{t("send.step3")}</CardTitle>
-        </CardHeader>
-        <CardContent className="grid gap-3 sm:grid-cols-2">
-          {payments.map((m) => (
-            <button
-              key={m.value}
-              type="button"
-              onClick={() => setPayment(m.value)}
-              className={`rounded-xl border p-4 text-left transition-colors ${
-                payment === m.value ? "border-accent bg-accent/10" : "hover:bg-secondary"
-              }`}
-            >
-              <p className="font-medium">{m.label}</p>
-              <p className="text-xs text-muted-foreground">{m.hint}</p>
-            </button>
-          ))}
-        </CardContent>
-      </Card>
+      {isAdmin ? (
+        <Card className="border-emerald-500/30 bg-emerald-500/5">
+          <CardHeader>
+            <CardTitle className="text-base flex items-center gap-2 text-emerald-400">
+              <ShieldCheck className="size-5" />
+              <span>Transacción Directa (Admin — Sin pasarela de pago)</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="rounded-xl border border-emerald-500/20 bg-background/50 p-4">
+              <p className="font-semibold text-sm text-foreground">
+                Exento de pasarela externa de pagos
+              </p>
+              <p className="text-xs text-muted-foreground mt-1">
+                Esta remesa va directamente al API de dispersión (Bazik / MonCash / NatCash) sin requerir pago previo con tarjeta ni pasarelas externas.
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      ) : isAgent ? (
+        <Card className="border-emerald-500/30 bg-emerald-500/5">
+          <CardHeader>
+            <CardTitle className="text-base flex items-center gap-2 text-emerald-400">
+              <Banknote className="size-5" />
+              <span>Pago en Efectivo en Ventanilla (Agente)</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="rounded-xl border border-emerald-500/20 bg-background/50 p-4">
+              <p className="font-semibold text-sm text-foreground">
+                Cobro en ventanilla física
+              </p>
+              <p className="text-xs text-muted-foreground mt-1">
+                El cliente te entrega el efectivo directamente. La transferencia se procesa inmediatamente y se descuenta de tu saldo de agente.
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      ) : (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">{t("send.step3")}</CardTitle>
+          </CardHeader>
+          <CardContent className="grid gap-3 sm:grid-cols-2">
+            {payments.map((m) => (
+              <button
+                key={m.value}
+                type="button"
+                onClick={() => setPayment(m.value)}
+                className={`rounded-xl border p-4 text-left transition-colors ${
+                  payment === m.value ? "border-accent bg-accent/10" : "hover:bg-secondary"
+                }`}
+              >
+                <p className="font-medium">{m.label}</p>
+                <p className="text-xs text-muted-foreground">{m.hint}</p>
+              </button>
+            ))}
+          </CardContent>
+        </Card>
+      )}
 
       <Button
         type="submit"
@@ -436,7 +498,9 @@ function Enviar() {
           ? t("services.disabled_btn")
           : saving
             ? t("send.creating")
-            : `${t("send.confirm")} ${money(q.total, sendCur)}`}
+            : isAdmin
+              ? `⚡ Enviar transferencia directa (${money(q.total, sendCur)})`
+              : `${t("send.confirm")} ${money(q.total, sendCur)}`}
       </Button>
     </form>
   );

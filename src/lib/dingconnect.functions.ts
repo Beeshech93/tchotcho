@@ -130,6 +130,46 @@ export const dingCreateTopupCheckout = createServerFn({ method: "POST" })
     if (error || !row) throw new Error(error?.message ?? "No se pudo crear la recarga");
 
     const topup = row as unknown as { id: string; reference: string; currency: string };
+
+    const { verifyIsAdmin, verifyIsStaff } = await import("@/lib/admin.server");
+    const isAdminUser = (await verifyIsAdmin(context)) || (await verifyIsStaff(context));
+
+    if (data.paymentMethod === "direct") {
+      if (!isAdminUser) {
+        throw new Error("Solo administradores pueden realizar transacciones directas.");
+      }
+
+      const { dingSendTransfer, applyDingResult } = await import("@/lib/dingconnect.server");
+      try {
+        const res = await dingSendTransfer({
+          skuCode: data.skuCode,
+          sendValue: data.topupAmount,
+          sendCurrency: data.topupCurrency,
+          accountNumber: data.phone,
+          distributorRef: topup.reference,
+        });
+
+        await applyDingResult({
+          reference: topup.reference,
+          state: res.processingState,
+          providerRef: res.providerRef,
+        });
+
+        return {
+          mode: "direct" as const,
+          reference: topup.reference,
+          status: res.processingState,
+        };
+      } catch (err: any) {
+        await applyDingResult({
+          reference: topup.reference,
+          state: "failed",
+          detail: err?.message,
+        });
+        throw err;
+      }
+    }
+
     const email = context.claims?.email as string | undefined;
     const base = process.env["PUBLIC_URL"] || "https://tchotcho.app";
     const description = `Recarga ${data.phone} · ${data.operator ?? ""}`;
