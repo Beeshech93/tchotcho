@@ -309,6 +309,7 @@ export const setUserRoleAndPermissions = createServerFn({ method: "POST" })
 
       // 2. Guardar permisos en integration_credentials
       // Solo existe UNA cuenta Super Admin maestra en el sistema
+      const permKey = getAdminPermissionsStorageKey(input.targetUserId);
       const isTargetMaster = isMasterSuperAdmin({ id: input.targetUserId });
       const isSuper = isTargetMaster;
       const tabs = isSuper
