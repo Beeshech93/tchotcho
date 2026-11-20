@@ -89,7 +89,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     { to: "/dashboard", label: t("shell.dashboard"), icon: Home },
     ...(transfersEnabled ? [{ to: "/enviar", label: t("shell.send_money"), icon: Send }] : []),
     ...(topupsEnabled ? [{ to: "/recargas", label: t("shell.topups"), icon: Smartphone }] : []),
-    { to: "/historial", label: t("shell.transactions"), icon: History },
+    { to: isAgent ? "/agente" : "/historial", label: isAgent ? "Operaciones / Agente" : t("shell.transactions"), icon: isAgent ? Briefcase : History },
     { to: "/perfil", label: t("shell.my_account"), icon: User },
   ];
 
@@ -352,16 +352,18 @@ export function AppShell({ children }: { children: ReactNode }) {
 
               <li>
                 <Link
-                  to="/historial"
+                  to={isAgent ? "/agente" : "/historial"}
                   className={cn(
                     "flex items-center justify-center transition-all duration-200 active:scale-95",
-                    pathname.startsWith("/historial") || pathname.startsWith("/transferencia")
+                    (isAgent
+                      ? pathname.startsWith("/agente")
+                      : pathname.startsWith("/historial") || pathname.startsWith("/transferencia"))
                       ? "size-11 rounded-full bg-[#DCFCE7] text-[#15803D] shadow-sm border-2 border-emerald-500/70 scale-105"
                       : "size-10 rounded-full bg-slate-100 border border-slate-200 text-slate-600 hover:border-emerald-300 hover:text-[#15803D] hover:bg-emerald-50",
                   )}
-                  aria-label={t("nav.history")}
+                  aria-label={isAgent ? "Panel y Operaciones del Agente" : t("nav.history")}
                 >
-                  <History className="size-5" />
+                  {isAgent ? <Briefcase className="size-5" /> : <History className="size-5" />}
                 </Link>
               </li>
 

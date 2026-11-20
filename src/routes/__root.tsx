@@ -199,9 +199,9 @@ function RootComponent() {
     navigator.serviceWorker
       .register("/sw.js")
       .then((reg) => {
-        reg.update().catch(() => {});
+        reg.update().catch(() => { });
       })
-      .catch(() => {});
+      .catch(() => { });
   }, []);
 
   return (

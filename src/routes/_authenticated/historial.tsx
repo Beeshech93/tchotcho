@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Briefcase, ArrowRight } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useProfile } from "@/hooks/useProfile";
 import { Card, CardContent } from "@/components/ui/card";
@@ -75,6 +75,34 @@ function Historial() {
         </Button>
         <h1 className="text-2xl font-bold">{t("history.title")}</h1>
       </div>
+
+      {user?.role === "agent" && (
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-2xl bg-emerald-950/20 border border-emerald-500/30 text-emerald-300">
+          <div className="flex items-center gap-3">
+            <div className="size-9 rounded-xl bg-emerald-500/20 text-emerald-400 grid place-items-center shrink-0">
+              <Briefcase className="size-5" />
+            </div>
+            <div>
+              <p className="text-sm font-bold text-foreground">
+                ¿Eres Agente de Tcho-Tcho?
+              </p>
+              <p className="text-xs text-muted-foreground">
+                Tus cobros en efectivo, envíos de remesas, recargas telefónicas y movimientos de saldo están unificados en tu Panel de Agente.
+              </p>
+            </div>
+          </div>
+          <Button
+            asChild
+            size="sm"
+            className="gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs shrink-0"
+          >
+            <Link to="/agente">
+              Ir al Panel de Agente
+              <ArrowRight className="size-4" />
+            </Link>
+          </Button>
+        </div>
+      )}
       <Input
         placeholder={t("history.search_placeholder")}
         value={q}

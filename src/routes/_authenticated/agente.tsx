@@ -19,6 +19,11 @@ import {
   Building,
   Wallet,
   Smartphone,
+  RefreshCw,
+  ArrowUpRight,
+  ArrowDownLeft,
+  Calendar,
+  FileText,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useProfile } from "@/hooks/useProfile";
@@ -30,6 +35,7 @@ import {
   agentCreateCashTransfer,
   agentConfirmCashPayment,
 } from "@/lib/transfers.functions";
+import { dingCreateTopupCheckout } from "@/lib/dingconnect.functions";
 import { useCountries, useRate, fallbackRate } from "@/hooks/useCorridors";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -116,6 +122,7 @@ function Agente() {
   const cancelTransfer = useServerFn(adminCancelTransfer);
   const createCashTransfer = useServerFn(agentCreateCashTransfer);
   const confirmCashByRef = useServerFn(agentConfirmCashPayment);
+  const createTopupCheckout = useServerFn(dingCreateTopupCheckout);
 
   const { data: countries } = useCountries();
   const { data: wallets } = useWallets();
@@ -138,9 +145,50 @@ function Agente() {
   // Estados de control para modales
   const [openNewCashModal, setOpenNewCashModal] = useState(false);
   const [openClaimModal, setOpenClaimModal] = useState(false);
+  const [openTopupModal, setOpenTopupModal] = useState(false);
   const [claimReference, setClaimReference] = useState("");
   const [isClaiming, setIsClaiming] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+
+  // Formulario de nueva recarga telefónica integrada en el panel
+  const [topupPhone, setTopupPhone] = useState("");
+  const [topupOperator, setTopupOperator] = useState("Digicel");
+  const [topupAmount, setTopupAmount] = useState("250");
+  const [isSubmittingTopup, setIsSubmittingTopup] = useState(false);
+
+  // Consultar recargas realizadas por este agente
+  const { data: agentTopups, isLoading: isLoadingTopups } = useQuery({
+    queryKey: ["agent-topups", user?.id],
+    enabled: Boolean(user?.id),
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("topups")
+        .select("*")
+        .eq("user_id", user!.id)
+        .order("created_at", { ascending: false })
+        .limit(100);
+      return data ?? [];
+    },
+  });
+
+  // Consultar movimientos de billetera de este agente
+  const {
+    data: agentWalletTxs,
+    isLoading: isLoadingWalletTxs,
+    refetch: refetchWalletTxs,
+  } = useQuery({
+    queryKey: ["agent-wallet-txs", user?.id],
+    enabled: Boolean(user?.id),
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("wallet_transactions")
+        .select("*")
+        .eq("user_id", user!.id)
+        .order("created_at", { ascending: false })
+        .limit(100);
+      return data ?? [];
+    },
+  });
 
   // Formulario de nueva transacción en efectivo (ventanilla)
   const [originCountry, setOriginCountry] = useState("DO");
@@ -323,6 +371,63 @@ function Agente() {
     }
   };
 
+  // Enviar recarga telefónica DingConnect directamente desde el panel
+  const handleCreateTopup = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const cleanPhone = topupPhone.trim().replace(/\s+/g, "");
+    const formattedPhone = cleanPhone.startsWith("+")
+      ? cleanPhone
+      : cleanPhone.startsWith("509")
+        ? `+${cleanPhone}`
+        : `+509${cleanPhone}`;
+
+    const numAmount = Number(topupAmount) || 0;
+    if (numAmount <= 0) {
+      toast.error("Ingresa un monto válido para la recarga.");
+      return;
+    }
+
+    if (topupsBalance < numAmount || topupsBalance <= 0) {
+      toast.error(
+        `Saldo insuficiente en tu Billetera de Recargas. Tu saldo actual es de ${topupsBalance.toLocaleString()} HTG y esta recarga requiere ${numAmount.toLocaleString()} HTG. Sin saldo no puedes realizar envíos.`,
+      );
+      return;
+    }
+
+    setIsSubmittingTopup(true);
+    try {
+      const sku = topupOperator === "Natcom" ? "NATCOM_HTG" : "DIGICEL_HTG";
+      const res = await createTopupCheckout({
+        data: {
+          skuCode: sku,
+          operator: topupOperator,
+          countryCode: "HT",
+          phone: formattedPhone,
+          payAmount: numAmount,
+          payCurrency: "HTG",
+          topupAmount: numAmount,
+          topupCurrency: "HTG",
+          paymentMethod: "agent_wallet",
+          originCountry: "HT",
+        },
+      });
+
+      if ((res as any).mode === "direct" || (res as any).reference) {
+        toast.success(`¡Recarga enviada con éxito! Ref: ${(res as any).reference}`);
+        setOpenTopupModal(false);
+        setTopupPhone("");
+        setTopupAmount("250");
+        qc.invalidateQueries({ queryKey: ["agent-topups"] });
+        qc.invalidateQueries({ queryKey: ["wallets"] });
+        qc.invalidateQueries({ queryKey: ["agent-wallet-txs"] });
+      }
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Error al procesar la recarga");
+    } finally {
+      setIsSubmittingTopup(false);
+    }
+  };
+
   const rows = useMemo(() => transfers ?? [], [transfers]);
 
   // Filtrado de búsqueda
@@ -426,17 +531,15 @@ function Agente() {
           </div>
         </div>
 
-        {/* Botones de Acción Rápida */}
+        {/* Botones de Acción Rápida (Todo integrado dentro del panel) */}
         <div className="flex flex-wrap items-center gap-2">
           <Button
-            asChild
+            onClick={() => setOpenTopupModal(true)}
             variant="outline"
-            className="gap-2 border-emerald-500/30 hover:bg-emerald-500/10 text-xs sm:text-sm"
+            className="gap-2 border-cyan-500/30 hover:bg-cyan-500/10 text-cyan-400 text-xs sm:text-sm cursor-pointer"
           >
-            <Link to="/recargas">
-              <Smartphone className="size-4 text-emerald-400" />
-              <span>Enviar Recarga</span>
-            </Link>
+            <Smartphone className="size-4 text-cyan-400" />
+            <span>Nueva Recarga</span>
           </Button>
 
           <Button
@@ -513,22 +616,30 @@ function Agente() {
         />
       </div>
 
-      {/* Pestañas de Gestión de Envíos */}
+      {/* Pestañas Centralizadas de Todas las Transacciones del Agente */}
       <Tabs defaultValue="my_operations" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="my_operations">Mis Operaciones ({myOperations.length})</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-2 sm:grid-cols-5">
+          <TabsTrigger value="my_operations">
+            Envíos ({myOperations.length})
+          </TabsTrigger>
+          <TabsTrigger value="topups">
+            Recargas ({agentTopups?.length ?? 0})
+          </TabsTrigger>
           <TabsTrigger value="pending_cash">
-            Pendientes por Cobrar ({pendingCashPickups.length})
+            Por Cobrar ({pendingCashPickups.length})
           </TabsTrigger>
           <TabsTrigger value="history">
-            Historial y Comisiones ({completedOperations.length})
+            Comisiones ({completedOperations.length})
+          </TabsTrigger>
+          <TabsTrigger value="wallets">
+            Billeteras ({agentWalletTxs?.length ?? 0})
           </TabsTrigger>
         </TabsList>
 
-        {/* Tab 1: Mis Operaciones */}
+        {/* Tab 1: Mis Operaciones de Envío de Dinero */}
         <TabsContent value="my_operations" className="space-y-3">
           <Section
-            title="Operaciones Gestionadas por tu Agencia"
+            title="Operaciones de Remesas de tu Agencia"
             description="Envíos registrados o cobrados en efectivo por tu punto de atención."
             rows={myOperations}
             advance={advance}
@@ -539,7 +650,124 @@ function Agente() {
           />
         </TabsContent>
 
-        {/* Tab 2: Pendientes por Cobrar en Ventanilla */}
+        {/* Tab 2: Recargas Telefónicas DingConnect de la Agencia */}
+        <TabsContent value="topups" className="space-y-3">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between pb-3">
+              <div>
+                <CardTitle className="text-base flex items-center gap-2">
+                  <Smartphone className="size-4 text-cyan-400" />
+                  <span>Recargas Telefónicas de tu Agencia</span>
+                </CardTitle>
+                <CardDescription className="text-xs">
+                  Recargas enviadas a Digicel y Natcom Haití directamente desde tu Billetera de Recargas.
+                </CardDescription>
+              </div>
+              <Button
+                size="sm"
+                onClick={() => setOpenTopupModal(true)}
+                className="gap-1.5 bg-cyan-600 hover:bg-cyan-700 text-white font-semibold text-xs"
+              >
+                <PlusCircle className="size-3.5" />
+                <span>Nueva Recarga</span>
+              </Button>
+            </CardHeader>
+            <CardContent>
+              {isLoadingTopups ? (
+                <div className="py-12 text-center text-xs text-muted-foreground">
+                  Cargando historial de recargas...
+                </div>
+              ) : !agentTopups || agentTopups.length === 0 ? (
+                <div className="py-12 text-center text-xs text-muted-foreground space-y-2">
+                  <p>Aún no has registrado ninguna recarga telefónica desde tu panel.</p>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => setOpenTopupModal(true)}
+                    className="gap-1.5 text-xs text-cyan-400 border-cyan-500/30 hover:bg-cyan-500/10"
+                  >
+                    <Smartphone className="size-3.5" />
+                    <span>Realizar Primera Recarga</span>
+                  </Button>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {agentTopups.map((topup: any) => {
+                    const isDigicel = String(topup.operator).toLowerCase().includes("digicel");
+                    return (
+                      <div
+                        key={topup.id}
+                        className="flex flex-wrap items-center justify-between gap-3 p-3 rounded-xl border border-border/70 hover:bg-secondary/30 transition-colors"
+                      >
+                        <div className="flex items-center gap-3">
+                          <div
+                            className={`size-9 rounded-xl grid place-items-center shrink-0 ${
+                              isDigicel
+                                ? "bg-red-500/10 text-red-400 border border-red-500/20"
+                                : "bg-cyan-500/10 text-cyan-400 border border-cyan-500/20"
+                            }`}
+                          >
+                            <Smartphone className="size-4" />
+                          </div>
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <span className="font-bold text-sm text-foreground">
+                                {topup.phone}
+                              </span>
+                              <Badge
+                                variant="outline"
+                                className={
+                                  isDigicel
+                                    ? "bg-red-500/10 text-red-400 border-red-500/30 text-[10px]"
+                                    : "bg-cyan-500/10 text-cyan-400 border-cyan-500/30 text-[10px]"
+                                }
+                              >
+                                {topup.operator || "Haití"}
+                              </Badge>
+                            </div>
+                            <p className="text-[11px] text-muted-foreground mt-0.5">
+                              Ref: <span className="font-mono text-slate-300">{topup.reference}</span> ·{" "}
+                              {new Date(topup.created_at).toLocaleDateString("es-ES", {
+                                day: "2-digit",
+                                month: "short",
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              })}
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="text-right">
+                          <p className="font-black text-sm text-[#F2AC00] font-mono">
+                            {Number(topup.amount).toLocaleString()} HTG
+                          </p>
+                          <Badge
+                            variant="outline"
+                            className={`text-[10px] mt-0.5 ${
+                              topup.status === "completed" || topup.status === "successful"
+                                ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/30"
+                                : topup.status === "failed"
+                                  ? "bg-red-500/10 text-red-400 border-red-500/30"
+                                  : "bg-amber-500/10 text-amber-400 border-amber-500/30"
+                            }`}
+                          >
+                            {topup.status === "completed" || topup.status === "successful"
+                              ? "Completada"
+                              : topup.status === "failed"
+                                ? "Fallida"
+                                : "En proceso"}
+                          </Badge>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Tab 3: Pendientes por Cobrar en Ventanilla */}
         <TabsContent value="pending_cash" className="space-y-3">
           <Section
             title="Solicitudes Pendientes de Cobro en Efectivo"
@@ -552,6 +780,127 @@ function Agente() {
             currentUserId={user?.id}
             isClaimView
           />
+        </TabsContent>
+
+        {/* Tab 4: Historial y Comisiones */}
+        <TabsContent value="history" className="space-y-3">
+          <Section
+            title="Historial de Operaciones Entregadas"
+            description="Transacciones completadas con el desglose de comisión recibida."
+            rows={completedOperations}
+            advance={advance}
+            changeStage={changeStage}
+            cancel={cancel}
+            isAdmin={isAdmin}
+            currentUserId={user?.id}
+            readOnly
+          />
+        </TabsContent>
+
+        {/* Tab 5: Movimientos de Billetera y Saldo */}
+        <TabsContent value="wallets" className="space-y-3">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between pb-3">
+              <div>
+                <CardTitle className="text-base flex items-center gap-2">
+                  <Coins className="size-4 text-emerald-400" />
+                  <span>Historial de Movimientos de Saldo</span>
+                </CardTitle>
+                <CardDescription className="text-xs">
+                  Registro de abonos de administrador, débitos por envíos, recargas y reembolsos.
+                </CardDescription>
+              </div>
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => refetchWalletTxs()}
+                className="gap-1.5 text-xs text-muted-foreground hover:text-foreground"
+              >
+                <RefreshCw className="size-3.5" />
+                <span>Actualizar</span>
+              </Button>
+            </CardHeader>
+            <CardContent>
+              {isLoadingWalletTxs ? (
+                <div className="py-12 text-center text-xs text-muted-foreground">
+                  Cargando movimientos de billetera...
+                </div>
+              ) : !agentWalletTxs || agentWalletTxs.length === 0 ? (
+                <div className="py-12 text-center text-xs text-muted-foreground">
+                  Aún no se registran movimientos en tus billeteras.
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {agentWalletTxs.map((tx: any) => {
+                    const isPositive = Number(tx.amount) > 0;
+                    const isTopup =
+                      tx.currency === "HTG_RECARGAS" || String(tx.kind).includes("topup");
+                    return (
+                      <div
+                        key={tx.id}
+                        className="flex flex-wrap items-center justify-between gap-3 p-3 rounded-xl border border-border/70 hover:bg-secondary/30 transition-colors"
+                      >
+                        <div className="flex items-center gap-3">
+                          <div
+                            className={`size-8 rounded-lg grid place-items-center shrink-0 ${
+                              isPositive
+                                ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
+                                : "bg-slate-500/10 text-slate-400 border border-slate-500/20"
+                            }`}
+                          >
+                            {isPositive ? (
+                              <ArrowUpRight className="size-4" />
+                            ) : (
+                              <ArrowDownLeft className="size-4" />
+                            )}
+                          </div>
+                          <div>
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <span className="font-semibold text-xs text-foreground">
+                                {tx.description ||
+                                  (isPositive ? "Abono de saldo" : "Débito operativo")}
+                              </span>
+                              <Badge
+                                variant="outline"
+                                className={`text-[9px] ${
+                                  isTopup
+                                    ? "bg-cyan-500/10 text-cyan-400 border-cyan-500/30"
+                                    : "bg-emerald-500/10 text-emerald-400 border-emerald-500/30"
+                                }`}
+                              >
+                                {isTopup ? "📱 Recargas" : "💸 Envíos"}
+                              </Badge>
+                            </div>
+                            <p className="text-[11px] text-muted-foreground mt-0.5">
+                              {new Date(tx.created_at).toLocaleDateString("es-ES", {
+                                day: "2-digit",
+                                month: "short",
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              })}
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="text-right">
+                          <p
+                            className={`font-mono font-bold text-sm ${
+                              isPositive ? "text-emerald-400" : "text-slate-300"
+                            }`}
+                          >
+                            {isPositive
+                              ? `+${Number(tx.amount).toLocaleString()}`
+                              : Number(tx.amount).toLocaleString()}{" "}
+                            <span className="text-xs">HTG</span>
+                          </p>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </CardContent>
+          </Card>
         </TabsContent>
 
         {/* Tab 3: Historial y Comisiones */}
@@ -834,6 +1183,163 @@ function Agente() {
               >
                 <CheckCircle2 className="size-4" />
                 {isClaiming ? "Buscando..." : "Confirmar Cobro en Efectivo"}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Modal: Nueva Recarga Telefónica DingConnect (Integrada en el Panel) */}
+      <Dialog open={openTopupModal} onOpenChange={setOpenTopupModal}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Smartphone className="size-5 text-cyan-400" />
+              Nueva Recarga Telefónica (Haití)
+            </DialogTitle>
+            <DialogDescription className="text-xs">
+              Envía recargas de Digicel o Natcom al instante. El costo se debita directamente de tu
+              Billetera de Recargas.
+            </DialogDescription>
+          </DialogHeader>
+
+          <form onSubmit={handleCreateTopup} className="space-y-4 pt-1">
+            {/* Selector de Operador */}
+            <div className="space-y-1.5">
+              <Label className="text-xs font-semibold">Operador Telefónico</Label>
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={() => setTopupOperator("Digicel")}
+                  className={`flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl border text-xs font-bold transition-all ${
+                    topupOperator === "Digicel"
+                      ? "bg-rose-500/15 border-rose-500 text-rose-400 ring-1 ring-rose-500/30"
+                      : "bg-secondary/40 border-border text-muted-foreground hover:bg-secondary"
+                  }`}
+                >
+                  <span className="size-2 rounded-full bg-rose-500" />
+                  Digicel Haití
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setTopupOperator("Natcom")}
+                  className={`flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl border text-xs font-bold transition-all ${
+                    topupOperator === "Natcom"
+                      ? "bg-cyan-500/15 border-cyan-500 text-cyan-400 ring-1 ring-cyan-500/30"
+                      : "bg-secondary/40 border-border text-muted-foreground hover:bg-secondary"
+                  }`}
+                >
+                  <span className="size-2 rounded-full bg-cyan-500" />
+                  Natcom Haití
+                </button>
+              </div>
+            </div>
+
+            {/* Número de Teléfono */}
+            <div className="space-y-1.5">
+              <Label htmlFor="topupPhone" className="text-xs font-semibold">
+                Número de Celular (+509)
+              </Label>
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-mono text-muted-foreground">
+                  +509
+                </span>
+                <Input
+                  id="topupPhone"
+                  type="tel"
+                  placeholder="37123456"
+                  value={topupPhone}
+                  onChange={(e) => setTopupPhone(e.target.value.replace(/[^0-9]/g, ""))}
+                  required
+                  className="pl-14 font-mono text-base tracking-wider"
+                  maxLength={12}
+                />
+              </div>
+            </div>
+
+            {/* Monto de la Recarga */}
+            <div className="space-y-1.5">
+              <div className="flex justify-between items-center">
+                <Label htmlFor="topupAmount" className="text-xs font-semibold">
+                  Monto a Recargar (HTG)
+                </Label>
+                <span className="text-[11px] text-muted-foreground">Moneda: HTG</span>
+              </div>
+              <Input
+                id="topupAmount"
+                type="number"
+                placeholder="250"
+                value={topupAmount}
+                onChange={(e) => setTopupAmount(e.target.value)}
+                required
+                min={50}
+                max={5000}
+                className="font-mono text-base font-bold"
+              />
+              <div className="flex gap-1.5 pt-1">
+                {["100", "250", "500", "1000"].map((preset) => (
+                  <button
+                    key={preset}
+                    type="button"
+                    onClick={() => setTopupAmount(preset)}
+                    className={`flex-1 py-1 rounded-lg text-xs font-mono font-medium border transition-colors ${
+                      topupAmount === preset
+                        ? "bg-primary/20 border-primary text-primary"
+                        : "bg-secondary/40 border-border text-muted-foreground hover:bg-secondary"
+                    }`}
+                  >
+                    {preset} HTG
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Estado de Billetera de Recargas */}
+            <div className="rounded-xl border border-cyan-500/30 bg-cyan-950/20 p-3 text-xs space-y-1">
+              <div className="flex items-center justify-between">
+                <span className="font-bold text-cyan-400 flex items-center gap-1.5">
+                  <Smartphone className="size-4" /> Billetera de Recargas
+                </span>
+                <span className="font-extrabold text-[#F2AC00]">
+                  {topupsBalance.toLocaleString()} HTG
+                </span>
+              </div>
+              {Number(topupAmount) > 0 && Number(topupAmount) > topupsBalance ? (
+                <p className="text-red-400 font-semibold">
+                  ⚠️ Saldo insuficiente: Tienes {topupsBalance.toLocaleString()} HTG y esta recarga requiere {Number(topupAmount).toLocaleString()} HTG. Sin saldo en tu billetera de recargas no puedes realizar envíos.
+                </p>
+              ) : (
+                <p className="text-slate-300">
+                  El monto ({Number(topupAmount) > 0 ? `${Number(topupAmount).toLocaleString()} HTG` : "en HTG"}) se descontará automáticamente de tu Billetera de Recargas.
+                </p>
+              )}
+            </div>
+
+            <DialogFooter className="pt-2">
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={() => setOpenTopupModal(false)}
+                disabled={isSubmittingTopup}
+              >
+                Cancelar
+              </Button>
+              <Button
+                type="submit"
+                disabled={
+                  isSubmittingTopup ||
+                  !topupPhone.trim() ||
+                  Number(topupAmount) <= 0 ||
+                  topupsBalance < Number(topupAmount)
+                }
+                className="gap-2 bg-cyan-600 hover:bg-cyan-700 text-white font-semibold"
+              >
+                <Smartphone className="size-4" />
+                {isSubmittingTopup
+                  ? "Enviando recarga..."
+                  : topupsBalance < Number(topupAmount)
+                    ? "Saldo insuficiente"
+                    : "Enviar Recarga Inmediata"}
               </Button>
             </DialogFooter>
           </form>
