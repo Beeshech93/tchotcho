@@ -467,6 +467,76 @@ export const agentCreateCashTransfer = createServerFn({ method: "POST" })
       });
     }
 
+    // Acreditación de comisión al Super Agente si este agente pertenece a una red
+    if (!isAdminData) {
+      try {
+        const parentKey = `AGENT_PARENT_SUPER_AGENT_${context.userId}`;
+        const { data: parentCred } = await supabaseAdmin
+          .from("integration_credentials")
+          .select("value")
+          .eq("name", parentKey)
+          .maybeSingle();
+
+        if (parentCred?.value) {
+          const parentData = JSON.parse(parentCred.value);
+          const superAgentId = parentData.superAgentId;
+          const commPct = Number(parentData.commissionPercent) || 0.5;
+
+          if (superAgentId && commPct > 0) {
+            const superCommission = Math.round(data.amountSend * (commPct / 100) * 100) / 100;
+            if (superCommission > 0) {
+              // Buscar o inicializar billetera del Super Agente en la moneda enviada
+              const { data: superWallets } = await supabaseAdmin
+                .from("wallets")
+                .select("id, balance")
+                .eq("user_id", superAgentId)
+                .eq("currency", oc.currency);
+
+              let targetWallet: { id: string; balance: number } | null = superWallets?.[0] ?? null;
+              if (!targetWallet) {
+                const { data: createdW } = await supabaseAdmin
+                  .from("wallets")
+                  .insert({
+                    user_id: superAgentId,
+                    currency: oc.currency,
+                    balance: 0,
+                  })
+                  .select("id, balance")
+                  .single();
+                targetWallet = createdW;
+              }
+
+              if (targetWallet) {
+                const newSuperBal =
+                  Math.round((Number(targetWallet.balance || 0) + superCommission) * 100) / 100;
+                await supabaseAdmin
+                  .from("wallets")
+                  .update({ balance: newSuperBal, updated_at: new Date().toISOString() })
+                  .eq("id", targetWallet.id);
+
+                await supabaseAdmin.from("wallet_transactions").insert({
+                  wallet_id: targetWallet.id,
+                  user_id: superAgentId,
+                  kind: "super_agent_commission",
+                  amount: superCommission,
+                  currency: oc.currency,
+                  description: `Comisión de red ganada (${commPct}%) por transferencia ${newTransfer.reference} realizada por tu agente asignado`,
+                });
+
+                await supabaseAdmin.from("transfer_events").insert({
+                  transfer_id: newTransfer.id,
+                  status: "processing",
+                  message: `Super Agente acreditado: +${superCommission} ${oc.currency} (${commPct}% comisión de red).`,
+                });
+              }
+            }
+          }
+        }
+      } catch (superErr) {
+        console.warn("[agentCreateCashTransfer] Super agent commission warning:", superErr);
+      }
+    }
+
     // Si es MonCash y Bazik está activo, disparar pago automático al beneficiario
     if (data.deliveryMethod === "moncash" || data.deliveryMethod === "natcash") {
       try {

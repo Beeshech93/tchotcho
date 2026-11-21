@@ -25,7 +25,18 @@ import {
   Calendar,
   FileText,
   Sparkles,
+  Users,
+  UserPlus,
+  TrendingUp,
+  Trash2,
+  Percent,
 } from "lucide-react";
+import { AddSubordinateAgentModal } from "@/components/agent/AddSubordinateAgentModal";
+import {
+  getMySubordinateAgents,
+  getSubordinateTransactions,
+  removeSubordinateAgent,
+} from "@/lib/super-agent.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { useProfile } from "@/hooks/useProfile";
 import { useWallets } from "@/hooks/useWallet";
@@ -147,9 +158,39 @@ function Agente() {
   const [openNewCashModal, setOpenNewCashModal] = useState(false);
   const [openClaimModal, setOpenClaimModal] = useState(false);
   const [openTopupModal, setOpenTopupModal] = useState(false);
+  const [openAddAgentModal, setOpenAddAgentModal] = useState(false);
   const [claimReference, setClaimReference] = useState("");
   const [isClaiming, setIsClaiming] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+
+  // Funciones de servidor para red de Super Agente
+  const getSubAgents = useServerFn(getMySubordinateAgents);
+  const getSubTxs = useServerFn(getSubordinateTransactions);
+  const removeSubAgent = useServerFn(removeSubordinateAgent);
+
+  const { data: subAgentsData, refetch: refetchSubAgents } = useQuery({
+    queryKey: ["my-subordinate-agents"],
+    queryFn: () => getSubAgents(),
+    enabled: Boolean(isSuperAgent || isAdmin),
+  });
+
+  const { data: subTxsData, refetch: refetchSubTxs } = useQuery({
+    queryKey: ["subordinate-transactions"],
+    queryFn: () => getSubTxs(),
+    enabled: Boolean(isSuperAgent || isAdmin),
+  });
+
+  const handleRemoveAgent = async (agentId: string, agentName: string) => {
+    if (!confirm(`¿Estás seguro de desvincular a "${agentName}" de tu red de agentes?`)) return;
+    try {
+      await removeSubAgent({ data: { targetUserId: agentId } });
+      toast.success("Agente desvinculado de tu red.");
+      refetchSubAgents();
+      refetchSubTxs();
+    } catch (err: any) {
+      toast.error(err?.message || "No se pudo desvincular al agente.");
+    }
+  };
 
   // Formulario de nueva recarga telefónica integrada en el panel
   const [topupPhone, setTopupPhone] = useState("");
@@ -540,6 +581,16 @@ function Agente() {
 
         {/* Botones de Acción Rápida (Todo integrado dentro del panel, lado a lado) */}
         <div className="flex flex-row items-center gap-2 overflow-x-auto pb-1 sm:pb-0 sm:overflow-visible">
+          {isSuperAgent && (
+            <Button
+              onClick={() => setOpenAddAgentModal(true)}
+              className="gap-2 bg-indigo-700 hover:bg-indigo-800 text-white font-extrabold shadow-sm text-xs sm:text-sm whitespace-nowrap shrink-0 rounded-xl"
+            >
+              <UserPlus className="size-4" />
+              <span>Adicionar Agente</span>
+            </Button>
+          )}
+
           <Button
             onClick={() => setOpenNewCashModal(true)}
             className="gap-2 bg-emerald-700 hover:bg-emerald-800 text-white font-extrabold shadow-sm text-xs sm:text-sm whitespace-nowrap shrink-0 rounded-xl"
@@ -565,6 +616,59 @@ function Agente() {
           </Button>
         </div>
       </div>
+
+      {/* Resumen de Red para Super Agente */}
+      {isSuperAgent && (
+        <div className="grid gap-3 grid-cols-1 sm:grid-cols-3 rounded-2xl bg-gradient-to-r from-indigo-50/90 via-purple-50/80 to-blue-50/90 p-4 border-2 border-indigo-200/80 shadow-2xs">
+          <div className="flex items-center gap-3">
+            <div className="size-11 rounded-xl bg-indigo-600 text-white grid place-items-center shadow-xs shrink-0">
+              <Users className="size-5" />
+            </div>
+            <div>
+              <p className="text-[11px] font-bold uppercase tracking-wider text-indigo-900">
+                Mis Agentes en Red
+              </p>
+              <p className="text-xl font-black text-indigo-950">
+                {subAgentsData?.summary.totalAgents ?? 0}{" "}
+                {subAgentsData?.summary.totalAgents === 1 ? "agente" : "agentes"}
+              </p>
+              <p className="text-[11px] text-indigo-700">Equipos y ventanillas asignadas</p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <div className="size-11 rounded-xl bg-purple-600 text-white grid place-items-center shadow-xs shrink-0">
+              <Coins className="size-5" />
+            </div>
+            <div>
+              <p className="text-[11px] font-bold uppercase tracking-wider text-purple-900">
+                Comisiones de Red Ganadas
+              </p>
+              <p className="text-xl font-black text-purple-950">
+                +{(subAgentsData?.summary.totalCommissionsHTG ?? 0).toLocaleString()} HTG
+              </p>
+              <p className="text-[11px] text-purple-700">Por envíos de tus agentes</p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <div className="size-11 rounded-xl bg-blue-600 text-white grid place-items-center shadow-xs shrink-0">
+              <TrendingUp className="size-5" />
+            </div>
+            <div>
+              <p className="text-[11px] font-bold uppercase tracking-wider text-blue-900">
+                Volumen Procesado en Red
+              </p>
+              <p className="text-xl font-black text-blue-950">
+                {(subAgentsData?.summary.totalVolumeHTG ?? 0).toLocaleString()} HTG
+              </p>
+              <p className="text-[11px] text-blue-700">
+                {subAgentsData?.summary.totalOperations ?? 0} operaciones liquidadas
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Tarjetas KPI de Rendimiento del Agente (Dos billeteras independientes) */}
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-6">
@@ -625,7 +729,11 @@ function Agente() {
 
       {/* Pestañas Centralizadas de Todas las Transacciones del Agente */}
       <Tabs defaultValue="my_operations" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-2 sm:grid-cols-5">
+        <TabsList
+          className={`grid w-full ${
+            isSuperAgent ? "grid-cols-2 sm:grid-cols-6" : "grid-cols-2 sm:grid-cols-5"
+          }`}
+        >
           <TabsTrigger value="my_operations">
             Envíos ({myOperations.length})
           </TabsTrigger>
@@ -641,6 +749,14 @@ function Agente() {
           <TabsTrigger value="wallets">
             Billeteras ({agentWalletTxs?.length ?? 0})
           </TabsTrigger>
+          {isSuperAgent && (
+            <TabsTrigger
+              value="network"
+              className="data-[state=active]:bg-indigo-600 data-[state=active]:text-white font-bold"
+            >
+              Mi Red ({subAgentsData?.agents.length ?? 0})
+            </TabsTrigger>
+          )}
         </TabsList>
 
         {/* Tab 1: Mis Operaciones de Envío de Dinero */}
@@ -910,20 +1026,176 @@ function Agente() {
           </Card>
         </TabsContent>
 
-        {/* Tab 3: Historial y Comisiones */}
-        <TabsContent value="history" className="space-y-3">
-          <Section
-            title="Historial de Operaciones Entregadas"
-            description="Transacciones completadas con el desglose de comisión recibida."
-            rows={completedOperations}
-            advance={advance}
-            changeStage={changeStage}
-            cancel={cancel}
-            isAdmin={isAdmin}
-            currentUserId={user?.id}
-            readOnly
-          />
-        </TabsContent>
+        {/* Tab 6: Mi Red de Agentes (Exclusivo para Super Agente) */}
+        {isSuperAgent && (
+          <TabsContent value="network" className="space-y-4">
+            {/* Sección 1: Lista de Agentes Subordinados */}
+            <Card className="border-2 border-indigo-200/90 shadow-2xs">
+              <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-3">
+                <div>
+                  <CardTitle className="text-base flex items-center gap-2">
+                    <Users className="size-4 text-indigo-700" />
+                    Agentes Registrados bajo tu Red ({subAgentsData?.agents.length ?? 0})
+                  </CardTitle>
+                  <CardDescription className="text-xs">
+                    Agentes que operan bajo tu supervisión. Ganas un porcentaje automático por cada transacción que realicen.
+                  </CardDescription>
+                </div>
+                <Button
+                  onClick={() => setOpenAddAgentModal(true)}
+                  size="sm"
+                  className="gap-1.5 bg-indigo-700 hover:bg-indigo-800 text-white font-bold text-xs rounded-xl shadow-xs shrink-0"
+                >
+                  <UserPlus className="size-3.5" />
+                  Adicionar Agente
+                </Button>
+              </CardHeader>
+              <CardContent>
+                {(!subAgentsData?.agents || subAgentsData.agents.length === 0) ? (
+                  <div className="py-10 text-center space-y-3 border border-dashed rounded-2xl border-indigo-200 bg-indigo-50/30">
+                    <div className="size-12 rounded-full bg-indigo-100 text-indigo-700 mx-auto grid place-items-center">
+                      <Users className="size-6" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-bold text-indigo-950">Aún no tienes agentes en tu red</p>
+                      <p className="text-xs text-muted-foreground mt-0.5 max-w-md mx-auto">
+                        Haz clic en &quot;Adicionar Agente&quot; para seleccionar o registrar clientes y comenzar a ganar comisiones automáticas por cada envío que procesen.
+                      </p>
+                    </div>
+                    <Button
+                      onClick={() => setOpenAddAgentModal(true)}
+                      size="sm"
+                      className="gap-2 bg-indigo-700 hover:bg-indigo-800 text-white font-bold text-xs rounded-xl"
+                    >
+                      <UserPlus className="size-4" />
+                      Adicionar mi primer agente
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {subAgentsData.agents.map((ag) => (
+                      <div
+                        key={ag.id}
+                        className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-2xl border-2 border-indigo-100 bg-white hover:bg-indigo-50/40 transition-colors shadow-2xs"
+                      >
+                        <div className="flex items-start gap-3">
+                          <div className="size-10 rounded-xl bg-indigo-100 text-indigo-800 font-black grid place-items-center shrink-0 text-sm">
+                            {(ag.fullName || "A").slice(0, 2).toUpperCase()}
+                          </div>
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <p className="font-bold text-sm text-foreground">
+                                {ag.fullName}
+                              </p>
+                              <Badge className="bg-indigo-50 text-indigo-800 border border-indigo-300 font-bold text-[10px]">
+                                {ag.commissionPercent}% Comisión
+                              </Badge>
+                            </div>
+                            <p className="text-xs text-muted-foreground font-mono mt-0.5">
+                              {ag.phone || "Sin teléfono"}
+                            </p>
+                            <div className="flex flex-wrap items-center gap-2 mt-1.5 text-xs">
+                              <span className="font-semibold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
+                                Saldo Envíos: {ag.balanceHTG.toLocaleString()} HTG
+                              </span>
+                              <span className="font-semibold text-cyan-800 bg-cyan-50 px-2 py-0.5 rounded-md border border-cyan-200">
+                                Saldo Recargas: {ag.balanceTopupsHTG.toLocaleString()} HTG
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center justify-between sm:justify-end gap-3 pt-2 sm:pt-0 border-t sm:border-t-0 border-border/60">
+                          <div className="text-left sm:text-right">
+                            <p className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+                              Generado para ti
+                            </p>
+                            <p className="font-black text-sm text-indigo-900">
+                              +{ag.commissionsGenerated.toLocaleString()} HTG
+                            </p>
+                            <p className="text-[11px] text-muted-foreground">
+                              {ag.totalTransfersCount} envíos ({ag.totalVolumeSend.toLocaleString()} HTG)
+                            </p>
+                          </div>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleRemoveAgent(ag.id, ag.fullName)}
+                            className="text-red-600 hover:text-red-700 hover:bg-red-50 size-9 p-0 rounded-xl shrink-0"
+                            title="Desvincular de mi red"
+                          >
+                            <Trash2 className="size-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Sección 2: Historial de Operaciones de los Agentes */}
+            <Card className="border-2 border-slate-200/90 shadow-2xs">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base flex items-center gap-2">
+                  <Coins className="size-4 text-purple-700" />
+                  Operaciones de tu Red y Comisiones Ganadas
+                </CardTitle>
+                <CardDescription className="text-xs">
+                  Detalle en tiempo real de cada envío procesado por tus agentes con la comisión acreditada a tu cuenta.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {(!subTxsData?.transactions || subTxsData.transactions.length === 0) ? (
+                  <div className="py-8 text-center text-xs text-muted-foreground border border-dashed rounded-xl">
+                    Tus agentes aún no han realizado transacciones registradas.
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    {subTxsData.transactions.map((tx) => (
+                      <div
+                        key={tx.id}
+                        className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 rounded-2xl border-2 border-slate-200/90 bg-white hover:bg-slate-50 transition-colors shadow-2xs"
+                      >
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <span className="font-mono text-xs font-black text-slate-800">
+                              {tx.reference}
+                            </span>
+                            <Badge variant="outline" className="text-[10px] uppercase font-bold">
+                              {tx.deliveryMethod}
+                            </Badge>
+                            <Badge className="bg-emerald-100 text-emerald-800 font-bold text-[10px]">
+                              {STATUS_LABEL[tx.status as TransferStatus] || tx.status}
+                            </Badge>
+                          </div>
+                          <p className="text-xs text-slate-800 mt-1">
+                            Agente: <strong className="text-indigo-950">{tx.agentName}</strong>
+                            {tx.agentPhone && <span className="text-muted-foreground font-mono"> ({tx.agentPhone})</span>}
+                            {" → "}
+                            Beneficiario: <strong>{tx.recipientName}</strong>
+                          </p>
+                          <p className="text-[11px] text-muted-foreground mt-0.5">
+                            {new Date(tx.createdAt).toLocaleString()} · Envío: {tx.amountSend} {tx.sendCurrency} → Recibe: {tx.amountReceive} {tx.receiveCurrency}
+                          </p>
+                        </div>
+
+                        <div className="text-left sm:text-right pt-2 sm:pt-0 border-t sm:border-t-0 border-border/60">
+                          <p className="text-[10px] font-bold uppercase tracking-wider text-purple-900">
+                            Tu Comisión de Red
+                          </p>
+                          <p className="font-black text-sm text-purple-700">
+                            +{tx.superAgentCommission} {tx.sendCurrency}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+        )}
       </Tabs>
 
       {/* Modal: Nueva Transacción en Efectivo en Ventanilla */}
@@ -1372,6 +1644,16 @@ function Agente() {
           </form>
         </DialogContent>
       </Dialog>
+
+      {/* Modal: Adicionar Agente a la Red de Super Agente */}
+      <AddSubordinateAgentModal
+        isOpen={openAddAgentModal}
+        onClose={() => setOpenAddAgentModal(false)}
+        onSuccess={() => {
+          refetchSubAgents();
+          refetchSubTxs();
+        }}
+      />
     </div>
   );
 }
