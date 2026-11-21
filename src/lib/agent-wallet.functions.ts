@@ -41,7 +41,7 @@ export const adminAdjustAgentBalance = createServerFn({ method: "POST" })
       .from("user_roles")
       .select("role")
       .eq("user_id", input.agentUserId)
-      .in("role", ["agent", "admin"]);
+      .in("role", ["agent", "super_agent", "admin"]);
 
     if (!roleRows || roleRows.length === 0) {
       throw new Error(

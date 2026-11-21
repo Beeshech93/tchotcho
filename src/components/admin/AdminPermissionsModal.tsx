@@ -205,7 +205,7 @@ interface AdminPermissionsModalProps {
     full_name?: string | null;
     phone?: string | null;
   } | null;
-  currentRole: "admin" | "agent" | "client";
+  currentRole: "admin" | "super_agent" | "agent" | "client";
   currentPerms?: AdminPermissionsConfig | null;
   isSuperAdmin?: boolean;
   callerAllowedTabs?: AdminTabId[];
@@ -225,7 +225,7 @@ export function AdminPermissionsModal({
 
   const effectiveCallerTabs = isSuperAdmin ? ALL_ADMIN_TAB_IDS : callerAllowedTabs;
 
-  const [role, setRole] = useState<"admin" | "agent" | "client">(currentRole);
+  const [role, setRole] = useState<"admin" | "super_agent" | "agent" | "client">(currentRole);
   const [selectedTabs, setSelectedTabs] = useState<AdminTabId[]>(effectiveCallerTabs);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -309,7 +309,7 @@ export function AdminPermissionsModal({
             <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
               Seleccionar Rol del Usuario
             </Label>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
               {/* Cliente */}
               <button
                 type="button"
@@ -347,6 +347,26 @@ export function AdminPermissionsModal({
                 <p className="font-bold text-sm mt-2">Agente</p>
                 <p className="text-xs text-muted-foreground mt-0.5 leading-snug">
                   Acceso al portal de agentes para cobrar/enviar.
+                </p>
+              </button>
+
+              {/* Super Agente */}
+              <button
+                type="button"
+                onClick={() => setRole("super_agent")}
+                className={`p-3.5 rounded-2xl border text-left transition-all cursor-pointer ${
+                  role === "super_agent"
+                    ? "border-indigo-600 bg-indigo-50/70 ring-2 ring-indigo-400 text-indigo-950"
+                    : "border-border/60 hover:border-border hover:bg-secondary/40"
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <Sparkles className="size-5 text-indigo-600" />
+                  {role === "super_agent" && <Check className="size-4 text-indigo-600" />}
+                </div>
+                <p className="font-bold text-sm mt-2 text-indigo-950">Super Agente</p>
+                <p className="text-xs text-muted-foreground mt-0.5 leading-snug">
+                  Agente principal con privilegios operativos y límites extendidos.
                 </p>
               </button>
 

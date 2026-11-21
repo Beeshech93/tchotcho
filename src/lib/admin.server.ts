@@ -54,5 +54,5 @@ export async function verifyIsStaff(context: Ctx): Promise<boolean> {
     context.userId === "9b729a8e-b91c-430a-907c-969652b89f3b"
   )
     return true;
-  return hasAnyRole(context, ["admin", "agent"]);
+  return hasAnyRole(context, ["admin", "agent", "super_agent"]);
 }

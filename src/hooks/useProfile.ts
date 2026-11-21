@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import type { Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 
-export type AppRole = "client" | "agent" | "admin" | "super_admin";
+export type AppRole = "client" | "agent" | "super_agent" | "admin" | "super_admin";
 
 export type Profile = {
   id: string;
@@ -97,7 +97,8 @@ export function useProfile() {
     roles,
     isAdmin: roles.includes("admin") || isMasterAdminEmail,
     isSuperAdmin: isMasterAdminEmail,
-    isAgent: roles.includes("agent") || isMasterAdminEmail,
+    isSuperAgent: roles.includes("super_agent") || isMasterAdminEmail,
+    isAgent: roles.includes("agent") || roles.includes("super_agent") || isMasterAdminEmail,
     loading: loading || sessionLoading,
     reload: () => (user ? load(user.id) : Promise.resolve()),
   };

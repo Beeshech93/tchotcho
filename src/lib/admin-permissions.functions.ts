@@ -194,7 +194,7 @@ export const getAllAdminsPermissionsMap = createServerFn({ method: "GET" })
 
 export interface SetUserRoleAndPermissionsInput {
   targetUserId: string;
-  role: "admin" | "agent" | "client";
+  role: "admin" | "super_agent" | "agent" | "client";
   isSuperAdmin?: boolean | undefined;
   allowedTabs?: AdminTabId[] | undefined;
   tenantId?: string | undefined;
@@ -354,32 +354,34 @@ export const setUserRoleAndPermissions = createServerFn({ method: "POST" })
         .from("user_roles")
         .delete()
         .eq("user_id", input.targetUserId)
-        .in("role", ["admin", "agent"] as any);
+        .in("role", ["admin", "super_agent", "agent"] as any);
 
       // Eliminar registro de permisos
       await supabaseAdmin
         .from("integration_credentials")
         .delete()
         .eq("name", getAdminPermissionsStorageKey(input.targetUserId));
-    } else if (input.role === "agent") {
-      // Asegurar que tenga agent y no admin
+    } else if (input.role === "agent" || input.role === "super_agent") {
+      // Asegurar que tenga el rol indicado y remover otros
+      const rolesToRemove =
+        input.role === "super_agent" ? ["admin", "agent"] : ["admin", "super_agent"];
       await supabaseAdmin
         .from("user_roles")
         .delete()
         .eq("user_id", input.targetUserId)
-        .eq("role", "admin" as any);
+        .in("role", rolesToRemove as any);
 
-      const { data: existingAgent } = await supabaseAdmin
+      const { data: existingRole } = await supabaseAdmin
         .from("user_roles")
         .select("id")
         .eq("user_id", input.targetUserId)
-        .eq("role", "agent" as any)
+        .eq("role", input.role as any)
         .maybeSingle();
 
-      if (!existingAgent) {
+      if (!existingRole) {
         await supabaseAdmin.from("user_roles").insert({
           user_id: input.targetUserId,
-          role: "agent" as any,
+          role: input.role as any,
         });
       }
 
@@ -388,7 +390,13 @@ export const setUserRoleAndPermissions = createServerFn({ method: "POST" })
         .delete()
         .eq("name", getAdminPermissionsStorageKey(input.targetUserId));
     } else if (input.role === "admin") {
-      // Asegurar que tenga el rol admin en user_roles
+      // Asegurar que tenga el rol admin en user_roles y remover roles de agente
+      await supabaseAdmin
+        .from("user_roles")
+        .delete()
+        .eq("user_id", input.targetUserId)
+        .in("role", ["agent", "super_agent"] as any);
+
       const { data: existingAdmin } = await supabaseAdmin
         .from("user_roles")
         .select("id")

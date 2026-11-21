@@ -2,7 +2,7 @@ import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState, useMemo } from "react";
-import { ArrowLeft, Coins, FileText, History, RefreshCw, Shield, UserCheck, Users } from "lucide-react";
+import { ArrowLeft, Coins, FileText, History, RefreshCw, Shield, Sparkles, UserCheck, Users } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
@@ -612,7 +612,8 @@ function UsersPanel() {
           })
           .map((p) => {
             const isAdmin = p.roles.includes("admin");
-            const isAgent = p.roles.includes("agent");
+            const isSuperAgent = p.roles.includes("super_agent");
+            const isAgent = p.roles.includes("agent") || isSuperAgent;
             const adminPerms = adminsMap?.[p.id];
             const isMaster =
               p.email?.toLowerCase() === "charlesagency4@gmail.com" ||
@@ -683,7 +684,12 @@ function UsersPanel() {
                       )}
                     </>
                   )}
-                  {isAgent && !isAdmin && (
+                  {isSuperAgent && !isAdmin && (
+                    <Badge className="text-xs font-bold bg-indigo-50 text-indigo-900 border-2 border-indigo-300 gap-1 shadow-2xs">
+                      <Sparkles className="size-3 text-indigo-600" /> Super Agente
+                    </Badge>
+                  )}
+                  {isAgent && !isSuperAgent && !isAdmin && (
                     <Badge variant="secondary" className="text-xs font-bold bg-slate-100 text-slate-800 border border-slate-200">
                       Agente
                     </Badge>
@@ -766,9 +772,11 @@ function UsersPanel() {
           currentRole={
             editingUser.roles?.includes("admin")
               ? "admin"
-              : editingUser.roles?.includes("agent")
-                ? "agent"
-                : "client"
+              : editingUser.roles?.includes("super_agent")
+                ? "super_agent"
+                : editingUser.roles?.includes("agent")
+                  ? "agent"
+                  : "client"
           }
           currentPerms={adminsMap?.[editingUser.id] ?? null}
           isSuperAdmin={isSuperAdmin}

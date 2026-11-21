@@ -179,7 +179,7 @@ export const dingCreateTopupCheckout = createServerFn({ method: "POST" })
         .from("user_roles")
         .select("role")
         .eq("user_id", context.userId)
-        .in("role", ["agent", "admin"]);
+        .in("role", ["agent", "super_agent", "admin"]);
 
       if (!roleRows || roleRows.length === 0) {
         throw new Error("Solo agentes autorizados pueden enviar recargas desde su Billetera de Recargas.");

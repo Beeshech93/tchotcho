@@ -24,6 +24,7 @@ import {
   ArrowDownLeft,
   Calendar,
   FileText,
+  Sparkles,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useProfile } from "@/hooks/useProfile";
@@ -115,7 +116,7 @@ export const Route = createFileRoute("/_authenticated/agente")({
 });
 
 function Agente() {
-  const { user, profile, isAdmin } = useProfile();
+  const { user, profile, isAdmin, isSuperAgent } = useProfile();
   const qc = useQueryClient();
   const confirmTransfer = useServerFn(adminConfirmTransfer);
   const setStatus = useServerFn(adminSetTransferStatus);
@@ -518,12 +519,18 @@ function Agente() {
           <div>
             <div className="flex items-center gap-2">
               <h1 className="text-2xl font-bold tracking-tight">Panel de Agente Independiente</h1>
-              <Badge
-                variant="outline"
-                className="border-2 border-emerald-300 bg-emerald-50 text-emerald-800 font-bold"
-              >
-                Solo Efectivo
-              </Badge>
+              {isSuperAgent ? (
+                <Badge className="border-2 border-indigo-300 bg-indigo-50 text-indigo-900 font-bold gap-1 shadow-2xs">
+                  <Sparkles className="size-3 text-indigo-600" /> Super Agente
+                </Badge>
+              ) : (
+                <Badge
+                  variant="outline"
+                  className="border-2 border-emerald-300 bg-emerald-50 text-emerald-800 font-bold"
+                >
+                  Solo Efectivo
+                </Badge>
+              )}
             </div>
             <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
               Gestión de ventanilla, transacciones en efectivo y comisiones de tu agencia.
