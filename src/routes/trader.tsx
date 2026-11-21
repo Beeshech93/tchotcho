@@ -3,6 +3,23 @@ import logoAsset from "@/assets/lajan-rapid-logo.png";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Bitcoin } from "lucide-react";
+import { useI18n } from "@/lib/i18n";
+import { CONTENT as LOCALE_CONTENT } from "@/routes/$lang/trader";
+
+const DEFAULT_CONTENT = {
+  heading: "Cash out your crypto to MonCash or NatCash",
+  subheading: "For traders and crypto holders in Haiti: withdraw BTC, USDT or USDC directly to your MonCash or NatCash mobile wallet — no third-party exchange needed.",
+  howTitle: "How it works",
+  steps: [
+    "Sign up and verify your identity (KYC).",
+    "Go to the Crypto section and choose the asset (BTC, USDT or USDC) and network.",
+    "Request a withdrawal to MonCash or NatCash, entering the receiving mobile number.",
+    "Confirm the exchange rate and fee, then confirm the withdrawal.",
+    "Funds arrive in the recipient's MonCash or NatCash wallet.",
+  ],
+  assetsTitle: "Supported assets",
+  cta: "Open my account",
+};
 
 export const Route = createFileRoute("/trader")({
   head: () => ({
@@ -30,22 +47,20 @@ export const Route = createFileRoute("/trader")({
       { rel: "alternate", hreflang: "x-default", href: "https://tchotcho.app/trader" },
     ],
   }),
-  component: () => (
-    <TraderPage
-      heading="Cash out your crypto to MonCash or NatCash"
-      subheading="For traders and crypto holders in Haiti: withdraw BTC, USDT or USDC directly to your MonCash or NatCash mobile wallet — no third-party exchange needed."
-      howTitle="How it works"
-      steps={[
-        "Sign up and verify your identity (KYC).",
-        "Go to the Crypto section and choose the asset (BTC, USDT or USDC) and network.",
-        "Request a withdrawal to MonCash or NatCash, entering the receiving mobile number.",
-        "Confirm the exchange rate and fee, then confirm the withdrawal.",
-        "Funds arrive in the recipient's MonCash or NatCash wallet.",
-      ]}
-      assetsTitle="Supported assets"
-      cta="Open my account"
-    />
-  ),
+  component: function TraderRootPage() {
+    const { lang } = useI18n();
+    const c = (LOCALE_CONTENT as any)[lang] || DEFAULT_CONTENT;
+    return (
+      <TraderPage
+        heading={c.heading}
+        subheading={c.subheading}
+        howTitle={c.howTitle}
+        steps={c.steps}
+        assetsTitle={c.assetsTitle}
+        cta={c.cta}
+      />
+    );
+  },
 });
 
 export function TraderPage({

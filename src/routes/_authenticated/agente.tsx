@@ -39,6 +39,7 @@ import {
 } from "@/lib/super-agent.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { useProfile } from "@/hooks/useProfile";
+import { useI18n } from "@/lib/i18n";
 import { useWallets } from "@/hooks/useWallet";
 import {
   adminCancelTransfer,
@@ -128,6 +129,7 @@ export const Route = createFileRoute("/_authenticated/agente")({
 
 function Agente() {
   const { user, profile, isAdmin, isSuperAgent } = useProfile();
+  const { t } = useI18n();
   const qc = useQueryClient();
   const confirmTransfer = useServerFn(adminConfirmTransfer);
   const setStatus = useServerFn(adminSetTransferStatus);
@@ -559,22 +561,22 @@ function Agente() {
           </Button>
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-2xl font-bold tracking-tight">Panel de Agente Independiente</h1>
+              <h1 className="text-2xl font-bold tracking-tight">{t("agent.title")}</h1>
               {isSuperAgent ? (
                 <Badge className="border-2 border-indigo-300 bg-indigo-50 text-indigo-900 font-bold gap-1 shadow-2xs">
-                  <Sparkles className="size-3 text-indigo-600" /> Super Agente
+                  <Sparkles className="size-3 text-indigo-600" /> {t("roles.super_agent")}
                 </Badge>
               ) : (
                 <Badge
                   variant="outline"
                   className="border-2 border-emerald-300 bg-emerald-50 text-emerald-800 font-bold"
                 >
-                  Solo Efectivo
+                  {t("agent.cash_only")}
                 </Badge>
               )}
             </div>
             <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
-              Gestión de ventanilla, transacciones en efectivo y comisiones de tu agencia.
+              {t("agent.subtitle")}
             </p>
           </div>
         </div>
@@ -587,7 +589,7 @@ function Agente() {
               className="gap-2 bg-indigo-700 hover:bg-indigo-800 text-white font-extrabold shadow-sm text-xs sm:text-sm whitespace-nowrap shrink-0 rounded-xl"
             >
               <UserPlus className="size-4" />
-              <span>Adicionar Agente</span>
+              <span>{t("agent.add_agent")}</span>
             </Button>
           )}
 
@@ -596,7 +598,7 @@ function Agente() {
             className="gap-2 bg-emerald-700 hover:bg-emerald-800 text-white font-extrabold shadow-sm text-xs sm:text-sm whitespace-nowrap shrink-0 rounded-xl"
           >
             <PlusCircle className="size-4" />
-            <span>Nueva Operación en Efectivo</span>
+            <span>{t("agent.new_cash_op")}</span>
           </Button>
 
           <Button
@@ -604,7 +606,7 @@ function Agente() {
             className="gap-2 bg-sky-700 hover:bg-sky-800 text-white font-extrabold shadow-sm text-xs sm:text-sm whitespace-nowrap shrink-0 rounded-xl"
           >
             <Smartphone className="size-4" />
-            <span>Nueva Recarga</span>
+            <span>{t("agent.new_topup")}</span>
           </Button>
         </div>
       </div>
@@ -618,13 +620,13 @@ function Agente() {
             </div>
             <div>
               <p className="text-[11px] font-bold uppercase tracking-wider text-indigo-900">
-                Mis Agentes en Red
+                {t("agent.my_network")}
               </p>
               <p className="text-xl font-black text-indigo-950">
                 {subAgentsData?.summary.totalAgents ?? 0}{" "}
                 {subAgentsData?.summary.totalAgents === 1 ? "agente" : "agentes"}
               </p>
-              <p className="text-[11px] text-indigo-700">Equipos y ventanillas asignadas</p>
+              <p className="text-[11px] text-indigo-700">{t("agent.network_desc")}</p>
             </div>
           </div>
 
@@ -634,7 +636,7 @@ function Agente() {
             </div>
             <div>
               <p className="text-[11px] font-bold uppercase tracking-wider text-purple-900">
-                Comisiones de Red Ganadas
+                {t("agent.network_commissions")}
               </p>
               <p className="text-xl font-black text-purple-950">
                 +{(subAgentsData?.summary.totalCommissionsHTG ?? 0).toLocaleString()} HTG
@@ -649,7 +651,7 @@ function Agente() {
             </div>
             <div>
               <p className="text-[11px] font-bold uppercase tracking-wider text-blue-900">
-                Volumen Procesado en Red
+                {t("agent.network_volume")}
               </p>
               <p className="text-xl font-black text-blue-950">
                 {(subAgentsData?.summary.totalVolumeHTG ?? 0).toLocaleString()} HTG
@@ -666,42 +668,42 @@ function Agente() {
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-6">
         <StatCard
           icon={Banknote}
-          label="Billetera Envíos de Dinero"
+          label={t("agent.wallet_transfers")}
           value={transfersBalanceLabel}
           tone="text-emerald-800 font-black"
           hint="Saldo para remesas MonCash y NatCash"
         />
         <StatCard
           icon={Smartphone}
-          label="Billetera Recargas"
+          label={t("agent.wallet_topups")}
           value={topupsBalanceLabel}
           tone="text-cyan-800 font-black"
           hint="Saldo para recargas telefónicas Haití"
         />
         <StatCard
           icon={Banknote}
-          label="Efectivo en Ventanilla"
+          label={t("agent.cash_in_hand")}
           value={totalCashLabel}
           tone="text-slate-900 font-black"
           hint="Total recaudado en mano"
         />
         <StatCard
           icon={Coins}
-          label="Comisiones Ganadas"
+          label={t("agent.commissions_earned")}
           value={commissionsLabel}
           tone="text-emerald-700 font-black"
           hint="Ganancia neta acumulada"
         />
         <StatCard
           icon={Clock}
-          label="En Proceso"
+          label={t("agent.in_process")}
           value={String(activeOperations.length)}
           tone="text-amber-700 font-black"
           hint="En entrega o dispersión"
         />
         <StatCard
           icon={CheckCircle2}
-          label="Completadas"
+          label={t("agent.completed")}
           value={String(completedOperations.length)}
           tone="text-emerald-700 font-black"
           hint="Entregadas exitosamente"
@@ -712,7 +714,7 @@ function Agente() {
       <div className="relative">
         <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
         <Input
-          placeholder="Buscar por referencia (ej. LR-...), nombre o teléfono..."
+          placeholder={t("agent.search_placeholder")}
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           className="pl-10 h-11 bg-card/60"
@@ -727,26 +729,26 @@ function Agente() {
           }`}
         >
           <TabsTrigger value="my_operations">
-            Envíos ({myOperations.length})
+            {t("agent.tab_transfers")} ({myOperations.length})
           </TabsTrigger>
           <TabsTrigger value="topups">
-            Recargas ({agentTopups?.length ?? 0})
+            {t("agent.tab_topups_short")} ({agentTopups?.length ?? 0})
           </TabsTrigger>
           <TabsTrigger value="pending_cash">
-            Por Cobrar ({pendingCashPickups.length})
+            {t("agent.tab_pending_cash")} ({pendingCashPickups.length})
           </TabsTrigger>
           <TabsTrigger value="history">
-            Comisiones ({completedOperations.length})
+            {t("agent.tab_commissions")} ({completedOperations.length})
           </TabsTrigger>
           <TabsTrigger value="wallets">
-            Billeteras ({agentWalletTxs?.length ?? 0})
+            {t("agent.tab_wallets")} ({agentWalletTxs?.length ?? 0})
           </TabsTrigger>
           {isSuperAgent && (
             <TabsTrigger
               value="network"
               className="data-[state=active]:bg-indigo-600 data-[state=active]:text-white font-bold"
             >
-              Mi Red ({subAgentsData?.agents.length ?? 0})
+              {t("agent.tab_network")} ({subAgentsData?.agents.length ?? 0})
             </TabsTrigger>
           )}
         </TabsList>

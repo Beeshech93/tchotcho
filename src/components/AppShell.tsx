@@ -94,7 +94,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     ...(topupsEnabled && !isAgentOnly ? [{ to: "/recargas", label: t("shell.topups"), icon: Smartphone }] : []),
     {
       to: isAgentOnly ? "/agente" : "/historial",
-      label: isAgentOnly ? "Panel de Agente" : t("shell.transactions"),
+      label: isAgentOnly ? t("shell.agent_portal") : t("shell.transactions"),
       icon: isAgentOnly ? Briefcase : History,
     },
     { to: "/perfil", label: t("shell.my_account"), icon: User },
@@ -155,7 +155,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           {/* Servicios Adicionales */}
           <div className="pt-1">
             <p className="px-3 pb-1 text-[10px] font-black uppercase tracking-wider text-slate-400">
-              Más Opciones
+              {t("shell.more_options")}
             </p>
             <nav className="flex flex-col gap-1">
               {workflowNav.map((item) => {
@@ -194,14 +194,14 @@ export function AppShell({ children }: { children: ReactNode }) {
                 <span>MonCash & NatCash Flash</span>
                 <ArrowRight className="size-3 group-hover:translate-x-0.5 transition" />
               </p>
-              <p className="text-[9px] text-slate-500">Acreditación directa en &lt; 2 minutos</p>
+              <p className="text-[9px] text-slate-500">{t("shell.direct_credit")}</p>
             </Link>
           )}
 
           {/* Redes Oficiales compactas */}
           <div className="rounded-xl bg-[#F8FAF9] border border-slate-200 px-2.5 py-1.5 flex items-center justify-between gap-1.5">
             <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 shrink-0">
-              Redes
+              {t("shell.social_networks")}
             </span>
             <SocialLinks iconSize="size-3.5" className="justify-end gap-1.5" />
           </div>
@@ -222,7 +222,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               )}
             </div>
             <p className="truncate text-[10px] font-semibold text-slate-500">
-              {profile?.phone || "Super Administrador"}
+              {profile?.phone || t("roles.super_admin")}
             </p>
           </div>
           <Button
@@ -241,7 +241,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                 rel="noopener noreferrer"
                 className="inline-flex items-center justify-center gap-1 text-[9px] text-slate-400 transition hover:text-slate-600"
               >
-                <span>Creado por</span>
+                <span>{t("shell.created_by")}</span>
                 <span className="font-bold text-[#15803D] underline underline-offset-2">
                   tchotcho.app
                 </span>
@@ -294,7 +294,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
           <footer className="mt-14 border-t-2 border-slate-200 pt-6 pb-2 text-center space-y-2.5">
             <p className="text-xs font-bold text-slate-700">
-              Canales oficiales y redes sociales
+              {t("shell.official_channels")}
             </p>
             <SocialLinks iconSize="size-4" className="justify-center gap-2" />
             <p className="text-xs font-bold text-slate-600">

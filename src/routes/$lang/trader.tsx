@@ -3,7 +3,7 @@ import { useEffect } from "react";
 import { TraderPage } from "@/routes/trader";
 import { useI18n } from "@/lib/i18n";
 
-const CONTENT: Record<
+export const CONTENT: Record<
   "es" | "fr" | "ht",
   {
     title: string;

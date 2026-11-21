@@ -1,6 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ContentPage } from "@/components/ContentPage";
 import { hreflangLinks } from "@/lib/seo-page-helpers";
+import { useI18n } from "@/lib/i18n";
+import { CONTENT as LOCALE_CONTENT } from "@/routes/$lang/enviar-dinero-a-haiti";
 
 export const CONTENT = {
   title: "Send Money to Haiti | Tcho-Tcho",
@@ -58,37 +60,40 @@ export const Route = createFileRoute("/enviar-dinero-a-haiti")({
       },
     ],
   }),
-  component: () => (
-    <>
-      <ContentPage
-        heading={CONTENT.heading}
-        intro={CONTENT.intro}
-        sections={CONTENT.sections}
-        cta={CONTENT.cta}
-      />
-      <p className="mx-auto -mt-10 max-w-3xl px-5 pb-16 text-sm text-muted-foreground">
-        Learn more:{" "}
-        <Link to="/como-enviar-dinero" className="underline">
-          how to send money
-        </Link>
-        ,{" "}
-        <Link to="/tarifas" className="underline">
-          fees
-        </Link>
-        ,{" "}
-        <Link to="/moncash" className="underline">
-          MonCash
-        </Link>
-        ,{" "}
-        <Link to="/natcash" className="underline">
-          NatCash
-        </Link>
-        , or read our{" "}
-        <Link to="/faq" className="underline">
-          FAQ
-        </Link>
-        .
-      </p>
-    </>
-  ),
+  component: function EnviarDineroPage() {
+    const { lang } = useI18n();
+    const c = (LOCALE_CONTENT as any)[lang] || CONTENT;
+    return (
+      <>
+        <ContentPage
+          heading={c.heading}
+          intro={c.intro}
+          sections={c.sections}
+          cta={c.cta}
+        />
+        <p className="mx-auto -mt-10 max-w-3xl px-5 pb-16 text-sm text-muted-foreground">
+          <Link to="/como-enviar-dinero" className="underline">
+            {lang === "fr" ? "Comment envoyer" : lang === "ht" ? "Kijan pou voye" : "Cómo enviar dinero"}
+          </Link>
+          ,{" "}
+          <Link to="/tarifas" className="underline">
+            {lang === "fr" ? "Tarifs" : lang === "ht" ? "Tarif" : "Tarifas"}
+          </Link>
+          ,{" "}
+          <Link to="/moncash" className="underline">
+            MonCash
+          </Link>
+          ,{" "}
+          <Link to="/natcash" className="underline">
+            NatCash
+          </Link>
+          ,{" "}
+          <Link to="/faq" className="underline">
+            FAQ
+          </Link>
+          .
+        </p>
+      </>
+    );
+  },
 });

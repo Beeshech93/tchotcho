@@ -7,6 +7,7 @@ import logoAsset from "@/assets/lajan-rapid-logo.png";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { getSupportConfig } from "@/lib/support.functions";
 import { hreflangLinks } from "@/lib/seo-page-helpers";
+import { useI18n } from "@/lib/i18n";
 
 export const Route = createFileRoute("/contacto")({
   head: () => ({
@@ -28,6 +29,7 @@ export const Route = createFileRoute("/contacto")({
 });
 
 function ContactoPage() {
+  const { t } = useI18n();
   const getConfig = useServerFn(getSupportConfig);
   const { data: config } = useQuery({
     queryKey: ["support_config_public"],
@@ -51,9 +53,9 @@ function ContactoPage() {
       </header>
 
       <section className="mx-auto max-w-3xl px-5 pb-16 pt-4">
-        <h1 className="font-display text-3xl font-bold">Contact us</h1>
+        <h1 className="font-display text-3xl font-bold">{t("support.title")}</h1>
         <p className="mt-3 text-muted-foreground">
-          Have a question before sending money? Reach our support team directly.
+          {t("support.desc")}
         </p>
 
         <div className="mt-6 grid gap-3 sm:grid-cols-2">
@@ -65,7 +67,7 @@ function ContactoPage() {
               className="rounded-xl border p-4 hover:bg-secondary"
             >
               <p className="flex items-center gap-2 text-xs font-semibold text-muted-foreground">
-                <MessageCircle className="size-4" /> WhatsApp
+                <MessageCircle className="size-4" /> {t("support.whatsapp")}
               </p>
               <p className="mt-1 font-medium">{whatsapp}</p>
             </a>
@@ -73,7 +75,7 @@ function ContactoPage() {
           {email && (
             <a href={`mailto:${email}`} className="rounded-xl border p-4 hover:bg-secondary">
               <p className="flex items-center gap-2 text-xs font-semibold text-muted-foreground">
-                <Mail className="size-4" /> Email
+                <Mail className="size-4" /> {t("support.email")}
               </p>
               <p className="mt-1 font-medium">{email}</p>
             </a>

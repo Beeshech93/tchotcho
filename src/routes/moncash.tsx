@@ -1,6 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { ContentPage } from "@/components/ContentPage";
 import { hreflangLinks } from "@/lib/seo-page-helpers";
+import { useI18n } from "@/lib/i18n";
+import { CONTENT as LOCALE_CONTENT } from "@/routes/$lang/moncash";
 
 export const CONTENT = {
   title: "Send Money to MonCash | Tcho-Tcho",
@@ -36,12 +38,16 @@ export const Route = createFileRoute("/moncash")({
       ...hreflangLinks("moncash"),
     ],
   }),
-  component: () => (
-    <ContentPage
-      heading={CONTENT.heading}
-      intro={CONTENT.intro}
-      sections={CONTENT.sections}
-      cta={CONTENT.cta}
-    />
-  ),
+  component: function MonCashPage() {
+    const { lang } = useI18n();
+    const c = (LOCALE_CONTENT as any)[lang] || CONTENT;
+    return (
+      <ContentPage
+        heading={c.heading}
+        intro={c.intro}
+        sections={c.sections}
+        cta={c.cta}
+      />
+    );
+  },
 });

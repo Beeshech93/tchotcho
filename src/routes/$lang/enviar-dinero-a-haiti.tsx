@@ -1,7 +1,7 @@
 import { createFileRoute, Link, notFound, redirect } from "@tanstack/react-router";
 import { LocaleContentPage, hreflangLinks, type PageContent } from "@/lib/seo-page-helpers";
 
-const CONTENT: Record<"es" | "fr" | "ht", PageContent> = {
+export const CONTENT: Record<"es" | "fr" | "ht", PageContent> = {
   es: {
     title: "Enviar Dinero a Haití | Tcho-Tcho",
     description:

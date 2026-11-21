@@ -1,6 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { ContentPage } from "@/components/ContentPage";
 import { hreflangLinks } from "@/lib/seo-page-helpers";
+import { useI18n } from "@/lib/i18n";
+import { CONTENT as LOCALE_CONTENT } from "@/routes/$lang/como-enviar-dinero";
 
 export const CONTENT = {
   title: "How to Send Money to Haiti | Tcho-Tcho",
@@ -49,12 +51,16 @@ export const Route = createFileRoute("/como-enviar-dinero")({
       ...hreflangLinks("como-enviar-dinero"),
     ],
   }),
-  component: () => (
-    <ContentPage
-      heading={CONTENT.heading}
-      intro={CONTENT.intro}
-      sections={CONTENT.sections}
-      cta={CONTENT.cta}
-    />
-  ),
+  component: function ComoEnviarDineroPage() {
+    const { lang } = useI18n();
+    const c = (LOCALE_CONTENT as any)[lang] || CONTENT;
+    return (
+      <ContentPage
+        heading={c.heading}
+        intro={c.intro}
+        sections={c.sections}
+        cta={c.cta}
+      />
+    );
+  },
 });
