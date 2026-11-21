@@ -274,10 +274,12 @@ export function AdminPermissionsModal({
       });
 
       toast.success("Rol y permisos actualizados correctamente");
+      qc.invalidateQueries({ queryKey: ["admin-users-list"] });
       qc.invalidateQueries({ queryKey: ["admin-roles"] });
       qc.invalidateQueries({ queryKey: ["admin-profiles"] });
       qc.invalidateQueries({ queryKey: ["all-admins-permissions"] });
       qc.invalidateQueries({ queryKey: ["my-admin-permissions"] });
+      qc.invalidateQueries({ queryKey: ["my-subordinate-agents"] });
       onClose();
     } catch (err: any) {
       toast.error(err?.message || "No se pudo actualizar los permisos");

@@ -348,54 +348,107 @@ export const setUserRoleAndPermissions = createServerFn({ method: "POST" })
 
     const now = new Date().toISOString();
 
-    // 1. Manejo del rol en user_roles
+    // 1. Manejo del rol en user_roles e integration_credentials
+    const superAgentRoleKey = `SUPER_AGENT_ROLE_${input.targetUserId}`;
+
     if (input.role === "client") {
       await supabaseAdmin
         .from("user_roles")
         .delete()
         .eq("user_id", input.targetUserId)
-        .in("role", ["admin", "super_agent", "agent"] as any);
+        .in("role", ["admin", "agent"] as any);
 
-      // Eliminar registro de permisos
+      // Eliminar registros de permisos y de super agente
       await supabaseAdmin
         .from("integration_credentials")
         .delete()
-        .eq("name", getAdminPermissionsStorageKey(input.targetUserId));
+        .in("name", [
+          getAdminPermissionsStorageKey(input.targetUserId),
+          superAgentRoleKey,
+        ]);
+
+      try {
+        await supabaseAdmin.auth.admin.updateUserById(input.targetUserId, {
+          user_metadata: { role: "client", is_super_agent: false },
+        });
+      } catch {}
     } else if (input.role === "agent" || input.role === "super_agent") {
-      // Asegurar que tenga el rol indicado y remover otros
-      const rolesToRemove =
-        input.role === "super_agent" ? ["admin", "agent"] : ["admin", "super_agent"];
+      // Remover rol admin si lo tenía
       await supabaseAdmin
         .from("user_roles")
         .delete()
         .eq("user_id", input.targetUserId)
-        .in("role", rolesToRemove as any);
+        .eq("role", "admin" as any);
 
-      const { data: existingRole } = await supabaseAdmin
+      // Asegurar rol 'agent' en user_roles (compatible con el enum app_role de PostgreSQL)
+      const { data: existingAgent } = await supabaseAdmin
         .from("user_roles")
         .select("id")
         .eq("user_id", input.targetUserId)
-        .eq("role", input.role as any)
+        .eq("role", "agent" as any)
         .maybeSingle();
 
-      if (!existingRole) {
+      if (!existingAgent) {
         await supabaseAdmin.from("user_roles").insert({
           user_id: input.targetUserId,
-          role: input.role as any,
+          role: "agent" as any,
         });
       }
 
+      // Eliminar configuración de admin si tenía
       await supabaseAdmin
         .from("integration_credentials")
         .delete()
         .eq("name", getAdminPermissionsStorageKey(input.targetUserId));
+
+      if (input.role === "super_agent") {
+        // Guardar marca permanente de Super Agente en integration_credentials
+        await supabaseAdmin.from("integration_credentials").upsert(
+          {
+            name: superAgentRoleKey,
+            value: "true",
+            updated_at: now,
+            updated_by: context.userId,
+          },
+          { onConflict: "name" },
+        );
+
+        try {
+          await supabaseAdmin.auth.admin.updateUserById(input.targetUserId, {
+            user_metadata: { role: "super_agent", is_super_agent: true },
+          });
+        } catch {}
+      } else {
+        // Si se cambia a agente regular, remover marca de super agente
+        await supabaseAdmin
+          .from("integration_credentials")
+          .delete()
+          .eq("name", superAgentRoleKey);
+
+        try {
+          await supabaseAdmin.auth.admin.updateUserById(input.targetUserId, {
+            user_metadata: { role: "agent", is_super_agent: false },
+          });
+        } catch {}
+      }
     } else if (input.role === "admin") {
-      // Asegurar que tenga el rol admin en user_roles y remover roles de agente
+      // Remover roles de agente y marca de super agente
       await supabaseAdmin
         .from("user_roles")
         .delete()
         .eq("user_id", input.targetUserId)
-        .in("role", ["agent", "super_agent"] as any);
+        .eq("role", "agent" as any);
+
+      await supabaseAdmin
+        .from("integration_credentials")
+        .delete()
+        .eq("name", superAgentRoleKey);
+
+      try {
+        await supabaseAdmin.auth.admin.updateUserById(input.targetUserId, {
+          user_metadata: { role: "admin", is_super_agent: false },
+        });
+      } catch {}
 
       const { data: existingAdmin } = await supabaseAdmin
         .from("user_roles")
@@ -526,6 +579,19 @@ export const getAdminUsersList = createServerFn({ method: "GET" })
       console.warn("[getAdminUsersList] wallets fetch failed:", e);
     }
 
+    let superAgentIds = new Set<string>();
+    try {
+      const { data: saRows } = await supabaseAdmin
+        .from("integration_credentials")
+        .select("name")
+        .like("name", "SUPER_AGENT_ROLE_%");
+      if (saRows) {
+        superAgentIds = new Set(saRows.map((r) => r.name.replace("SUPER_AGENT_ROLE_", "")));
+      }
+    } catch (e) {
+      console.warn("[getAdminUsersList] super_agent roles fetch failed:", e);
+    }
+
     const usersMap = new Map<string, AdminUserListItem>();
 
     // 3. Procesar todos los usuarios de auth.users como fuente primaria
@@ -545,6 +611,16 @@ export const getAdminUsersList = createServerFn({ method: "GET" })
       const isMaster = isMasterSuperAdmin({ id: u.id, email, phone: u.phone || p?.phone });
       if (isMaster && !finalRoles.includes("admin")) {
         finalRoles.unshift("admin");
+      }
+
+      // Detectar si tiene rol super_agent
+      const isSuperAgent =
+        superAgentIds.has(u.id) ||
+        (u.user_metadata as any)?.is_super_agent === true ||
+        (u.user_metadata as any)?.role === "super_agent";
+
+      if (isSuperAgent && !finalRoles.includes("super_agent")) {
+        finalRoles.push("super_agent");
       }
 
       usersMap.set(u.id, {
@@ -570,6 +646,9 @@ export const getAdminUsersList = createServerFn({ method: "GET" })
     for (const p of pRows) {
       if (!usersMap.has(p.id)) {
         const userRoles = rRows.filter((r) => r.user_id === p.id).map((r) => r.role);
+        if (superAgentIds.has(p.id) && !userRoles.includes("super_agent")) {
+          userRoles.push("super_agent");
+        }
         const userWallets = wRows.filter((w) => w.user_id === p.id);
         const htgBal = userWallets.find((w) => w.currency === "HTG")?.balance ?? 0;
         const topupBal = userWallets.find((w) => w.currency === "HTG_RECARGAS")?.balance ?? 0;

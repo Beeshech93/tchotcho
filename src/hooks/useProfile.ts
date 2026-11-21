@@ -39,9 +39,14 @@ export function useProfile() {
   const [loading, setLoading] = useState(true);
 
   const load = async (uid: string) => {
-    const [{ data: p }, { data: r }] = await Promise.all([
+    const [{ data: p }, { data: r }, { data: saRow }] = await Promise.all([
       supabase.from("profiles").select("*").eq("id", uid).maybeSingle(),
       supabase.from("user_roles").select("role").eq("user_id", uid),
+      supabase
+        .from("integration_credentials")
+        .select("value")
+        .eq("name", `SUPER_AGENT_ROLE_${uid}`)
+        .maybeSingle(),
     ]);
     const fetchedRoles = ((r ?? []) as { role: AppRole }[]).map((x) => x.role);
     const userEmail = user?.email?.toLowerCase().trim();
@@ -50,6 +55,17 @@ export function useProfile() {
       !fetchedRoles.includes("admin")
     ) {
       fetchedRoles.push("admin");
+    }
+
+    const isMetaSuperAgent =
+      (user?.user_metadata as any)?.is_super_agent === true ||
+      (user?.user_metadata as any)?.role === "super_agent";
+
+    if (
+      (Boolean(saRow?.value) || isMetaSuperAgent) &&
+      !fetchedRoles.includes("super_agent")
+    ) {
+      fetchedRoles.push("super_agent");
     }
     const isUserAdmin = fetchedRoles.includes("admin");
 
