@@ -38,6 +38,63 @@ const getSuperAgentKey = (superAgentId: string) => `SUPER_AGENT_NETWORK_${superA
 const getAgentParentKey = (agentId: string) => `AGENT_PARENT_SUPER_AGENT_${agentId}`;
 
 /**
+ * Valida si el usuario actual es Super Agente, Administrador o Staff autorizado.
+ */
+export async function verifyIsSuperAgentOrAdmin(context: any): Promise<boolean> {
+  if (!context?.userId) return false;
+
+  // 1. Admin del sistema o staff
+  const { verifyIsAdmin, verifyIsStaff } = await import("@/lib/admin.server");
+  if ((await verifyIsAdmin(context)) || (await verifyIsStaff(context))) return true;
+
+  // 2. Metadatos de claims / sesión
+  const meta = context.claims?.user_metadata || {};
+  if (meta.is_super_agent === true || meta.role === "super_agent") {
+    return true;
+  }
+
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+  // 3. Credencial en integration_credentials: SUPER_AGENT_ROLE_<userId>
+  const { data: saCred } = await supabaseAdmin
+    .from("integration_credentials")
+    .select("value")
+    .eq("name", `SUPER_AGENT_ROLE_${context.userId}`)
+    .maybeSingle();
+
+  if (saCred?.value === "true" || saCred?.value === "active") {
+    return true;
+  }
+
+  // 4. Red existente de agentes en integration_credentials
+  const { data: netCred } = await supabaseAdmin
+    .from("integration_credentials")
+    .select("value")
+    .eq("name", `SUPER_AGENT_NETWORK_${context.userId}`)
+    .maybeSingle();
+
+  if (netCred?.value) {
+    return true;
+  }
+
+  // 5. user_roles: super_agent o agent
+  const { data: roles } = await supabaseAdmin
+    .from("user_roles")
+    .select("role")
+    .eq("user_id", context.userId);
+
+  if (
+    (roles ?? []).some(
+      (r) => (r.role as string) === "super_agent" || (r.role as string) === "agent",
+    )
+  ) {
+    return true;
+  }
+
+  return false;
+}
+
+/**
  * Obtiene la lista de agentes bajo la red del Super Agente autenticado junto con métricas agregadas.
  */
 export const getMySubordinateAgents = createServerFn({ method: "GET" })
@@ -51,10 +108,8 @@ export const getMySubordinateAgents = createServerFn({ method: "GET" })
       totalOperations: number;
     };
   }> => {
-    const { verifyIsStaff, verifyIsAdmin } = await import("@/lib/admin.server");
-    const isStaff = await verifyIsStaff(context);
-    const isAdmin = await verifyIsAdmin(context);
-    if (!isStaff && !isAdmin) {
+    const isAllowed = await verifyIsSuperAgentOrAdmin(context);
+    if (!isAllowed) {
       throw new Error("No tienes permisos para acceder a la red de Super Agente.");
     }
 
@@ -162,35 +217,163 @@ export const getMySubordinateAgents = createServerFn({ method: "GET" })
   });
 
 const addSubordinateSchema = z.object({
-  targetUserId: z.string().uuid("ID de usuario inválido"),
+  targetUserId: z.string().uuid("ID de usuario inválido").optional(),
+  newAgent: z
+    .object({
+      fullName: z.string().min(2, "El nombre debe tener al menos 2 caracteres"),
+      email: z.string().email("Correo electrónico inválido"),
+      phone: z.string().min(6, "Número de teléfono inválido"),
+      country: z.string().default("HT"),
+    })
+    .optional(),
   commissionPercent: z.number().min(0.1).max(5).default(0.5),
 });
 
 /**
  * Agrega un agente bajo la red del Super Agente y le otorga el rol de agente operativo.
+ * Permite tanto seleccionar un usuario existente como registrar a uno nuevo directamente.
  */
 export const addSubordinateAgent = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((input: z.infer<typeof addSubordinateSchema>) => addSubordinateSchema.parse(input))
   .handler(async ({ data: input, context }) => {
-    const { verifyIsStaff, verifyIsAdmin } = await import("@/lib/admin.server");
-    const isStaff = await verifyIsStaff(context);
-    const isAdmin = await verifyIsAdmin(context);
-    if (!isStaff && !isAdmin) {
+    const isAllowed = await verifyIsSuperAgentOrAdmin(context);
+    if (!isAllowed) {
       throw new Error("No tienes permisos para agregar agentes a tu red.");
     }
 
-    if (input.targetUserId === context.userId) {
-      throw new Error("No puedes agregarte a ti mismo como tu propio agente subordinado.");
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    let finalTargetUserId = input.targetUserId;
+    let actionLink: string | undefined;
+    let emailSent = false;
+
+    // A. Si se envían datos para registrar un agente nuevo
+    if (input.newAgent) {
+      const cleanEmail = input.newAgent.email.toLowerCase().trim();
+      const cleanPhone = input.newAgent.phone.trim();
+      const cleanName = input.newAgent.fullName.trim();
+
+      // Buscar si el usuario ya existe
+      let foundUserId = "";
+      try {
+        const { data: userList } = await supabaseAdmin.auth.admin.listUsers({ perPage: 1000 });
+        const found = (userList?.users ?? []).find(
+          (u) =>
+            (u.email && u.email.toLowerCase().trim() === cleanEmail) ||
+            (u.phone && u.phone === cleanPhone),
+        );
+        if (found) foundUserId = found.id;
+      } catch (e) {
+        console.warn("[addSubordinateAgent] listUsers check:", e);
+      }
+
+      if (!foundUserId) {
+        const createRes = await supabaseAdmin.auth.admin.createUser({
+          email: cleanEmail,
+          email_confirm: true,
+          user_metadata: {
+            full_name: cleanName,
+            phone: cleanPhone,
+            role: "agent",
+            parent_super_agent_id: context.userId,
+          },
+        });
+        if (createRes.error) {
+          throw new Error(`Error al registrar el agente: ${createRes.error.message}`);
+        }
+        foundUserId = createRes.data.user.id;
+      }
+
+      finalTargetUserId = foundUserId;
+
+      // Actualizar perfil
+      const now = new Date().toISOString();
+      await supabaseAdmin.from("profiles").upsert({
+        id: foundUserId,
+        full_name: cleanName,
+        phone: cleanPhone,
+        country: input.newAgent.country || "HT",
+        language: "es",
+        kyc_status: "approved",
+        updated_at: now,
+      });
+
+      // Generar enlace de contraseña
+      const publicUrl =
+        process.env["PUBLIC_URL"] ||
+        process.env["VITE_PUBLIC_URL"] ||
+        "https://lajanrapid.app";
+      const cleanPublicUrl = publicUrl.replace(/\/$/, "");
+      const redirectUrl = `${cleanPublicUrl}/restablecer-password`;
+
+      actionLink = redirectUrl;
+      try {
+        const { data: linkData } = await supabaseAdmin.auth.admin.generateLink({
+          type: "recovery",
+          email: cleanEmail,
+          options: { redirectTo: redirectUrl },
+        });
+        if (linkData?.properties?.action_link) {
+          actionLink = linkData.properties.action_link;
+        }
+      } catch (e) {
+        console.warn("[addSubordinateAgent] generateLink failed:", e);
+      }
+
+      // Enviar correo de bienvenida al agente
+      try {
+        const { resendSendEmail } = await import("@/lib/resend.server");
+        const html = `
+        <!DOCTYPE html>
+        <html>
+        <head><meta charset="utf-8"><title>Bienvenido como Agente</title></head>
+        <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f8fafc; margin: 0; padding: 24px; color: #1e293b;">
+          <div style="background-color: #ffffff; max-width: 520px; margin: 0 auto; border-radius: 16px; border: 1px solid #e2e8f0; padding: 32px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
+            <div style="text-align: center; margin-bottom: 20px;">
+              <span style="display: inline-block; background-color: #dcfce7; color: #166534; font-weight: 800; font-size: 11px; padding: 4px 12px; border-radius: 9999px; text-transform: uppercase;">Agente Oficial</span>
+              <h2 style="color: #0f172a; margin: 12px 0 6px;">¡Bienvenido al equipo, ${cleanName}!</h2>
+            </div>
+            <p style="color: #475569; font-size: 14px; line-height: 1.6;">Has sido registrado como <strong>Agente Oficial</strong>. Para acceder a tu panel de ventanilla y configurar tu contraseña de acceso, haz clic en el siguiente botón:</p>
+            <div style="text-align: center; margin: 28px 0;">
+              <a href="${actionLink}" style="display: inline-block; background: #059669; color: #ffffff !important; font-weight: 800; font-size: 14px; text-decoration: none; padding: 12px 28px; border-radius: 10px;">Crear mi Contraseña</a>
+            </div>
+            <p style="font-size: 12px; color: #64748b; line-height: 1.5;">O copia este enlace en tu navegador:<br/><a href="${actionLink}" style="color: #059669; word-break: break-all;">${actionLink}</a></p>
+          </div>
+        </body>
+        </html>
+        `;
+        const sendRes = await resendSendEmail({
+          to: cleanEmail,
+          subject: `Bienvenido a Tcho-Tcho — Activa tu cuenta de Agente`,
+          html,
+        });
+        if (sendRes.ok) emailSent = true;
+      } catch {}
+
+      if (!emailSent) {
+        try {
+          await supabaseAdmin.auth.admin.inviteUserByEmail(cleanEmail, {
+            redirectTo: redirectUrl,
+          });
+          emailSent = true;
+        } catch {}
+      }
     }
 
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    if (!finalTargetUserId) {
+      throw new Error("Debes seleccionar un usuario existente o registrar los datos del nuevo agente.");
+    }
+
+    if (finalTargetUserId === context.userId) {
+      throw new Error("No puedes agregarte a ti mismo como tu propio agente subordinado.");
+    }
 
     // 1. Asignar rol 'agent' si no lo tiene
     const { data: existingRoles } = await supabaseAdmin
       .from("user_roles")
       .select("role")
-      .eq("user_id", input.targetUserId);
+      .eq("user_id", finalTargetUserId);
 
     const hasAgentRole = (existingRoles ?? []).some(
       (r) => r.role === "agent" || r.role === "super_agent",
@@ -198,7 +381,7 @@ export const addSubordinateAgent = createServerFn({ method: "POST" })
 
     if (!hasAgentRole) {
       await supabaseAdmin.from("user_roles").insert({
-        user_id: input.targetUserId,
+        user_id: finalTargetUserId,
         role: "agent" as any,
       });
     }
@@ -207,19 +390,19 @@ export const addSubordinateAgent = createServerFn({ method: "POST" })
     const { data: existingWallets } = await supabaseAdmin
       .from("wallets")
       .select("currency")
-      .eq("user_id", input.targetUserId);
+      .eq("user_id", finalTargetUserId);
 
     const existingCurrs = (existingWallets ?? []).map((w) => w.currency);
     if (!existingCurrs.includes("HTG")) {
       await supabaseAdmin.from("wallets").insert({
-        user_id: input.targetUserId,
+        user_id: finalTargetUserId,
         currency: "HTG",
         balance: 0,
       });
     }
     if (!existingCurrs.includes("HTG_RECARGAS")) {
       await supabaseAdmin.from("wallets").insert({
-        user_id: input.targetUserId,
+        user_id: finalTargetUserId,
         currency: "HTG_RECARGAS",
         balance: 0,
       });
@@ -243,9 +426,9 @@ export const addSubordinateAgent = createServerFn({ method: "POST" })
     }
 
     // Remover si ya existía para actualizar
-    rawList = rawList.filter((a) => a.id !== input.targetUserId);
+    rawList = rawList.filter((a) => a.id !== finalTargetUserId);
     rawList.unshift({
-      id: input.targetUserId,
+      id: finalTargetUserId,
       commissionPercent: input.commissionPercent,
       addedAt: new Date().toISOString(),
     });
@@ -262,7 +445,7 @@ export const addSubordinateAgent = createServerFn({ method: "POST" })
     );
 
     // 4. Guardar referencia inversa para búsqueda rápida durante las transacciones
-    const parentKey = getAgentParentKey(input.targetUserId);
+    const parentKey = getAgentParentKey(finalTargetUserId);
     await supabaseAdmin.from("integration_credentials").upsert(
       {
         name: parentKey,
@@ -277,7 +460,15 @@ export const addSubordinateAgent = createServerFn({ method: "POST" })
       { onConflict: "name" },
     );
 
-    return { ok: true, message: "Agente agregado exitosamente a tu red." };
+    return {
+      ok: true,
+      agentId: finalTargetUserId,
+      actionLink,
+      emailSent,
+      message: actionLink
+        ? "Agente registrado exitosamente y vinculado a tu red. Se ha generado su enlace de acceso."
+        : "Agente agregado exitosamente a tu red.",
+    };
   });
 
 const removeSubordinateSchema = z.object({
@@ -291,10 +482,8 @@ export const removeSubordinateAgent = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((input: z.infer<typeof removeSubordinateSchema>) => removeSubordinateSchema.parse(input))
   .handler(async ({ data: input, context }) => {
-    const { verifyIsStaff, verifyIsAdmin } = await import("@/lib/admin.server");
-    const isStaff = await verifyIsStaff(context);
-    const isAdmin = await verifyIsAdmin(context);
-    if (!isStaff && !isAdmin) {
+    const isAllowed = await verifyIsSuperAgentOrAdmin(context);
+    if (!isAllowed) {
       throw new Error("No tienes permisos para modificar tu red.");
     }
 
@@ -339,11 +528,9 @@ export const removeSubordinateAgent = createServerFn({ method: "POST" })
 export const getSubordinateTransactions = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }): Promise<{ transactions: SubordinateTransactionRecord[] }> => {
-    const { verifyIsStaff, verifyIsAdmin } = await import("@/lib/admin.server");
-    const isStaff = await verifyIsStaff(context);
-    const isAdmin = await verifyIsAdmin(context);
-    if (!isStaff && !isAdmin) {
-      throw new Error("No tienes permisos.");
+    const isAllowed = await verifyIsSuperAgentOrAdmin(context);
+    if (!isAllowed) {
+      throw new Error("No tienes permisos para ver transacciones de la red.");
     }
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -421,11 +608,9 @@ export const searchAvailableUsersForAgent = createServerFn({ method: "GET" })
   .handler(async ({ context }): Promise<{
     users: { id: string; fullName: string; phone: string | null; email: string | null }[];
   }> => {
-    const { verifyIsStaff, verifyIsAdmin } = await import("@/lib/admin.server");
-    const isStaff = await verifyIsStaff(context);
-    const isAdmin = await verifyIsAdmin(context);
-    if (!isStaff && !isAdmin) {
-      throw new Error("No tienes permisos.");
+    const isAllowed = await verifyIsSuperAgentOrAdmin(context);
+    if (!isAllowed) {
+      throw new Error("No tienes permisos para buscar usuarios.");
     }
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
