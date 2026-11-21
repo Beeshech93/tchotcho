@@ -16,6 +16,7 @@ import {
 import { AdminPermissionsModal } from "@/components/admin/AdminPermissionsModal";
 import { AgentBalanceModal } from "@/components/admin/AgentBalanceModal";
 import { AgentBalanceHistoryModal } from "@/components/admin/AgentBalanceHistoryModal";
+import { RegisterSuperAgentModal } from "@/components/admin/RegisterSuperAgentModal";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -444,6 +445,7 @@ function UsersPanel() {
   const [editingUser, setEditingUser] = useState<any>(null);
   const [balanceUser, setBalanceUser] = useState<any>(null);
   const [openGlobalHistory, setOpenGlobalHistory] = useState(false);
+  const [openRegisterSuperAgent, setOpenRegisterSuperAgent] = useState(false);
 
   const fetchAdminsMap = useServerFn(getAllAdminsPermissionsMap);
   const { data: adminsMap } = useQuery({
@@ -546,6 +548,14 @@ function UsersPanel() {
             </p>
           </div>
           <div className="flex items-center gap-2 flex-wrap">
+            <Button
+              size="sm"
+              className="gap-1.5 font-bold text-xs bg-indigo-600 hover:bg-indigo-700 text-white shadow-2xs rounded-xl"
+              onClick={() => setOpenRegisterSuperAgent(true)}
+            >
+              <Sparkles className="size-3.5 text-amber-300" />
+              Registrar Super Agente
+            </Button>
             <Button
               size="sm"
               variant="outline"
@@ -760,6 +770,15 @@ function UsersPanel() {
         <AgentBalanceHistoryModal
           isOpen={openGlobalHistory}
           onClose={() => setOpenGlobalHistory(false)}
+        />
+      )}
+
+      {/* Modal de Registro de Super Agente */}
+      {openRegisterSuperAgent && (
+        <RegisterSuperAgentModal
+          isOpen={openRegisterSuperAgent}
+          onClose={() => setOpenRegisterSuperAgent(false)}
+          onSuccess={() => refetchUsers()}
         />
       )}
 

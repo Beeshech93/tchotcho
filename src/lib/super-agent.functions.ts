@@ -464,3 +464,260 @@ export const searchAvailableUsersForAgent = createServerFn({ method: "GET" })
 
     return { users: available };
   });
+
+const registerSuperAgentSchema = z.object({
+  fullName: z.string().min(2, "El nombre debe tener al menos 2 caracteres").max(100),
+  email: z.string().email("Correo electrónico inválido"),
+  phone: z.string().min(6, "Número de teléfono inválido").max(25),
+  country: z.string().default("HT"),
+});
+
+export type RegisterSuperAgentInput = z.infer<typeof registerSuperAgentSchema>;
+
+/**
+ * Registra un nuevo Super Agente capturando nombre, email y celular,
+ * le asigna el rol y privilegios operativos, y le envía un correo para crear su contraseña.
+ */
+export const registerSuperAgent = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .validator((input: RegisterSuperAgentInput) => registerSuperAgentSchema.parse(input))
+  .handler(async ({ data: input, context }) => {
+    const { verifyIsAdmin, verifyIsStaff } = await import("@/lib/admin.server");
+    const isAdmin = await verifyIsAdmin(context);
+    const isStaff = await verifyIsStaff(context);
+    if (!isAdmin && !isStaff) {
+      throw new Error("No tienes permisos para registrar Super Agentes.");
+    }
+
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const cleanEmail = input.email.toLowerCase().trim();
+    const cleanPhone = input.phone.trim();
+    const cleanName = input.fullName.trim();
+
+    // 1. Verificar si el usuario ya existe en auth.users
+    let targetUserId = "";
+    try {
+      const { data: userList } = await supabaseAdmin.auth.admin.listUsers({ perPage: 1000 });
+      const found = (userList?.users ?? []).find(
+        (u) =>
+          (u.email && u.email.toLowerCase().trim() === cleanEmail) ||
+          (u.phone && u.phone === cleanPhone),
+      );
+      if (found) {
+        targetUserId = found.id;
+      }
+    } catch (e) {
+      console.warn("[registerSuperAgent] listUsers check failed:", e);
+    }
+
+    // 2. Si no existe, crearlo
+    if (!targetUserId) {
+      const createRes = await supabaseAdmin.auth.admin.createUser({
+        email: cleanEmail,
+        email_confirm: true,
+        user_metadata: {
+          full_name: cleanName,
+          phone: cleanPhone,
+          role: "super_agent",
+          is_super_agent: true,
+        },
+      });
+
+      if (createRes.error) {
+        throw new Error(`Error al crear usuario en el sistema: ${createRes.error.message}`);
+      }
+      targetUserId = createRes.data.user.id;
+    } else {
+      // Si ya existía, actualizar metadatos
+      await supabaseAdmin.auth.admin.updateUserById(targetUserId, {
+        user_metadata: {
+          full_name: cleanName,
+          phone: cleanPhone,
+          role: "super_agent",
+          is_super_agent: true,
+        },
+      });
+    }
+
+    const now = new Date().toISOString();
+
+    // 3. Asignar rol base 'agent' en user_roles para compatibilidad con PostgreSQL enum
+    await supabaseAdmin
+      .from("user_roles")
+      .delete()
+      .eq("user_id", targetUserId)
+      .eq("role", "admin" as any);
+
+    const { data: existingAgent } = await supabaseAdmin
+      .from("user_roles")
+      .select("id")
+      .eq("user_id", targetUserId)
+      .eq("role", "agent" as any)
+      .maybeSingle();
+
+    if (!existingAgent) {
+      await supabaseAdmin.from("user_roles").insert({
+        user_id: targetUserId,
+        role: "agent" as any,
+      });
+    }
+
+    // 4. Guardar rol de Super Agente en integration_credentials
+    await supabaseAdmin.from("integration_credentials").upsert(
+      {
+        name: `SUPER_AGENT_ROLE_${targetUserId}`,
+        value: "true",
+        updated_at: now,
+        updated_by: context.userId,
+      },
+      { onConflict: "name" },
+    );
+
+    // 5. Guardar/actualizar perfil en profiles
+    await supabaseAdmin.from("profiles").upsert({
+      id: targetUserId,
+      full_name: cleanName,
+      phone: cleanPhone,
+      country: input.country || "HT",
+      language: "es",
+      kyc_status: "approved",
+      updated_at: now,
+    });
+
+    // 6. Pre-crear billeteras operativas
+    for (const curr of ["HTG", "HTG_RECARGAS"]) {
+      const { data: w } = await supabaseAdmin
+        .from("wallets")
+        .select("id")
+        .eq("user_id", targetUserId)
+        .eq("currency", curr)
+        .maybeSingle();
+      if (!w) {
+        await supabaseAdmin.from("wallets").insert({
+          user_id: targetUserId,
+          currency: curr,
+          balance: 0,
+        });
+      }
+    }
+
+    // 7. Generar enlace de creación / restablecimiento de contraseña
+    const publicUrl =
+      process.env["PUBLIC_URL"] ||
+      process.env["VITE_PUBLIC_URL"] ||
+      "https://lajanrapid.app";
+    const cleanPublicUrl = publicUrl.replace(/\/$/, "");
+    const redirectUrl = `${cleanPublicUrl}/restablecer-password`;
+
+    let actionLink = redirectUrl;
+    try {
+      const { data: linkData } = await supabaseAdmin.auth.admin.generateLink({
+        type: "recovery",
+        email: cleanEmail,
+        options: {
+          redirectTo: redirectUrl,
+        },
+      });
+      if (linkData?.properties?.action_link) {
+        actionLink = linkData.properties.action_link;
+      }
+    } catch (e) {
+      console.warn("[registerSuperAgent] generateLink failed:", e);
+    }
+
+    // 8. Enviar correo electrónico mediante Resend con plantilla elegante
+    let emailSent = false;
+    let emailError = "";
+    try {
+      const { resendSendEmail } = await import("@/lib/resend.server");
+      const html = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Bienvenido como Super Agente</title>
+        <style>
+          body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f8fafc; margin: 0; padding: 24px; color: #1e293b; }
+          .card { background-color: #ffffff; max-width: 540px; margin: 0 auto; border-radius: 20px; border: 1px solid #e2e8f0; padding: 36px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05); }
+          .badge { display: inline-block; background-color: #e0e7ff; color: #4338ca; font-weight: 800; font-size: 11px; padding: 5px 14px; border-radius: 9999px; text-transform: uppercase; letter-spacing: 0.05em; }
+          h1 { color: #0f172a; font-size: 22px; font-weight: 900; margin: 16px 0 8px; }
+          p { color: #475569; font-size: 14px; line-height: 1.6; margin: 10px 0; }
+          .btn-container { text-align: center; margin: 32px 0; }
+          .btn { display: inline-block; background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%); color: #ffffff !important; font-weight: 800; font-size: 15px; text-decoration: none; padding: 14px 32px; border-radius: 14px; box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.3); }
+          .info-box { background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 14px; padding: 16px; margin: 20px 0; font-size: 13px; color: #334155; }
+          .footer { font-size: 12px; color: #94a3b8; text-align: center; margin-top: 28px; border-top: 1px solid #f1f5f9; padding-top: 20px; }
+        </style>
+      </head>
+      <body>
+        <div class="card">
+          <div style="text-align: center; margin-bottom: 20px;">
+            <span class="badge">⭐ Acceso de Super Agente</span>
+            <h1>¡Bienvenido, ${cleanName}!</h1>
+          </div>
+          <p>Has sido registrado como <strong>Super Agente</strong> en la plataforma. Tu cuenta ya está aprobada y lista para operar.</p>
+          <p>Para comenzar a utilizar tu panel y configurar tu contraseña de acceso segura, haz clic en el siguiente botón:</p>
+          
+          <div class="btn-container">
+            <a href="${actionLink}" class="btn">Crear mi Contraseña</a>
+          </div>
+
+          <div class="info-box">
+            <strong>Tus datos registrados:</strong><br>
+            • Correo: <strong>${cleanEmail}</strong><br>
+            • Celular: <strong>${cleanPhone}</strong>
+          </div>
+
+          <p style="font-size: 12px; color: #64748b; line-height: 1.5;">
+            Si el botón no abre automáticamente, copia y pega este enlace en tu navegador:<br>
+            <a href="${actionLink}" style="color: #4f46e5; word-break: break-all;">${actionLink}</a>
+          </p>
+
+          <div class="footer">
+            Tcho-Tcho / Lajan Rapid — Plataforma Oficial de Remesas y Recargas
+          </div>
+        </div>
+      </body>
+      </html>
+      `;
+
+      const sendRes = await resendSendEmail({
+        to: cleanEmail,
+        subject: `Bienvenido a Tcho-Tcho — Activa tu cuenta de Super Agente`,
+        html,
+      });
+
+      if (sendRes.ok) {
+        emailSent = true;
+      } else {
+        emailError = sendRes.error;
+      }
+    } catch (e: any) {
+      emailError = e?.message || "No se pudo contactar al servicio de correo";
+    }
+
+    // Fallback con invitación nativa de Supabase si Resend no envió
+    if (!emailSent) {
+      try {
+        await supabaseAdmin.auth.admin.inviteUserByEmail(cleanEmail, {
+          redirectTo: redirectUrl,
+        });
+        emailSent = true;
+      } catch (inviteErr) {
+        console.warn("[registerSuperAgent] Supabase invite fallback error:", inviteErr);
+      }
+    }
+
+    return {
+      ok: true,
+      userId: targetUserId,
+      email: cleanEmail,
+      actionLink,
+      emailSent,
+      emailError: emailSent ? undefined : emailError,
+      message: emailSent
+        ? "Super Agente registrado exitosamente. Se ha enviado el correo para configurar su contraseña."
+        : "Super Agente registrado. El correo no pudo enviarse automáticamente, pero puedes compartir el enlace de activación.",
+    };
+  });
