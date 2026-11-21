@@ -168,12 +168,12 @@ export function Landing() {
       />
 
       {/* TOP HEADER FIJO LUMINOSO Y ELEGANTE */}
-      <header className="fixed top-0 inset-x-0 z-50 w-full bg-[#DCFCE7]/95 backdrop-blur-2xl border-b border-emerald-300/80 shadow-xs transition-all">
+      <header className="fixed top-0 inset-x-0 z-50 w-full bg-[#A7F3D0]/95 backdrop-blur-2xl border-b border-emerald-400/80 shadow-xs transition-all">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-3.5 py-2.5 sm:px-8 sm:py-3.5">
           {/* Logo Tcho-Tcho Oficial */}
           <Link
             to="/"
-            className="group inline-flex items-center gap-2 sm:gap-3 rounded-full bg-white/95 px-2.5 sm:px-4 py-1.5 sm:py-2 shadow-xs border border-emerald-300 hover:border-emerald-500 hover:scale-105 active:scale-95 transition-all shrink-0"
+            className="group inline-flex items-center gap-2 sm:gap-3 rounded-full bg-white/95 px-2.5 sm:px-4 py-1.5 sm:py-2 shadow-xs border border-emerald-400/70 hover:border-emerald-600 hover:scale-105 active:scale-95 transition-all shrink-0"
             aria-label="Tcho-Tcho — Ir a Inicio"
           >
             <img
@@ -190,11 +190,11 @@ export function Landing() {
 
           {/* Acciones de cabecera: Idioma, Iniciar sesión y Crear cuenta */}
           <div className="flex items-center gap-1.5 sm:gap-4 shrink-0">
-            <LanguageSwitcher className="h-8 sm:h-9 rounded-full bg-white/95 border border-emerald-300 text-slate-800 hover:bg-white transition-all shadow-xs" />
+            <LanguageSwitcher className="h-8 sm:h-9 rounded-full bg-white/95 border border-emerald-400/70 text-slate-900 hover:bg-white transition-all shadow-xs" />
 
             <Link
               to="/auth"
-              className="hidden sm:inline-block text-xs sm:text-sm font-bold text-slate-800 hover:text-emerald-800 transition-colors px-2 py-1"
+              className="hidden sm:inline-block text-xs sm:text-sm font-extrabold text-emerald-950 hover:text-emerald-800 transition-colors px-2 py-1"
             >
               {t("landing.signin")}
             </Link>
