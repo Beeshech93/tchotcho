@@ -98,7 +98,7 @@ function credsFor(stored: Record<string, string>): Creds {
 
 export async function bazikWebhookSecret(): Promise<string | undefined> {
   const stored = await loadStoredCreds();
-  return pick(stored, "BAZIK_WEBHOOK_SECRET");
+  return pick(stored, "BAZIK_WEBHOOK_SECRET") ?? pick(stored, "BAZIK_SECRET_KEY");
 }
 
 // --- Autenticación --------------------------------------------------------
@@ -273,9 +273,12 @@ function splitName(fullName: string): { firstName: string; lastName: string } {
   return { firstName: trimmed.slice(0, idx), lastName: trimmed.slice(idx + 1) };
 }
 
-function bazikWebhookUrl(): string {
+export async function bazikWebhookUrl(): Promise<string> {
   const base = process.env["PUBLIC_URL"] || "https://tchotcho.app";
-  return `${base}/api/public/bazik/payout`;
+  const secret = await bazikWebhookSecret();
+  return secret
+    ? `${base}/api/public/bazik/payout?secret=${encodeURIComponent(secret)}`
+    : `${base}/api/public/bazik/payout`;
 }
 
 // Reconoce la forma real confirmada de la respuesta del payout
@@ -334,7 +337,7 @@ export async function bazikPayout(input: BazikPayoutInput): Promise<BazikResult>
     referenceId: input.reference,
     customerFirstName: firstName,
     customerLastName: lastName,
-    webhookUrl: bazikWebhookUrl(),
+    webhookUrl: await bazikWebhookUrl(),
   };
   if (input.recipientEmail) body["customerEmail"] = input.recipientEmail;
 

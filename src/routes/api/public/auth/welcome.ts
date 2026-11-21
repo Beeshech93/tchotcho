@@ -13,7 +13,9 @@ export const Route = createFileRoute("/api/public/auth/welcome")({
       POST: async ({ request }) => {
         const { verifyWelcomeWebhookSecret, resendSendEmail } = await import("@/lib/resend.server");
 
-        const secret = request.headers.get("x-webhook-secret");
+        const url = new URL(request.url);
+        const secret =
+          request.headers.get("x-webhook-secret") ?? url.searchParams.get("secret");
         const validSecret = await verifyWelcomeWebhookSecret(secret);
         if (!validSecret) {
           const { logAndAlertSecurityEvent } = await import("@/lib/security.server");

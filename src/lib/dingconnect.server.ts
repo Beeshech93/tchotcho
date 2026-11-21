@@ -415,9 +415,10 @@ export async function verifyDingWebhook(opts: {
   rawBody: string;
 }): Promise<{ ok: boolean; reason?: string }> {
   const stored = await loadDingCreds();
-  const rawSecret = pick(stored, "DINGCONNECT_WEBHOOK_SECRET");
+  const rawSecret =
+    pick(stored, "DINGCONNECT_WEBHOOK_SECRET") ?? pick(stored, "DINGCONNECT_API_KEY");
   const secret = sanitizeDingKey(rawSecret);
-  if (!secret) return { ok: false, reason: "Falta DINGCONNECT_WEBHOOK_SECRET" };
+  if (!secret) return { ok: false, reason: "Falta DINGCONNECT_WEBHOOK_SECRET o DINGCONNECT_API_KEY" };
 
   if (opts.sharedSecretHeader && timingSafeEqual(opts.sharedSecretHeader.trim(), secret)) {
     return { ok: true };
@@ -437,13 +438,17 @@ type TopupStatus = "processing" | "completed" | "failed";
 
 export function mapDingState(state: string): TopupStatus | null {
   switch (state.toLowerCase()) {
+    case "complete":
     case "completed":
     case "success":
     case "succeeded":
+    case "delivered":
       return "completed";
     case "processing":
     case "pending":
     case "inprogress":
+    case "in_progress":
+    case "submitted":
       return "processing";
     case "failed":
     case "error":
