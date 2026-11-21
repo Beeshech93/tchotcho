@@ -117,7 +117,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       <aside className="hidden w-64 shrink-0 flex-col justify-between bg-white border-r border-slate-200 p-3 text-slate-800 md:fixed md:inset-y-0 md:left-0 md:z-30 md:flex md:w-64 md:h-screen md:overflow-y-auto custom-scrollbar select-none shadow-xs">
         <div className="flex flex-col gap-2">
           {/* Organization Switcher Header con Logo Tcho-Tcho bien destacado */}
-          <div className="flex items-center justify-between gap-2 p-2 rounded-xl bg-white border border-slate-200/80 shadow-xs">
+          <div className="flex items-center justify-between gap-2 p-2 rounded-xl bg-[#F0FDF4] border border-emerald-200/80 shadow-xs">
             <Link to={isAgentOnly ? "/agente" : "/dashboard"} className="flex min-w-0 items-center gap-2">
               <img src={iconAsset} alt="Tcho-Tcho" className="size-7 object-contain shrink-0" />
               <img src={logoAsset} alt="Tcho-Tcho" className="h-5 w-auto object-contain shrink-0" />
@@ -255,7 +255,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         {/* Mobile Header - Fijo al tope en versión móvil */}
         <header className="fixed top-0 inset-x-0 z-40 flex items-center justify-between gap-1.5 sm:gap-2 border-b border-slate-200 bg-white/95 px-3 sm:px-4 py-2.5 sm:py-3 pt-[calc(0.75rem+env(safe-area-inset-top,0px))] backdrop-blur-xl md:hidden shadow-xs w-full max-w-full">
           <Link to={isAgentOnly ? "/agente" : "/dashboard"} className="flex min-w-0 items-center gap-1.5 sm:gap-2 shrink-0">
-            <span className="inline-flex items-center gap-1.5 sm:gap-2 rounded-xl bg-white px-2 py-1 shadow-xs border border-slate-200">
+            <span className="inline-flex items-center gap-1.5 sm:gap-2 rounded-xl bg-[#F0FDF4] px-2 py-1 shadow-xs border border-emerald-200/80">
               <img src={iconAsset} alt="Tcho-Tcho" className="size-5 sm:size-6 object-contain shrink-0" />
               <img src={logoAsset} alt="Tcho-Tcho" className="h-4 sm:h-5 w-auto object-contain shrink-0" />
             </span>
