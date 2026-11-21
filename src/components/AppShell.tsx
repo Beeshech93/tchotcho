@@ -114,7 +114,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   return (
     <div className="min-h-screen bg-[#F4F7F5] text-slate-900 md:flex selection:bg-[#DCFCE7] selection:text-[#15803D] w-full max-w-full overflow-x-hidden">
       {/* Desktop Sidebar matching SaaS Dashboard mockup - ajustado con paleta limpia y profesional */}
-      <aside className="hidden w-64 shrink-0 flex-col justify-between bg-white border-r border-slate-200 p-3 text-slate-800 md:sticky md:top-0 md:flex md:h-screen md:overflow-y-auto custom-scrollbar select-none shadow-xs">
+      <aside className="hidden w-64 shrink-0 flex-col justify-between bg-white border-r border-slate-200 p-3 text-slate-800 md:fixed md:inset-y-0 md:left-0 md:z-30 md:flex md:w-64 md:h-screen md:overflow-y-auto custom-scrollbar select-none shadow-xs">
         <div className="flex flex-col gap-2">
           {/* Organization Switcher Header con Logo Tcho-Tcho bien destacado */}
           <div className="flex items-center justify-between gap-2 p-2 rounded-xl bg-white border border-slate-200/80 shadow-xs">
@@ -251,7 +251,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         </div>
       </aside>
 
-      <div className="flex min-h-screen flex-1 flex-col min-w-0 w-full max-w-full overflow-x-hidden">
+      <div className="flex min-h-screen flex-1 flex-col min-w-0 w-full max-w-full overflow-x-hidden md:pl-64">
         {/* Mobile Header - Fijo al tope en versión móvil */}
         <header className="fixed top-0 inset-x-0 z-40 flex items-center justify-between gap-1.5 sm:gap-2 border-b border-slate-200 bg-white/95 px-3 sm:px-4 py-2.5 sm:py-3 pt-[calc(0.75rem+env(safe-area-inset-top,0px))] backdrop-blur-xl md:hidden shadow-xs w-full max-w-full">
           <Link to={isAgentOnly ? "/agente" : "/dashboard"} className="flex min-w-0 items-center gap-1.5 sm:gap-2 shrink-0">
