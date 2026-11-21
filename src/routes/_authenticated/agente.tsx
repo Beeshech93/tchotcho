@@ -606,14 +606,6 @@ function Agente() {
             <Smartphone className="size-4" />
             <span>Nueva Recarga</span>
           </Button>
-
-          <Button
-            onClick={() => setOpenClaimModal(true)}
-            className="gap-2 bg-slate-900 hover:bg-slate-800 text-white font-extrabold shadow-sm text-xs sm:text-sm whitespace-nowrap shrink-0 rounded-xl"
-          >
-            <Search className="size-4" />
-            <span>Cobrar con Referencia</span>
-          </Button>
         </div>
       </div>
 
