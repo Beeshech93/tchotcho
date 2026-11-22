@@ -20,7 +20,7 @@ export const bazikStatus = createServerFn({ method: "POST" })
   .handler(async ({ context }) => {
     await requireAdmin(context);
     const { bazikStatusInfo } = await import("@/lib/bazik.server");
-    return bazikStatusInfo(undefined, context.userId);
+    return bazikStatusInfo(context.supabase, context.userId);
   });
 
 /** Consulta el saldo de Bazik vía API o lee el último saldo disponible. */
@@ -29,7 +29,7 @@ export const bazikGetBalance = createServerFn({ method: "POST" })
   .handler(async ({ context }) => {
     await requireAdmin(context);
     const { bazikFetchBalance } = await import("@/lib/bazik.server");
-    return bazikFetchBalance();
+    return bazikFetchBalance(context.supabase);
   });
 
 /** Sincroniza el saldo de Bazik directamente en la billetera HTG del administrador. */
@@ -43,6 +43,7 @@ export const bazikSyncBalance = createServerFn({ method: "POST" })
     const { bazikSyncBalanceToAdmin } = await import("@/lib/bazik.server");
     return bazikSyncBalanceToAdmin({
       userId: context.userId,
+      client: context.supabase,
       ...(data?.manualBalance !== undefined ? { targetBalance: data.manualBalance } : {}),
     });
   });
@@ -53,7 +54,7 @@ export const bazikTestAuth = createServerFn({ method: "POST" })
   .handler(async ({ context }) => {
     await requireAdmin(context);
     const { bazikAuthenticate } = await import("@/lib/bazik.server");
-    return bazikAuthenticate(true);
+    return bazikAuthenticate(true, context.supabase);
   });
 
 /** Guarda manualmente las credenciales de Bazik (solo administradores). */

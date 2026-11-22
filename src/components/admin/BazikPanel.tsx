@@ -160,6 +160,51 @@ export function BazikPanel() {
         </CardHeader>
 
         <CardContent className="p-5 space-y-5">
+          {/* Alertas de Estado Informativas */}
+          {!info?.configured && (
+            <div className="rounded-xl border border-amber-300 bg-amber-50 p-3.5 text-xs text-amber-900 flex items-start gap-2.5">
+              <span className="text-base">⚠️</span>
+              <div className="space-y-1">
+                <p className="font-bold">Credenciales de Bazik aún no configuradas</p>
+                <p className="text-amber-800 text-[11px]">
+                  Para ver tu saldo real de Bazik en vivo y habilitar la sincronización automática vía API, ingresa tu <strong>User ID</strong> y <strong>Secret Key</strong> en el formulario <em>"Configurar Credenciales de Bazik"</em> más abajo y haz clic en <strong>Guardar credenciales</strong>.
+                </p>
+              </div>
+            </div>
+          )}
+
+          {info?.configured && !info?.authOk && (
+            <div className="rounded-xl border border-rose-300 bg-rose-50 p-3.5 text-xs text-rose-900 flex items-start gap-2.5">
+              <span className="text-base">❌</span>
+              <div className="space-y-1">
+                <p className="font-bold">Error de autenticación con Bazik</p>
+                <p className="text-rose-800 text-[11px]">
+                  {info.authError ?? "Bazik rechazó las credenciales. Verifica que el User ID y la Secret Key correspondan a tu cuenta activa en Bazik.io."}
+                </p>
+              </div>
+            </div>
+          )}
+
+          {info?.configured && info?.authOk && (
+            <div className="rounded-xl border border-emerald-300 bg-emerald-50 p-3.5 text-xs text-emerald-950 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2.5">
+              <div className="flex items-center gap-2">
+                <ShieldCheck className="size-4 text-emerald-600 shrink-0" />
+                <p className="font-bold text-emerald-900 text-xs">
+                  Conexión en vivo con Bazik activa y autenticada correctamente.
+                </p>
+              </div>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => syncMut.mutate(undefined)}
+                disabled={syncMut.isPending}
+                className="h-7 text-[11px] font-bold border-emerald-400 text-emerald-900 hover:bg-emerald-100"
+              >
+                {syncMut.isPending ? "Sincronizando..." : "Sincronizar con Billetera Admin"}
+              </Button>
+            </div>
+          )}
+
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {/* Balance en Bazik */}
             <div className="rounded-xl border border-emerald-200 bg-white p-4 shadow-2xs">
@@ -169,13 +214,17 @@ export function BazikPanel() {
               <p className="mt-1 text-2xl font-black text-emerald-700">
                 {currentBazikBalance !== null
                   ? `${currentBazikBalance.toLocaleString("en-US", { minimumFractionDigits: 2 })} HTG`
-                  : "Sin sincronizar"}
+                  : info?.configured
+                    ? "Consultando saldo..."
+                    : "Sin configurar"}
               </p>
               <p className="mt-1 text-[11px] text-slate-500 flex items-center gap-1">
                 <Clock className="size-3 text-slate-400" />
                 {info?.lastSyncedAt
                   ? `Último sync: ${new Date(info.lastSyncedAt).toLocaleString()}`
-                  : "Aún no sincronizado"}
+                  : info?.configured
+                    ? "En espera de sincronización"
+                    : "Requiere User ID y Secret Key"}
               </p>
             </div>
 

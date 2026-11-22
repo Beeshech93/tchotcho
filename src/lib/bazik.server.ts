@@ -42,6 +42,22 @@ export async function loadStoredCreds(client?: any): Promise<Record<string, stri
   try {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const sb = client ?? supabaseAdmin;
+    const out: Record<string, string> = {};
+
+    // 1. Intentar RPC con security definer
+    try {
+      const { data: rpcData, error: rpcErr } = await sb.rpc("get_integration_credentials", {
+        _names: [...BAZIK_CRED_NAMES],
+      });
+      if (!rpcErr && Array.isArray(rpcData) && rpcData.length > 0) {
+        for (const row of rpcData) if (row.value) out[row.name] = String(row.value).trim();
+        if (Object.keys(out).length > 0) return out;
+      }
+    } catch {
+      // RPC no disponible aún, continuar con consulta directa
+    }
+
+    // 2. Consulta directa
     const { data: initialData, error } = await sb
       .from("integration_credentials")
       .select("name, value")
@@ -54,7 +70,6 @@ export async function loadStoredCreds(client?: any): Promise<Record<string, stri
         .in("name", [...BAZIK_CRED_NAMES]);
       if (fallback.data && fallback.data.length > 0) data = fallback.data;
     }
-    const out: Record<string, string> = {};
     for (const row of data ?? []) if (row.value) out[row.name] = String(row.value).trim();
     return out;
   } catch (e) {
@@ -64,20 +79,47 @@ export async function loadStoredCreds(client?: any): Promise<Record<string, stri
 }
 
 // Solo se llama desde funciones que ya verificaron que el usuario es admin.
-export async function saveStoredCred(name: string, value: string, userId: string, _client?: any) {
+export async function saveStoredCred(name: string, value: string, userId: string, client?: any) {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const sb = client ?? supabaseAdmin;
+
+  // 1. Intentar RPC con security definer
+  try {
+    const { error: rpcErr } = await sb.rpc("set_integration_credential", {
+      _name: name,
+      _value: value || null,
+      _user_id: userId,
+    });
+    if (!rpcErr) return;
+  } catch {
+    // Continuar con fallback directo
+  }
+
+  // 2. Fallback con cliente autenticado o supabaseAdmin
   if (!value) {
-    const { error } = await supabaseAdmin.from("integration_credentials").delete().eq("name", name);
-    if (error) throw new Error(`Error borrando credencial ${name}: ${error.message}`);
+    const { error } = await sb.from("integration_credentials").delete().eq("name", name);
+    if (error && client) {
+      await supabaseAdmin.from("integration_credentials").delete().eq("name", name);
+    }
     return;
   }
-  const { error } = await supabaseAdmin
+  const { error } = await sb
     .from("integration_credentials")
     .upsert(
       { name, value, updated_at: new Date().toISOString(), updated_by: userId },
       { onConflict: "name" },
     );
-  if (error) throw new Error(`Error guardando credencial ${name}: ${error.message}`);
+  if (error && client) {
+    const fb = await supabaseAdmin
+      .from("integration_credentials")
+      .upsert(
+        { name, value, updated_at: new Date().toISOString(), updated_by: userId },
+        { onConflict: "name" },
+      );
+    if (fb.error) throw new Error(`Error guardando credencial ${name}: ${error.message}`);
+  } else if (error) {
+    throw new Error(`Error guardando credencial ${name}: ${error.message}`);
+  }
 }
 
 function pick(stored: Record<string, string>, name: BazikCredName): string | undefined {
@@ -139,8 +181,8 @@ function extractToken(payload: unknown): { token: string | null; expiresAt: numb
 }
 
 /** Obtiene (o reutiliza) el JWT de Bazik autenticando con userID + secretKey. */
-export async function bazikAuthenticate(forceRefresh = false): Promise<BazikAuthResult> {
-  const stored = await loadStoredCreds();
+export async function bazikAuthenticate(forceRefresh = false, client?: any): Promise<BazikAuthResult> {
+  const stored = await loadStoredCreds(client);
   const creds = credsFor(stored);
 
   if (!creds.userId || !creds.secretKey) {
@@ -206,18 +248,19 @@ function extractBalance(parsed: unknown): number | null {
   const wallet = (obj["wallet"] as Record<string, unknown> | undefined) ?? {};
 
   const candidates = [
+    obj["available"],
     obj["balance"],
     obj["available_balance"],
     obj["availableBalance"],
-    obj["available"],
     obj["amount"],
     obj["solde"],
     obj["gdes"],
+    data["available"],
     data["balance"],
     data["available_balance"],
     data["availableBalance"],
-    data["available"],
     data["amount"],
+    wallet["available"],
     wallet["balance"],
   ];
 
@@ -225,6 +268,25 @@ function extractBalance(parsed: unknown): number | null {
     if (typeof c === "number" && !isNaN(c)) return c;
     if (typeof c === "string" && !isNaN(Number(c)) && c.trim() !== "") return Number(c);
   }
+
+  // Si es un arreglo de billeteras (ej: [{ currency: "HTG", balance: 50000 }])
+  const wallets = Array.isArray(obj["wallets"])
+    ? (obj["wallets"] as unknown[])
+    : Array.isArray(data["wallets"])
+      ? (data["wallets"] as unknown[])
+      : null;
+
+  if (wallets) {
+    for (const w of wallets) {
+      if (typeof w === "object" && w) {
+        const item = w as Record<string, unknown>;
+        const b = item["available"] ?? item["balance"] ?? item["amount"];
+        if (typeof b === "number" && !isNaN(b)) return b;
+        if (typeof b === "string" && !isNaN(Number(b))) return Number(b);
+      }
+    }
+  }
+
   return null;
 }
 
@@ -235,8 +297,8 @@ export type BazikBalanceResult =
 /**
  * Consulta el saldo disponible en la cuenta de Bazik vía API o lee el último saldo sincronizado.
  */
-export async function bazikFetchBalance(): Promise<BazikBalanceResult> {
-  const stored = await loadStoredCreds();
+export async function bazikFetchBalance(client?: any): Promise<BazikBalanceResult> {
+  const stored = await loadStoredCreds(client);
   const creds = credsFor(stored);
 
   if (!creds.userId || !creds.secretKey) {
@@ -247,14 +309,16 @@ export async function bazikFetchBalance(): Promise<BazikBalanceResult> {
     return { ok: false, error: "Credenciales de Bazik no configuradas." };
   }
 
-  const auth = await bazikAuthenticate();
+  const auth = await bazikAuthenticate(false, client);
   if (auth.ok) {
     const candidatePaths = [
+      "/wallet/balance",
+      "/wallet",
+      "/wallets/balance",
+      "/wallets",
       "/balance",
       "/account/balance",
       "/user/balance",
-      "/wallet",
-      "/wallets",
       "/moncash/balance",
       "/me",
     ];
@@ -307,6 +371,7 @@ export async function bazikFetchBalance(): Promise<BazikBalanceResult> {
 export async function bazikSyncBalanceToAdmin(options: {
   userId: string;
   targetBalance?: number | undefined;
+  client?: any;
 }): Promise<{
   ok: boolean;
   syncedBalance: number;
@@ -316,6 +381,7 @@ export async function bazikSyncBalanceToAdmin(options: {
   message: string;
 }> {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const sb = options.client ?? supabaseAdmin;
 
   let balanceToSet: number;
   let source = "api";
@@ -324,7 +390,7 @@ export async function bazikSyncBalanceToAdmin(options: {
     balanceToSet = Math.max(0, Math.round(options.targetBalance * 100) / 100);
     source = "manual";
   } else {
-    const fetchRes = await bazikFetchBalance();
+    const fetchRes = await bazikFetchBalance(sb);
     if (!fetchRes.ok) {
       throw new Error(fetchRes.error);
     }
@@ -335,7 +401,7 @@ export async function bazikSyncBalanceToAdmin(options: {
   const targetUserId = options.userId;
 
   // 1. Obtener o crear billetera HTG del admin
-  const { data: existingWallet, error: fetchErr } = await supabaseAdmin
+  const { data: existingWallet, error: fetchErr } = await sb
     .from("wallets")
     .select("id, balance")
     .eq("user_id", targetUserId)
@@ -352,7 +418,7 @@ export async function bazikSyncBalanceToAdmin(options: {
   if (existingWallet) {
     previousBalance = Number(existingWallet.balance) || 0;
     walletId = existingWallet.id;
-    const { error: updErr } = await supabaseAdmin
+    const { error: updErr } = await sb
       .from("wallets")
       .update({
         balance: balanceToSet,
@@ -362,7 +428,7 @@ export async function bazikSyncBalanceToAdmin(options: {
 
     if (updErr) throw new Error(`Error actualizando saldo de billetera: ${updErr.message}`);
   } else {
-    const { data: newWallet, error: createError } = await supabaseAdmin
+    const { data: newWallet, error: createError } = await sb
       .from("wallets")
       .insert({
         user_id: targetUserId,
@@ -383,7 +449,7 @@ export async function bazikSyncBalanceToAdmin(options: {
 
   // 2. Registrar movimiento en wallet_transactions
   try {
-    await supabaseAdmin.from("wallet_transactions").insert({
+    await sb.from("wallet_transactions").insert({
       wallet_id: walletId,
       user_id: targetUserId,
       kind: difference >= 0 ? "admin_deposit" : "admin_deduct",
@@ -397,8 +463,8 @@ export async function bazikSyncBalanceToAdmin(options: {
 
   // 3. Guardar registro en integration_credentials
   try {
-    await saveStoredCred("BAZIK_LAST_SYNCED_BALANCE", String(balanceToSet), targetUserId);
-    await saveStoredCred("BAZIK_LAST_SYNCED_AT", new Date().toISOString(), targetUserId);
+    await saveStoredCred("BAZIK_LAST_SYNCED_BALANCE", String(balanceToSet), targetUserId, sb);
+    await saveStoredCred("BAZIK_LAST_SYNCED_AT", new Date().toISOString(), targetUserId, sb);
   } catch (credErr) {
     console.warn("[BazikSync] No se pudo guardar credencial:", credErr);
   }
@@ -418,7 +484,7 @@ export async function bazikSyncBalanceToAdmin(options: {
 export async function bazikStatusInfo(client?: any, userId?: string) {
   const stored = await loadStoredCreds(client);
   const creds = credsFor(stored);
-  const auth = await bazikAuthenticate();
+  const auth = await bazikAuthenticate(false, client);
 
   let adminWalletBalance = 0;
   if (userId) {
@@ -441,6 +507,19 @@ export async function bazikStatusInfo(client?: any, userId?: string) {
   const lastBalance = rawBalance && !isNaN(Number(rawBalance)) ? Number(rawBalance) : null;
   const lastSyncedAt = stored["BAZIK_LAST_SYNCED_AT"] || null;
 
+  // Si está autenticado, intentar consultar saldo en vivo
+  let liveBalance: number | null = null;
+  if (auth.ok) {
+    try {
+      const liveRes = await bazikFetchBalance(client);
+      if (liveRes.ok) {
+        liveBalance = liveRes.balance;
+      }
+    } catch {
+      // fallback to lastBalance
+    }
+  }
+
   return {
     baseUrl: creds.baseUrl,
     environment: creds.environment,
@@ -450,7 +529,7 @@ export async function bazikStatusInfo(client?: any, userId?: string) {
     hasWebhookSecret: Boolean(pick(stored, "BAZIK_WEBHOOK_SECRET")),
     authOk: auth.ok,
     authError: auth.ok ? undefined : auth.error,
-    balance: lastBalance,
+    balance: liveBalance ?? lastBalance,
     lastSyncedAt,
     adminWalletBalance,
   };
