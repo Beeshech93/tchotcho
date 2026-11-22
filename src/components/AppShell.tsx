@@ -210,10 +210,10 @@ export function AppShell({ children }: { children: ReactNode }) {
           </div>
         </div>
 
-        {/* Sidebar Footer compacto en Verde Oscuro */}
+        {/* Sidebar Footer compacto en Verde Esmeralda Luminoso */}
         <div className="shrink-0 space-y-1.5 border-t border-slate-200 pt-2.5 mt-2">
-          <div className="rounded-2xl bg-[#004D25] p-2.5 text-white shadow-md border border-[#003B1C] space-y-2">
-            <LanguageSwitcher className="w-full h-8 bg-[#00381B] text-white border-white/20 text-xs font-bold py-1 hover:bg-[#002B15] hover:text-white transition-all shadow-xs" />
+          <div className="rounded-2xl bg-gradient-to-b from-emerald-600 to-emerald-700 p-2.5 text-white shadow-md border-2 border-emerald-400/60 space-y-2">
+            <LanguageSwitcher className="w-full h-8 bg-emerald-800/80 text-white border-emerald-400/40 text-xs font-bold py-1 hover:bg-emerald-800 hover:text-white transition-all shadow-xs" />
             <div className="px-1 py-0.5">
               <div className="flex items-center justify-between gap-1.5">
                 <p className="truncate text-xs font-extrabold text-white">
@@ -225,14 +225,14 @@ export function AppShell({ children }: { children: ReactNode }) {
                   </span>
                 )}
               </div>
-              <p className="truncate text-[10px] font-medium text-emerald-200/90 mt-0.5">
+              <p className="truncate text-[10px] font-medium text-emerald-100 mt-0.5">
                 {profile?.phone || t("roles.super_admin")}
               </p>
             </div>
             <Button
               variant="ghost"
               size="sm"
-              className="w-full h-7 justify-start gap-2 text-xs font-bold text-rose-300 hover:bg-rose-500/20 hover:text-rose-100 py-1 transition-colors"
+              className="w-full h-7 justify-start gap-2 text-xs font-bold text-rose-200 hover:bg-rose-500/20 hover:text-white py-1 transition-colors"
               onClick={signOut}
             >
               <LogOut className="size-3.5" /> {t("nav.signout")}
