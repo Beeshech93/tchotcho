@@ -43,19 +43,13 @@ const getAgentParentKey = (agentId: string) => `AGENT_PARENT_SUPER_AGENT_${agent
 export async function verifyIsSuperAgentOrAdmin(context: any): Promise<boolean> {
   if (!context?.userId) return false;
 
-  // 1. Admin del sistema o staff
-  const { verifyIsAdmin, verifyIsStaff } = await import("@/lib/admin.server");
-  if ((await verifyIsAdmin(context)) || (await verifyIsStaff(context))) return true;
-
-  // 2. Metadatos de claims / sesión
-  const meta = context.claims?.user_metadata || {};
-  if (meta.is_super_agent === true || meta.role === "super_agent") {
-    return true;
-  }
+  // 1. Admin del sistema
+  const { verifyIsAdmin } = await import("@/lib/admin.server");
+  if (await verifyIsAdmin(context)) return true;
 
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-  // 3. Credencial en integration_credentials: SUPER_AGENT_ROLE_<userId>
+  // 2. Credencial en integration_credentials: SUPER_AGENT_ROLE_<userId>
   const { data: saCred } = await supabaseAdmin
     .from("integration_credentials")
     .select("value")
@@ -66,7 +60,7 @@ export async function verifyIsSuperAgentOrAdmin(context: any): Promise<boolean> 
     return true;
   }
 
-  // 4. Red existente de agentes en integration_credentials
+  // 3. Red existente de agentes en integration_credentials
   const { data: netCred } = await supabaseAdmin
     .from("integration_credentials")
     .select("value")
@@ -77,17 +71,13 @@ export async function verifyIsSuperAgentOrAdmin(context: any): Promise<boolean> 
     return true;
   }
 
-  // 5. user_roles: super_agent o agent
+  // 4. user_roles: super_agent verificado en BD
   const { data: roles } = await supabaseAdmin
     .from("user_roles")
     .select("role")
     .eq("user_id", context.userId);
 
-  if (
-    (roles ?? []).some(
-      (r) => (r.role as string) === "super_agent" || (r.role as string) === "agent",
-    )
-  ) {
+  if ((roles ?? []).some((r) => (r.role as string) === "super_agent")) {
     return true;
   }
 
@@ -667,10 +657,9 @@ export const registerSuperAgent = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((input: RegisterSuperAgentInput) => registerSuperAgentSchema.parse(input))
   .handler(async ({ data: input, context }) => {
-    const { verifyIsAdmin, verifyIsStaff } = await import("@/lib/admin.server");
+    const { verifyIsAdmin } = await import("@/lib/admin.server");
     const isAdmin = await verifyIsAdmin(context);
-    const isStaff = await verifyIsStaff(context);
-    if (!isAdmin && !isStaff) {
+    if (!isAdmin) {
       throw new Error("No tienes permisos para registrar Super Agentes.");
     }
 
@@ -930,8 +919,8 @@ export const superAgentTransferBalanceToSubordinate = createServerFn({ method: "
       throw new Error("No tienes permisos de Super Agente para transferir saldo.");
     }
 
-    const { verifyIsAdmin, verifyIsStaff } = await import("@/lib/admin.server");
-    const isAdmin = (await verifyIsAdmin(context)) || (await verifyIsStaff(context));
+    const { verifyIsAdmin } = await import("@/lib/admin.server");
+    const isAdmin = await verifyIsAdmin(context);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     // 1. Verificar pertenencia del agente a la red del Super Agente (a menos que sea admin global)

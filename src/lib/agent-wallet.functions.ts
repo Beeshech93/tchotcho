@@ -22,10 +22,9 @@ export const adminAdjustAgentBalance = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((input: AdjustAgentBalanceInput) => adjustAgentBalanceSchema.parse(input))
   .handler(async ({ data: input, context }) => {
-    const { verifyIsAdmin, verifyIsStaff } = await import("@/lib/admin.server");
+    const { verifyIsAdmin } = await import("@/lib/admin.server");
     const isAdmin = await verifyIsAdmin(context);
-    const isStaff = await verifyIsStaff(context);
-    if (!isAdmin && !isStaff) {
+    if (!isAdmin) {
       throw new Error("Solo administradores pueden adicionar saldo a los agentes.");
     }
 
@@ -210,12 +209,12 @@ export const getAgentBalanceHistory = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((input: { agentUserId?: string | undefined; limit?: number | undefined }) => input)
   .handler(async ({ data: input, context }): Promise<AgentBalanceHistoryItem[]> => {
-    const { verifyIsAdmin, verifyIsStaff } = await import("@/lib/admin.server");
+    const { verifyIsAdmin } = await import("@/lib/admin.server");
     const isAdmin = await verifyIsAdmin(context);
-    const isStaff = await verifyIsStaff(context);
-    const isSelf = Boolean(input.agentUserId && context.userId === input.agentUserId);
+    const targetUserId = input.agentUserId || (!isAdmin ? context.userId : undefined);
+    const isSelf = Boolean(targetUserId && context.userId === targetUserId);
 
-    if (!isAdmin && !isStaff && !isSelf) {
+    if (!isAdmin && !isSelf) {
       throw new Error("No autorizado para consultar el historial de saldos.");
     }
 
@@ -228,8 +227,8 @@ export const getAgentBalanceHistory = createServerFn({ method: "POST" })
       .order("created_at", { ascending: false })
       .limit(input.limit || 150);
 
-    if (input.agentUserId) {
-      query = query.eq("user_id", input.agentUserId);
+    if (targetUserId) {
+      query = query.eq("user_id", targetUserId);
     }
 
     const { data: txs, error } = await query;

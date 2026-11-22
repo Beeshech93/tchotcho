@@ -1889,8 +1889,8 @@ function Section({
                   {STATUS_LABEL[t.status as TransferStatus]}
                 </Badge>
 
-                {/* Botón de Acción Principal para el Agente */}
-                {!readOnly && action && (isMyAgentTransfer || isClaimView) && (
+                {/* Botón de Acción Principal para el Administrador */}
+                {!readOnly && action && isAdmin && (
                   <Button
                     size="sm"
                     className="gap-1.5 bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs shadow-sm rounded-xl"
@@ -1902,7 +1902,7 @@ function Section({
                 )}
 
                 {/* Cambio manual de etapa */}
-                {!readOnly && (isAdmin || isMyAgentTransfer) && (
+                {!readOnly && isAdmin && (
                   <Select
                     value={t.status}
                     onValueChange={(value) => void changeStage(t.id, value as TransferStatus)}

@@ -166,9 +166,9 @@ export const submitKycVerification = createServerFn({ method: "POST" })
 export const adminGetKycSubmissions = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const { verifyIsStaff } = await import("@/lib/admin.server");
-    const isStaff = await verifyIsStaff(context);
-    if (!isStaff) {
+    const { verifyIsAdmin } = await import("@/lib/admin.server");
+    const isAdmin = await verifyIsAdmin(context);
+    if (!isAdmin) {
       throw new Error("No tienes permisos para ver el panel de KYC.");
     }
 
@@ -222,9 +222,9 @@ export const adminGetKycDocumentUrls = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((input: z.infer<typeof getDocUrlsSchema>) => getDocUrlsSchema.parse(input))
   .handler(async ({ data, context }) => {
-    const { verifyIsStaff } = await import("@/lib/admin.server");
-    const isStaff = await verifyIsStaff(context);
-    if (!isStaff) {
+    const { verifyIsAdmin } = await import("@/lib/admin.server");
+    const isAdmin = await verifyIsAdmin(context);
+    if (!isAdmin) {
       throw new Error("No autorizado para ver documentos.");
     }
 
@@ -268,9 +268,9 @@ export const adminReviewKycSubmission = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((input: z.infer<typeof reviewKycSchema>) => reviewKycSchema.parse(input))
   .handler(async ({ data, context }) => {
-    const { verifyIsStaff } = await import("@/lib/admin.server");
-    const isStaff = await verifyIsStaff(context);
-    if (!isStaff) {
+    const { verifyIsAdmin } = await import("@/lib/admin.server");
+    const isAdmin = await verifyIsAdmin(context);
+    if (!isAdmin) {
       throw new Error("No autorizado para aprobar o rechazar solicitudes.");
     }
 

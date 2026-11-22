@@ -42,10 +42,9 @@ export const adminSetTransferStatus = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((input: z.infer<typeof adminSetStatusSchema>) => adminSetStatusSchema.parse(input))
   .handler(async ({ data, context }) => {
-    const { verifyIsAdmin, verifyIsStaff } = await import("@/lib/admin.server");
+    const { verifyIsAdmin } = await import("@/lib/admin.server");
     const isAdminData = await verifyIsAdmin(context);
-    const isStaffData = await verifyIsStaff(context);
-    if (!isAdminData && !isStaffData) throw new Error("No autorizado");
+    if (!isAdminData) throw new Error("Solo administradores pueden cambiar manualmente el estado de las transferencias.");
 
     const { data: t, error } = await context.supabase
       .from("transfers")
@@ -239,10 +238,9 @@ export const adminConfirmTransfer = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((input: z.infer<typeof adminConfirmSchema>) => adminConfirmSchema.parse(input))
   .handler(async ({ data, context }) => {
-    const { verifyIsAdmin, verifyIsStaff } = await import("@/lib/admin.server");
+    const { verifyIsAdmin } = await import("@/lib/admin.server");
     const isAdminData = await verifyIsAdmin(context);
-    const isStaffData = await verifyIsStaff(context);
-    if (!isAdminData && !isStaffData) throw new Error("No autorizado");
+    if (!isAdminData) throw new Error("Solo administradores pueden confirmar y procesar transferencias directamente.");
 
     const { data: t, error } = await context.supabase
       .from("transfers")

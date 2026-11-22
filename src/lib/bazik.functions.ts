@@ -8,10 +8,9 @@ const syncBalanceSchema = z.object({
 });
 
 async function requireAdmin(context: { supabase: unknown; userId: string }) {
-  const { verifyIsAdmin, verifyIsStaff } = await import("@/lib/admin.server");
+  const { verifyIsAdmin } = await import("@/lib/admin.server");
   const isAdmin = await verifyIsAdmin(context as any);
-  const isStaff = await verifyIsStaff(context as any);
-  if (!isAdmin && !isStaff) throw new Error("No autorizado");
+  if (!isAdmin) throw new Error("No autorizado");
 }
 
 /** Estado de configuración y autenticación del conector Bazik (solo administradores). */

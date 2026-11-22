@@ -246,9 +246,9 @@ export const setUserRoleAndPermissions = createServerFn({ method: "POST" })
       }
     }
 
-    const { verifyIsAdmin, verifyIsStaff } = await import("@/lib/admin.server");
-    const isStaffOrAdmin = (await verifyIsAdmin(context)) || (await verifyIsStaff(context));
-    if (!isStaffOrAdmin) {
+    const { verifyIsAdmin } = await import("@/lib/admin.server");
+    const isAdmin = await verifyIsAdmin(context);
+    if (!isAdmin) {
       throw new Error("No tienes permisos para gestionar roles de usuarios.");
     }
 
@@ -535,8 +535,8 @@ export interface AdminUserListItem {
 export const getAdminUsersList = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }): Promise<{ users: AdminUserListItem[] }> => {
-    const { verifyIsStaff } = await import("@/lib/admin.server");
-    if (!(await verifyIsStaff(context))) {
+    const { verifyIsAdmin } = await import("@/lib/admin.server");
+    if (!(await verifyIsAdmin(context))) {
       throw new Error("No autorizado");
     }
 
@@ -780,6 +780,10 @@ export const adminSetUserPassword = createServerFn({ method: "POST" })
     const isAdmin = await verifyIsAdmin(context);
     if (!isAdmin) {
       throw new Error("No autorizado para cambiar contraseñas de usuarios.");
+    }
+
+    if (isMasterSuperAdmin({ id: data.userId }) && !isMasterSuperAdmin({ id: context.userId })) {
+      throw new Error("No tienes permisos para modificar la contraseña del Super Administrador.");
     }
 
     if (!data.userId || !data.newPassword || data.newPassword.length < 8) {

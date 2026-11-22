@@ -14,9 +14,9 @@ export const payCryptoWithdrawal = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator(parseInput)
   .handler(async ({ data, context }) => {
-    const { verifyIsStaff } = await import("@/lib/admin.server");
-    const isStaff = await verifyIsStaff(context);
-    if (!isStaff) throw new Error("No autorizado");
+    const { verifyIsAdmin } = await import("@/lib/admin.server");
+    const isAdmin = await verifyIsAdmin(context);
+    if (!isAdmin) throw new Error("Solo administradores pueden autorizar pagos de retiros.");
 
     const { data: row, error } = await context.supabase
       .from("crypto_withdrawals")
