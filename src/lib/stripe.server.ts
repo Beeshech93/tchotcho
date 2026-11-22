@@ -404,6 +404,28 @@ export async function applyStripeEvent(event: StripeEvent) {
         });
 
         return { ok: true, transferId: transfer.id, status: "completed" };
+      } else {
+        await supabaseAdmin
+          .from("transfers")
+          .update({
+            status: "cancelled",
+            updated_at: new Date().toISOString(),
+          })
+          .eq("id", transfer.id);
+
+        await supabaseAdmin.from("transfer_events").insert({
+          transfer_id: transfer.id,
+          status: "cancelled",
+          message: `Envío rechazado por Bazik: ${payoutRes.error || "Operación rechazada."}`,
+        });
+
+        await supabaseAdmin.from("notifications").insert({
+          user_id: transfer.user_id,
+          title: `Pago rechazado · ${transfer.reference}`,
+          body: `Bazik no pudo completar el envío: ${payoutRes.error || "Operación rechazada."}`,
+        });
+
+        return { ok: false, transferId: transfer.id, status: "cancelled", reason: payoutRes.error };
       }
     } catch (autoErr) {
       console.warn("[Stripe] Auto-payout warning:", autoErr);

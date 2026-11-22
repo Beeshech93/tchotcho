@@ -183,9 +183,23 @@ export const finalizeTransferPayout = createServerFn({ method: "POST" })
       await supabaseAdmin
         .from("transfers")
         .update({
-          ...(result.retryable === false ? {} : { status: "paid" }),
+          status: "cancelled",
+          updated_at: new Date().toISOString(),
         })
         .eq("id", t.id);
+
+      await supabaseAdmin.from("transfer_events").insert({
+        transfer_id: t.id,
+        status: "cancelled",
+        message: `Envío rechazado por Bazik: ${result.error || "Operación rechazada."}`,
+      });
+
+      await supabaseAdmin.from("notifications").insert({
+        user_id: t.user_id,
+        title: `Pago rechazado · ${t.reference}`,
+        body: `Bazik no pudo completar el envío: ${result.error || "Operación rechazada."}`,
+      });
+
       throw new Error(result.error);
     }
 
@@ -273,6 +287,26 @@ export const adminConfirmTransfer = createServerFn({ method: "POST" })
       });
 
       if (!result.ok) {
+        await supabaseAdmin
+          .from("transfers")
+          .update({
+            status: "cancelled",
+            updated_at: new Date().toISOString(),
+          })
+          .eq("id", t.id);
+
+        await supabaseAdmin.from("transfer_events").insert({
+          transfer_id: t.id,
+          status: "cancelled",
+          message: `Envío rechazado por Bazik: ${result.error || "Operación rechazada."}`,
+        });
+
+        await supabaseAdmin.from("notifications").insert({
+          user_id: (t as any).user_id || context.userId,
+          title: `Pago rechazado · ${t.reference}`,
+          body: `Bazik no pudo completar el envío: ${result.error || "Operación rechazada."}`,
+        });
+
         throw new Error(result.error);
       }
 
@@ -625,6 +659,7 @@ export const agentCreateCashTransfer = createServerFn({ method: "POST" })
     if (data.deliveryMethod === "moncash" || data.deliveryMethod === "natcash") {
       let payoutSucceeded = false;
       let providerRef: string | undefined;
+      let payoutError: string | undefined;
 
       try {
         const { bazikPayout } = await import("@/lib/bazik.server");
@@ -641,14 +676,16 @@ export const agentCreateCashTransfer = createServerFn({ method: "POST" })
           payoutSucceeded = true;
           providerRef = payoutRes.providerReference;
         } else {
+          payoutError = payoutRes.error || "Bazik rechazó la operación.";
           console.warn("[agentCreateCashTransfer] Bazik payout no ok:", payoutRes.error);
         }
-      } catch (bazikErr) {
+      } catch (bazikErr: any) {
+        payoutError = bazikErr?.message || "Error al conectar con Bazik";
         console.error("Bazik auto-payout error:", bazikErr);
       }
 
-      // La entrega se completa AUTOMÁTICAMENTE (sin intervención manual) si Bazik confirmó o si es admin directo
-      if (payoutSucceeded || isAdminData) {
+      // La entrega se completa si y solo si Bazik confirmó exitosamente
+      if (payoutSucceeded) {
         await supabaseAdmin
           .from("transfers")
           .update({
@@ -660,9 +697,7 @@ export const agentCreateCashTransfer = createServerFn({ method: "POST" })
         await supabaseAdmin.from("transfer_events").insert({
           transfer_id: newTransfer.id,
           status: "completed",
-          message: payoutSucceeded
-            ? `¡Envío entregado automáticamente con éxito a ${data.recipientPhone} vía ${data.deliveryMethod.toUpperCase()}${providerRef ? ` (Ref Bazik: ${providerRef})` : ""}!`
-            : `Envío completado y entregado automáticamente al beneficiario vía ${data.deliveryMethod.toUpperCase()}.`,
+          message: `¡Envío entregado automáticamente con éxito a ${data.recipientPhone} vía ${data.deliveryMethod.toUpperCase()}${providerRef ? ` (Ref Bazik: ${providerRef})` : ""}!`,
         });
 
         await supabaseAdmin.from("notifications").insert({
@@ -670,6 +705,48 @@ export const agentCreateCashTransfer = createServerFn({ method: "POST" })
           title: `Envío completado · ${newTransfer.reference}`,
           body: `Tu transferencia de ${amountReceive.toLocaleString()} HTG a ${data.recipientName} ha sido entregada exitosamente.`,
         });
+      } else {
+        // CUANDO RECHAZA EN BAZIK, RECHAZAR EN LA PLATAFORMA TAMBIÉN
+        await supabaseAdmin
+          .from("transfers")
+          .update({
+            status: "cancelled",
+            updated_at: new Date().toISOString(),
+          })
+          .eq("id", newTransfer.id);
+
+        await supabaseAdmin.from("transfer_events").insert({
+          transfer_id: newTransfer.id,
+          status: "cancelled",
+          message: `Envío rechazado por Bazik (${data.deliveryMethod.toUpperCase()}): ${payoutError || "No se pudo procesar el pago."}`,
+        });
+
+        await supabaseAdmin.from("notifications").insert({
+          user_id: context.userId,
+          title: `Pago rechazado · ${newTransfer.reference}`,
+          body: `Bazik no pudo completar el envío a ${data.recipientPhone}: ${payoutError || "Operación rechazada por el proveedor."}`,
+        });
+
+        // Si fue procesado por un agente con saldo deducido, reembolsar su saldo
+        if (!isAdminData && agentWallet) {
+          const currentBal = Number(agentWallet.balance) || 0;
+          const refundBal = Math.round((currentBal + amountReceive) * 100) / 100;
+          await supabaseAdmin
+            .from("wallets")
+            .update({ balance: refundBal, updated_at: new Date().toISOString() })
+            .eq("id", agentWallet.id);
+
+          await supabaseAdmin.from("wallet_transactions").insert({
+            wallet_id: agentWallet.id,
+            user_id: context.userId,
+            kind: "agent_transfer_refund",
+            amount: amountReceive,
+            currency: agentWallet.currency,
+            description: `Reembolso por transferencia rechazada por Bazik (${newTransfer.reference})`,
+          });
+        }
+
+        throw new Error(`Bazik rechazó el envío: ${payoutError || "No se pudo procesar."}`);
       }
     } else if (isAdminData) {
       // Para cualquier otro método directo de admin, marcar de inmediato como completado
@@ -841,6 +918,32 @@ export const agentConfirmCashPayment = createServerFn({ method: "POST" })
           return {
             ok: true,
             message: `¡Pago recibido y envío entregado automáticamente con éxito a ${t.recipient_phone}!`,
+            transferId: t.id,
+          };
+        } else {
+          await supabaseAdmin
+            .from("transfers")
+            .update({
+              status: "cancelled",
+              updated_at: new Date().toISOString(),
+            })
+            .eq("id", t.id);
+
+          await supabaseAdmin.from("transfer_events").insert({
+            transfer_id: t.id,
+            status: "cancelled",
+            message: `Envío rechazado por Bazik: ${payoutRes.error || "Operación rechazada."}`,
+          });
+
+          await supabaseAdmin.from("notifications").insert({
+            user_id: t.user_id,
+            title: `Pago rechazado · ${t.reference}`,
+            body: `Bazik no pudo completar el envío: ${payoutRes.error || "Operación rechazada."}`,
+          });
+
+          return {
+            ok: false,
+            message: `Bazik rechazó el envío: ${payoutRes.error || "Operación rechazada."}`,
             transferId: t.id,
           };
         }
