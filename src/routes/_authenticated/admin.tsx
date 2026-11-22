@@ -716,7 +716,7 @@ function UsersPanel() {
                     )}
                     <span className="text-slate-800 font-bold">{p.phone || "sin teléfono"}</span>
                   </div>
-                  {isAgent && (
+                  {isAgent && !isAdmin && (
                     <div className="flex flex-wrap items-center gap-x-2 text-xs font-bold mt-1">
                       <span className="text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
                         Envíos: {p.balanceHTG.toLocaleString()} HTG
@@ -784,7 +784,7 @@ function UsersPanel() {
                   </Badge>
                 </div>
                 <div className="flex flex-wrap items-center gap-2">
-                  {isAgent && (
+                  {isAgent && !isAdmin && (
                     <>
                       {isSuperAgent || !p.parentSuperAgentName ? (
                         <Button

@@ -36,7 +36,7 @@ export const adminAdjustAgentBalance = createServerFn({ method: "POST" })
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-    // Las cuentas clientes no necesitan saldo operativo. Solo las cuentas de agentes pueden recibir saldo.
+    // Las cuentas de clientes y administradores no necesitan saldo operativo.
     const { data: roleRows } = await supabaseAdmin
       .from("user_roles")
       .select("role")
@@ -46,6 +46,13 @@ export const adminAdjustAgentBalance = createServerFn({ method: "POST" })
     if (!roleRows || roleRows.length === 0) {
       throw new Error(
         "Las cuentas clientes no necesitan saldo. Solo las cuentas de agentes pueden recibir asignación de saldo operativo.",
+      );
+    }
+
+    const targetIsAdmin = roleRows.some((r) => r.role === "admin");
+    if (targetIsAdmin) {
+      throw new Error(
+        "Los administradores no requieren saldo para operar. La opción de adicionar saldo solo está disponible para Super Agentes y agentes independientes.",
       );
     }
 
