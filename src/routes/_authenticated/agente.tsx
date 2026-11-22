@@ -41,6 +41,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useProfile } from "@/hooks/useProfile";
 import { useI18n } from "@/lib/i18n";
 import { useWallets } from "@/hooks/useWallet";
+import { bazikStatus } from "@/lib/bazik.functions";
 import {
   adminCancelTransfer,
   adminConfirmTransfer,
@@ -150,7 +151,18 @@ function Agente() {
     [wallets],
   );
 
-  const transfersBalance = Number(transfersWallet?.balance) || 0;
+  const getBazikStatus = useServerFn(bazikStatus);
+  const { data: bazikInfo } = useQuery({
+    queryKey: ["bazik_status"],
+    enabled: !!isAdmin,
+    queryFn: () => getBazikStatus(),
+    staleTime: 15_000,
+  });
+
+  const rawTransfersBalance = Number(transfersWallet?.balance) || 0;
+  const transfersBalance = isAdmin
+    ? Math.max(rawTransfersBalance, Number(bazikInfo?.adminWalletBalance || bazikInfo?.balance || 0))
+    : rawTransfersBalance;
   const topupsBalance = Number(topupsWallet?.balance) || 0;
 
   const transfersBalanceLabel = `${transfersBalance.toLocaleString()} HTG`;

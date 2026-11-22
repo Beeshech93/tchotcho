@@ -381,7 +381,7 @@ export async function bazikSyncBalanceToAdmin(options: {
   message: string;
 }> {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-  const sb = options.client ?? supabaseAdmin;
+  const sb = supabaseAdmin ?? options.client;
 
   let balanceToSet: number;
   let source = "api";
@@ -410,7 +410,7 @@ export async function bazikSyncBalanceToAdmin(options: {
 
   // 2. Intentar llamar al RPC de seguridad sync_admin_bazik_wallet (bypasses RLS)
   try {
-    const { error: rpcErr } = await sb.rpc("sync_admin_bazik_wallet", {
+    const { error: rpcErr } = await (sb as any).rpc("sync_admin_bazik_wallet", {
       _target_user_id: targetUserId,
       _balance: balanceToSet,
       _source: source,
@@ -506,7 +506,7 @@ export async function bazikStatusInfo(client?: any, userId?: string) {
   if (userId) {
     try {
       const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-      const sb = client ?? supabaseAdmin;
+      const sb = supabaseAdmin ?? client;
       const { data: w } = await sb
         .from("wallets")
         .select("balance")
@@ -543,6 +543,41 @@ export async function bazikStatusInfo(client?: any, userId?: string) {
   const effectiveLiveOrSynced = liveBalance ?? lastBalance;
   if (adminWalletBalance === 0 && effectiveLiveOrSynced !== null && effectiveLiveOrSynced > 0) {
     adminWalletBalance = effectiveLiveOrSynced;
+  }
+
+  // Auto-persistir en la tabla wallets usando supabaseAdmin para asegurar que
+  // useWallets() y todas las vistas del dashboard y agente lean el saldo inmediatamente
+  if (userId && effectiveLiveOrSynced !== null && effectiveLiveOrSynced > 0) {
+    try {
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      const sbAdmin = supabaseAdmin ?? client;
+      const { data: existing } = await sbAdmin
+        .from("wallets")
+        .select("id, balance")
+        .eq("user_id", userId)
+        .eq("currency", "HTG")
+        .maybeSingle();
+
+      if (existing) {
+        if (Number(existing.balance) !== effectiveLiveOrSynced) {
+          await sbAdmin
+            .from("wallets")
+            .update({ balance: effectiveLiveOrSynced, updated_at: new Date().toISOString() })
+            .eq("id", existing.id);
+        }
+      } else {
+        await sbAdmin
+          .from("wallets")
+          .insert({
+            user_id: userId,
+            currency: "HTG",
+            balance: effectiveLiveOrSynced,
+            status: "active",
+          });
+      }
+    } catch (persistErr) {
+      console.warn("[BazikStatus] Auto-sync admin wallet DB failed:", persistErr);
+    }
   }
 
   return {

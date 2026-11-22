@@ -36,11 +36,12 @@ function createSupabaseAdminClient() {
   const TARGET_URL = "https://yyvaeapmmvoklofydcpl.supabase.co";
 
   let SUPABASE_URL = process.env["SUPABASE_URL"] || process.env["VITE_SUPABASE_URL"];
+  const clean = (val?: string) => (val && val.trim() ? val.trim() : undefined);
   let SUPABASE_SERVICE_ROLE_KEY =
-    process.env["SUPABASE_SERVICE_ROLE_KEY"] ||
-    process.env["SUPABASE_SECRET_KEY"] ||
-    process.env["SUPABASE_PUBLISHABLE_KEY"] ||
-    process.env["VITE_SUPABASE_PUBLISHABLE_KEY"];
+    clean(process.env["SUPABASE_SERVICE_ROLE_KEY"]) ||
+    clean(process.env["SUPABASE_SECRET_KEY"]) ||
+    clean(process.env["SUPABASE_PUBLISHABLE_KEY"]) ||
+    clean(process.env["VITE_SUPABASE_PUBLISHABLE_KEY"]);
 
   if (!SUPABASE_URL || SUPABASE_URL.includes("pkximkpyguxehbjyaigt")) {
     SUPABASE_URL = TARGET_URL;
