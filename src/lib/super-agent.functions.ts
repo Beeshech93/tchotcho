@@ -860,7 +860,7 @@ export const registerSuperAgent = createServerFn({ method: "POST" })
           </p>
 
           <div class="footer">
-            Tcho-Tcho / Lajan Rapid — Plataforma Oficial de Remesas y Recargas
+            Tcho-Tcho — Plataforma Oficial de Remesas y Recargas
           </div>
         </div>
       </body>

@@ -84,6 +84,11 @@ export const PAYMENT_CATALOG: Record<string, Method> = {
     label: "Efectivo con agente",
     hint: "Solo pago en efectivo en ventanilla de agente",
   },
+  admin_direct: {
+    value: "admin_direct",
+    label: "Directa por Administrador",
+    hint: "Autorizado por Administrador",
+  },
 };
 
 // México procesa exclusivamente mediante Mercado Pago (tarjeta, SPEI, OXXO, saldo MP).
