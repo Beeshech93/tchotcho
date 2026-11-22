@@ -40,6 +40,19 @@ export const dingSendTopup = createServerFn({ method: "POST" })
     const isAdminUser = (await verifyIsAdmin(context)) || (await verifyIsStaff(context));
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
+    if (!isAdminUser) {
+      // Regla obligatoria: Todas las cuentas no-admin deben verificar su identidad antes de operar
+      const { data: callerProfile } = await supabaseAdmin
+        .from("profiles")
+        .select("kyc_status")
+        .eq("id", context.userId)
+        .maybeSingle();
+
+      if (callerProfile?.kyc_status !== "approved") {
+        throw new Error("Debes verificar tu identidad (KYC aprobado) antes de realizar recargas.");
+      }
+    }
+
     let topupRef = "TOP-" + Math.random().toString(36).substring(2, 10).toUpperCase();
     let topupRow: { id: string; reference: string; amount: number; currency: string } | null = null;
     let targetWallet: { id: string; balance: number; currency: string } | null = null;
@@ -210,6 +223,21 @@ export const dingCreateTopupCheckout = createServerFn({ method: "POST" })
     if (!validation.ok) throw new Error(validation.reason);
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { verifyIsAdmin, verifyIsStaff } = await import("@/lib/admin.server");
+    const isAdminUser = (await verifyIsAdmin(context)) || (await verifyIsStaff(context));
+
+    if (!isAdminUser) {
+      // Regla obligatoria: Todas las cuentas no-admin deben verificar su identidad antes de operar
+      const { data: callerProfile } = await supabaseAdmin
+        .from("profiles")
+        .select("kyc_status")
+        .eq("id", context.userId)
+        .maybeSingle();
+
+      if (callerProfile?.kyc_status !== "approved") {
+        throw new Error("Debes verificar tu identidad (KYC aprobado) antes de realizar recargas.");
+      }
+    }
 
     let topup: { id: string; reference: string; currency: string } | null = null;
     const { data: row, error } = await context.supabase.rpc("create_topup_pending", {
@@ -251,9 +279,6 @@ export const dingCreateTopupCheckout = createServerFn({ method: "POST" })
       }
       topup = directTopup;
     }
-
-    const { verifyIsAdmin, verifyIsStaff } = await import("@/lib/admin.server");
-    const isAdminUser = (await verifyIsAdmin(context)) || (await verifyIsStaff(context));
 
     if (data.paymentMethod === "direct") {
       if (!isAdminUser) {

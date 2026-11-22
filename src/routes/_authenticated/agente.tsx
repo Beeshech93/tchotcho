@@ -30,7 +30,9 @@ import {
   TrendingUp,
   Trash2,
   Percent,
+  Loader2,
 } from "lucide-react";
+import { KycRequiredGate } from "@/components/KycRequiredGate";
 import { AddSubordinateAgentModal } from "@/components/agent/AddSubordinateAgentModal";
 import { SuperAgentTransferModal } from "@/components/agent/SuperAgentTransferModal";
 import {
@@ -131,7 +133,7 @@ export const Route = createFileRoute("/_authenticated/agente")({
 });
 
 function Agente() {
-  const { user, profile, isAdmin, isSuperAgent } = useProfile();
+  const { user, profile, isAdmin, isSuperAgent, loading } = useProfile();
   const { t } = useI18n();
   const qc = useQueryClient();
   const confirmTransfer = useServerFn(adminConfirmTransfer);
@@ -558,6 +560,44 @@ function Agente() {
       : Object.entries(commissions)
           .map(([cur, val]) => money(val, cur))
           .join(" · ");
+
+  if (loading) {
+    return (
+      <div className="flex justify-center p-12">
+        <Loader2 className="size-6 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+
+  if (!isAdmin && profile?.kyc_status !== "approved") {
+    return (
+      <div className="mx-auto max-w-4xl space-y-5 p-4 sm:p-6">
+        <div className="flex items-center gap-2">
+          <Button
+            asChild
+            variant="ghost"
+            size="icon"
+            className="shrink-0"
+            aria-label="Volver al inicio"
+          >
+            <Link to="/dashboard">
+              <ArrowLeft className="size-5" />
+            </Link>
+          </Button>
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight text-foreground">
+              {t("agent.title")}
+            </h1>
+            <p className="text-sm text-muted-foreground">
+              {t("agent.subtitle")}
+            </p>
+          </div>
+        </div>
+
+        <KycRequiredGate operationName="operar como agente y realizar transacciones" />
+      </div>
+    );
+  }
 
   return (
     <div className="mx-auto max-w-5xl space-y-6">

@@ -142,7 +142,7 @@ export function Dashboard() {
                   ? "Tus documentos están siendo revisados por nuestro equipo. Te avisaremos en cuanto se aprueben."
                   : profile.kyc_status === "rejected"
                     ? "Tu documentación anterior fue rechazada. Por favor sube una identificación válida para operar."
-                    : "Por seguridad, las cuentas de clientes deben completar la verificación de identidad antes de poder realizar envíos o recargas."}
+                    : "Por normativas de seguridad, todas las cuentas (clientes, agentes y super agentes) deben completar la verificación de identidad antes de poder realizar operaciones."}
               </p>
             </div>
           </div>

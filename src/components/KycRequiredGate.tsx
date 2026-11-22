@@ -66,7 +66,7 @@ export function KycRequiredGate({
             ? `Tu solicitud de verificación fue recibida. Nuestro equipo está revisando tus documentos para habilitar tus permisos de ${operationName}.`
             : status === "rejected"
               ? `Tu documentación anterior no pudo ser validada. Por favor actualiza tus datos y sube documentos oficiales legibles para desbloquear tus operaciones.`
-              : `Por normativas de seguridad financiera y prevención de fraude, las cuentas de clientes deben verificar su identidad antes de poder ${operationName}.`}
+              : `Por normativas de seguridad financiera y prevención de fraude, todas las cuentas deben verificar su identidad antes de poder ${operationName}.`}
         </CardDescription>
       </CardHeader>
 

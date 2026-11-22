@@ -372,6 +372,21 @@ export const agentCreateCashTransfer = createServerFn({ method: "POST" })
     }
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    // Regla de verificación obligatoria: Todas las cuentas no-admin deben verificar identidad antes de operar
+    if (!isAdminData) {
+      const { data: callerProfile } = await supabaseAdmin
+        .from("profiles")
+        .select("kyc_status")
+        .eq("id", context.userId)
+        .maybeSingle();
+
+      if (callerProfile?.kyc_status !== "approved") {
+        throw new Error(
+          "Debes verificar tu identidad (KYC aprobado) antes de operar como agente o realizar transacciones.",
+        );
+      }
+    }
     const { FALLBACK_COUNTRIES, fallbackRate } = await import("@/hooks/useCorridors");
 
     // Validar país de origen y destino con respaldo garantizado
@@ -781,6 +796,21 @@ export const agentConfirmCashPayment = createServerFn({ method: "POST" })
     }
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    // Regla de verificación obligatoria: Agentes deben tener KYC aprobado antes de cobrar transacciones
+    if (!isAdminData) {
+      const { data: callerProfile } = await supabaseAdmin
+        .from("profiles")
+        .select("kyc_status")
+        .eq("id", context.userId)
+        .maybeSingle();
+
+      if (callerProfile?.kyc_status !== "approved") {
+        throw new Error(
+          "Debes verificar tu identidad (KYC aprobado) antes de poder cobrar pagos o transacciones.",
+        );
+      }
+    }
     const { data: t, error } = await supabaseAdmin
       .from("transfers")
       .select("*")

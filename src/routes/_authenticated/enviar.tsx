@@ -513,7 +513,7 @@ function Enviar() {
         disabled={
           saving ||
           !cfg ||
-          (!isAdmin && !isAgent && profile?.kyc_status !== "approved") ||
+          (!isAdmin && profile?.kyc_status !== "approved") ||
           !transfersEnabled ||
           (!isAdmin && isAgent && (transfersBalance <= 0 || q.receives > transfersBalance))
         }

@@ -715,7 +715,7 @@ function Recargas() {
                 !topupsEnabled ||
                 sendMut.isPending ||
                 !phoneCheck.ok ||
-                (!isAdmin && !isAgent && profile?.kyc_status !== "approved") ||
+                (!isAdmin && profile?.kyc_status !== "approved") ||
                 missingRate ||
                 !providerAmountValid ||
                 (isAgent && (topupBalance <= 0 || (receivedAmount != null && topupBalance < receivedAmount)))

@@ -295,7 +295,7 @@ export const addSubordinateAgent = createServerFn({ method: "POST" })
         phone: cleanPhone,
         country: input.newAgent.country || "HT",
         language: "es",
-        kyc_status: "approved",
+        kyc_status: "none",
         updated_at: now,
       });
 
@@ -766,7 +766,7 @@ export const registerSuperAgent = createServerFn({ method: "POST" })
       phone: cleanPhone,
       country: input.country || "HT",
       language: "es",
-      kyc_status: "approved",
+      kyc_status: "none",
       updated_at: now,
     });
 
@@ -936,6 +936,19 @@ export const superAgentTransferBalanceToSubordinate = createServerFn({ method: "
 
     // 1. Verificar pertenencia del agente a la red del Super Agente (a menos que sea admin global)
     if (!isAdmin) {
+      // Regla de verificación: Super Agentes deben verificar su identidad antes de operar
+      const { data: callerProfile } = await supabaseAdmin
+        .from("profiles")
+        .select("kyc_status")
+        .eq("id", context.userId)
+        .maybeSingle();
+
+      if (callerProfile?.kyc_status !== "approved") {
+        throw new Error(
+          "Debes verificar tu identidad (KYC aprobado) antes de poder transferir saldo a tus agentes.",
+        );
+      }
+
       const parentKey = getAgentParentKey(input.targetUserId);
       const { data: parentCred } = await supabaseAdmin
         .from("integration_credentials")
