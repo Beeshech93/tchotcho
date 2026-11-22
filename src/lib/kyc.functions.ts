@@ -57,7 +57,7 @@ export const submitKycVerification = createServerFn({ method: "POST" })
       .maybeSingle();
 
     if (profile?.kyc_status === "approved") {
-      throw new Error("Tu identidad ya ha sido verificada y aprobada.");
+      throw new Error("Tu cuenta ya está verificada. Las cuentas con identidad aprobada no pueden cambiar ni reemplazar las fotos de sus documentos.");
     }
 
     // Asegurar que el bucket kyc-documents exista

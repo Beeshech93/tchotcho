@@ -18,6 +18,7 @@ import {
   Volume2,
   RefreshCw,
   ImageIcon,
+  Lock,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useProfile } from "@/hooks/useProfile";
@@ -181,6 +182,10 @@ function Perfil() {
 
   const saveKyc = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (!isAdmin && profile?.kyc_status === "approved") {
+      toast.error("Tu cuenta ya está verificada. Las cuentas verificadas no pueden cambiar ni reemplazar las fotos de sus documentos.");
+      return;
+    }
     const form = new FormData(e.currentTarget);
     const parsed = kycSchema.safeParse({
       document_type: docType,
@@ -484,14 +489,40 @@ function Perfil() {
 
               {/* ESTADO: APROBADO */}
               {kyc === "approved" && (
-                <div className="rounded-xl border border-emerald-300 bg-emerald-50/70 p-4 space-y-2">
-                  <div className="flex items-center gap-2 text-emerald-800 font-bold text-sm">
-                    <CheckCircle2 className="size-5 text-emerald-600 shrink-0" />
-                    <span>Tu identidad está 100% verificada</span>
+                <div className="rounded-2xl border-2 border-emerald-400 bg-emerald-50/80 p-5 space-y-3.5 shadow-sm">
+                  <div className="flex items-center gap-2.5 text-emerald-950 font-black text-sm sm:text-base">
+                    <div className="grid size-8 place-items-center rounded-full bg-emerald-600 text-white shadow-2xs shrink-0">
+                      <CheckCircle2 className="size-5" />
+                    </div>
+                    <div>
+                      <h4 className="text-sm sm:text-base font-black text-emerald-950">
+                        Cuenta Verificada Oficialmente (KYC Aprobado)
+                      </h4>
+                      <p className="text-[11px] font-bold text-emerald-700">
+                        Documentos de identidad aprobados y asegurados
+                      </p>
+                    </div>
                   </div>
-                  <p className="text-xs text-emerald-950">
-                    {t("profile.kyc_approved_desc")} Puedes realizar envíos de dinero, recargas y transacciones sin ninguna restricción.
+                  <p className="text-xs text-emerald-900 leading-relaxed font-medium">
+                    {t("profile.kyc_approved_desc")} Tu identidad y documentos oficiales han sido validados exitosamente. Puedes realizar envíos de dinero, recargas y transacciones sin ninguna restricción.
                   </p>
+
+                  <div className="rounded-xl border-2 border-emerald-300/80 bg-white p-3.5 space-y-2.5 text-xs shadow-2xs">
+                    <div className="flex items-center justify-between text-slate-700">
+                      <span className="font-bold text-slate-500 uppercase tracking-wide text-[10px]">
+                        Documento Registrado
+                      </span>
+                      <span className="font-black text-emerald-900 bg-emerald-100/70 px-2.5 py-1 rounded-md border border-emerald-300 text-[11px]">
+                        {submission?.document_type ? submission.document_type.toUpperCase() : "Documento Oficial"} · {submission?.document_number || "Verificado"}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2 pt-2 border-t border-emerald-100 text-[11px] text-emerald-800 font-semibold">
+                      <Lock className="size-4 text-emerald-600 shrink-0" />
+                      <span>
+                        <strong>Documentos bloqueados y protegidos:</strong> Por seguridad y normativas bancarias, las cuentas verificadas no pueden cambiar ni reemplazar las fotos ni los datos de sus documentos de identidad.
+                      </span>
+                    </div>
+                  </div>
                 </div>
               )}
 
