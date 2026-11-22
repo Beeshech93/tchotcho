@@ -782,7 +782,48 @@ function toBazikResult(response: BazikRawResponse, path: string): BazikResult {
     };
   }
 
+  const raw = response.parsed as Record<string, unknown> | undefined;
   const { providerReference, status, fees, total } = normaliseBazikResult(response.parsed);
+
+  const rawSuccess = raw?.["success"];
+  const rawError = raw?.["error"];
+  const statusStr = String(status ?? "").toLowerCase().trim();
+
+  // Si el cuerpo JSON indica fallo explícito o error de la API
+  if (rawSuccess === false || rawError) {
+    const errorMsg =
+      typeof rawError === "string"
+        ? rawError
+        : typeof (rawError as any)?.["message"] === "string"
+          ? ((rawError as any)["message"] as string)
+          : raw?.["message"]
+            ? String(raw["message"])
+            : "Operación no efectiva en Bazik.";
+    console.warn(`Bazik ${path} transacción no efectiva en payload:`, errorMsg);
+    return {
+      ok: false,
+      error: `Bazik rechazó la operación: ${errorMsg}`,
+      status: "cancelled",
+      raw: response.parsed,
+    };
+  }
+
+  // Si el estado no es exitoso (ej. failed, rejected, cancelled, error, etc.)
+  if (
+    statusStr &&
+    !bazikStatusLooksSuccessful(statusStr) &&
+    !["pending", "processing", "in_progress", "queued", "submitted", "created"].includes(statusStr)
+  ) {
+    const errorDetail = raw?.["message"] ?? raw?.["detail"] ?? raw?.["reason"] ?? statusStr;
+    console.warn(`Bazik ${path} estado no efectivo:`, statusStr, errorDetail);
+    return {
+      ok: false,
+      error: `Bazik rechazó el envío (${statusStr}): ${errorDetail}`,
+      status: "cancelled",
+      raw: response.parsed,
+    };
+  }
+
   return {
     ok: true,
     ...(status ? { status } : {}),
@@ -801,12 +842,22 @@ export function bazikStatusLooksSuccessful(status?: string | null): boolean {
     .toLowerCase();
   if (!value) return false;
   return (
-    ["success", "succeeded", "completed", "paid", "approved", "confirmed", "sent"].includes(
-      value,
-    ) ||
+    [
+      "success",
+      "succeeded",
+      "completed",
+      "paid",
+      "approved",
+      "confirmed",
+      "sent",
+      "successful",
+      "delivered",
+      "executed",
+    ].includes(value) ||
     value.includes("success") ||
     value.includes("complete") ||
-    value.includes("paid")
+    value.includes("paid") ||
+    value.includes("deliver")
   );
 }
 
@@ -817,7 +868,7 @@ export function bazikWebhookState(
     .trim()
     .toLowerCase();
   if (!v) return null;
-  if (bazikStatusLooksSuccessful(value)) return "completed";
+  if (bazikStatusLooksSuccessful(v)) return "completed";
   if (
     ["pending", "processing", "in_progress", "queued", "submitted", "created"].includes(v) ||
     v.includes("process") ||
@@ -825,14 +876,8 @@ export function bazikWebhookState(
   ) {
     return "processing";
   }
-  if (
-    ["failed", "rejected", "cancelled", "canceled", "error", "declined"].includes(v) ||
-    v.includes("fail") ||
-    v.includes("cancel")
-  ) {
-    return "cancelled";
-  }
-  return null;
+  // Cualquier otro estado recibido de Bazik significa que NO fue efectivo y debe rechazarse
+  return "cancelled";
 }
 
 export function bazikExtractReference(payload: unknown): string | null {
@@ -872,7 +917,7 @@ export async function applyBazikResult(opts: {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const { data: transfer } = await supabaseAdmin
     .from("transfers")
-    .select("id, user_id, status, reference")
+    .select("id, user_id, status, reference, agent_id, amount_receive, delivery_method")
     .eq("reference", opts.reference)
     .maybeSingle();
 
@@ -884,7 +929,7 @@ export async function applyBazikResult(opts: {
 
   const { error } = await supabaseAdmin
     .from("transfers")
-    .update({ status: next })
+    .update({ status: next, updated_at: new Date().toISOString() })
     .eq("id", transfer.id);
 
   if (error) {
@@ -892,17 +937,59 @@ export async function applyBazikResult(opts: {
     return { ok: false, reason: error.message };
   }
 
+  const rejectionDetail = opts.detail ? `: ${opts.detail}` : "";
+
   await supabaseAdmin.from("transfer_events").insert({
     transfer_id: transfer.id,
     status: next,
-    message: `Bazik: ${BAZIK_STATUS_TEXT[next].title}`,
+    message:
+      next === "cancelled"
+        ? `Bazik: Pago rechazado (${opts.state})${rejectionDetail}`
+        : `Bazik: ${BAZIK_STATUS_TEXT[next].title}`,
   });
 
   await supabaseAdmin.from("notifications").insert({
     user_id: transfer.user_id,
     title: `${BAZIK_STATUS_TEXT[next].title} · ${transfer.reference}`,
-    body: BAZIK_STATUS_TEXT[next].body,
+    body:
+      next === "cancelled"
+        ? `Bazik rechazó la operación (${opts.state})${rejectionDetail}`
+        : BAZIK_STATUS_TEXT[next].body,
   });
+
+  // Si fue rechazado y tenía un agente asociado con deducción, reembolsar al agente
+  if (next === "cancelled" && transfer.agent_id) {
+    try {
+      const { data: agentWallet } = await supabaseAdmin
+        .from("wallets")
+        .select("id, balance, currency")
+        .eq("user_id", transfer.agent_id)
+        .eq("currency", "HTG")
+        .maybeSingle();
+
+      if (agentWallet) {
+        const refundAmount = Number(transfer.amount_receive) || 0;
+        if (refundAmount > 0) {
+          const newBal = Math.round((Number(agentWallet.balance || 0) + refundAmount) * 100) / 100;
+          await supabaseAdmin
+            .from("wallets")
+            .update({ balance: newBal, updated_at: new Date().toISOString() })
+            .eq("id", agentWallet.id);
+
+          await supabaseAdmin.from("wallet_transactions").insert({
+            wallet_id: agentWallet.id,
+            user_id: transfer.agent_id,
+            kind: "agent_transfer_refund",
+            amount: refundAmount,
+            currency: agentWallet.currency,
+            description: `Reembolso por transferencia rechazada por Bazik (${transfer.reference})`,
+          });
+        }
+      }
+    } catch (refErr) {
+      console.warn("Error reembolsando wallet agente en webhook Bazik:", refErr);
+    }
+  }
 
   return { ok: true, transferId: transfer.id, status: next };
 }

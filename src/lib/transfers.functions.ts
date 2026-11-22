@@ -263,17 +263,15 @@ export const adminConfirmTransfer = createServerFn({ method: "POST" })
       await supabaseAdmin.from("transfers").update({ agent_id: context.userId }).eq("id", t.id);
     }
 
-    // Si es MonCash/NatCash, llamar a Bazik (solo MonCash está soportado por su API).
-    if (
-      (t.delivery_method === "moncash" || t.delivery_method === "natcash") &&
-      t.status === "awaiting_payment"
-    ) {
-      const { data: claimed, error: claimError } = await supabaseAdmin.rpc("claim_bazik_payout", {
-        _transfer_id: t.id,
-        _from_status: "awaiting_payment",
-      });
-      if (claimError || !claimed) {
-        throw new Error("Este envío ya está siendo procesado o ya fue enviado a Bazik.");
+    // Si es MonCash/NatCash, llamar a Bazik obligatoriamente
+    if (t.delivery_method === "moncash" || t.delivery_method === "natcash") {
+      try {
+        await supabaseAdmin.rpc("claim_bazik_payout", {
+          _transfer_id: t.id,
+          _from_status: t.status,
+        });
+      } catch {
+        // Continuar con el intento directo
       }
 
       const { bazikPayout } = await import("@/lib/bazik.server");
@@ -298,16 +296,16 @@ export const adminConfirmTransfer = createServerFn({ method: "POST" })
         await supabaseAdmin.from("transfer_events").insert({
           transfer_id: t.id,
           status: "cancelled",
-          message: `Envío rechazado por Bazik: ${result.error || "Operación rechazada."}`,
+          message: `Envío rechazado por Bazik: ${result.error || "Operación no efectiva."}`,
         });
 
         await supabaseAdmin.from("notifications").insert({
           user_id: (t as any).user_id || context.userId,
           title: `Pago rechazado · ${t.reference}`,
-          body: `Bazik no pudo completar el envío: ${result.error || "Operación rechazada."}`,
+          body: `Bazik no pudo completar el envío: ${result.error || "Operación no efectiva."}`,
         });
 
-        throw new Error(result.error);
+        throw new Error(result.error || "Bazik rechazó la operación.");
       }
 
       await supabaseAdmin
@@ -337,7 +335,7 @@ export const adminConfirmTransfer = createServerFn({ method: "POST" })
       };
     }
 
-    // Si no es MonCash/NatCash o ya está en processing, marcar directo como completed
+    // Para cualquier otro método directo (ej: entrega de efectivo físico en ventanilla)
     await supabaseAdmin.from("transfers").update({ status: "completed" }).eq("id", t.id);
 
     return {

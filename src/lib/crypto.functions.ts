@@ -49,6 +49,12 @@ export const payCryptoWithdrawal = createServerFn({ method: "POST" })
     });
 
     if (!result.ok) {
+      await context.supabase.rpc("settle_crypto_withdrawal", {
+        _id: row.id,
+        _status: "rejected",
+        _notes: `Rechazado por Bazik: ${result.error || "Operación no efectiva"}`,
+        _provider_ref: row.reference,
+      });
       return { ok: false, error: result.error };
     }
 
