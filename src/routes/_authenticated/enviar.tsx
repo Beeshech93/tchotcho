@@ -173,6 +173,14 @@ function Enviar() {
 
     // Las cuentas de agente y administradores envían directamente sin pasar por pasarelas externas (Stripe, Mercado Pago)
     if (isAgent || isAdmin) {
+      if (isAgent && !isAdmin) {
+        if (transfersBalance <= 0 || transfersBalance < amountReceiveHtg) {
+          toast.error(
+            `Saldo insuficiente en tu billetera de agente (${transfersBalance.toLocaleString()} HTG). Esta operación requiere ${amountReceiveHtg.toLocaleString()} HTG. Como agente, no puedes realizar envíos sin saldo suficiente.`,
+          );
+          return;
+        }
+      }
       setSaving(true);
       try {
         const res = await createCashTransfer({
@@ -216,27 +224,13 @@ function Enviar() {
       rate: effectiveCfg.rate,
       note: parsed.data.note || null,
       status: "awaiting_payment",
-      origin_country: origin,
-      destination_country: destination,
     };
 
-    let { data, error } = await supabase
+    const { data, error } = await supabase
       .from("transfers")
       .insert(transferPayload)
       .select("id")
       .single();
-
-    if (error && (error.message.includes("schema cache") || error.message.includes("column"))) {
-      delete transferPayload["destination_country"];
-      delete transferPayload["origin_country"];
-      const retry = await supabase
-        .from("transfers")
-        .insert(transferPayload)
-        .select("id")
-        .single();
-      data = retry.data;
-      error = retry.error;
-    }
 
     setSaving(false);
     if (error || !data) {

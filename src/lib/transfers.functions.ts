@@ -475,6 +475,7 @@ export const agentCreateCashTransfer = createServerFn({ method: "POST" })
     }
 
     // REGLA AGENTES: Sin saldo en su Billetera de Envíos de Dinero no pueden enviar nada.
+    // Los administradores no requieren saldo.
     let agentWallet: { id: string; balance: number; currency: string } | null = null;
     if (!isAdminData) {
       const { data: w } = await supabaseAdmin
@@ -487,14 +488,14 @@ export const agentCreateCashTransfer = createServerFn({ method: "POST" })
       agentWallet = w;
       if (!agentWallet) {
         throw new Error(
-          "No tienes activa tu Billetera de Envíos de Dinero. Sin saldo operativo no puedes realizar transferencias. Contacta a un administrador para recargar tu cuenta.",
+          "No tienes activa tu Billetera de Envíos de Dinero. Como agente, no puedes realizar transferencias sin saldo operativo asignado por un administrador.",
         );
       }
 
       const currentBal = Number(agentWallet.balance) || 0;
       if (currentBal < amountReceive || currentBal <= 0) {
         throw new Error(
-          `Saldo insuficiente en tu Billetera de Envíos de Dinero. Tu saldo actual es de ${currentBal.toLocaleString()} HTG y esta operación requiere ${amountReceive.toLocaleString()} HTG. Sin saldo operativo no puedes realizar envíos.`,
+          `Saldo insuficiente en tu Billetera de Envíos de Dinero. Tu saldo actual es de ${currentBal.toLocaleString()} HTG y esta operación requiere ${amountReceive.toLocaleString()} HTG. Como agente, no puedes realizar transacciones sin saldo suficiente.`,
         );
       }
     }
@@ -522,8 +523,6 @@ export const agentCreateCashTransfer = createServerFn({ method: "POST" })
       amount_htg: dc.currency === "HTG" ? amountReceive : Math.round(data.amountSend * rate * 100) / 100,
       status: "processing", // Cobrado en ventanilla o transacción directa autorizada
       note: data.note ? data.note.trim() : null,
-      origin_country: data.originCountry,
-      destination_country: data.destinationCountry,
     };
 
     let { data: newTransfer, error: insertError } = await supabaseAdmin
@@ -531,18 +530,6 @@ export const agentCreateCashTransfer = createServerFn({ method: "POST" })
       .insert(insertPayload)
       .select("id, reference, status")
       .single();
-
-    if (insertError && (insertError.message.includes("schema cache") || insertError.message.includes("column"))) {
-      delete insertPayload["destination_country"];
-      delete insertPayload["origin_country"];
-      const retry = await supabaseAdmin
-        .from("transfers")
-        .insert(insertPayload)
-        .select("id, reference, status")
-        .single();
-      newTransfer = retry.data;
-      insertError = retry.error;
-    }
 
     if (insertError || !newTransfer) {
       throw new Error(insertError?.message || "No se pudo registrar la transferencia.");
@@ -831,7 +818,7 @@ export const agentConfirmCashPayment = createServerFn({ method: "POST" })
       const required = Number(t.amount_receive);
       if (currentBal < required || currentBal <= 0) {
         throw new Error(
-          `Saldo insuficiente en tu Billetera de Envíos de Dinero (${currentBal.toLocaleString()} HTG). Para procesar esta entrega requieres ${required.toLocaleString()} HTG.`,
+          `Saldo insuficiente en tu Billetera de Envíos de Dinero (${currentBal.toLocaleString()} HTG). Para procesar esta entrega requieres ${required.toLocaleString()} HTG. Como agente, no puedes realizar transacciones sin saldo suficiente. Contacta a un administrador para recargar tu cuenta.`,
         );
       }
     }

@@ -82,7 +82,9 @@ export function Dashboard() {
 
   const totalHtg = walletHtg;
 
-  const formattedBalance = `HTG ${totalHtg.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  const formattedBalance = isAdmin
+    ? "Ilimitado (Admin)"
+    : `HTG ${totalHtg.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
   const displayName = profile?.full_name?.split(" ")[0] || "Usuario";
 
@@ -177,14 +179,14 @@ export function Dashboard() {
           </div>
 
           <div className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 border border-emerald-200 px-3.5 py-1.5 text-xs font-bold text-[#15803D] shadow-xs">
-            <span>🇭🇹 {t("dash.htg_wallet")}</span>
+            <span>{isAdmin ? "👑 Administrador (Sin límite de saldo)" : `🇭🇹 ${t("dash.htg_wallet")}`}</span>
           </div>
         </div>
 
         {/* Saldo Central Grande 100% en HTG */}
         <div className="space-y-1 relative z-10">
           <p className="text-xs font-bold uppercase tracking-wider text-slate-500">
-            {t("dash.available_balance_htg")}
+            {isAdmin ? "Saldo Operativo Administrador" : t("dash.available_balance_htg")}
           </p>
           <div className="flex items-center gap-3">
             <span className="text-4xl sm:text-5xl font-black tracking-tight text-[#15803D]">

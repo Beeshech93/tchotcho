@@ -373,7 +373,7 @@ function Recargas() {
         (topupBalance <= 0 || (receivedAmount != null && topupBalance < receivedAmount))
       ) {
         throw new Error(
-          `Saldo insuficiente en tu Billetera de Recargas (${topupBalance.toLocaleString()} HTG). Requieres ${receivedAmount?.toLocaleString()} HTG. Sin saldo no puedes realizar envíos.`,
+          `Saldo insuficiente en tu Billetera de Recargas (${topupBalance.toLocaleString()} HTG). Requieres ${receivedAmount?.toLocaleString()} HTG. Como agente, no puedes realizar transacciones sin saldo suficiente. Contacta a un administrador para recargar tu cuenta.`,
         );
       }
 

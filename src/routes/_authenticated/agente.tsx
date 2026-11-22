@@ -155,8 +155,12 @@ function Agente() {
   const transfersBalance = rawTransfersBalance;
   const topupsBalance = Number(topupsWallet?.balance) || 0;
 
-  const transfersBalanceLabel = `${transfersBalance.toLocaleString()} HTG`;
-  const topupsBalanceLabel = `${topupsBalance.toLocaleString()} HTG`;
+  const transfersBalanceLabel = isAdmin
+    ? "Ilimitado (Admin)"
+    : `${transfersBalance.toLocaleString()} HTG`;
+  const topupsBalanceLabel = isAdmin
+    ? "Ilimitado (Admin)"
+    : `${topupsBalance.toLocaleString()} HTG`;
 
   // Estados de control para modales
   const [openNewCashModal, setOpenNewCashModal] = useState(false);
@@ -602,7 +606,15 @@ function Agente() {
           )}
 
           <Button
-            onClick={() => setOpenNewCashModal(true)}
+            onClick={() => {
+              if (!isAdmin && transfersBalance <= 0) {
+                toast.error(
+                  "No tienes saldo operativo disponible. Como agente, no puedes realizar transferencias sin saldo suficiente. Contacta a un administrador para recargar tu cuenta.",
+                );
+                return;
+              }
+              setOpenNewCashModal(true);
+            }}
             className="gap-2 bg-emerald-700 hover:bg-emerald-800 text-white font-extrabold shadow-sm text-xs sm:text-sm whitespace-nowrap shrink-0 rounded-xl"
           >
             <PlusCircle className="size-4" />
@@ -610,7 +622,15 @@ function Agente() {
           </Button>
 
           <Button
-            onClick={() => setOpenTopupModal(true)}
+            onClick={() => {
+              if (!isAdmin && topupsBalance <= 0) {
+                toast.error(
+                  "No tienes saldo operativo disponible para recargas. Como agente, no puedes realizar recargas sin saldo suficiente. Contacta a un administrador para recargar tu cuenta.",
+                );
+                return;
+              }
+              setOpenTopupModal(true);
+            }}
             className="gap-2 bg-sky-700 hover:bg-sky-800 text-white font-extrabold shadow-sm text-xs sm:text-sm whitespace-nowrap shrink-0 rounded-xl"
           >
             <Smartphone className="size-4" />
@@ -679,14 +699,14 @@ function Agente() {
           label={t("agent.wallet_transfers")}
           value={transfersBalanceLabel}
           tone="text-emerald-800 font-black"
-          hint="Saldo para remesas MonCash y NatCash"
+          hint={isAdmin ? "Los administradores no requieren saldo" : "Saldo asignado para remesas MonCash/NatCash"}
         />
         <StatCard
           icon={Smartphone}
           label={t("agent.wallet_topups")}
           value={topupsBalanceLabel}
           tone="text-cyan-800 font-black"
-          hint="Saldo para recargas telefónicas Haití"
+          hint={isAdmin ? "Los administradores no requieren saldo" : "Saldo asignado para recargas telefónicas"}
         />
         <StatCard
           icon={Banknote}
@@ -1765,7 +1785,7 @@ function Section({
                   <span className="font-mono font-bold text-slate-800">{t.reference}</span>
                   <span>·</span>
                   <span className="font-semibold text-slate-700">
-                    {t.origin_country} → {t.destination_country}
+                    {(t as any).origin_country || t.send_currency || "MX"} → {(t as any).destination_country || t.receive_currency || "HT"}
                   </span>
                   <span>·</span>
                   <span>Entrega: {t.delivery_method}</span>

@@ -22,7 +22,7 @@ export const dingListProducts = createServerFn({ method: "POST" })
     }
   });
 
-/** Envía una recarga de saldo móvil descontando el monto de la billetera. */
+/** Envía una recarga de saldo móvil descontando el monto de la billetera (los administradores están exentos de saldo). */
 export const dingSendTopup = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((input: DingTopupInput) => parseDingTopupInput(input))
@@ -36,43 +36,135 @@ export const dingSendTopup = createServerFn({ method: "POST" })
     });
     if (!validation.ok) throw new Error(validation.reason);
 
-    const { data: topup, error } = await context.supabase.rpc("create_topup", {
-      _wallet_id: data.walletId,
-      _sku_code: data.skuCode,
-      _operator: data.operator ?? "",
-      _country_code: data.countryCode ?? "",
-      _phone: data.phone,
-      _amount: data.amount,
-      _topup_amount: data.topupAmount ?? null,
-      _topup_currency: data.topupCurrency ?? null,
-    });
-    if (error || !topup) throw new Error(error?.message ?? "No se pudo crear la recarga");
+    const { verifyIsAdmin, verifyIsStaff } = await import("@/lib/admin.server");
+    const isAdminUser = (await verifyIsAdmin(context)) || (await verifyIsStaff(context));
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-    const row = topup as unknown as {
-      id: string;
-      reference: string;
-      amount: number;
-      currency: string;
+    let topupRef = "TOP-" + Math.random().toString(36).substring(2, 10).toUpperCase();
+    let topupRow: { id: string; reference: string; amount: number; currency: string } | null = null;
+    let targetWallet: { id: string; balance: number; currency: string } | null = null;
+    const requiredAmount = data.topupAmount ?? data.amount;
+
+    if (!isAdminUser) {
+      // Regla de Agentes: Obligatorio tener saldo operativo y disminuye por transacción
+      const { data: w } = await supabaseAdmin
+        .from("wallets")
+        .select("id, balance, currency")
+        .eq("user_id", context.userId)
+        .order("created_at", { ascending: true })
+        .limit(1)
+        .maybeSingle();
+
+      targetWallet = w;
+      const currentBal = Number(targetWallet?.balance) || 0;
+      if (!targetWallet || currentBal < requiredAmount || currentBal <= 0) {
+        throw new Error(
+          `Saldo insuficiente en tu billetera (${currentBal.toLocaleString()} HTG). Como agente, no puedes realizar transacciones sin saldo suficiente. Contacta a un administrador para recargar tu cuenta.`,
+        );
+      }
+
+      // Descontar saldo
+      const nextBal = Math.round((currentBal - requiredAmount) * 100) / 100;
+      await supabaseAdmin
+        .from("wallets")
+        .update({ balance: nextBal, updated_at: new Date().toISOString() })
+        .eq("id", targetWallet.id);
+
+      await supabaseAdmin.from("wallet_transactions").insert({
+        wallet_id: targetWallet.id,
+        user_id: context.userId,
+        kind: "agent_topup_out",
+        amount: -requiredAmount,
+        currency: targetWallet.currency,
+        description: `Recarga móvil ${data.operator ?? ""} a ${data.phone}`,
+      });
+    }
+
+    // Registrar registro de topup
+    const { data: directTopup, error: insertError } = await supabaseAdmin
+      .from("topups")
+      .insert({
+        user_id: context.userId,
+        wallet_id: targetWallet?.id ?? null,
+        sku_code: data.skuCode,
+        operator: data.operator ?? "",
+        country_code: data.countryCode ?? "",
+        phone: data.phone,
+        amount: data.amount,
+        currency: data.topupCurrency || "HTG",
+        pay_amount: data.topupAmount ?? data.amount,
+        pay_currency: data.topupCurrency || "HTG",
+        status: "pending",
+        reference: topupRef,
+      })
+      .select("id, reference, amount, currency")
+      .single();
+
+    if (insertError || !directTopup) {
+      // Revertir si hubo descuento
+      if (targetWallet && !isAdminUser) {
+        const { data: freshW } = await supabaseAdmin
+          .from("wallets")
+          .select("balance")
+          .eq("id", targetWallet.id)
+          .single();
+        const cur = Number(freshW?.balance) || 0;
+        await supabaseAdmin
+          .from("wallets")
+          .update({ balance: cur + requiredAmount })
+          .eq("id", targetWallet.id);
+      }
+      throw new Error(insertError?.message ?? "No se pudo registrar la recarga");
+    }
+
+    topupRow = {
+      id: directTopup.id,
+      reference: directTopup.reference,
+      amount: Number(directTopup.amount),
+      currency: directTopup.currency,
     };
 
     const { dingSendTransfer, applyDingResult } = await import("@/lib/dingconnect.server");
     try {
       const res = await dingSendTransfer({
         skuCode: data.skuCode,
-        sendValue: data.topupAmount ?? Number(row.amount),
-        sendCurrency: data.topupCurrency ?? row.currency,
+        sendValue: data.topupAmount ?? Number(topupRow.amount),
+        sendCurrency: data.topupCurrency ?? topupRow.currency,
         accountNumber: data.phone,
-        distributorRef: row.reference,
+        distributorRef: topupRow.reference,
       });
       await applyDingResult({
-        reference: row.reference,
+        reference: topupRow.reference,
         state: res.processingState,
         providerRef: res.providerRef,
       });
-      return { ok: true as const, reference: row.reference, status: res.processingState };
+      return { ok: true as const, reference: topupRow.reference, status: res.processingState };
     } catch (e) {
+      // Revertir saldo del agente en caso de fallo técnico del proveedor
+      if (targetWallet && !isAdminUser) {
+        const { data: freshW } = await supabaseAdmin
+          .from("wallets")
+          .select("balance")
+          .eq("id", targetWallet.id)
+          .single();
+        const cur = Number(freshW?.balance) || 0;
+        await supabaseAdmin
+          .from("wallets")
+          .update({ balance: cur + requiredAmount })
+          .eq("id", targetWallet.id);
+
+        await supabaseAdmin.from("wallet_transactions").insert({
+          wallet_id: targetWallet.id,
+          user_id: context.userId,
+          kind: "agent_topup_refund",
+          amount: requiredAmount,
+          currency: targetWallet.currency,
+          description: `Reembolso por error de proveedor en recarga ${topupRow.reference}`,
+        });
+      }
+
       await applyDingResult({
-        reference: row.reference,
+        reference: topupRow.reference,
         state: "failed",
         detail: (e as Error).message,
       });
@@ -117,6 +209,9 @@ export const dingCreateTopupCheckout = createServerFn({ method: "POST" })
     });
     if (!validation.ok) throw new Error(validation.reason);
 
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    let topup: { id: string; reference: string; currency: string } | null = null;
     const { data: row, error } = await context.supabase.rpc("create_topup_pending", {
       _sku_code: data.skuCode,
       _operator: data.operator ?? "",
@@ -127,9 +222,35 @@ export const dingCreateTopupCheckout = createServerFn({ method: "POST" })
       _payment_method: data.paymentMethod,
       _origin_country: data.originCountry,
     });
-    if (error || !row) throw new Error(error?.message ?? "No se pudo crear la recarga");
 
-    const topup = row as unknown as { id: string; reference: string; currency: string };
+    if (row && !error) {
+      topup = row as unknown as { id: string; reference: string; currency: string };
+    } else {
+      // Fallback si la función RPC no está en el schema cache
+      const genRef = "TOP-" + Math.random().toString(36).substring(2, 10).toUpperCase();
+      const { data: directTopup, error: directErr } = await supabaseAdmin
+        .from("topups")
+        .insert({
+          user_id: context.userId,
+          sku_code: data.skuCode,
+          operator: data.operator ?? "",
+          country_code: data.countryCode ?? "",
+          phone: data.phone,
+          amount: data.topupAmount,
+          currency: data.topupCurrency || "HTG",
+          pay_amount: data.payAmount,
+          pay_currency: data.payCurrency || "USD",
+          status: "pending",
+          reference: genRef,
+        })
+        .select("id, reference, currency")
+        .single();
+
+      if (directErr || !directTopup) {
+        throw new Error(directErr?.message ?? error?.message ?? "No se pudo registrar la recarga");
+      }
+      topup = directTopup;
+    }
 
     const { verifyIsAdmin, verifyIsStaff } = await import("@/lib/admin.server");
     const isAdminUser = (await verifyIsAdmin(context)) || (await verifyIsStaff(context));
@@ -215,7 +336,7 @@ export const dingCreateTopupCheckout = createServerFn({ method: "POST" })
 
       if (currentBal < requiredAmount || currentBal <= 0) {
         throw new Error(
-          `Saldo insuficiente en tu Billetera de Recargas. Tu saldo actual es de ${currentBal.toLocaleString()} HTG y esta recarga requiere ${requiredAmount.toLocaleString()} HTG. Sin saldo no puedes realizar envíos.`,
+          `Saldo insuficiente en tu Billetera de Recargas. Tu saldo actual es de ${currentBal.toLocaleString()} HTG y esta recarga requiere ${requiredAmount.toLocaleString()} HTG. Como agente, no puedes realizar transacciones sin saldo suficiente. Contacta a un administrador para recargar tu cuenta.`,
         );
       }
 

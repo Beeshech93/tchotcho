@@ -197,7 +197,7 @@ export function AccountingPanel() {
       let q = supabase
         .from("transfers")
         .select(
-          "id,reference,created_at,status,send_currency,receive_currency,amount_send,fee_send,total_send,amount_receive,agent_commission_send,recipient_name,recipient_phone,delivery_method,payment_method,origin_country,destination_country,note,agent_id,user_id",
+          "id,reference,created_at,status,send_currency,receive_currency,amount_send,fee_send,total_send,amount_receive,agent_commission_send,recipient_name,recipient_phone,delivery_method,payment_method,note,agent_id,user_id",
         )
         .order("created_at", { ascending: false })
         .limit(5000);
