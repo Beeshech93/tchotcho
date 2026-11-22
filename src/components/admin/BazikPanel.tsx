@@ -6,6 +6,8 @@ import {
   PlugZap,
   Wallet,
   RefreshCw,
+  ArrowRightLeft,
+  CheckCircle2,
   Clock,
   ShieldCheck,
   Coins,
@@ -26,6 +28,7 @@ import {
   bazikSaveCredentials,
   bazikStatus,
   bazikTestAuth,
+  bazikSyncBalance,
 } from "@/lib/bazik.functions";
 
 const CRED_KEYS = [
@@ -49,7 +52,11 @@ export function BazikPanel() {
   const status = useServerFn(bazikStatus);
   const testAuth = useServerFn(bazikTestAuth);
   const saveCreds = useServerFn(bazikSaveCredentials);
+  const syncBalance = useServerFn(bazikSyncBalance);
   const queryClient = useQueryClient();
+
+  const [manualAmount, setManualAmount] = useState("");
+  const [showManualInput, setShowManualInput] = useState(false);
 
   const {
     data: info,
@@ -90,7 +97,40 @@ export function BazikPanel() {
     onError: (e: Error) => toast.error(e.message),
   });
 
+  const syncMut = useMutation({
+    mutationFn: async (amount?: number) => {
+      return syncBalance({ data: amount !== undefined ? { manualBalance: amount } : undefined });
+    },
+    onSuccess: (res) => {
+      toast.success(res.message);
+      setManualAmount("");
+      setShowManualInput(false);
+      void queryClient.invalidateQueries({ queryKey: ["bazik_status"] });
+      void queryClient.invalidateQueries({ queryKey: ["admin-users-list"] });
+      void queryClient.invalidateQueries({ queryKey: ["wallets"] });
+      void queryClient.invalidateQueries({ queryKey: ["admin-transfers"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const handleSyncAutomatic = () => {
+    syncMut.mutate(undefined);
+  };
+
+  const handleSyncManual = () => {
+    const parsed = parseFloat(manualAmount.replace(/,/g, ""));
+    if (isNaN(parsed) || parsed < 0) {
+      toast.error("Ingresa un monto válido");
+      return;
+    }
+    syncMut.mutate(parsed);
+  };
+
   const currentBazikBalance = info?.balance ?? null;
+  const adminWalletBalance =
+    info?.adminWalletBalance && info.adminWalletBalance > 0
+      ? info.adminWalletBalance
+      : info?.balance ?? 0;
 
   return (
     <div className="space-y-4">
@@ -101,10 +141,10 @@ export function BazikPanel() {
             <div>
               <CardTitle className="text-lg font-black text-emerald-950 flex items-center gap-2">
                 <Coins className="size-5 text-emerald-600" />
-                Saldo y Conexión Operativa de Bazik
+                Sincronización de Saldo Bazik ⇄ Saldo Admin
               </CardTitle>
               <CardDescription className="text-xs text-emerald-800/80 font-medium mt-0.5">
-                Consulta el saldo operativo en tu cuenta de Bazik utilizado para procesar las entregas automáticas a MonCash y NatCash.
+                Mantén sincronizado el saldo operativo de tu cuenta de Bazik (MonCash) con la billetera principal del Administrador.
               </CardDescription>
             </div>
             <div className="flex items-center gap-2">
@@ -130,7 +170,7 @@ export function BazikPanel() {
               <div className="space-y-1">
                 <p className="font-bold">Credenciales de Bazik aún no configuradas</p>
                 <p className="text-amber-800 text-[11px]">
-                  Para ver tu saldo real de Bazik en vivo y habilitar las entregas automáticas vía API, ingresa tu <strong>User ID</strong> y <strong>Secret Key</strong> en el formulario <em>"Configurar Credenciales de Bazik"</em> más abajo y haz clic en <strong>Guardar credenciales</strong>.
+                  Para ver tu saldo real de Bazik en vivo y habilitar la sincronización automática vía API, ingresa tu <strong>User ID</strong> y <strong>Secret Key</strong> en el formulario <em>"Configurar Credenciales de Bazik"</em> más abajo y haz clic en <strong>Guardar credenciales</strong>.
                 </p>
               </div>
             </div>
@@ -153,9 +193,18 @@ export function BazikPanel() {
               <div className="flex items-center gap-2">
                 <ShieldCheck className="size-4 text-emerald-600 shrink-0" />
                 <p className="font-bold text-emerald-900 text-xs">
-                  Conexión en vivo con Bazik activa y autenticada correctamente para pagos automáticos.
+                  Conexión en vivo con Bazik activa y autenticada correctamente.
                 </p>
               </div>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => syncMut.mutate(undefined)}
+                disabled={syncMut.isPending}
+                className="h-7 text-[11px] font-bold border-emerald-400 text-emerald-900 hover:bg-emerald-100"
+              >
+                {syncMut.isPending ? "Sincronizando..." : "Sincronizar con Billetera Admin"}
+              </Button>
             </div>
           )}
 
@@ -174,36 +223,103 @@ export function BazikPanel() {
               </p>
               <p className="mt-1 text-[11px] text-slate-500 flex items-center gap-1">
                 <Clock className="size-3 text-slate-400" />
-                Fondos disponibles en Bazik.io para envíos
+                {info?.lastSyncedAt
+                  ? `Último sync: ${new Date(info.lastSyncedAt).toLocaleString()}`
+                  : info?.configured
+                    ? "En espera de sincronización"
+                    : "Requiere User ID y Secret Key"}
               </p>
             </div>
 
-            {/* Estado de conexión */}
+            {/* Balance en Billetera Admin */}
             <div className="rounded-xl border border-emerald-200 bg-white p-4 shadow-2xs">
               <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
-                Estado de la Conexión
+                Saldo Billetera Admin (HTG)
               </span>
               <p className="mt-1 text-2xl font-black text-slate-900">
-                {info?.configured && info?.authOk ? "Activo" : "Pendiente"}
+                {adminWalletBalance.toLocaleString("en-US", { minimumFractionDigits: 2 })} HTG
               </p>
               <p className="mt-1 text-[11px] text-emerald-700 font-semibold flex items-center gap-1">
                 <ShieldCheck className="size-3 text-emerald-600" />
-                API de MonCash y NatCash
+                Billetera operativa del Administrador
               </p>
             </div>
 
-            {/* Operación Independiente */}
+            {/* Acción de Sincronización */}
             <div className="rounded-xl border border-emerald-200 bg-emerald-500/10 p-4 flex flex-col justify-between sm:col-span-2 lg:col-span-1 shadow-2xs">
               <div>
                 <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-900">
-                  Modo Operativo
+                  Acción Inmediata
                 </span>
                 <p className="text-xs text-emerald-950 mt-1">
-                  Bazik opera de forma independiente para las entregas y no modifica los balances de las billeteras locales.
+                  Sincroniza el saldo de Bazik para que se refleje de inmediato en tu cuenta y dashboard.
                 </p>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-2 mt-3">
+                <Button
+                  size="sm"
+                  onClick={handleSyncAutomatic}
+                  disabled={syncMut.isPending || !info?.configured}
+                  className="bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs gap-1.5 shadow-sm"
+                >
+                  <ArrowRightLeft className="size-3.5" />
+                  {syncMut.isPending ? "Sincronizando..." : "Sincronizar vía API"}
+                </Button>
+
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => setShowManualInput(!showManualInput)}
+                  className="border-emerald-300 text-emerald-800 hover:bg-emerald-100 text-xs font-bold"
+                >
+                  {showManualInput ? "Cancelar" : "Sincronizar Monto"}
+                </Button>
               </div>
             </div>
           </div>
+
+          {/* Formulario de Sincronización Manual de Saldo */}
+          {showManualInput && (
+            <div className="rounded-xl border-2 border-emerald-400/80 bg-white p-4 space-y-3 shadow-sm animate-in fade-in duration-200">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h4 className="text-xs font-bold text-slate-900">
+                    Sincronización directa / manual de saldo Bazik
+                  </h4>
+                  <p className="text-[11px] text-slate-500">
+                    Si recién depositaste en tu cuenta Bazik o deseas reflejar el saldo exacto de tu portal Bazik.io:
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 pt-1">
+                <div className="relative flex-1">
+                  <Input
+                    type="number"
+                    step="any"
+                    placeholder="Ej. 150000"
+                    value={manualAmount}
+                    onChange={(e) => setManualAmount(e.target.value)}
+                    className="h-9 text-xs font-bold pl-3 pr-14"
+                  />
+                  <span className="absolute right-3 top-2.5 text-xs font-bold text-slate-400">
+                    HTG
+                  </span>
+                </div>
+
+                <Button
+                  size="sm"
+                  disabled={syncMut.isPending || !manualAmount.trim()}
+                  onClick={handleSyncManual}
+                  className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold h-9 text-xs gap-1.5 shrink-0"
+                >
+                  <CheckCircle2 className="size-3.5" />
+                  Confirmar y Sincronizar en Admin
+                </Button>
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
 

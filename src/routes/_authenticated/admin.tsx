@@ -247,12 +247,17 @@ function Resumen() {
     staleTime: 15_000,
   });
 
-  const bazikBalance = Number(bazikInfo?.balance || 0);
+  const totalHtgBalance = Math.max(
+    (wallets ?? [])
+      .filter((w) => w.currency === "HTG")
+      .reduce((sum, w) => sum + Number(w.balance || 0), 0),
+    Number(bazikInfo?.adminWalletBalance || bazikInfo?.balance || 0),
+  );
 
   return (
     <div className="space-y-4">
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
-        <Stat label="Saldo en Bazik (MonCash)" value={`${bazikBalance.toLocaleString()} HTG`} isGreen />
+        <Stat label="Saldo Operativo (Bazik)" value={`${totalHtgBalance.toLocaleString()} HTG`} isGreen />
         <Stat label="Volumen total" value={volume} isGreen />
         <Stat label="Ingresos comisión" value={fees} isGreen />
         <Stat label="Envíos entregados" value={`${completed} / ${rows.length}`} />
