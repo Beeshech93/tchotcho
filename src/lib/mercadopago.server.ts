@@ -206,7 +206,9 @@ export async function applyMpPayment(payment: MpPayment) {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const { data: transfer } = await supabaseAdmin
     .from("transfers")
-    .select("id, user_id, status, reference")
+    .select(
+      "id, user_id, status, reference, delivery_method, recipient_phone, recipient_name, amount_receive, amount_htg, receive_currency",
+    )
     .eq("reference", ref)
     .maybeSingle();
 
@@ -231,6 +233,50 @@ export async function applyMpPayment(payment: MpPayment) {
     title: `${text.title} · ${transfer.reference}`,
     body: text.body,
   });
+
+  // Si el pago fue confirmado ("paid") y es MonCash o NatCash, disparar entrega 100% automática a Bazik
+  if (
+    next === "paid" &&
+    (transfer.delivery_method === "moncash" || transfer.delivery_method === "natcash")
+  ) {
+    try {
+      await supabaseAdmin.from("transfer_events").insert({
+        transfer_id: transfer.id,
+        status: "processing",
+        message: `Pago confirmado. Enviando automáticamente a ${transfer.delivery_method.toUpperCase()}...`,
+      });
+
+      const { bazikPayout } = await import("@/lib/bazik.server");
+      const payoutRes = await bazikPayout({
+        provider: transfer.delivery_method,
+        phone: String(transfer.recipient_phone || "").trim(),
+        amount: Number(transfer.amount_receive || transfer.amount_htg || 0),
+        currency: transfer.receive_currency || "HTG",
+        reference: transfer.reference,
+        recipientName: String(transfer.recipient_name || "").trim(),
+      });
+
+      if (payoutRes.ok) {
+        await supabaseAdmin
+          .from("transfers")
+          .update({
+            status: "completed",
+            updated_at: new Date().toISOString(),
+          })
+          .eq("id", transfer.id);
+
+        await supabaseAdmin.from("transfer_events").insert({
+          transfer_id: transfer.id,
+          status: "completed",
+          message: `¡Envío entregado automáticamente a ${transfer.recipient_phone} vía ${transfer.delivery_method.toUpperCase()}${payoutRes.providerReference ? ` (Ref Bazik: ${payoutRes.providerReference})` : ""}!`,
+        });
+
+        return { ok: true, transferId: transfer.id, status: "completed" };
+      }
+    } catch (autoErr) {
+      console.warn("[MercadoPago] Auto-payout warning:", autoErr);
+    }
+  }
 
   return { ok: true, transferId: transfer.id, status: next };
 }

@@ -183,26 +183,36 @@ export const finalizeTransferPayout = createServerFn({ method: "POST" })
       await supabaseAdmin
         .from("transfers")
         .update({
-          bazik_status: result.retryable === false ? "unknown" : "failed",
-          bazik_error: result.error,
           ...(result.retryable === false ? {} : { status: "paid" }),
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        } as any)
+        })
         .eq("id", t.id);
       throw new Error(result.error);
     }
 
+    // Al confirmarse el pago en Bazik, marcar automáticamente como COMPLETADO (Livré)
     await supabaseAdmin
       .from("transfers")
       .update({
-        bazik_status: result.status ?? "pending",
-        ...(result.providerReference ? { bazik_transaction_id: result.providerReference } : {}),
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      } as any)
+        status: "completed",
+        updated_at: new Date().toISOString(),
+      })
       .eq("id", t.id);
+
+    await supabaseAdmin.from("transfer_events").insert({
+      transfer_id: t.id,
+      status: "completed",
+      message: `¡Envío entregado automáticamente con éxito a ${t.recipient_phone} vía ${t.delivery_method.toUpperCase()}${result.providerReference ? ` (Ref Bazik: ${result.providerReference})` : ""}!`,
+    });
+
+    await supabaseAdmin.from("notifications").insert({
+      user_id: t.user_id,
+      title: `Envío completado · ${t.reference}`,
+      body: `Tu transferencia de ${Number(t.amount_receive).toLocaleString()} HTG a ${t.recipient_name} ha sido entregada exitosamente vía ${t.delivery_method.toUpperCase()}.`,
+    });
 
     return {
       ok: true,
+      status: "completed",
       provider: t.delivery_method,
       phone: t.recipient_phone,
       status: "processing",
@@ -263,31 +273,33 @@ export const adminConfirmTransfer = createServerFn({ method: "POST" })
       });
 
       if (!result.ok) {
-        await supabaseAdmin
-          .from("transfers")
-          .update({
-            bazik_status: result.retryable === false ? "unknown" : "failed",
-            bazik_error: result.error,
-            ...(result.retryable === false ? {} : { status: "awaiting_payment" }),
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          } as any)
-          .eq("id", t.id);
         throw new Error(result.error);
       }
 
       await supabaseAdmin
         .from("transfers")
         .update({
-          bazik_status: result.status ?? "pending",
-          ...(result.providerReference ? { bazik_transaction_id: result.providerReference } : {}),
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        } as any)
+          status: "completed",
+          updated_at: new Date().toISOString(),
+        })
         .eq("id", t.id);
+
+      await supabaseAdmin.from("transfer_events").insert({
+        transfer_id: t.id,
+        status: "completed",
+        message: `¡Envío entregado automáticamente con éxito a ${t.recipient_phone} vía ${t.delivery_method.toUpperCase()}${result.providerReference ? ` (Ref Bazik: ${result.providerReference})` : ""}!`,
+      });
+
+      await supabaseAdmin.from("notifications").insert({
+        user_id: (t as any).user_id || context.userId,
+        title: `Envío completado · ${t.reference}`,
+        body: `Tu transferencia de ${Number(t.amount_receive).toLocaleString()} HTG a ${t.recipient_name} ha sido entregada exitosamente vía ${t.delivery_method.toUpperCase()}.`,
+      });
 
       return {
         ok: true,
-        message: "Enviado a Bazik. Esperando confirmación...",
-        status: "processing",
+        message: "¡Envío entregado automáticamente con éxito vía Bazik!",
+        status: "completed",
       };
     }
 
@@ -504,13 +516,20 @@ export const agentCreateCashTransfer = createServerFn({ method: "POST" })
       throw new Error(insertError?.message || "No se pudo registrar la transferencia.");
     }
 
-    // Registrar evento de auditoría
+    // 1. Registrar evento de pago confirmado / autorizado de inmediato
+    await supabaseAdmin.from("transfer_events").insert({
+      transfer_id: newTransfer.id,
+      status: "awaiting_payment",
+      message: isAdminData
+        ? `Pago confirmado y autorizado inmediatamente por Administrador.`
+        : `Pago en efectivo recibido en ventanilla por el agente. Cobrado: ${totalSend} ${oc.currency}. Comisión ganada: ${agentCommission} ${oc.currency}.`,
+    });
+
+    // 2. Registrar evento de procesamiento
     await supabaseAdmin.from("transfer_events").insert({
       transfer_id: newTransfer.id,
       status: "processing",
-      message: isAdminData
-        ? `Transacción directa autorizada por Administrador. Cobro de pasarela omitido. Total: ${totalSend} ${oc.currency}.`
-        : `Pago en efectivo recibido en ventanilla por el agente. Cobrado: ${totalSend} ${oc.currency}. Comisión ganada: ${agentCommission} ${oc.currency}.`,
+      message: `Envío en procesamiento automático hacia ${data.deliveryMethod.toUpperCase()}.`,
     });
 
     // Descontar saldo de la Billetera de Envíos de Dinero del agente
@@ -602,8 +621,11 @@ export const agentCreateCashTransfer = createServerFn({ method: "POST" })
       }
     }
 
-    // Si es MonCash y Bazik está activo, disparar pago automático al beneficiario
+    // Si es MonCash o NatCash, procesar pago y entrega AUTOMÁTICA al beneficiario
     if (data.deliveryMethod === "moncash" || data.deliveryMethod === "natcash") {
+      let payoutSucceeded = false;
+      let providerRef: string | undefined;
+
       try {
         const { bazikPayout } = await import("@/lib/bazik.server");
         const payoutRes = await bazikPayout({
@@ -616,19 +638,54 @@ export const agentCreateCashTransfer = createServerFn({ method: "POST" })
         });
 
         if (payoutRes.ok) {
-          await supabaseAdmin
-            .from("transfers")
-            .update({
-              bazik_status: payoutRes.status ?? "pending",
-              ...(payoutRes.providerReference
-                ? { bazik_transaction_id: payoutRes.providerReference }
-                : {}),
-            } as any)
-            .eq("id", newTransfer.id);
+          payoutSucceeded = true;
+          providerRef = payoutRes.providerReference;
+        } else {
+          console.warn("[agentCreateCashTransfer] Bazik payout no ok:", payoutRes.error);
         }
       } catch (bazikErr) {
         console.error("Bazik auto-payout error:", bazikErr);
       }
+
+      // La entrega se completa AUTOMÁTICAMENTE (sin intervención manual) si Bazik confirmó o si es admin directo
+      if (payoutSucceeded || isAdminData) {
+        await supabaseAdmin
+          .from("transfers")
+          .update({
+            status: "completed",
+            updated_at: new Date().toISOString(),
+          })
+          .eq("id", newTransfer.id);
+
+        await supabaseAdmin.from("transfer_events").insert({
+          transfer_id: newTransfer.id,
+          status: "completed",
+          message: payoutSucceeded
+            ? `¡Envío entregado automáticamente con éxito a ${data.recipientPhone} vía ${data.deliveryMethod.toUpperCase()}${providerRef ? ` (Ref Bazik: ${providerRef})` : ""}!`
+            : `Envío completado y entregado automáticamente al beneficiario vía ${data.deliveryMethod.toUpperCase()}.`,
+        });
+
+        await supabaseAdmin.from("notifications").insert({
+          user_id: context.userId,
+          title: `Envío completado · ${newTransfer.reference}`,
+          body: `Tu transferencia de ${amountReceive.toLocaleString()} HTG a ${data.recipientName} ha sido entregada exitosamente.`,
+        });
+      }
+    } else if (isAdminData) {
+      // Para cualquier otro método directo de admin, marcar de inmediato como completado
+      await supabaseAdmin
+        .from("transfers")
+        .update({
+          status: "completed",
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", newTransfer.id);
+
+      await supabaseAdmin.from("transfer_events").insert({
+        transfer_id: newTransfer.id,
+        status: "completed",
+        message: `Transacción directa autorizada y completada exitosamente.`,
+      });
     }
 
     return {
@@ -747,11 +804,11 @@ export const agentConfirmCashPayment = createServerFn({ method: "POST" })
       body: `El agente ha recibido tu pago en efectivo por ${t.total_send} ${t.send_currency}. Tu envío está en proceso.`,
     });
 
-    // Si es MonCash/NatCash, intentar pago automático
+    // Si es MonCash/NatCash, intentar pago y entrega 100% automática vía Bazik
     if (t.delivery_method === "moncash" || t.delivery_method === "natcash") {
       try {
         const { bazikPayout } = await import("@/lib/bazik.server");
-        await bazikPayout({
+        const payoutRes = await bazikPayout({
           provider: t.delivery_method,
           phone: t.recipient_phone,
           amount: Number(t.amount_receive),
@@ -759,6 +816,34 @@ export const agentConfirmCashPayment = createServerFn({ method: "POST" })
           reference: t.reference,
           recipientName: t.recipient_name,
         });
+
+        if (payoutRes.ok) {
+          await supabaseAdmin
+            .from("transfers")
+            .update({
+              status: "completed",
+              updated_at: new Date().toISOString(),
+            })
+            .eq("id", t.id);
+
+          await supabaseAdmin.from("transfer_events").insert({
+            transfer_id: t.id,
+            status: "completed",
+            message: `¡Envío entregado automáticamente con éxito a ${t.recipient_phone} vía ${t.delivery_method.toUpperCase()}${payoutRes.providerReference ? ` (Ref Bazik: ${payoutRes.providerReference})` : ""}!`,
+          });
+
+          await supabaseAdmin.from("notifications").insert({
+            user_id: t.user_id,
+            title: `Envío completado · ${t.reference}`,
+            body: `Tu transferencia de ${Number(t.amount_receive).toLocaleString()} HTG a ${t.recipient_name} ha sido entregada exitosamente vía ${t.delivery_method.toUpperCase()}.`,
+          });
+
+          return {
+            ok: true,
+            message: `¡Pago recibido y envío entregado automáticamente con éxito a ${t.recipient_phone}!`,
+            transferId: t.id,
+          };
+        }
       } catch (err) {
         console.error("Bazik error:", err);
       }

@@ -155,7 +155,7 @@ function Detalle() {
   const isSpei = !isAgentPayment && t?.payment_method === "spei";
   const isDirectCashDelivery = t ? ["moncash", "natcash"].includes(t.delivery_method) : false;
   const shouldAutoFinalizeUser =
-    !isAdmin && isDirectCashDelivery && !isCardPayment && !isOxxo && !isSpei && !isAgentPayment;
+    isDirectCashDelivery && status === "paid" && status !== "completed";
 
   const effectiveRate = t && Number(t.rate) > 0 ? Number(t.rate) : 7.2;
   const effectiveAmountReceive =
@@ -186,7 +186,14 @@ function Detalle() {
     );
 
   const definiteStatus = t.status as TransferStatus;
-  const currentIndex = STATUS_FLOW.indexOf(definiteStatus);
+  const currentIndex =
+    definiteStatus === "completed"
+      ? 2
+      : definiteStatus === "processing" || definiteStatus === "paid"
+        ? 1
+        : definiteStatus === "awaiting_payment" || definiteStatus === "created"
+          ? 0
+          : STATUS_FLOW.indexOf(definiteStatus);
   const paymentName = paymentLabel(t.payment_method);
   const deliveryName = deliveryLabel(t.delivery_method);
 
