@@ -456,31 +456,49 @@ export const agentCreateCashTransfer = createServerFn({ method: "POST" })
     }
 
     // Insertar transferencia en efectivo por el agente o directa por el administrador
-    const { data: newTransfer, error: insertError } = await supabaseAdmin
+    const insertPayload: Record<string, any> = {
+      user_id: context.userId,
+      agent_id: isAdminData ? null : context.userId,
+      recipient_name: data.recipientName.trim(),
+      recipient_phone: data.recipientPhone.trim(),
+      recipient_city: data.recipientCity.trim(),
+      delivery_method: data.deliveryMethod,
+      payment_method: isAdminData ? "admin_direct" : "cash_agent",
+      amount_send: data.amountSend,
+      send_currency: oc.currency,
+      fee_send: feeSend,
+      total_send: totalSend,
+      amount_receive: amountReceive,
+      receive_currency: dc.currency,
+      rate: rate,
+      agent_commission_send: isAdminData ? 0 : agentCommission,
+      amount_mxn: oc.currency === "MXN" ? data.amountSend : Math.round((data.amountSend / rate) * 100) / 100,
+      fee_mxn: oc.currency === "MXN" ? feeSend : 0,
+      total_mxn: oc.currency === "MXN" ? totalSend : 0,
+      amount_htg: dc.currency === "HTG" ? amountReceive : Math.round(data.amountSend * rate * 100) / 100,
+      status: "processing", // Cobrado en ventanilla o transacción directa autorizada
+      note: data.note ? data.note.trim() : null,
+      origin_country: data.originCountry,
+      destination_country: data.destinationCountry,
+    };
+
+    let { data: newTransfer, error: insertError } = await supabaseAdmin
       .from("transfers")
-      .insert({
-        user_id: context.userId,
-        agent_id: isAdminData ? null : context.userId,
-        origin_country: data.originCountry,
-        destination_country: data.destinationCountry,
-        send_currency: oc.currency,
-        receive_currency: dc.currency,
-        recipient_name: data.recipientName.trim(),
-        recipient_phone: data.recipientPhone.trim(),
-        recipient_city: data.recipientCity.trim(),
-        delivery_method: data.deliveryMethod,
-        payment_method: isAdminData ? "admin_direct" : "cash_agent",
-        amount_send: data.amountSend,
-        fee_send: feeSend,
-        total_send: totalSend,
-        amount_receive: amountReceive,
-        rate: rate,
-        agent_commission_send: isAdminData ? 0 : agentCommission,
-        status: "processing", // Cobrado en ventanilla o transacción directa autorizada
-        note: data.note ? data.note.trim() : null,
-      })
-      .select("id, reference, status, total_send, send_currency, amount_receive, receive_currency")
+      .insert(insertPayload)
+      .select("id, reference, status")
       .single();
+
+    if (insertError && (insertError.message.includes("schema cache") || insertError.message.includes("column"))) {
+      delete insertPayload["destination_country"];
+      delete insertPayload["origin_country"];
+      const retry = await supabaseAdmin
+        .from("transfers")
+        .insert(insertPayload)
+        .select("id, reference, status")
+        .single();
+      newTransfer = retry.data;
+      insertError = retry.error;
+    }
 
     if (insertError || !newTransfer) {
       throw new Error(insertError?.message || "No se pudo registrar la transferencia.");

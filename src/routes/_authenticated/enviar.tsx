@@ -205,26 +205,41 @@ function Enviar() {
     }
 
     setSaving(true);
-    const { data, error } = await supabase
+    const transferPayload: Record<string, any> = {
+      user_id: user.id,
+      recipient_name: parsed.data.recipient_name,
+      recipient_phone: parsed.data.recipient_phone,
+      recipient_city: parsed.data.recipient_city,
+      delivery_method: delivery,
+      payment_method: payment,
+      amount_send: parsed.data.amount,
+      rate: effectiveCfg.rate,
+      note: parsed.data.note || null,
+      status: "awaiting_payment",
+      origin_country: origin,
+      destination_country: destination,
+    };
+
+    let { data, error } = await supabase
       .from("transfers")
-      .insert({
-        user_id: user.id,
-        origin_country: origin,
-        destination_country: destination,
-        recipient_name: parsed.data.recipient_name,
-        recipient_phone: parsed.data.recipient_phone,
-        recipient_city: parsed.data.recipient_city,
-        delivery_method: delivery,
-        payment_method: payment,
-        amount_send: parsed.data.amount,
-        rate: effectiveCfg.rate,
-        note: parsed.data.note || null,
-        status: "awaiting_payment",
-      })
+      .insert(transferPayload)
       .select("id")
       .single();
+
+    if (error && (error.message.includes("schema cache") || error.message.includes("column"))) {
+      delete transferPayload["destination_country"];
+      delete transferPayload["origin_country"];
+      const retry = await supabase
+        .from("transfers")
+        .insert(transferPayload)
+        .select("id")
+        .single();
+      data = retry.data;
+      error = retry.error;
+    }
+
     setSaving(false);
-    if (error) {
+    if (error || !data) {
       toast.error(t("send.error_create"));
       return;
     }
