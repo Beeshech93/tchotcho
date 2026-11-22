@@ -179,12 +179,12 @@ export function Landing() {
             <img
               src={iconAsset}
               alt="Tcho-Tcho"
-              className="size-8 sm:size-10 object-contain shrink-0 group-hover:rotate-6 transition-transform"
+              className="size-9 sm:size-11 object-contain shrink-0 group-hover:rotate-6 transition-transform"
             />
             <img
               src={logoAsset}
               alt="Tcho-Tcho"
-              className="h-7 sm:h-9 w-auto object-contain shrink-0"
+              className="h-8 sm:h-10 w-auto object-contain shrink-0"
             />
           </Link>
 
