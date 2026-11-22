@@ -32,7 +32,7 @@ export const bazikGetBalance = createServerFn({ method: "POST" })
     return bazikFetchBalance(context.supabase);
   });
 
-/** Sincroniza el saldo de Bazik directamente en la billetera HTG del administrador. */
+/** Consulta y sincroniza el saldo operativo real de Bazik. */
 export const bazikSyncBalance = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((input?: z.infer<typeof syncBalanceSchema>) =>
@@ -40,12 +40,33 @@ export const bazikSyncBalance = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     await requireAdmin(context);
-    const { bazikSyncBalanceToAdmin } = await import("@/lib/bazik.server");
-    return bazikSyncBalanceToAdmin({
-      userId: context.userId,
-      client: context.supabase,
-      ...(data?.manualBalance !== undefined ? { targetBalance: data.manualBalance } : {}),
-    });
+    const { bazikFetchBalance, saveStoredCred } = await import("@/lib/bazik.server");
+    let balance: number;
+    let source = "api";
+
+    if (typeof data?.manualBalance === "number" && !isNaN(data.manualBalance)) {
+      balance = Math.max(0, Math.round(data.manualBalance * 100) / 100);
+      source = "manual";
+    } else {
+      const res = await bazikFetchBalance(context.supabase);
+      if (!res.ok) throw new Error(res.error);
+      balance = res.balance;
+      source = res.source;
+    }
+
+    try {
+      await saveStoredCred("BAZIK_LAST_SYNCED_BALANCE", String(balance), context.userId, context.supabase);
+      await saveStoredCred("BAZIK_LAST_SYNCED_AT", new Date().toISOString(), context.userId, context.supabase);
+    } catch (saveErr) {
+      console.warn("No se pudo cachear el saldo:", saveErr);
+    }
+
+    return {
+      ok: true,
+      balance,
+      source,
+      message: `Saldo operativo de Bazik (${balance.toLocaleString()} HTG) sincronizado exitosamente.`,
+    };
   });
 
 /** Prueba la autenticación contra Bazik forzando un nuevo token (solo administradores). */
