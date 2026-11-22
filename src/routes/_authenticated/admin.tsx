@@ -417,7 +417,7 @@ function TxPanel() {
               </Badge>
               <Button
                 size="sm"
-                variant="outline"
+                className="gap-1.5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold shadow-xs hover:scale-105 active:scale-95 transition-all border border-emerald-500 text-xs px-3.5"
                 onClick={() => {
                   const w = window.open("", "_blank", "width=800,height=700");
                   if (!w) {

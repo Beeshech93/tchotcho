@@ -13,6 +13,7 @@ import {
   Banknote,
   Share2,
   ArrowRight,
+  Printer,
 } from "lucide-react";
 import { toast } from "sonner";
 import { celebrateLogo } from "@/components/LogoAnimation";
@@ -321,9 +322,8 @@ function Detalle() {
       </div>
 
       <div className="flex justify-end">
-        <Button
-          variant="outline"
-          className="gap-2"
+        <button
+          type="button"
           onClick={() => {
             const w = window.open("", "_blank", "width=800,height=700");
             if (!w) {
@@ -340,9 +340,14 @@ function Detalle() {
             );
             w.document.close();
           }}
+          className="group inline-flex items-center gap-2.5 rounded-full bg-gradient-to-r from-emerald-600 via-emerald-700 to-emerald-800 hover:from-emerald-700 hover:to-emerald-900 text-white font-black px-5 py-2.5 sm:px-6 sm:py-3 text-xs sm:text-sm shadow-md shadow-emerald-950/20 hover:shadow-lg hover:shadow-emerald-950/30 hover:scale-[1.02] active:scale-[0.98] transition-all border-2 border-emerald-400 cursor-pointer"
         >
-          <FileText className="size-4" /> Generar recibo
-        </Button>
+          <div className="grid size-6 place-items-center rounded-full bg-white text-emerald-700 group-hover:scale-110 shadow-2xs transition-transform">
+            <FileText className="size-3.5" />
+          </div>
+          <span>Generar recibo</span>
+          <Printer className="size-3.5 text-emerald-200 group-hover:text-white transition-colors" />
+        </button>
       </div>
 
       <Card className="bg-brand text-primary-foreground">
