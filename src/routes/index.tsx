@@ -157,7 +157,7 @@ export function Landing() {
     : 0;
 
   return (
-    <div className="min-h-screen bg-[#F8FAF9] text-slate-900 selection:bg-emerald-600 selection:text-white relative overflow-hidden">
+    <div className="min-h-screen bg-[#F8FAF9] text-slate-900 selection:bg-emerald-600 selection:text-white relative overflow-hidden pb-20 sm:pb-24">
       {/* Fondo con resplandor radial suave y luminoso */}
       <div
         className="pointer-events-none absolute inset-x-0 top-0 h-[650px] z-0"
@@ -750,14 +750,15 @@ export function Landing() {
         </div>
       </section>
 
-      {/* FOOTER ELEGANTE */}
-      <footer className="relative z-10 border-t-2 border-slate-200 bg-white py-8 text-center text-xs text-slate-500 space-y-3">
-        <SocialLinks className="pb-1" />
-        <p className="font-medium">
+      {/* FOOTER FIJO VERDE ELEGANTE */}
+      <footer className="fixed bottom-0 inset-x-0 z-40 border-t border-emerald-400/80 bg-[#A7F3D0]/95 backdrop-blur-2xl py-2 px-3 text-center text-[11px] sm:text-xs text-emerald-950 shadow-md space-y-1">
+        <div className="flex items-center justify-center gap-2">
+          <SocialLinks iconSize="size-3.5" className="gap-1.5" />
+        </div>
+        <p className="font-bold">
           © {new Date().getFullYear()} Tcho-Tcho. {t("landing.rights_reserved")}
-        </p>
-        <p>
-          <Link to="/privacidad" className="underline hover:text-emerald-700 font-semibold transition-colors">
+          <span className="mx-2 text-emerald-600 font-normal">|</span>
+          <Link to="/privacidad" className="underline hover:text-emerald-800 font-extrabold transition-colors">
             {t("landing.privacy_policy")}
           </Link>
         </p>
