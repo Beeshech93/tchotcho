@@ -157,7 +157,7 @@ export function Landing() {
     : 0;
 
   return (
-    <div className="min-h-screen bg-[#F8FAF9] text-slate-900 selection:bg-emerald-600 selection:text-white relative overflow-hidden pb-20 sm:pb-24">
+    <div className="min-h-screen bg-[#F8FAF9] text-slate-900 selection:bg-emerald-600 selection:text-white relative overflow-x-hidden flex flex-col justify-between">
       {/* Fondo con resplandor radial suave y luminoso */}
       <div
         className="pointer-events-none absolute inset-x-0 top-0 h-[650px] z-0"
@@ -169,32 +169,32 @@ export function Landing() {
 
       {/* TOP HEADER FIJO LUMINOSO Y ELEGANTE */}
       <header className="fixed top-0 inset-x-0 z-50 w-full bg-[#A7F3D0]/95 backdrop-blur-2xl border-b border-emerald-400/80 shadow-xs transition-all">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-3.5 py-2.5 sm:px-8 sm:py-3.5">
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-2.5 sm:px-8 py-2 sm:py-3.5 gap-2">
           {/* Logo Tcho-Tcho Oficial */}
           <Link
             to="/"
-            className="group inline-flex items-center gap-2.5 sm:gap-3.5 rounded-2xl bg-white px-3 sm:px-5 py-2 sm:py-2.5 shadow-md shadow-emerald-950/10 border-2 border-emerald-400/80 hover:border-emerald-600 hover:shadow-lg hover:scale-105 active:scale-95 transition-all shrink-0"
+            className="group inline-flex items-center gap-1.5 sm:gap-3.5 rounded-xl sm:rounded-2xl bg-white px-2 sm:px-5 py-1.5 sm:py-2.5 shadow-md shadow-emerald-950/10 border-2 border-emerald-400/80 hover:border-emerald-600 hover:shadow-lg hover:scale-105 active:scale-95 transition-all shrink-0"
             aria-label="Tcho-Tcho — Ir a Inicio"
           >
             <img
               src={iconAsset}
               alt="Tcho-Tcho"
-              className="size-9 sm:size-11 object-contain shrink-0 group-hover:rotate-6 transition-transform"
+              className="size-7 sm:size-11 object-contain shrink-0 group-hover:rotate-6 transition-transform"
             />
             <img
               src={logoAsset}
               alt="Tcho-Tcho"
-              className="h-8 sm:h-10 w-auto object-contain shrink-0"
+              className="h-6 sm:h-10 w-auto object-contain shrink-0"
             />
           </Link>
 
           {/* Acciones de cabecera: Idioma, Iniciar sesión y Crear cuenta */}
           <div className="flex items-center gap-1.5 sm:gap-4 shrink-0">
-            <LanguageSwitcher className="h-8 sm:h-9 rounded-full bg-white/95 border border-emerald-400/70 text-slate-900 hover:bg-white transition-all shadow-xs" />
+            <LanguageSwitcher className="h-7 sm:h-9 px-2 sm:px-3 rounded-full bg-white/95 border border-emerald-400/70 text-slate-900 hover:bg-white transition-all shadow-xs text-xs" />
 
             <Link
               to="/auth"
-              className="hidden sm:inline-block text-xs sm:text-sm font-extrabold text-emerald-950 hover:text-emerald-800 transition-colors px-2 py-1"
+              className="hidden md:inline-block text-xs sm:text-sm font-extrabold text-emerald-950 hover:text-emerald-800 transition-colors px-2 py-1"
             >
               {t("landing.signin")}
             </Link>
@@ -202,7 +202,7 @@ export function Landing() {
             <Link
               to="/auth"
               search={{ modo: "registro" }}
-              className="rounded-full bg-emerald-600 hover:bg-emerald-700 text-white font-black px-3.5 sm:px-5 py-1.5 sm:py-2 text-[11px] sm:text-sm shadow-sm hover:scale-[1.02] active:scale-[0.98] transition-all whitespace-nowrap"
+              className="rounded-full bg-emerald-600 hover:bg-emerald-700 text-white font-black px-2.5 sm:px-5 py-1.5 sm:py-2 text-[10px] sm:text-sm shadow-sm hover:scale-[1.02] active:scale-[0.98] transition-all whitespace-nowrap shrink-0"
             >
               {t("landing.signup")}
             </Link>
@@ -211,46 +211,46 @@ export function Landing() {
       </header>
 
       {/* HERO SECTION DE 2 COLUMNAS */}
-      <section className="relative z-10 mx-auto grid max-w-7xl items-center gap-6 sm:gap-10 px-4 pt-20 pb-12 sm:px-8 sm:pt-28 sm:pb-20 lg:grid-cols-[1.1fr_1fr] lg:gap-14 lg:pt-32 lg:pb-24">
+      <section className="relative z-10 mx-auto grid max-w-7xl items-center gap-6 sm:gap-10 px-3.5 sm:px-8 pt-18 sm:pt-28 pb-8 sm:pb-20 lg:grid-cols-[1.1fr_1fr] lg:gap-14 lg:pt-32 lg:pb-24">
         {/* COLUMNA IZQUIERDA: Titular, Subtítulo, Botones y Beneficios */}
-        <div className="space-y-4 sm:space-y-6 flex flex-col items-center lg:items-start text-center lg:text-left">
+        <div className="space-y-4 sm:space-y-6 flex flex-col items-center lg:items-start text-center lg:text-left w-full">
           {/* Badge superior con punto pulsante */}
-          <div className="inline-flex items-center gap-2 rounded-full bg-emerald-50 border border-emerald-200/90 px-3.5 py-1 sm:px-4 sm:py-1.5 text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-emerald-800 shadow-2xs">
-            <span className="flex size-1.5 sm:size-2 rounded-full bg-emerald-500 animate-ping" />
+          <div className="inline-flex flex-wrap items-center justify-center gap-1.5 sm:gap-2 rounded-full bg-emerald-50 border border-emerald-200/90 px-3 py-1 sm:px-4 sm:py-1.5 text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-emerald-800 shadow-2xs max-w-full text-center">
+            <span className="flex size-1.5 sm:size-2 rounded-full bg-emerald-500 animate-ping shrink-0" />
             <span className="font-semibold text-slate-700">{t("landing.badge_fintech")}</span>
-            <span className="text-emerald-600 font-black">·</span>
+            <span className="text-emerald-600 font-black hidden xs:inline">·</span>
             <span className="text-emerald-700">{t("landing.badge_route")}</span>
           </div>
 
           {/* Botones de acción CTA modernos */}
-          <div className="flex flex-wrap items-center justify-center lg:justify-start gap-2.5 sm:gap-4 pt-0.5">
+          <div className="flex flex-row items-center justify-center lg:justify-start gap-2 sm:gap-4 w-full sm:w-auto pt-0.5">
             <Link
               to="/auth"
               search={{ modo: "registro" }}
-              className="group inline-flex items-center gap-2 sm:gap-3 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white font-black px-5 py-2.5 sm:px-8 sm:py-4 text-xs sm:text-base shadow-md hover:scale-[1.02] active:scale-[0.98] transition-all"
+              className="group flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 sm:gap-3 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white font-black px-4 py-2.5 sm:px-8 sm:py-4 text-xs sm:text-base shadow-md hover:scale-[1.02] active:scale-[0.98] transition-all whitespace-nowrap"
             >
               <span>{t("landing.start_now")}</span>
-              <div className="grid size-5 sm:size-6 place-items-center rounded-full bg-white text-emerald-700 group-hover:translate-x-0.5 transition-transform">
+              <div className="grid size-5 sm:size-6 place-items-center rounded-full bg-white text-emerald-700 group-hover:translate-x-0.5 transition-transform shrink-0">
                 <ArrowRight className="size-3 sm:size-3.5" />
               </div>
             </Link>
 
             <Link
               to="/auth"
-              className="inline-flex items-center rounded-full border-2 border-slate-300 bg-white hover:bg-slate-50 text-slate-800 font-bold px-4 py-2.5 sm:px-7 sm:py-4 text-xs sm:text-base shadow-2xs hover:border-slate-400 transition-all"
+              className="inline-flex items-center justify-center rounded-full border-2 border-slate-300 bg-white hover:bg-slate-50 text-slate-800 font-bold px-3.5 py-2.5 sm:px-7 sm:py-4 text-xs sm:text-base shadow-2xs hover:border-slate-400 transition-all shrink-0 whitespace-nowrap"
             >
               {t("landing.signin")}
             </Link>
           </div>
 
           {/* 3 Tarjetas de Beneficios compactas, limpias y claras */}
-          <div className="grid grid-cols-3 gap-2 sm:gap-3 pt-1 w-full">
+          <div className="grid grid-cols-3 gap-1.5 sm:gap-3 pt-1 w-full">
             <div className="rounded-xl sm:rounded-2xl bg-white border border-slate-200/90 p-2 sm:p-4 shadow-xs space-y-1 sm:space-y-2 hover:border-emerald-500/50 hover:shadow-md transition-all group flex flex-col items-center sm:items-start text-center sm:text-left">
-              <div className="grid size-7 sm:size-8 place-items-center rounded-lg sm:rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700 group-hover:scale-110 transition shadow-2xs">
-                <Zap className="size-3.5 sm:size-4" />
+              <div className="grid size-6 sm:size-8 place-items-center rounded-lg sm:rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700 group-hover:scale-110 transition shadow-2xs">
+                <Zap className="size-3 sm:size-4" />
               </div>
               <div>
-                <p className="font-black text-[11px] sm:text-sm text-slate-900 leading-tight">
+                <p className="font-black text-[10px] sm:text-sm text-slate-900 leading-tight break-words">
                   {t("landing.benefit_flash")}
                 </p>
                 <p className="text-[9px] sm:text-[11px] text-slate-500 font-medium mt-0.5 hidden xs:block">
@@ -260,11 +260,11 @@ export function Landing() {
             </div>
 
             <div className="rounded-xl sm:rounded-2xl bg-white border border-slate-200/90 p-2 sm:p-4 shadow-xs space-y-1 sm:space-y-2 hover:border-emerald-500/50 hover:shadow-md transition-all group flex flex-col items-center sm:items-start text-center sm:text-left">
-              <div className="grid size-7 sm:size-8 place-items-center rounded-lg sm:rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700 group-hover:scale-110 transition shadow-2xs">
-                <ShieldCheck className="size-3.5 sm:size-4" />
+              <div className="grid size-6 sm:size-8 place-items-center rounded-lg sm:rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700 group-hover:scale-110 transition shadow-2xs">
+                <ShieldCheck className="size-3 sm:size-4" />
               </div>
               <div>
-                <p className="font-black text-[11px] sm:text-sm text-slate-900 leading-tight">
+                <p className="font-black text-[10px] sm:text-sm text-slate-900 leading-tight break-words">
                   {t("landing.benefit_security")}
                 </p>
                 <p className="text-[9px] sm:text-[11px] text-slate-500 font-medium mt-0.5 hidden xs:block">
@@ -274,11 +274,11 @@ export function Landing() {
             </div>
 
             <div className="rounded-xl sm:rounded-2xl bg-white border border-slate-200/90 p-2 sm:p-4 shadow-xs space-y-1 sm:space-y-2 hover:border-emerald-500/50 hover:shadow-md transition-all group flex flex-col items-center sm:items-start text-center sm:text-left">
-              <div className="grid size-7 sm:size-8 place-items-center rounded-lg sm:rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700 group-hover:scale-110 transition shadow-2xs">
-                <BadgePercent className="size-3.5 sm:size-4" />
+              <div className="grid size-6 sm:size-8 place-items-center rounded-lg sm:rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700 group-hover:scale-110 transition shadow-2xs">
+                <BadgePercent className="size-3 sm:size-4" />
               </div>
               <div>
-                <p className="font-black text-[11px] sm:text-sm text-slate-900 leading-tight">
+                <p className="font-black text-[10px] sm:text-sm text-slate-900 leading-tight break-words">
                   {t("landing.benefit_rate")}
                 </p>
                 <p className="text-[9px] sm:text-[11px] text-slate-500 font-medium mt-0.5 hidden xs:block">
@@ -316,26 +316,26 @@ export function Landing() {
 
         {/* COLUMNA DERECHA: LA CALCULADORA DE REMESAS Y RECARGAS */}
         <div className="relative w-full">
-          <div className="relative mx-auto w-full max-w-lg rounded-[28px] sm:rounded-[36px] bg-white border-2 border-slate-200/90 p-5 sm:p-7 shadow-xl backdrop-blur-2xl space-y-4 sm:space-y-5">
+          <div className="relative mx-auto w-full max-w-lg rounded-[22px] sm:rounded-[36px] bg-white border-2 border-slate-200/90 p-4 sm:p-7 shadow-xl backdrop-blur-2xl space-y-3.5 sm:space-y-5">
             {/* Tabs Enviar / Recargas con diseño claro, simple y limpio */}
-            <div className="flex items-center justify-between border-b-2 border-slate-100 pb-3">
+            <div className="flex items-center justify-between border-b-2 border-slate-100 pb-2.5 sm:pb-3">
               <button
                 type="button"
                 onClick={() => setActiveTab("envios")}
                 className={cn(
-                  "flex-1 flex items-center justify-center gap-2 pb-2 text-sm font-extrabold transition-all relative",
+                  "flex-1 flex items-center justify-center gap-1.5 sm:gap-2 pb-2 text-xs sm:text-sm font-extrabold transition-all relative",
                   activeTab === "envios" ? "text-emerald-700" : "text-slate-500 hover:text-slate-800",
                 )}
               >
                 <Send
                   className={cn(
-                    "size-4",
+                    "size-3.5 sm:size-4",
                     activeTab === "envios" ? "text-emerald-600" : "text-slate-400",
                   )}
                 />
                 <span>{t("landing.tab_send")}</span>
                 {activeTab === "envios" && (
-                  <span className="absolute -bottom-3 inset-x-8 h-0.5 bg-emerald-600 rounded-full" />
+                  <span className="absolute -bottom-2.5 sm:-bottom-3 inset-x-6 sm:inset-x-8 h-0.5 bg-emerald-600 rounded-full" />
                 )}
               </button>
 
@@ -343,34 +343,34 @@ export function Landing() {
                 type="button"
                 onClick={() => setActiveTab("recargas")}
                 className={cn(
-                  "flex-1 flex items-center justify-center gap-2 pb-2 text-sm font-extrabold transition-all relative",
+                  "flex-1 flex items-center justify-center gap-1.5 sm:gap-2 pb-2 text-xs sm:text-sm font-extrabold transition-all relative",
                   activeTab === "recargas" ? "text-emerald-700" : "text-slate-500 hover:text-slate-800",
                 )}
               >
                 <Smartphone
                   className={cn(
-                    "size-4",
+                    "size-3.5 sm:size-4",
                     activeTab === "recargas" ? "text-emerald-600" : "text-slate-400",
                   )}
                 />
                 <span>{t("landing.tab_topups")}</span>
                 {activeTab === "recargas" && (
-                  <span className="absolute -bottom-3 inset-x-8 h-0.5 bg-emerald-600 rounded-full" />
+                  <span className="absolute -bottom-2.5 sm:-bottom-3 inset-x-6 sm:inset-x-8 h-0.5 bg-emerald-600 rounded-full" />
                 )}
               </button>
             </div>
 
             {/* CONTENIDO TAB ENVIAR */}
             {activeTab === "envios" && (
-              <div className="space-y-4 pt-1">
+              <div className="space-y-3 sm:space-y-4 pt-0.5 sm:pt-1">
                 {/* SELECTORES DESDE Y HACIA EN 2 COLUMNAS */}
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="space-y-1.5">
+                <div className="grid grid-cols-2 gap-2 sm:gap-3">
+                  <div className="space-y-1 sm:space-y-1.5">
                     <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
                       {t("landing.origin_country")}
                     </span>
                     <Select value={origin} onValueChange={setOrigin}>
-                      <SelectTrigger className="h-11 rounded-xl bg-slate-50 border-2 border-slate-200 text-xs font-bold text-slate-900 focus:bg-white focus:ring-1 focus:ring-emerald-600 focus:border-emerald-600">
+                      <SelectTrigger className="h-10 sm:h-11 rounded-xl bg-slate-50 border-2 border-slate-200 text-[11px] sm:text-xs font-bold text-slate-900 px-2.5 sm:px-3 focus:bg-white focus:ring-1 focus:ring-emerald-600 focus:border-emerald-600">
                         <SelectValue
                           placeholder={
                             originCountry
@@ -393,12 +393,12 @@ export function Landing() {
                     </Select>
                   </div>
 
-                  <div className="space-y-1.5">
+                  <div className="space-y-1 sm:space-y-1.5">
                     <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
                       {t("landing.dest_country")}
                     </span>
                     <Select value={destination} onValueChange={setDestination}>
-                      <SelectTrigger className="h-11 rounded-xl bg-slate-50 border-2 border-slate-200 text-xs font-bold text-slate-900 focus:bg-white focus:ring-1 focus:ring-emerald-600 focus:border-emerald-600">
+                      <SelectTrigger className="h-10 sm:h-11 rounded-xl bg-slate-50 border-2 border-slate-200 text-[11px] sm:text-xs font-bold text-slate-900 px-2.5 sm:px-3 focus:bg-white focus:ring-1 focus:ring-emerald-600 focus:border-emerald-600">
                         <SelectValue
                           placeholder={
                             destCountry ? `${destCountry.flag} ${destCountry.name}` : "🇭🇹 Haití"
@@ -421,7 +421,7 @@ export function Landing() {
                 </div>
 
                 {/* CAMPO DE MONTO TÚ ENVÍAS */}
-                <div className="space-y-1.5 pt-1">
+                <div className="space-y-1 sm:space-y-1.5 pt-0.5">
                   <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
                     {t("landing.you_send_cur")} ({sendCurrency})
                   </span>
@@ -431,16 +431,16 @@ export function Landing() {
                       inputMode="decimal"
                       value={amount}
                       onChange={(e) => setAmount(e.target.value.replace(/[^0-9.]/g, ""))}
-                      className="w-full h-14 rounded-xl bg-slate-50 border-2 border-slate-200 px-4 font-display text-2xl font-black text-slate-900 focus:bg-white focus:outline-none focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600 transition"
+                      className="w-full h-12 sm:h-14 rounded-xl bg-slate-50 border-2 border-slate-200 px-3 sm:px-4 font-display text-xl sm:text-2xl font-black text-slate-900 focus:bg-white focus:outline-none focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600 transition"
                     />
-                    <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-500">
+                    <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-500">
                       {sendCurrency}
                     </span>
                   </div>
                 </div>
 
                 {/* DESGLOSE DE COSTOS */}
-                <div className="space-y-2 rounded-xl bg-slate-50 border border-slate-200/90 p-4 text-xs">
+                <div className="space-y-1.5 sm:space-y-2 rounded-xl bg-slate-50 border border-slate-200/90 p-3 sm:p-4 text-[11px] sm:text-xs">
                   <div className="flex items-center justify-between text-slate-600">
                     <span className="font-medium">{t("landing.exchange_rate")}</span>
                     <span className="font-bold text-slate-900 font-mono">
@@ -453,18 +453,18 @@ export function Landing() {
                   </div>
                   <div className="flex items-center justify-between text-slate-600 pt-1.5 border-t border-slate-200">
                     <span className="font-bold text-slate-900">{t("landing.total_to_pay")}</span>
-                    <span className="font-black text-slate-900 font-mono text-sm">
+                    <span className="font-black text-slate-900 font-mono text-xs sm:text-sm">
                       {money(Number(amount) || 0, sendCurrency)}
                     </span>
                   </div>
                 </div>
 
                 {/* DESTACADO INFERIOR: TU FAMILIA RECIBE (BANNER VERDE ESMERALDA VIVO DE ALTO CONTRASTE) */}
-                <div className="rounded-2xl bg-gradient-to-r from-emerald-600 via-emerald-700 to-emerald-800 p-4 text-white shadow-md border border-emerald-500/30 flex flex-col justify-center">
-                  <p className="text-[11px] font-black uppercase tracking-wider text-emerald-100">
+                <div className="rounded-xl sm:rounded-2xl bg-gradient-to-r from-emerald-600 via-emerald-700 to-emerald-800 p-3.5 sm:p-4 text-white shadow-md border border-emerald-500/30 flex flex-col justify-center">
+                  <p className="text-[10px] sm:text-[11px] font-black uppercase tracking-wider text-emerald-100">
                     {t("landing.family_receives")}
                   </p>
-                  <p className="mt-0.5 font-display text-3xl font-black tracking-tight text-white drop-shadow-xs">
+                  <p className="mt-0.5 font-display text-2xl sm:text-3xl font-black tracking-tight text-white drop-shadow-xs break-all sm:break-normal">
                     {money(q.receives, receiveCurrency)}
                   </p>
                 </div>
@@ -473,14 +473,14 @@ export function Landing() {
 
             {/* CONTENIDO TAB RECARGAS */}
             {activeTab === "recargas" && (
-              <div className="space-y-4 pt-1">
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="space-y-1.5">
+              <div className="space-y-3 sm:space-y-4 pt-0.5 sm:pt-1">
+                <div className="grid grid-cols-2 gap-2 sm:gap-3">
+                  <div className="space-y-1 sm:space-y-1.5">
                     <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
                       {t("landing.topup_pay_country")}
                     </span>
                     <Select value={topupOrigin} onValueChange={setTopupOrigin}>
-                      <SelectTrigger className="h-11 rounded-xl bg-slate-50 border-2 border-slate-200 text-xs font-bold text-slate-900 focus:bg-white focus:ring-1 focus:ring-emerald-600 focus:border-emerald-600">
+                      <SelectTrigger className="h-10 sm:h-11 rounded-xl bg-slate-50 border-2 border-slate-200 text-[11px] sm:text-xs font-bold text-slate-900 px-2.5 sm:px-3 focus:bg-white focus:ring-1 focus:ring-emerald-600 focus:border-emerald-600">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent className="bg-white border-2 border-slate-200 text-slate-900">
@@ -497,12 +497,12 @@ export function Landing() {
                     </Select>
                   </div>
 
-                  <div className="space-y-1.5">
+                  <div className="space-y-1 sm:space-y-1.5">
                     <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
                       {t("landing.topup_recharge_country")}
                     </span>
                     <Select value={topupDestination} onValueChange={setTopupDestination}>
-                      <SelectTrigger className="h-11 rounded-xl bg-slate-50 border-2 border-slate-200 text-xs font-bold text-slate-900 focus:bg-white focus:ring-1 focus:ring-emerald-600 focus:border-emerald-600">
+                      <SelectTrigger className="h-10 sm:h-11 rounded-xl bg-slate-50 border-2 border-slate-200 text-[11px] sm:text-xs font-bold text-slate-900 px-2.5 sm:px-3 focus:bg-white focus:ring-1 focus:ring-emerald-600 focus:border-emerald-600">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent className="bg-white border-2 border-slate-200 text-slate-900">
@@ -520,7 +520,7 @@ export function Landing() {
                   </div>
                 </div>
 
-                <div className="space-y-1.5">
+                <div className="space-y-1 sm:space-y-1.5 pt-0.5">
                   <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
                     {t("landing.topup_amount")} ({topupSendCurrency})
                   </span>
@@ -529,11 +529,11 @@ export function Landing() {
                     inputMode="decimal"
                     value={topupAmount}
                     onChange={(e) => setTopupAmount(e.target.value.replace(/[^0-9.]/g, ""))}
-                    className="w-full h-14 rounded-xl bg-slate-50 border-2 border-slate-200 px-4 font-display text-2xl font-black text-slate-900 focus:bg-white focus:outline-none focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600 transition"
+                    className="w-full h-12 sm:h-14 rounded-xl bg-slate-50 border-2 border-slate-200 px-3 sm:px-4 font-display text-xl sm:text-2xl font-black text-slate-900 focus:bg-white focus:outline-none focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600 transition"
                   />
                 </div>
 
-                <div className="space-y-2 rounded-xl bg-slate-50 border border-slate-200/90 p-4 text-xs">
+                <div className="space-y-1.5 sm:space-y-2 rounded-xl bg-slate-50 border border-slate-200/90 p-3 sm:p-4 text-[11px] sm:text-xs">
                   <div className="flex items-center justify-between text-slate-600">
                     <span className="font-medium">{t("landing.topup_rate")}</span>
                     <span className="font-bold text-slate-900 font-mono">
@@ -547,11 +547,11 @@ export function Landing() {
                   </div>
                 </div>
 
-                <div className="rounded-2xl bg-gradient-to-r from-emerald-600 via-emerald-700 to-emerald-800 p-4 text-white shadow-md border border-emerald-500/30">
-                  <p className="text-[11px] font-black uppercase tracking-wider text-emerald-100">
+                <div className="rounded-xl sm:rounded-2xl bg-gradient-to-r from-emerald-600 via-emerald-700 to-emerald-800 p-3.5 sm:p-4 text-white shadow-md border border-emerald-500/30">
+                  <p className="text-[10px] sm:text-[11px] font-black uppercase tracking-wider text-emerald-100">
                     {t("landing.phone_receives")}
                   </p>
-                  <p className="mt-0.5 font-display text-3xl font-black tracking-tight text-white drop-shadow-xs">
+                  <p className="mt-0.5 font-display text-2xl sm:text-3xl font-black tracking-tight text-white drop-shadow-xs break-all sm:break-normal">
                     {money(topupReceived, topupDestCurrency)}
                   </p>
                 </div>
@@ -750,8 +750,8 @@ export function Landing() {
         </div>
       </section>
 
-      {/* FOOTER FIJO VERDE ELEGANTE */}
-      <footer className="fixed bottom-0 inset-x-0 z-40 border-t border-emerald-400/80 bg-[#A7F3D0]/95 backdrop-blur-2xl py-2 px-3 text-center text-[11px] sm:text-xs text-emerald-950 shadow-md space-y-1">
+      {/* FOOTER VERDE ELEGANTE */}
+      <footer className="relative mt-8 sm:mt-16 border-t border-emerald-400/80 bg-[#A7F3D0]/95 backdrop-blur-2xl py-4 sm:py-5 px-4 text-center text-[11px] sm:text-xs text-emerald-950 shadow-xs space-y-2">
         <div className="flex items-center justify-center gap-2">
           <SocialLinks iconSize="size-3.5" className="gap-1.5" />
         </div>
