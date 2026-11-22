@@ -49,6 +49,45 @@ export const adminAdjustAgentBalance = createServerFn({ method: "POST" })
       );
     }
 
+    // Regla de Negocio Tchotcho:
+    // Solo los admin pueden recargar saldo a los Super Agentes y a agentes que NO están en la red de nadie.
+    // Los agentes subordinados (en la red de un Super Agente) deben ser recargados directamente por su Super Agente.
+    const isSuperAgent =
+      roleRows.some((r) => r.role === "super_agent") ||
+      Boolean(
+        (
+          await supabaseAdmin
+            .from("integration_credentials")
+            .select("value")
+            .eq("name", `SUPER_AGENT_ROLE_${input.agentUserId}`)
+            .maybeSingle()
+        ).data?.value,
+      );
+
+    if (!isSuperAgent) {
+      const parentKey = `AGENT_PARENT_SUPER_AGENT_${input.agentUserId}`;
+      const { data: parentCred } = await supabaseAdmin
+        .from("integration_credentials")
+        .select("value")
+        .eq("name", parentKey)
+        .maybeSingle();
+
+      if (parentCred?.value) {
+        try {
+          const pData = JSON.parse(parentCred.value);
+          if (pData?.superAgentId) {
+            throw new Error(
+              `Este agente pertenece a la red del Super Agente (${pData.superAgentName || "Super Agente"}). Los administradores solo pueden recargar saldo a los Super Agentes y a agentes independientes (que no están en la red de nadie). Los agentes en red deben ser recargados directamente por su Super Agente.`,
+            );
+          }
+        } catch (e: any) {
+          if (e.message && e.message.includes("Este agente pertenece a la red")) {
+            throw e;
+          }
+        }
+      }
+    }
+
     const targetCurrency =
       input.walletType === "topups" ? "HTG_RECARGAS" : (input.currency || "HTG").toUpperCase();
     const walletLabel =

@@ -525,6 +525,8 @@ export interface AdminUserListItem {
   roles: string[];
   balanceHTG: number;
   balanceTopupsHTG?: number;
+  parentSuperAgentId?: string | null;
+  parentSuperAgentName?: string | null;
 }
 
 /**
@@ -620,6 +622,30 @@ export const getAdminUsersList = createServerFn({ method: "GET" })
       console.warn("[getAdminUsersList] super_agent roles fetch failed:", e);
     }
 
+    const parentMap = new Map<string, { superAgentId: string; superAgentName: string }>();
+    try {
+      const { data: parentRows } = await supabaseAdmin
+        .from("integration_credentials")
+        .select("name, value")
+        .like("name", "AGENT_PARENT_SUPER_AGENT_%");
+      if (parentRows) {
+        for (const r of parentRows) {
+          const agentId = r.name.replace("AGENT_PARENT_SUPER_AGENT_", "");
+          try {
+            const parsed = JSON.parse(r.value);
+            if (parsed?.superAgentId) {
+              parentMap.set(agentId, {
+                superAgentId: parsed.superAgentId,
+                superAgentName: parsed.superAgentName || "Super Agente",
+              });
+            }
+          } catch {}
+        }
+      }
+    } catch (e) {
+      console.warn("[getAdminUsersList] parent agent fetch failed:", e);
+    }
+
     const usersMap = new Map<string, AdminUserListItem>();
 
     // 3. Procesar todos los usuarios de auth.users como fuente primaria
@@ -651,6 +677,8 @@ export const getAdminUsersList = createServerFn({ method: "GET" })
         finalRoles.push("super_agent");
       }
 
+      const parentInfo = parentMap.get(u.id);
+
       usersMap.set(u.id, {
         id: u.id,
         email: u.email || null,
@@ -667,6 +695,8 @@ export const getAdminUsersList = createServerFn({ method: "GET" })
         roles: finalRoles.length > 0 ? finalRoles : ["client"],
         balanceHTG: Number(htgBal),
         balanceTopupsHTG: Number(topupBal),
+        parentSuperAgentId: parentInfo?.superAgentId || null,
+        parentSuperAgentName: parentInfo?.superAgentName || null,
       });
     }
 
@@ -681,6 +711,8 @@ export const getAdminUsersList = createServerFn({ method: "GET" })
         const htgBal = userWallets.find((w) => w.currency === "HTG")?.balance ?? 0;
         const topupBal = userWallets.find((w) => w.currency === "HTG_RECARGAS")?.balance ?? 0;
 
+        const parentInfo = parentMap.get(p.id);
+
         usersMap.set(p.id, {
           id: p.id,
           email: (p as any).email || null,
@@ -693,6 +725,8 @@ export const getAdminUsersList = createServerFn({ method: "GET" })
           roles: userRoles.length > 0 ? userRoles : ["client"],
           balanceHTG: Number(htgBal),
           balanceTopupsHTG: Number(topupBal),
+          parentSuperAgentId: parentInfo?.superAgentId || null,
+          parentSuperAgentName: parentInfo?.superAgentName || null,
         });
       }
     }

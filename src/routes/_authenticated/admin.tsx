@@ -757,9 +757,17 @@ function UsersPanel() {
                     </Badge>
                   )}
                   {isAgent && !isSuperAgent && !isAdmin && (
-                    <Badge variant="secondary" className="text-xs font-bold bg-slate-100 text-slate-800 border border-slate-200">
-                      Agente
-                    </Badge>
+                    <>
+                      {p.parentSuperAgentName ? (
+                        <Badge className="text-xs font-bold bg-purple-50 text-purple-900 border border-purple-300 gap-1 shadow-2xs">
+                          Red de: {p.parentSuperAgentName}
+                        </Badge>
+                      ) : (
+                        <Badge variant="secondary" className="text-xs font-bold bg-emerald-50 text-emerald-900 border border-emerald-300">
+                          Agente Directo
+                        </Badge>
+                      )}
+                    </>
                   )}
                   {!isAdmin && !isAgent && (
                     <Badge variant="outline" className="text-xs text-slate-600 border border-slate-300 font-semibold">
@@ -777,15 +785,30 @@ function UsersPanel() {
                 </div>
                 <div className="flex flex-wrap items-center gap-2">
                   {isAgent && (
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="gap-1.5 border-2 border-emerald-600 bg-emerald-50 text-emerald-800 hover:bg-emerald-100 font-black text-xs rounded-xl shadow-2xs"
-                      onClick={() => setBalanceUser(p)}
-                    >
-                      <Coins className="size-3.5" />
-                      Adicionar Saldo
-                    </Button>
+                    <>
+                      {isSuperAgent || !p.parentSuperAgentName ? (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="gap-1.5 border-2 border-emerald-600 bg-emerald-50 text-emerald-800 hover:bg-emerald-100 font-black text-xs rounded-xl shadow-2xs"
+                          onClick={() => setBalanceUser(p)}
+                        >
+                          <Coins className="size-3.5" />
+                          Adicionar Saldo
+                        </Button>
+                      ) : (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="gap-1.5 border border-purple-200 bg-purple-50/70 text-purple-800 hover:bg-purple-100 text-xs rounded-xl font-bold"
+                          onClick={() => setBalanceUser(p)}
+                          title={`Agente en red de ${p.parentSuperAgentName}. Recargado por su Super Agente.`}
+                        >
+                          <Coins className="size-3.5 text-purple-600" />
+                          En Red ({p.parentSuperAgentName.split(" ")[0]})
+                        </Button>
+                      )}
+                    </>
                   )}
 
                   {/* Administradores y Super Admin: pueden asignar roles y configurar opciones permitidas */}
