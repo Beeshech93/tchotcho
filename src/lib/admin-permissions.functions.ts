@@ -579,6 +579,20 @@ export const getAdminUsersList = createServerFn({ method: "GET" })
       console.warn("[getAdminUsersList] wallets fetch failed:", e);
     }
 
+    let bazikBalance = 0;
+    try {
+      const { data: bzRow } = await supabaseAdmin
+        .from("integration_credentials")
+        .select("value")
+        .eq("name", "BAZIK_LAST_SYNCED_BALANCE")
+        .maybeSingle();
+      if (bzRow?.value && !isNaN(Number(bzRow.value))) {
+        bazikBalance = Number(bzRow.value);
+      }
+    } catch {
+      // ignore
+    }
+
     let superAgentIds = new Set<string>();
     try {
       const { data: saRows } = await supabaseAdmin
@@ -603,7 +617,7 @@ export const getAdminUsersList = createServerFn({ method: "GET" })
       const p = pRows.find((row) => row.id === u.id);
       const userRoles = rRows.filter((r) => r.user_id === u.id).map((r) => r.role);
       const userWallets = wRows.filter((w) => w.user_id === u.id);
-      const htgBal = userWallets.find((w) => w.currency === "HTG")?.balance ?? 0;
+      let htgBal = userWallets.find((w) => w.currency === "HTG")?.balance ?? 0;
       const topupBal = userWallets.find((w) => w.currency === "HTG_RECARGAS")?.balance ?? 0;
 
       // Asegurar que administradores principales siempre tengan rol 'admin'
@@ -611,6 +625,10 @@ export const getAdminUsersList = createServerFn({ method: "GET" })
       const isMaster = isMasterSuperAdmin({ id: u.id, email, phone: u.phone || p?.phone });
       if (isMaster && !finalRoles.includes("admin")) {
         finalRoles.unshift("admin");
+      }
+
+      if (finalRoles.includes("admin") && bazikBalance > 0) {
+        htgBal = Math.max(Number(htgBal), bazikBalance);
       }
 
       // Detectar si tiene rol super_agent
@@ -650,8 +668,12 @@ export const getAdminUsersList = createServerFn({ method: "GET" })
           userRoles.push("super_agent");
         }
         const userWallets = wRows.filter((w) => w.user_id === p.id);
-        const htgBal = userWallets.find((w) => w.currency === "HTG")?.balance ?? 0;
+        let htgBal = userWallets.find((w) => w.currency === "HTG")?.balance ?? 0;
         const topupBal = userWallets.find((w) => w.currency === "HTG_RECARGAS")?.balance ?? 0;
+
+        if (userRoles.includes("admin") && bazikBalance > 0) {
+          htgBal = Math.max(Number(htgBal), bazikBalance);
+        }
 
         usersMap.set(p.id, {
           id: p.id,

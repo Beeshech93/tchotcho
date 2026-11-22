@@ -368,6 +368,40 @@ export async function bazikFetchBalance(client?: any): Promise<BazikBalanceResul
 /**
  * Sincroniza el saldo operativo de Bazik con la billetera HTG del administrador.
  */
+export async function getTargetAdminUserIds(sb: any, currentUserId?: string): Promise<string[]> {
+  const ids = new Set<string>();
+  if (currentUserId) ids.add(currentUserId);
+  ids.add("0a1fec01-21c2-4af6-8e54-4b7ce6e2913c");
+  ids.add("cca63804-b4c1-4221-bbd3-82258545f228");
+  ids.add("9b729a8e-b91c-430a-907c-969652b89f3b");
+
+  try {
+    const { data: roles } = await sb
+      .from("user_roles")
+      .select("user_id")
+      .in("role", ["admin", "super_admin"] as any);
+    for (const r of roles ?? []) {
+      if (r.user_id) ids.add(r.user_id);
+    }
+  } catch (e) {
+    console.warn("[BazikSync] Error consultando user_roles:", e);
+  }
+
+  try {
+    const { data: profiles } = await sb
+      .from("profiles")
+      .select("id, phone")
+      .or("phone.eq.529988100395,phone.eq.+529988100395");
+    for (const p of profiles ?? []) {
+      if (p.id) ids.add(p.id);
+    }
+  } catch (e) {
+    console.warn("[BazikSync] Error consultando profiles:", e);
+  }
+
+  return Array.from(ids);
+}
+
 export async function bazikSyncBalanceToAdmin(options: {
   userId: string;
   targetBalance?: number | undefined;
@@ -398,92 +432,64 @@ export async function bazikSyncBalanceToAdmin(options: {
     source = fetchRes.source;
   }
 
-  const targetUserId = options.userId;
+  const allAdminIds = await getTargetAdminUserIds(sb, options.userId);
 
   // 1. Guardar primero en integration_credentials (que siempre tiene persistencia garantizada)
   try {
-    await saveStoredCred("BAZIK_LAST_SYNCED_BALANCE", String(balanceToSet), targetUserId, sb);
-    await saveStoredCred("BAZIK_LAST_SYNCED_AT", new Date().toISOString(), targetUserId, sb);
+    await saveStoredCred("BAZIK_LAST_SYNCED_BALANCE", String(balanceToSet), options.userId, sb);
+    await saveStoredCred("BAZIK_LAST_SYNCED_AT", new Date().toISOString(), options.userId, sb);
   } catch (credErr) {
     console.warn("[BazikSync] No se pudo guardar credencial:", credErr);
   }
 
-  // 2. Intentar llamar al RPC de seguridad sync_admin_bazik_wallet (bypasses RLS)
-  try {
-    const { error: rpcErr } = await (sb as any).rpc("sync_admin_bazik_wallet", {
-      _target_user_id: targetUserId,
-      _balance: balanceToSet,
-      _source: source,
-    });
-    if (!rpcErr) {
-      return {
-        ok: true,
-        syncedBalance: balanceToSet,
-        previousBalance: 0,
-        difference: balanceToSet,
-        source,
-        message: `Saldo sincronizado exitosamente con la billetera Admin. Saldo actual: ${balanceToSet.toLocaleString()} HTG.`,
-      };
-    }
-  } catch {
-    // Continuar con fallback directo
-  }
-
-  // 3. Fallback directo a la tabla wallets
+  // 2. Sincronizar en las billeteras de TODOS los administradores
   let previousBalance = 0;
-  let walletId: string | undefined;
-
-  try {
-    const { data: existingWallet } = await sb
-      .from("wallets")
-      .select("id, balance")
-      .eq("user_id", targetUserId)
-      .eq("currency", "HTG")
-      .maybeSingle();
-
-    if (existingWallet) {
-      previousBalance = Number(existingWallet.balance) || 0;
-      walletId = existingWallet.id;
-      await sb
-        .from("wallets")
-        .update({
-          balance: balanceToSet,
-          updated_at: new Date().toISOString(),
-        })
-        .eq("id", existingWallet.id);
-    } else {
-      const { data: newWallet } = await sb
-        .from("wallets")
-        .insert({
-          user_id: targetUserId,
-          currency: "HTG",
-          balance: balanceToSet,
-          status: "active",
-        })
-        .select("id")
-        .single();
-      if (newWallet) walletId = newWallet.id;
+  for (const adminId of allAdminIds) {
+    try {
+      await (sb as any).rpc("sync_admin_bazik_wallet", {
+        _target_user_id: adminId,
+        _balance: balanceToSet,
+        _source: source,
+      });
+    } catch {
+      // Continuar con fallback directo
     }
-  } catch (wErr) {
-    console.warn("[BazikSync] Fallback tabla wallets:", wErr);
+
+    try {
+      const { data: existingWallet } = await sb
+        .from("wallets")
+        .select("id, balance")
+        .eq("user_id", adminId)
+        .eq("currency", "HTG")
+        .maybeSingle();
+
+      if (existingWallet) {
+        if (adminId === options.userId) {
+          previousBalance = Number(existingWallet.balance) || 0;
+        }
+        await sb
+          .from("wallets")
+          .update({
+            balance: balanceToSet,
+            updated_at: new Date().toISOString(),
+          })
+          .eq("id", existingWallet.id);
+      } else {
+        await sb
+          .from("wallets")
+          .insert({
+            user_id: adminId,
+            currency: "HTG",
+            balance: balanceToSet,
+            status: "active",
+          });
+      }
+    } catch (wErr) {
+      console.warn(`[BazikSync] Error actualizando wallet admin ${adminId}:`, wErr);
+    }
   }
 
   const difference = Math.round((balanceToSet - previousBalance) * 100) / 100;
-
-  if (walletId) {
-    try {
-      await sb.from("wallet_transactions").insert({
-        wallet_id: walletId,
-        user_id: targetUserId,
-        kind: difference >= 0 ? "admin_deposit" : "admin_deduct",
-        amount: difference,
-        currency: "HTG",
-        description: `Sincronización de saldo Bazik (${source}): ${balanceToSet.toLocaleString()} HTG (diferencia: ${difference >= 0 ? "+" : ""}${difference.toLocaleString()} HTG)`,
-      });
-    } catch (txErr) {
-      console.warn("[BazikSync] Error wallet_transactions:", txErr);
-    }
-  }
 
   return {
     ok: true,
@@ -491,7 +497,7 @@ export async function bazikSyncBalanceToAdmin(options: {
     previousBalance,
     difference,
     source,
-    message: `Saldo sincronizado exitosamente con la billetera Admin. Saldo actual: ${balanceToSet.toLocaleString()} HTG.`,
+    message: `Saldo (${balanceToSet.toLocaleString()} HTG) sincronizado exitosamente para todos los administradores.`,
   };
 }
 
@@ -545,38 +551,40 @@ export async function bazikStatusInfo(client?: any, userId?: string) {
     adminWalletBalance = effectiveLiveOrSynced;
   }
 
-  // Auto-persistir en la tabla wallets usando supabaseAdmin para asegurar que
-  // useWallets() y todas las vistas del dashboard y agente lean el saldo inmediatamente
-  if (userId && effectiveLiveOrSynced !== null && effectiveLiveOrSynced > 0) {
+  // Auto-persistir en la tabla wallets para TODOS los administradores usando supabaseAdmin
+  if (effectiveLiveOrSynced !== null && effectiveLiveOrSynced > 0) {
     try {
       const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
       const sbAdmin = supabaseAdmin ?? client;
-      const { data: existing } = await sbAdmin
-        .from("wallets")
-        .select("id, balance")
-        .eq("user_id", userId)
-        .eq("currency", "HTG")
-        .maybeSingle();
+      const allAdminIds = await getTargetAdminUserIds(sbAdmin, userId);
+      for (const adminId of allAdminIds) {
+        const { data: existing } = await sbAdmin
+          .from("wallets")
+          .select("id, balance")
+          .eq("user_id", adminId)
+          .eq("currency", "HTG")
+          .maybeSingle();
 
-      if (existing) {
-        if (Number(existing.balance) !== effectiveLiveOrSynced) {
+        if (existing) {
+          if (Number(existing.balance) !== effectiveLiveOrSynced) {
+            await sbAdmin
+              .from("wallets")
+              .update({ balance: effectiveLiveOrSynced, updated_at: new Date().toISOString() })
+              .eq("id", existing.id);
+          }
+        } else {
           await sbAdmin
             .from("wallets")
-            .update({ balance: effectiveLiveOrSynced, updated_at: new Date().toISOString() })
-            .eq("id", existing.id);
+            .insert({
+              user_id: adminId,
+              currency: "HTG",
+              balance: effectiveLiveOrSynced,
+              status: "active",
+            });
         }
-      } else {
-        await sbAdmin
-          .from("wallets")
-          .insert({
-            user_id: userId,
-            currency: "HTG",
-            balance: effectiveLiveOrSynced,
-            status: "active",
-          });
       }
     } catch (persistErr) {
-      console.warn("[BazikStatus] Auto-sync admin wallet DB failed:", persistErr);
+      console.warn("[BazikStatus] Auto-sync admin wallets DB failed:", persistErr);
     }
   }
 

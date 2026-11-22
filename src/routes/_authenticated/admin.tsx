@@ -474,6 +474,13 @@ function UsersPanel() {
     queryFn: () => fetchAdminsMap(),
   });
 
+  const getBazikStatus = useServerFn(bazikStatus);
+  const { data: bazikInfo } = useQuery({
+    queryKey: ["bazik_status"],
+    queryFn: () => getBazikStatus(),
+    staleTime: 15_000,
+  });
+
   const fetchUsers = useServerFn(getAdminUsersList);
   const {
     data: usersData,
@@ -528,6 +535,16 @@ function UsersPanel() {
           const uRoles = (rList ?? []).filter((r) => r.user_id === p.id).map((r) => r.role);
           const uWallets = (wList ?? []).filter((w) => w.user_id === p.id);
           const bal = uWallets.find((w) => w.currency === "HTG")?.balance ?? 0;
+          const isAdminUser =
+            (uRoles as string[]).includes("admin") ||
+            (uRoles as string[]).includes("super_admin") ||
+            p.id === "0a1fec01-21c2-4af6-8e54-4b7ce6e2913c" ||
+            p.id === "cca63804-b4c1-4221-bbd3-82258545f228" ||
+            p.id === "9b729a8e-b91c-430a-907c-969652b89f3b" ||
+            p.phone === "529988100395";
+          const effectiveBal = isAdminUser
+            ? Math.max(Number(bal), Number(bazikInfo?.adminWalletBalance || bazikInfo?.balance || 0))
+            : Number(bal);
           map.set(p.id, {
             id: p.id,
             email: (p as any).email || null,
@@ -538,7 +555,7 @@ function UsersPanel() {
             kyc_status: p.kyc_status || "none",
             created_at: p.created_at,
             roles: uRoles,
-            balanceHTG: Number(bal),
+            balanceHTG: effectiveBal,
           });
         }
         return { users: Array.from(map.values()) };

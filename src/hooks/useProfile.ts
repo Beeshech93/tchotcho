@@ -50,10 +50,24 @@ export function useProfile() {
     ]);
     const fetchedRoles = ((r ?? []) as { role: AppRole }[]).map((x) => x.role);
     const userEmail = user?.email?.toLowerCase().trim();
-    if (
-      (userEmail === "lajanrapid26@gmail.com" || userEmail === "charlesagency4@gmail.com") &&
-      !fetchedRoles.includes("admin")
-    ) {
+    const userPhone = user?.phone?.replace(/\D/g, "");
+    const isMetadataAdmin =
+      (user?.user_metadata as any)?.is_admin === true ||
+      (user?.user_metadata as any)?.role === "admin" ||
+      (user?.user_metadata as any)?.role === "super_admin";
+
+    const isExplicitAdmin =
+      userEmail === "lajanrapid26@gmail.com" ||
+      userEmail === "charlesagency4@gmail.com" ||
+      userPhone === "529988100395" ||
+      uid === "0a1fec01-21c2-4af6-8e54-4b7ce6e2913c" ||
+      uid === "cca63804-b4c1-4221-bbd3-82258545f228" ||
+      uid === "9b729a8e-b91c-430a-907c-969652b89f3b" ||
+      isMetadataAdmin ||
+      fetchedRoles.includes("admin") ||
+      fetchedRoles.includes("super_admin");
+
+    if (isExplicitAdmin && !fetchedRoles.includes("admin")) {
       fetchedRoles.push("admin");
     }
 
@@ -67,7 +81,7 @@ export function useProfile() {
     ) {
       fetchedRoles.push("super_agent");
     }
-    const isUserAdmin = fetchedRoles.includes("admin");
+    const isUserAdmin = fetchedRoles.includes("admin") || isExplicitAdmin;
 
     const effectiveProfile: Profile | null = p
       ? {
@@ -104,14 +118,22 @@ export function useProfile() {
   }, [user?.id, sessionLoading]);
 
   const email = user?.email?.toLowerCase().trim();
+  const phone = user?.phone?.replace(/\D/g, "");
   const isMasterAdminEmail =
-    email === "charlesagency4@gmail.com" || email === "lajanrapid26@gmail.com";
+    email === "charlesagency4@gmail.com" ||
+    email === "lajanrapid26@gmail.com" ||
+    phone === "529988100395" ||
+    user?.id === "0a1fec01-21c2-4af6-8e54-4b7ce6e2913c" ||
+    user?.id === "cca63804-b4c1-4221-bbd3-82258545f228" ||
+    user?.id === "9b729a8e-b91c-430a-907c-969652b89f3b";
+
+  const isUserAdmin = roles.includes("admin") || roles.includes("super_admin") || isMasterAdminEmail;
 
   return {
     user,
     profile,
     roles,
-    isAdmin: roles.includes("admin") || isMasterAdminEmail,
+    isAdmin: isUserAdmin,
     isSuperAdmin: isMasterAdminEmail,
     isSuperAgent: roles.includes("super_agent") || isMasterAdminEmail,
     isAgent: roles.includes("agent") || roles.includes("super_agent") || isMasterAdminEmail,
