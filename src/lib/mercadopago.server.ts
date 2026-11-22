@@ -207,7 +207,7 @@ export async function applyMpPayment(payment: MpPayment) {
   const { data: transfer } = await supabaseAdmin
     .from("transfers")
     .select(
-      "id, user_id, status, reference, delivery_method, recipient_phone, recipient_name, amount_receive, amount_htg, receive_currency",
+      "id, user_id, status, reference, delivery_method, recipient_phone, recipient_name, amount_receive, receive_currency",
     )
     .eq("reference", ref)
     .maybeSingle();
@@ -250,7 +250,7 @@ export async function applyMpPayment(payment: MpPayment) {
       const payoutRes = await bazikPayout({
         provider: transfer.delivery_method,
         phone: String(transfer.recipient_phone || "").trim(),
-        amount: Number(transfer.amount_receive || transfer.amount_htg || 0),
+        amount: Number(transfer.amount_receive || 0),
         currency: transfer.receive_currency || "HTG",
         reference: transfer.reference,
         recipientName: String(transfer.recipient_name || "").trim(),

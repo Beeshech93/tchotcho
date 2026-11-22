@@ -154,8 +154,7 @@ function Detalle() {
   const isOxxo = !isAgentPayment && t?.payment_method === "oxxo";
   const isSpei = !isAgentPayment && t?.payment_method === "spei";
   const isDirectCashDelivery = t ? ["moncash", "natcash"].includes(t.delivery_method) : false;
-  const shouldAutoFinalizeUser =
-    isDirectCashDelivery && status === "paid" && status !== "completed";
+  const shouldAutoFinalizeUser = isDirectCashDelivery && status === "paid";
 
   const effectiveRate = t && Number(t.rate) > 0 ? Number(t.rate) : 7.2;
   const effectiveAmountReceive =

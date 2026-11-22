@@ -228,7 +228,6 @@ export const finalizeTransferPayout = createServerFn({ method: "POST" })
       status: "completed",
       provider: t.delivery_method,
       phone: t.recipient_phone,
-      status: "processing",
       ...(result.providerReference ? { providerReference: result.providerReference } : {}),
     };
   });

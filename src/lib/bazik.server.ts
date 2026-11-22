@@ -614,7 +614,14 @@ export type BazikResult =
       total?: number;
       raw?: unknown;
     }
-  | { ok: false; configured?: boolean; error: string; retryable?: boolean };
+  | {
+      ok: false;
+      configured?: boolean;
+      error: string;
+      retryable?: boolean;
+      status?: string;
+      raw?: unknown;
+    };
 
 function normalisePhoneToWallet(phone: string): string {
   const digits = phone.replace(/\D/g, "");
