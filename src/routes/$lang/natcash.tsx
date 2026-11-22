@@ -14,6 +14,10 @@ export const CONTENT: Record<"es" | "fr" | "ht", PageContent> = {
         body: "El número de teléfono registrado en NatCash del destinatario en Haití. Nada más — no se necesita cuenta bancaria.",
       },
       {
+        title: "Límites por transacción (Natcom / NatCash)",
+        body: "Min 3,998 HTG · Max 75,000 HTG per transaction · whole numbers only (montos enteros únicamente).",
+      },
+      {
         title: "Cómo funciona con Tcho-Tcho",
         body: "Al crear tu envío, selecciona NatCash como método de entrega e introduce el número de teléfono del destinatario. Una vez confirmado tu pago, el envío se procesa y el dinero se envía a esa billetera NatCash.",
       },
@@ -33,6 +37,10 @@ export const CONTENT: Record<"es" | "fr" | "ht", PageContent> = {
         body: "Le numéro de téléphone enregistré sur NatCash du destinataire en Haïti. C'est tout — aucun compte bancaire requis.",
       },
       {
+        title: "Limites par transaction (Natcom / NatCash)",
+        body: "Min 3,998 HTG · Max 75,000 HTG par transaction · whole numbers only (nombres entiers uniquement).",
+      },
+      {
         title: "Comment ça marche avec Tcho-Tcho",
         body: "En créant votre envoi, sélectionnez NatCash comme mode de réception et entrez le numéro de téléphone du destinataire. Une fois votre paiement confirmé, l'envoi est traité et les fonds sont envoyés vers ce portefeuille NatCash.",
       },
@@ -49,6 +57,10 @@ export const CONTENT: Record<"es" | "fr" | "ht", PageContent> = {
       {
         title: "Sa w bezwen",
         body: "Nimewo telefòn destinatè a ki anrejistre nan NatCash an Ayiti. Se sa sèlman — pa gen bezwen kont bank.",
+      },
+      {
+        title: "Limit pa tranzaksyon (Natcom / NatCash)",
+        body: "Min 3,998 HTG · Max 75,000 HTG pa tranzaksyon · whole numbers only (chif antye sèlman).",
       },
       {
         title: "Kijan sa mache ak Tcho-Tcho",

@@ -340,12 +340,18 @@ function Agente() {
     }
 
     if (deliveryMethod === "moncash" && q.receives > 75000) {
-      toast.error("MonCash permite un máximo de 75,000 HTG.");
+      toast.error("MonCash permite un máximo de 75,000 HTG por transacción.");
       return;
     }
-    if (deliveryMethod === "natcash" && (q.receives < 3998 || q.receives > 75000)) {
-      toast.error("NatCash requiere entre 3,998 y 75,000 HTG.");
-      return;
+    if (deliveryMethod === "natcash") {
+      if (q.receives < 3998 || q.receives > 75000) {
+        toast.error("Natcom (NatCash): Min 3,998 HTG · Max 75,000 HTG per transaction · whole numbers only");
+        return;
+      }
+      if (!Number.isInteger(q.receives)) {
+        toast.error("Natcom (NatCash): Solo números enteros en HTG (whole numbers only). Ajusta el monto.");
+        return;
+      }
     }
 
     if (!isAdmin && (transfersBalance <= 0 || q.receives > transfersBalance)) {
@@ -1296,6 +1302,15 @@ function Agente() {
                   ))}
                 </SelectContent>
               </Select>
+              {deliveryMethod === "natcash" ? (
+                <p className="text-[11px] font-bold text-emerald-800 bg-emerald-50 border border-emerald-200 rounded-lg p-2">
+                  ⚡ Natcom (NatCash): Min 3,998 HTG · Max 75,000 HTG per transaction · whole numbers only
+                </p>
+              ) : (
+                <p className="text-[11px] font-medium text-slate-600">
+                  MonCash: máximo 75,000 HTG por transacción.
+                </p>
+              )}
             </div>
 
             {/* Monto Recibido en Efectivo */}

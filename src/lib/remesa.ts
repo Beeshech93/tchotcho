@@ -123,12 +123,12 @@ export const DELIVERY_CATALOG: Record<string, Method> = {
   moncash: {
     value: "moncash",
     label: "MonCash",
-    hint: "Billetera móvil Digicel (Haití)",
+    hint: "Billetera móvil Digicel (máx. 75,000 HTG)",
   },
   natcash: {
     value: "natcash",
-    label: "NatCash",
-    hint: "Billetera móvil Natcom (Haití)",
+    label: "NatCash (Natcom)",
+    hint: "Min 3,998 HTG · Max 75,000 HTG per transaction · whole numbers only",
   },
 };
 

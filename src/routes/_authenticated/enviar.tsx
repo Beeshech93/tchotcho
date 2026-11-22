@@ -157,17 +157,15 @@ function Enviar() {
       return;
     }
     if (destination === "HT" && delivery === "natcash") {
-      if (amountReceiveHtg < 3_998) {
-        toast.error("NatCash requiere un mínimo de 3,998 HTG por transacción.");
-        return;
-      }
-      if (amountReceiveHtg > 75_000) {
-        toast.error("NatCash permite un máximo de 75,000 HTG por transacción.");
+      if (amountReceiveHtg < 3_998 || amountReceiveHtg > 75_000) {
+        toast.error(
+          "Natcom (NatCash): Min 3,998 HTG · Max 75,000 HTG per transaction · whole numbers only",
+        );
         return;
       }
       if (!Number.isInteger(amountReceiveHtg)) {
         toast.error(
-          "Para NatCash, el monto recibido debe ser un número entero en HTG. Ajusta el monto enviado.",
+          "Natcom (NatCash): Solo números enteros en HTG (whole numbers only). Ajusta el monto enviado.",
         );
         return;
       }
@@ -383,11 +381,17 @@ function Enviar() {
             <Line label={t("send.total")} value={money(q.total, sendCur)} strong />
           </div>
           {destination === "HT" && (
-            <p className="text-xs text-muted-foreground">
-              {delivery === "natcash"
-                ? "NatCash: mínimo 3,998 HTG, máximo 75,000 HTG; monto entero."
-                : "MonCash: máximo 75,000 HTG por transacción."}
-            </p>
+            <div className="rounded-xl border border-slate-200 bg-slate-50 p-2.5 text-xs text-slate-700">
+              {delivery === "natcash" ? (
+                <p className="font-semibold text-emerald-800">
+                  ⚡ Natcom (NatCash): Min 3,998 HTG · Max 75,000 HTG per transaction · whole numbers only
+                </p>
+              ) : (
+                <p className="text-slate-600">
+                  MonCash: máximo 75,000 HTG por transacción.
+                </p>
+              )}
+            </div>
           )}
           <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-600 via-emerald-700 to-emerald-800 p-5 text-white shadow-lg shadow-emerald-950/20 border-2 border-emerald-500">
             <p className="text-xs font-black uppercase tracking-wider text-emerald-100">

@@ -379,7 +379,14 @@ export const agentCreateCashTransfer = createServerFn({ method: "POST" })
     }
     if (data.destinationCountry === "HT" && data.deliveryMethod === "natcash") {
       if (amountReceive < 3998 || amountReceive > 75000) {
-        throw new Error("NatCash requiere entre 3,998 y 75,000 HTG por transacción.");
+        throw new Error(
+          "Natcom (NatCash): Min 3,998 HTG · Max 75,000 HTG per transaction · whole numbers only",
+        );
+      }
+      if (!Number.isInteger(amountReceive)) {
+        throw new Error(
+          "Natcom (NatCash): Solo números enteros en HTG (whole numbers only).",
+        );
       }
     }
 

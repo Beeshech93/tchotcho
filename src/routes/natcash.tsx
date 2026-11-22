@@ -17,6 +17,10 @@ export const CONTENT = {
       body: "The recipient's NatCash-registered mobile number in Haiti. That's it — no bank account required.",
     },
     {
+      title: "Transaction Limits (Natcom / NatCash)",
+      body: "Min 3,998 HTG · Max 75,000 HTG per transaction · whole numbers only.",
+    },
+    {
       title: "How it works with Tcho-Tcho",
       body: "When creating your transfer, select NatCash as the delivery method and enter the recipient's phone number. Once your payment is confirmed, the transfer is processed and the funds are sent to that NatCash wallet.",
     },
