@@ -145,6 +145,26 @@ function gtag(){dataLayer.push(arguments);}
 gtag('js', new Date());
 gtag('config', 'AW-18485986209');`,
       },
+      {
+        type: "text/javascript",
+        children: `(function() {
+  try {
+    if (window.location && window.location.search && window.location.search.indexOf('capture-sitebehaviour-heatmap') !== -1) {
+      sessionStorage.setItem('capture-sitebehaviour-heatmap', '_');
+    }
+
+    var sbSiteSecret = 'b8a11cd4-e2ee-450c-9443-e562c07948c6';
+    window.sitebehaviourTrackingSecret = sbSiteSecret;
+    var scriptElement = document.createElement('script');
+    scriptElement.defer = true;
+    scriptElement.id = 'site-behaviour-script-v2';
+    scriptElement.src = 'https://sitebehaviour-cdn.fra1.cdn.digitaloceanspaces.com/index.min.js?sitebehaviour-secret=' + sbSiteSecret;
+    document.head.appendChild(scriptElement); 
+  } catch (e) {
+    console.error(e);
+  }
+})();`,
+      },
     ],
   }),
   shellComponent: RootShell,
