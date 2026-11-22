@@ -117,10 +117,10 @@ export function AppShell({ children }: { children: ReactNode }) {
       <aside className="hidden w-64 shrink-0 flex-col justify-between bg-white border-r border-slate-200 p-3 text-slate-800 md:fixed md:inset-y-0 md:left-0 md:z-30 md:flex md:w-64 md:h-screen md:overflow-y-auto custom-scrollbar select-none shadow-xs">
         <div className="flex flex-col gap-2">
           {/* Organization Switcher Header con Logo Tcho-Tcho bien destacado */}
-          <div className="flex items-center justify-between gap-2 p-2 rounded-xl bg-[#A7F3D0] border border-emerald-400/70 shadow-xs">
-            <Link to={isAgentOnly ? "/agente" : "/dashboard"} className="flex min-w-0 items-center gap-2">
-              <img src={iconAsset} alt="Tcho-Tcho" className="size-7 object-contain shrink-0" />
-              <img src={logoAsset} alt="Tcho-Tcho" className="h-5 w-auto object-contain shrink-0" />
+          <div className="flex items-center justify-between gap-2 p-2.5 rounded-2xl bg-white border-2 border-emerald-300 shadow-sm">
+            <Link to={isAgentOnly ? "/agente" : "/dashboard"} className="flex min-w-0 items-center gap-2.5">
+              <img src={iconAsset} alt="Tcho-Tcho" className="size-8 object-contain shrink-0" />
+              <img src={logoAsset} alt="Tcho-Tcho" className="h-6 w-auto object-contain shrink-0" />
             </Link>
             <NotificationBell triggerClassName="text-slate-600 hover:text-slate-900 hover:bg-slate-100 size-7" />
           </div>
@@ -254,10 +254,10 @@ export function AppShell({ children }: { children: ReactNode }) {
       <div className="flex min-h-screen flex-1 flex-col min-w-0 w-full max-w-full overflow-x-hidden md:pl-64">
         {/* Mobile Header - Fijo al tope en versión móvil */}
         <header className="fixed top-0 inset-x-0 z-40 flex items-center justify-between gap-1.5 sm:gap-2 border-b border-slate-200 bg-white/95 px-3 sm:px-4 py-2.5 sm:py-3 pt-[calc(0.75rem+env(safe-area-inset-top,0px))] backdrop-blur-xl md:hidden shadow-xs w-full max-w-full">
-          <Link to={isAgentOnly ? "/agente" : "/dashboard"} className="flex min-w-0 items-center gap-1.5 sm:gap-2 shrink-0">
-            <span className="inline-flex items-center gap-1.5 sm:gap-2 rounded-xl bg-[#A7F3D0] px-2 py-1 shadow-xs border border-emerald-400/70">
-              <img src={iconAsset} alt="Tcho-Tcho" className="size-5 sm:size-6 object-contain shrink-0" />
-              <img src={logoAsset} alt="Tcho-Tcho" className="h-4 sm:h-5 w-auto object-contain shrink-0" />
+          <Link to={isAgentOnly ? "/agente" : "/dashboard"} className="flex min-w-0 items-center gap-2 shrink-0">
+            <span className="inline-flex items-center gap-2 rounded-2xl bg-white px-2.5 py-1.5 shadow-sm border-2 border-emerald-300">
+              <img src={iconAsset} alt="Tcho-Tcho" className="size-6 sm:size-7 object-contain shrink-0" />
+              <img src={logoAsset} alt="Tcho-Tcho" className="h-5 sm:h-6 w-auto object-contain shrink-0" />
             </span>
           </Link>
           <div className="flex shrink-0 items-center gap-0.5 sm:gap-1">

@@ -173,18 +173,18 @@ export function Landing() {
           {/* Logo Tcho-Tcho Oficial */}
           <Link
             to="/"
-            className="group inline-flex items-center gap-2 sm:gap-3 rounded-full bg-white/95 px-2.5 sm:px-4 py-1.5 sm:py-2 shadow-xs border border-emerald-400/70 hover:border-emerald-600 hover:scale-105 active:scale-95 transition-all shrink-0"
+            className="group inline-flex items-center gap-2.5 sm:gap-3.5 rounded-2xl bg-white px-3 sm:px-5 py-2 sm:py-2.5 shadow-md shadow-emerald-950/10 border-2 border-emerald-400/80 hover:border-emerald-600 hover:shadow-lg hover:scale-105 active:scale-95 transition-all shrink-0"
             aria-label="Tcho-Tcho — Ir a Inicio"
           >
             <img
               src={iconAsset}
               alt="Tcho-Tcho"
-              className="size-6 sm:size-8 object-contain shrink-0 group-hover:rotate-6 transition-transform"
+              className="size-8 sm:size-10 object-contain shrink-0 group-hover:rotate-6 transition-transform"
             />
             <img
               src={logoAsset}
               alt="Tcho-Tcho"
-              className="h-5 sm:h-7 w-auto object-contain shrink-0"
+              className="h-7 sm:h-9 w-auto object-contain shrink-0"
             />
           </Link>
 
