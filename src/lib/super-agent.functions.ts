@@ -906,3 +906,216 @@ export const registerSuperAgent = createServerFn({ method: "POST" })
         : "Super Agente registrado. El correo no pudo enviarse automáticamente, pero puedes compartir el enlace de activación.",
     };
   });
+
+const transferToSubordinateSchema = z.object({
+  targetUserId: z.string().uuid("ID de agente inválido"),
+  amount: z.number().positive("El monto a transferir debe ser mayor a 0"),
+  walletType: z.enum(["transfers", "topups"]).default("transfers"),
+  note: z.string().trim().optional(),
+});
+
+export type TransferToSubordinateInput = z.infer<typeof transferToSubordinateSchema>;
+
+/**
+ * Permite a un Super Agente recargar saldo a un agente de su red.
+ * Regla: El monto se descuenta inmediatamente del saldo del Super Agente ("diminua en su saldo").
+ * Si el Super Agente no tiene saldo suficiente, no puede recargar a sus agentes ("si no tienen saldo tambien no pueden recargar").
+ */
+export const superAgentTransferBalanceToSubordinate = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .validator((input: TransferToSubordinateInput) => transferToSubordinateSchema.parse(input))
+  .handler(async ({ data: input, context }) => {
+    const isAllowed = await verifyIsSuperAgentOrAdmin(context);
+    if (!isAllowed) {
+      throw new Error("No tienes permisos de Super Agente para transferir saldo.");
+    }
+
+    const { verifyIsAdmin, verifyIsStaff } = await import("@/lib/admin.server");
+    const isAdmin = (await verifyIsAdmin(context)) || (await verifyIsStaff(context));
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    // 1. Verificar pertenencia del agente a la red del Super Agente (a menos que sea admin global)
+    if (!isAdmin) {
+      const parentKey = getAgentParentKey(input.targetUserId);
+      const { data: parentCred } = await supabaseAdmin
+        .from("integration_credentials")
+        .select("value")
+        .eq("name", parentKey)
+        .maybeSingle();
+
+      let isSubordinate = false;
+      if (parentCred?.value) {
+        try {
+          const pData = JSON.parse(parentCred.value);
+          if (pData.superAgentId === context.userId) isSubordinate = true;
+        } catch {}
+      }
+
+      if (!isSubordinate) {
+        const networkKey = getSuperAgentKey(context.userId);
+        const { data: netCred } = await supabaseAdmin
+          .from("integration_credentials")
+          .select("value")
+          .eq("name", networkKey)
+          .maybeSingle();
+
+        if (netCred?.value) {
+          try {
+            const list = JSON.parse(netCred.value);
+            if (Array.isArray(list) && list.some((a) => a.id === input.targetUserId)) {
+              isSubordinate = true;
+            }
+          } catch {}
+        }
+      }
+
+      if (!isSubordinate) {
+        throw new Error(
+          "Este agente no pertenece a tu red. Solo puedes recargar saldo a agentes asignados bajo tu supervisión.",
+        );
+      }
+    }
+
+    // 2. Determinar tipo de billetera y moneda objetivo
+    const targetCurrency = input.walletType === "topups" ? "HTG_RECARGAS" : "HTG";
+    const walletLabel =
+      input.walletType === "topups"
+        ? "Billetera de Recargas Telefónicas"
+        : "Billetera de Envíos de Dinero";
+
+    // 3. Obtener nombres para auditoría y comprobante
+    const { data: subProfile } = await supabaseAdmin
+      .from("profiles")
+      .select("full_name, phone")
+      .eq("id", input.targetUserId)
+      .maybeSingle();
+    const subAgentName = subProfile?.full_name || subProfile?.phone || "Agente";
+
+    const { data: superProfile } = await supabaseAdmin
+      .from("profiles")
+      .select("full_name, phone")
+      .eq("id", context.userId)
+      .maybeSingle();
+    const superAgentName = superProfile?.full_name || superProfile?.phone || "Super Agente";
+
+    // 4. VERIFICAR SALDO DEL SUPER AGENTE:
+    // "si no tienen saldo tambien no pueden recargar sus agentes"
+    let superWallet: { id: string; balance: number; currency: string } | null = null;
+    let currentSuperBal = 0;
+
+    if (!isAdmin) {
+      const { data: sw } = await supabaseAdmin
+        .from("wallets")
+        .select("id, balance, currency")
+        .eq("user_id", context.userId)
+        .eq("currency", targetCurrency)
+        .maybeSingle();
+
+      superWallet = sw;
+      currentSuperBal = Number(superWallet?.balance) || 0;
+
+      if (!superWallet || currentSuperBal < input.amount || currentSuperBal <= 0) {
+        throw new Error(
+          `Saldo insuficiente en tu ${walletLabel}. Tu saldo actual es de ${currentSuperBal.toLocaleString()} HTG y requieres ${input.amount.toLocaleString()} HTG para recargar a tu agente. Como Super Agente, no puedes recargar a tus agentes sin saldo suficiente. Contacta a un administrador para recargar tu cuenta.`,
+        );
+      }
+    }
+
+    // 5. Obtener o crear la billetera del agente subordinado
+    const { data: existingSubWallet } = await supabaseAdmin
+      .from("wallets")
+      .select("id, balance, currency")
+      .eq("user_id", input.targetUserId)
+      .eq("currency", targetCurrency)
+      .maybeSingle();
+
+    let subWallet = existingSubWallet;
+    if (!subWallet) {
+      const { data: createdSub, error: createSubErr } = await supabaseAdmin
+        .from("wallets")
+        .insert({
+          user_id: input.targetUserId,
+          currency: targetCurrency,
+          balance: 0,
+          status: "active",
+        })
+        .select("id, balance, currency")
+        .single();
+
+      if (createSubErr || !createdSub) {
+        throw new Error("No se pudo inicializar la billetera del agente subordinado.");
+      }
+      subWallet = createdSub;
+    }
+
+    const now = new Date().toISOString();
+
+    // 6. DESCONTAR SALDO DEL SUPER AGENTE:
+    // "diminua en su saldo"
+    let newSuperBal = currentSuperBal;
+    if (!isAdmin && superWallet) {
+      newSuperBal = Math.round((currentSuperBal - input.amount) * 100) / 100;
+      const { error: superUpdErr } = await supabaseAdmin
+        .from("wallets")
+        .update({ balance: newSuperBal, updated_at: now })
+        .eq("id", superWallet.id);
+
+      if (superUpdErr) {
+        throw new Error("Error al descontar saldo de tu billetera: " + superUpdErr.message);
+      }
+
+      await supabaseAdmin.from("wallet_transactions").insert({
+        wallet_id: superWallet.id,
+        user_id: context.userId,
+        kind: "super_agent_transfer_to_subordinate",
+        amount: -input.amount,
+        currency: targetCurrency,
+        description: `Recarga de saldo transferida a agente ${subAgentName} (${walletLabel})${input.note ? ` - Nota: ${input.note}` : ""}`,
+      });
+    }
+
+    // 7. ACREDITAR SALDO AL AGENTE SUBORDINADO:
+    const currentSubBal = Number(subWallet.balance) || 0;
+    const newSubBal = Math.round((currentSubBal + input.amount) * 100) / 100;
+
+    const { error: subUpdErr } = await supabaseAdmin
+      .from("wallets")
+      .update({ balance: newSubBal, updated_at: now })
+      .eq("id", subWallet.id);
+
+    if (subUpdErr) {
+      // Revertir descuento al Super Agente si falló la acreditación
+      if (!isAdmin && superWallet) {
+        await supabaseAdmin
+          .from("wallets")
+          .update({ balance: currentSuperBal, updated_at: new Date().toISOString() })
+          .eq("id", superWallet.id);
+      }
+      throw new Error("Error al acreditar saldo al agente: " + subUpdErr.message);
+    }
+
+    await supabaseAdmin.from("wallet_transactions").insert({
+      wallet_id: subWallet.id,
+      user_id: input.targetUserId,
+      kind: "subordinate_received_from_super",
+      amount: input.amount,
+      currency: targetCurrency,
+      description: `Saldo operativo recibido de Super Agente ${superAgentName} (${walletLabel})${input.note ? ` - Nota: ${input.note}` : ""}`,
+    });
+
+    // 8. Notificar al agente subordinado
+    try {
+      await supabaseAdmin.from("notifications").insert({
+        user_id: input.targetUserId,
+        title: `Saldo recibido: +${input.amount.toLocaleString()} HTG`,
+        body: `Tu Super Agente ${superAgentName} te ha recargado ${input.amount.toLocaleString()} HTG en tu ${walletLabel}. Saldo actual: ${newSubBal.toLocaleString()} HTG.`,
+      });
+    } catch {}
+
+    return {
+      ok: true,
+      message: `¡Recarga de ${input.amount.toLocaleString()} HTG completada con éxito para ${subAgentName}!`,
+      subAgentNewBalance: newSubBal,
+      superAgentNewBalance: isAdmin ? undefined : newSuperBal,
+    };
+  });

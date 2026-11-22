@@ -32,10 +32,12 @@ import {
   Percent,
 } from "lucide-react";
 import { AddSubordinateAgentModal } from "@/components/agent/AddSubordinateAgentModal";
+import { SuperAgentTransferModal } from "@/components/agent/SuperAgentTransferModal";
 import {
   getMySubordinateAgents,
   getSubordinateTransactions,
   removeSubordinateAgent,
+  type SubordinateAgentRecord,
 } from "@/lib/super-agent.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { useProfile } from "@/hooks/useProfile";
@@ -167,6 +169,8 @@ function Agente() {
   const [openClaimModal, setOpenClaimModal] = useState(false);
   const [openTopupModal, setOpenTopupModal] = useState(false);
   const [openAddAgentModal, setOpenAddAgentModal] = useState(false);
+  const [openTransferModal, setOpenTransferModal] = useState(false);
+  const [selectedAgentForTransfer, setSelectedAgentForTransfer] = useState<SubordinateAgentRecord | null>(null);
   const [claimReference, setClaimReference] = useState("");
   const [isClaiming, setIsClaiming] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -1140,6 +1144,18 @@ function Agente() {
                             </p>
                           </div>
                           <Button
+                            size="sm"
+                            onClick={() => {
+                              setSelectedAgentForTransfer(ag);
+                              setOpenTransferModal(true);
+                            }}
+                            className="bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs gap-1.5 rounded-xl h-9 px-3 shrink-0 shadow-2xs"
+                            title="Recargar saldo operativo a este agente"
+                          >
+                            <Wallet className="size-3.5" />
+                            <span>Recargar Saldo</span>
+                          </Button>
+                          <Button
                             variant="ghost"
                             size="sm"
                             onClick={() => handleRemoveAgent(ag.id, ag.fullName)}
@@ -1683,6 +1699,24 @@ function Agente() {
         onSuccess={() => {
           refetchSubAgents();
           refetchSubTxs();
+        }}
+      />
+
+      {/* Modal: Recargar Saldo a Agente de la Red */}
+      <SuperAgentTransferModal
+        isOpen={openTransferModal}
+        onClose={() => {
+          setOpenTransferModal(false);
+          setSelectedAgentForTransfer(null);
+        }}
+        agent={selectedAgentForTransfer}
+        superTransfersBalance={transfersBalance}
+        superTopupsBalance={topupsBalance}
+        isAdmin={isAdmin}
+        onSuccess={() => {
+          refetchSubAgents();
+          refetchWalletTxs();
+          void qc.invalidateQueries({ queryKey: ["wallets"] });
         }}
       />
     </div>
