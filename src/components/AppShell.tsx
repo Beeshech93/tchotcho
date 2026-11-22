@@ -290,19 +290,22 @@ export function AppShell({ children }: { children: ReactNode }) {
         </header>
 
         <main
-          className="flex-1 px-3 sm:px-4 pt-[calc(4.75rem+env(safe-area-inset-top,0px))] pb-[calc(5.75rem+env(safe-area-inset-bottom,0px))] md:px-8 md:pt-5 md:pb-10 min-w-0 w-full max-w-full overflow-x-hidden"
+          className="flex-1 px-3 sm:px-4 pt-[calc(4.75rem+env(safe-area-inset-top,0px))] pb-[calc(5.75rem+env(safe-area-inset-bottom,0px))] md:px-8 md:pt-5 md:pb-16 min-w-0 w-full max-w-full overflow-x-hidden"
         >
           <AdBanner className="mb-5" />
           {children}
 
-          <footer className="mt-14 border-t-2 border-slate-200 pt-6 pb-2 text-center space-y-2.5">
-            <p className="text-xs font-bold text-slate-700">
-              {t("shell.official_channels")}
-            </p>
-            <SocialLinks iconSize="size-4" className="justify-center gap-2" />
-            <p className="text-xs font-bold text-slate-600">
-              © {new Date().getFullYear()} Tcho-Tcho · {t("landing.footer")}
-            </p>
+          {/* Footer con Fondo Verde Esmeralda y Fijo en Escritorio */}
+          <footer className="mt-10 md:mt-0 border-t border-emerald-400/80 bg-[#A7F3D0]/95 backdrop-blur-2xl py-2.5 md:py-2 px-4 text-center text-xs text-emerald-950 shadow-md md:fixed md:bottom-0 md:left-64 md:right-0 md:z-30">
+            <div className="mx-auto flex flex-col sm:flex-row items-center justify-between gap-1.5 sm:gap-4 max-w-5xl">
+              <p className="text-[11px] font-bold text-emerald-950">
+                {t("shell.official_channels")}
+              </p>
+              <SocialLinks iconSize="size-3.5" className="justify-center gap-2" />
+              <p className="text-[11px] font-bold text-emerald-950">
+                © {new Date().getFullYear()} Tcho-Tcho · {t("landing.footer")}
+              </p>
+            </div>
           </footer>
         </main>
 
