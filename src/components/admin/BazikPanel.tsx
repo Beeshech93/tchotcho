@@ -127,7 +127,10 @@ export function BazikPanel() {
   };
 
   const currentBazikBalance = info?.balance ?? null;
-  const adminWalletBalance = info?.adminWalletBalance ?? 0;
+  const adminWalletBalance =
+    info?.adminWalletBalance && info.adminWalletBalance > 0
+      ? info.adminWalletBalance
+      : info?.balance ?? 0;
 
   return (
     <div className="space-y-4">

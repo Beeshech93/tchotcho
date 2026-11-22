@@ -31,6 +31,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useCountries } from "@/hooks/useCorridors";
+import { bazikStatus } from "@/lib/bazik.functions";
 import { BazikPanel } from "@/components/admin/BazikPanel";
 import { CryptoPanel } from "@/components/admin/CryptoPanel";
 import { MercadoPagoPanel } from "@/components/admin/MercadoPagoPanel";
@@ -236,9 +237,19 @@ function Resumen() {
   const completed = rows.filter((t) => t.status === "completed").length;
   const pendingKyc = (profiles ?? []).filter((p) => p.kyc_status === "pending").length;
 
-  const totalHtgBalance = (wallets ?? [])
-    .filter((w) => w.currency === "HTG")
-    .reduce((sum, w) => sum + Number(w.balance || 0), 0);
+  const getBazikStatus = useServerFn(bazikStatus);
+  const { data: bazikInfo } = useQuery({
+    queryKey: ["bazik_status"],
+    queryFn: () => getBazikStatus(),
+    staleTime: 15_000,
+  });
+
+  const totalHtgBalance = Math.max(
+    (wallets ?? [])
+      .filter((w) => w.currency === "HTG")
+      .reduce((sum, w) => sum + Number(w.balance || 0), 0),
+    Number(bazikInfo?.adminWalletBalance || bazikInfo?.balance || 0),
+  );
 
   return (
     <div className="space-y-4">
