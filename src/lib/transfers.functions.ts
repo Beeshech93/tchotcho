@@ -328,34 +328,74 @@ export const agentCreateCashTransfer = createServerFn({ method: "POST" })
     }
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { FALLBACK_COUNTRIES, fallbackRate } = await import("@/hooks/useCorridors");
 
-    // Validar país de origen y destino
-    const { data: oc } = await supabaseAdmin
-      .from("countries")
-      .select("code, currency, name")
-      .eq("code", data.originCountry)
-      .eq("is_origin", true)
-      .single();
+    // Validar país de origen y destino con respaldo garantizado
+    let oc: { code: string; currency: string; name: string } | null = null;
+    try {
+      const { data: dbOc } = await supabaseAdmin
+        .from("countries")
+        .select("code, currency, name")
+        .eq("code", data.originCountry)
+        .maybeSingle();
+      if (dbOc) oc = dbOc;
+    } catch {
+      // ignore
+    }
+
+    if (!oc) {
+      const fb = FALLBACK_COUNTRIES.find((c) => c.code === data.originCountry);
+      if (fb) {
+        oc = { code: fb.code, currency: fb.currency, name: fb.name };
+      }
+    }
     if (!oc) throw new Error("País de origen no válido");
 
-    const { data: dc } = await supabaseAdmin
-      .from("countries")
-      .select("code, currency, name")
-      .eq("code", data.destinationCountry)
-      .eq("is_destination", true)
-      .single();
+    let dc: { code: string; currency: string; name: string } | null = null;
+    try {
+      const { data: dbDc } = await supabaseAdmin
+        .from("countries")
+        .select("code, currency, name")
+        .eq("code", data.destinationCountry)
+        .maybeSingle();
+      if (dbDc) dc = dbDc;
+    } catch {
+      // ignore
+    }
+
+    if (!dc) {
+      const fb = FALLBACK_COUNTRIES.find((c) => c.code === data.destinationCountry);
+      if (fb) {
+        dc = { code: fb.code, currency: fb.currency, name: fb.name };
+      }
+    }
     if (!dc) throw new Error("País de destino no válido");
 
     // Obtener tasa de cambio del corredor
-    const { data: exRate } = await supabaseAdmin
-      .from("exchange_rates")
-      .select("*")
-      .eq("from_currency", oc.currency)
-      .eq("to_currency", dc.currency)
-      .eq("is_active", true)
-      .order("created_at", { ascending: false })
-      .limit(1)
-      .maybeSingle();
+    let exRate: any = null;
+    try {
+      const { data: dbRate } = await supabaseAdmin
+        .from("exchange_rates")
+        .select("*")
+        .eq("from_currency", oc.currency)
+        .eq("to_currency", dc.currency)
+        .eq("is_active", true)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      if (dbRate && Number(dbRate.rate) > 0) {
+        exRate = dbRate;
+      }
+    } catch {
+      // ignore
+    }
+
+    if (!exRate) {
+      const fb = fallbackRate(oc.currency, dc.currency);
+      if (fb) {
+        exRate = fb;
+      }
+    }
 
     if (!exRate) throw new Error("No hay tasa de cambio disponible para este corredor.");
 
