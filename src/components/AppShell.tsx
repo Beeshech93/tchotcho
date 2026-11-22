@@ -210,32 +210,34 @@ export function AppShell({ children }: { children: ReactNode }) {
           </div>
         </div>
 
-        {/* Sidebar Footer compacto */}
+        {/* Sidebar Footer compacto en Verde Oscuro */}
         <div className="shrink-0 space-y-1.5 border-t border-slate-200 pt-2.5 mt-2">
-          <LanguageSwitcher className="w-full h-8 bg-[#F8FAF9] text-slate-700 border-slate-200 text-xs font-semibold py-1 hover:bg-slate-100" />
-          <div className="px-1 py-0.5">
-            <div className="flex items-center justify-between gap-1.5">
-              <p className="truncate text-xs font-extrabold text-slate-900">
-                {profile?.full_name || t("nav.account")}
+          <div className="rounded-2xl bg-[#004D25] p-2.5 text-white shadow-md border border-[#003B1C] space-y-2">
+            <LanguageSwitcher className="w-full h-8 bg-[#00381B] text-white border-white/20 text-xs font-bold py-1 hover:bg-[#002B15] hover:text-white transition-all shadow-xs" />
+            <div className="px-1 py-0.5">
+              <div className="flex items-center justify-between gap-1.5">
+                <p className="truncate text-xs font-extrabold text-white">
+                  {profile?.full_name || t("nav.account")}
+                </p>
+                {isAdmin && (
+                  <span className="inline-flex items-center gap-1 rounded-full bg-[#EF4444] px-1.5 py-0.5 text-[9px] font-bold text-white shrink-0 uppercase shadow-xs">
+                    <Shield className="size-2.5" /> ADMIN
+                  </span>
+                )}
+              </div>
+              <p className="truncate text-[10px] font-medium text-emerald-200/90 mt-0.5">
+                {profile?.phone || t("roles.super_admin")}
               </p>
-              {isAdmin && (
-                <span className="inline-flex items-center gap-1 rounded-full bg-[#EF4444] px-1.5 py-0.5 text-[9px] font-bold text-white shrink-0 uppercase shadow-xs">
-                  <Shield className="size-2.5" /> ADMIN
-                </span>
-              )}
             </div>
-            <p className="truncate text-[10px] font-semibold text-slate-500">
-              {profile?.phone || t("roles.super_admin")}
-            </p>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="w-full h-7 justify-start gap-2 text-xs font-bold text-rose-300 hover:bg-rose-500/20 hover:text-rose-100 py-1 transition-colors"
+              onClick={signOut}
+            >
+              <LogOut className="size-3.5" /> {t("nav.signout")}
+            </Button>
           </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="w-full h-7 justify-start gap-2 text-xs font-bold text-rose-600 hover:bg-rose-50 hover:text-rose-700 py-1"
-            onClick={signOut}
-          >
-            <LogOut className="size-3.5" /> {t("nav.signout")}
-          </Button>
           {isCustomBrand && (
             <div className="pt-1 text-center border-t border-slate-200">
               <a
