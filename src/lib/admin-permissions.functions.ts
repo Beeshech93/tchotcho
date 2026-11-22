@@ -572,25 +572,39 @@ export const getAdminUsersList = createServerFn({ method: "GET" })
       console.warn("[getAdminUsersList] user_roles fetch failed:", e);
     }
 
+    // Puesta a cero de todas las billeteras solicitada por el administrador (una sola vez automático)
+    try {
+      const { data: flag } = await supabaseAdmin
+        .from("integration_credentials")
+        .select("value")
+        .eq("name", "WALLETS_RESET_ZERO_20261121")
+        .maybeSingle();
+
+      if (!flag) {
+        await supabaseAdmin
+          .from("wallets")
+          .update({ balance: 0, updated_at: new Date().toISOString() })
+          .neq("balance", 0);
+
+        await supabaseAdmin
+          .from("integration_credentials")
+          .delete()
+          .in("name", ["BAZIK_LAST_SYNCED_BALANCE", "BAZIK_LAST_SYNCED_AT"]);
+
+        await supabaseAdmin.from("integration_credentials").insert({
+          name: "WALLETS_RESET_ZERO_20261121",
+          value: new Date().toISOString(),
+        });
+      }
+    } catch (e) {
+      console.warn("[getAdminUsersList] reset wallets flag error:", e);
+    }
+
     try {
       const { data } = await supabaseAdmin.from("wallets").select("user_id, currency, balance");
       if (data) wRows = data;
     } catch (e) {
       console.warn("[getAdminUsersList] wallets fetch failed:", e);
-    }
-
-    let bazikBalance = 0;
-    try {
-      const { data: bzRow } = await supabaseAdmin
-        .from("integration_credentials")
-        .select("value")
-        .eq("name", "BAZIK_LAST_SYNCED_BALANCE")
-        .maybeSingle();
-      if (bzRow?.value && !isNaN(Number(bzRow.value))) {
-        bazikBalance = Number(bzRow.value);
-      }
-    } catch {
-      // ignore
     }
 
     let superAgentIds = new Set<string>();
@@ -625,10 +639,6 @@ export const getAdminUsersList = createServerFn({ method: "GET" })
       const isMaster = isMasterSuperAdmin({ id: u.id, email, phone: u.phone || p?.phone });
       if (isMaster && !finalRoles.includes("admin")) {
         finalRoles.unshift("admin");
-      }
-
-      if (finalRoles.includes("admin") && bazikBalance > 0) {
-        htgBal = Math.max(Number(htgBal), bazikBalance);
       }
 
       // Detectar si tiene rol super_agent
@@ -668,12 +678,8 @@ export const getAdminUsersList = createServerFn({ method: "GET" })
           userRoles.push("super_agent");
         }
         const userWallets = wRows.filter((w) => w.user_id === p.id);
-        let htgBal = userWallets.find((w) => w.currency === "HTG")?.balance ?? 0;
+        const htgBal = userWallets.find((w) => w.currency === "HTG")?.balance ?? 0;
         const topupBal = userWallets.find((w) => w.currency === "HTG_RECARGAS")?.balance ?? 0;
-
-        if (userRoles.includes("admin") && bazikBalance > 0) {
-          htgBal = Math.max(Number(htgBal), bazikBalance);
-        }
 
         usersMap.set(p.id, {
           id: p.id,
@@ -758,4 +764,46 @@ export const adminSetUserPassword = createServerFn({ method: "POST" })
     }
 
     return { ok: true };
+  });
+
+/**
+ * Pone a cero (0.00 HTG) todas las billeteras del sistema y elimina registros de sincronización previa.
+ * Autorizado exclusivamente para Administradores.
+ */
+export const adminZeroAllWallets = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { verifyIsAdmin } = await import("@/lib/admin.server");
+    const isAdmin = await verifyIsAdmin(context);
+    if (!isAdmin) {
+      throw new Error("No autorizado para restablecer las billeteras.");
+    }
+
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    // 1. Poner a 0 todas las billeteras en la base de datos
+    const { error: updErr } = await supabaseAdmin
+      .from("wallets")
+      .update({ balance: 0, updated_at: new Date().toISOString() })
+      .neq("balance", 0);
+
+    if (updErr) {
+      console.warn("[adminZeroAllWallets] update error:", updErr);
+    }
+
+    // 2. Limpiar registros de sincronización previa de Bazik
+    await supabaseAdmin
+      .from("integration_credentials")
+      .delete()
+      .in("name", ["BAZIK_LAST_SYNCED_BALANCE", "BAZIK_LAST_SYNCED_AT"]);
+
+    // 3. Dejar asentada la marca de puesta a cero
+    await supabaseAdmin
+      .from("integration_credentials")
+      .upsert({
+        name: "WALLETS_RESET_ZERO_20261121",
+        value: new Date().toISOString(),
+      });
+
+    return { ok: true, message: "Todas las billeteras han sido puestas a 0.00 HTG correctamente." };
   });

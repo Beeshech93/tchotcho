@@ -11,6 +11,7 @@ import { useAdminPermissions } from "@/hooks/useAdminPermissions";
 import {
   getAllAdminsPermissionsMap,
   getAdminUsersList,
+  adminZeroAllWallets,
   type AdminTabId,
 } from "@/lib/admin-permissions.functions";
 import { AdminPermissionsModal } from "@/components/admin/AdminPermissionsModal";
@@ -246,17 +247,12 @@ function Resumen() {
     staleTime: 15_000,
   });
 
-  const totalHtgBalance = Math.max(
-    (wallets ?? [])
-      .filter((w) => w.currency === "HTG")
-      .reduce((sum, w) => sum + Number(w.balance || 0), 0),
-    Number(bazikInfo?.adminWalletBalance || bazikInfo?.balance || 0),
-  );
+  const bazikBalance = Number(bazikInfo?.balance || 0);
 
   return (
     <div className="space-y-4">
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
-        <Stat label="Saldo Operativo (Bazik)" value={`${totalHtgBalance.toLocaleString()} HTG`} isGreen />
+        <Stat label="Saldo en Bazik (MonCash)" value={`${bazikBalance.toLocaleString()} HTG`} isGreen />
         <Stat label="Volumen total" value={volume} isGreen />
         <Stat label="Ingresos comisión" value={fees} isGreen />
         <Stat label="Envíos entregados" value={`${completed} / ${rows.length}`} />
@@ -478,12 +474,8 @@ function UsersPanel() {
     queryFn: () => fetchAdminsMap(),
   });
 
-  const getBazikStatus = useServerFn(bazikStatus);
-  const { data: bazikInfo } = useQuery({
-    queryKey: ["bazik_status"],
-    queryFn: () => getBazikStatus(),
-    staleTime: 15_000,
-  });
+  const zeroWalletsFn = useServerFn(adminZeroAllWallets);
+  const [isResettingWallets, setIsResettingWallets] = useState(false);
 
   const fetchUsers = useServerFn(getAdminUsersList);
   const {
@@ -539,16 +531,6 @@ function UsersPanel() {
           const uRoles = (rList ?? []).filter((r) => r.user_id === p.id).map((r) => r.role);
           const uWallets = (wList ?? []).filter((w) => w.user_id === p.id);
           const bal = uWallets.find((w) => w.currency === "HTG")?.balance ?? 0;
-          const isAdminUser =
-            (uRoles as string[]).includes("admin") ||
-            (uRoles as string[]).includes("super_admin") ||
-            p.id === "0a1fec01-21c2-4af6-8e54-4b7ce6e2913c" ||
-            p.id === "cca63804-b4c1-4221-bbd3-82258545f228" ||
-            p.id === "9b729a8e-b91c-430a-907c-969652b89f3b" ||
-            p.phone === "529988100395";
-          const effectiveBal = isAdminUser
-            ? Math.max(Number(bal), Number(bazikInfo?.adminWalletBalance || bazikInfo?.balance || 0))
-            : Number(bal);
           map.set(p.id, {
             id: p.id,
             email: (p as any).email || null,
@@ -559,7 +541,7 @@ function UsersPanel() {
             kyc_status: p.kyc_status || "none",
             created_at: p.created_at,
             roles: uRoles,
-            balanceHTG: effectiveBal,
+            balanceHTG: Number(bal),
           });
         }
         return { users: Array.from(map.values()) };
@@ -618,6 +600,34 @@ function UsersPanel() {
             >
               <RefreshCw className={cn("size-3.5", isLoadingUsers && "animate-spin")} />
               Actualizar Lista
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              className="gap-1.5 font-bold text-xs border-rose-400/60 text-rose-300 bg-rose-500/10 hover:bg-rose-500/20"
+              disabled={isResettingWallets}
+              onClick={async () => {
+                if (
+                  !window.confirm(
+                    "¿Confirmas que deseas poner a 0.00 todas las billeteras de usuarios y agentes?",
+                  )
+                ) {
+                  return;
+                }
+                setIsResettingWallets(true);
+                try {
+                  const res = await zeroWalletsFn();
+                  toast.success(res.message);
+                  refetchUsers();
+                } catch (err: any) {
+                  toast.error(err?.message || "Error al zerar las billeteras.");
+                } finally {
+                  setIsResettingWallets(false);
+                }
+              }}
+            >
+              <RefreshCw className={cn("size-3.5", isResettingWallets && "animate-spin")} />
+              {isResettingWallets ? "Zerando..." : "Zerar Billeteras (0.00)"}
             </Button>
           </div>
         </div>

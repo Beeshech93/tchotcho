@@ -16,7 +16,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { useProfile } from "@/hooks/useProfile";
 import { useCountries, useRate } from "@/hooks/useCorridors";
 import { useWallets } from "@/hooks/useWallet";
-import { bazikStatus } from "@/lib/bazik.functions";
 import { Button } from "@/components/ui/button";
 import { SocialLinks } from "@/components/SocialLinks";
 import { shortDate } from "@/lib/remesa";
@@ -73,14 +72,6 @@ export function Dashboard() {
     },
   });
 
-  const getBazikStatus = useServerFn(bazikStatus);
-  const { data: bazikInfo } = useQuery({
-    queryKey: ["bazik_status"],
-    enabled: !!isAdmin,
-    queryFn: () => getBazikStatus(),
-    staleTime: 15_000,
-  });
-
   const { data: wallets } = useWallets();
 
   // Billetera 100% en HTG (Gourdes Haitianas) real
@@ -89,9 +80,7 @@ export function Dashboard() {
     0,
   );
 
-  const totalHtg = isAdmin
-    ? Math.max(walletHtg, Number(bazikInfo?.adminWalletBalance || bazikInfo?.balance || 0))
-    : walletHtg;
+  const totalHtg = walletHtg;
 
   const formattedBalance = `HTG ${totalHtg.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 

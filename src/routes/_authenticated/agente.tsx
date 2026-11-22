@@ -151,18 +151,8 @@ function Agente() {
     [wallets],
   );
 
-  const getBazikStatus = useServerFn(bazikStatus);
-  const { data: bazikInfo } = useQuery({
-    queryKey: ["bazik_status"],
-    enabled: !!isAdmin,
-    queryFn: () => getBazikStatus(),
-    staleTime: 15_000,
-  });
-
   const rawTransfersBalance = Number(transfersWallet?.balance) || 0;
-  const transfersBalance = isAdmin
-    ? Math.max(rawTransfersBalance, Number(bazikInfo?.adminWalletBalance || bazikInfo?.balance || 0))
-    : rawTransfersBalance;
+  const transfersBalance = rawTransfersBalance;
   const topupsBalance = Number(topupsWallet?.balance) || 0;
 
   const transfersBalanceLabel = `${transfersBalance.toLocaleString()} HTG`;
