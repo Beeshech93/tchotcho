@@ -217,6 +217,11 @@ function Resumen() {
     queryFn: async () => (await supabase.from("profiles").select("*")).data ?? [],
   });
 
+  const { data: wallets } = useQuery({
+    queryKey: ["admin-wallets-summary"],
+    queryFn: async () => (await supabase.from("wallets").select("currency, balance")).data ?? [],
+  });
+
   const rows = transfers ?? [];
   const sumBy = (pick: (t: (typeof rows)[number]) => number) => {
     const acc: Record<string, number> = {};
@@ -231,11 +236,16 @@ function Resumen() {
   const completed = rows.filter((t) => t.status === "completed").length;
   const pendingKyc = (profiles ?? []).filter((p) => p.kyc_status === "pending").length;
 
+  const totalHtgBalance = (wallets ?? [])
+    .filter((w) => w.currency === "HTG")
+    .reduce((sum, w) => sum + Number(w.balance || 0), 0);
+
   return (
     <div className="space-y-4">
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+        <Stat label="Saldo Operativo (Bazik)" value={`${totalHtgBalance.toLocaleString()} HTG`} isGreen />
         <Stat label="Volumen total" value={volume} isGreen />
-        <Stat label="Ingresos por comisión" value={fees} isGreen />
+        <Stat label="Ingresos comisión" value={fees} isGreen />
         <Stat label="Envíos entregados" value={`${completed} / ${rows.length}`} />
         <Stat label="KYC por revisar" value={String(pendingKyc)} />
       </div>

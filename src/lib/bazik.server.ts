@@ -25,6 +25,8 @@ export const BAZIK_CRED_NAMES = [
   "BAZIK_SECRET_KEY",
   "BAZIK_WEBHOOK_SECRET",
   "BAZIK_ENVIRONMENT",
+  "BAZIK_LAST_SYNCED_BALANCE",
+  "BAZIK_LAST_SYNCED_AT",
 ] as const;
 
 export type BazikCredName = (typeof BAZIK_CRED_NAMES)[number];
@@ -194,12 +196,250 @@ export async function bazikAuthenticate(forceRefresh = false): Promise<BazikAuth
   }
 }
 
+// --- Consulta y Sincronización de Saldo Bazik ---------------------------
+
+function extractBalance(parsed: unknown): number | null {
+  if (typeof parsed === "number" && !isNaN(parsed)) return parsed;
+  if (!parsed || typeof parsed !== "object") return null;
+  const obj = parsed as Record<string, unknown>;
+  const data = (obj["data"] as Record<string, unknown> | undefined) ?? {};
+  const wallet = (obj["wallet"] as Record<string, unknown> | undefined) ?? {};
+
+  const candidates = [
+    obj["balance"],
+    obj["available_balance"],
+    obj["availableBalance"],
+    obj["available"],
+    obj["amount"],
+    obj["solde"],
+    obj["gdes"],
+    data["balance"],
+    data["available_balance"],
+    data["availableBalance"],
+    data["available"],
+    data["amount"],
+    wallet["balance"],
+  ];
+
+  for (const c of candidates) {
+    if (typeof c === "number" && !isNaN(c)) return c;
+    if (typeof c === "string" && !isNaN(Number(c)) && c.trim() !== "") return Number(c);
+  }
+  return null;
+}
+
+export type BazikBalanceResult =
+  | { ok: true; balance: number; currency: string; source: string }
+  | { ok: false; error: string; balance?: number };
+
+/**
+ * Consulta el saldo disponible en la cuenta de Bazik vía API o lee el último saldo sincronizado.
+ */
+export async function bazikFetchBalance(): Promise<BazikBalanceResult> {
+  const stored = await loadStoredCreds();
+  const creds = credsFor(stored);
+
+  if (!creds.userId || !creds.secretKey) {
+    const lastSync = stored["BAZIK_LAST_SYNCED_BALANCE"];
+    if (lastSync && !isNaN(Number(lastSync))) {
+      return { ok: true, balance: Number(lastSync), currency: "HTG", source: "cached" };
+    }
+    return { ok: false, error: "Credenciales de Bazik no configuradas." };
+  }
+
+  const auth = await bazikAuthenticate();
+  if (auth.ok) {
+    const candidatePaths = [
+      "/balance",
+      "/account/balance",
+      "/user/balance",
+      "/wallet",
+      "/wallets",
+      "/moncash/balance",
+      "/me",
+    ];
+
+    for (const path of candidatePaths) {
+      try {
+        const response = await fetch(`${creds.baseUrl}${path}`, {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${auth.token}`,
+            "Content-Type": "application/json",
+          },
+        });
+
+        if (response.ok) {
+          const text = await response.text();
+          try {
+            const parsed = JSON.parse(text) as unknown;
+            const bal = extractBalance(parsed);
+            if (bal !== null) {
+              return { ok: true, balance: bal, currency: "HTG", source: path };
+            }
+          } catch {
+            // no json
+          }
+        }
+      } catch {
+        // reintentar con el siguiente endpoint
+      }
+    }
+  }
+
+  // Si los endpoints de balance no están abiertos en la cuenta de Bazik, usar el último saldo guardado
+  const lastSync = stored["BAZIK_LAST_SYNCED_BALANCE"];
+  if (lastSync && !isNaN(Number(lastSync))) {
+    return { ok: true, balance: Number(lastSync), currency: "HTG", source: "cached" };
+  }
+
+  return {
+    ok: false,
+    error: auth.ok
+      ? "La API de Bazik no retornó un endpoint de balance directo. Puedes ingresar el saldo manualmente para sincronizarlo."
+      : auth.error,
+  };
+}
+
+/**
+ * Sincroniza el saldo operativo de Bazik con la billetera HTG del administrador.
+ */
+export async function bazikSyncBalanceToAdmin(options: {
+  userId: string;
+  targetBalance?: number | undefined;
+}): Promise<{
+  ok: boolean;
+  syncedBalance: number;
+  previousBalance: number;
+  difference: number;
+  source: string;
+  message: string;
+}> {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+  let balanceToSet: number;
+  let source = "api";
+
+  if (typeof options.targetBalance === "number" && !isNaN(options.targetBalance)) {
+    balanceToSet = Math.max(0, Math.round(options.targetBalance * 100) / 100);
+    source = "manual";
+  } else {
+    const fetchRes = await bazikFetchBalance();
+    if (!fetchRes.ok) {
+      throw new Error(fetchRes.error);
+    }
+    balanceToSet = fetchRes.balance;
+    source = fetchRes.source;
+  }
+
+  const targetUserId = options.userId;
+
+  // 1. Obtener o crear billetera HTG del admin
+  const { data: existingWallet, error: fetchErr } = await supabaseAdmin
+    .from("wallets")
+    .select("id, balance")
+    .eq("user_id", targetUserId)
+    .eq("currency", "HTG")
+    .maybeSingle();
+
+  if (fetchErr) {
+    throw new Error(`Error consultando billetera: ${fetchErr.message}`);
+  }
+
+  let previousBalance = 0;
+  let walletId: string;
+
+  if (existingWallet) {
+    previousBalance = Number(existingWallet.balance) || 0;
+    walletId = existingWallet.id;
+    const { error: updErr } = await supabaseAdmin
+      .from("wallets")
+      .update({
+        balance: balanceToSet,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", existingWallet.id);
+
+    if (updErr) throw new Error(`Error actualizando saldo de billetera: ${updErr.message}`);
+  } else {
+    const { data: newWallet, error: createError } = await supabaseAdmin
+      .from("wallets")
+      .insert({
+        user_id: targetUserId,
+        currency: "HTG",
+        balance: balanceToSet,
+        status: "active",
+      })
+      .select("id")
+      .single();
+
+    if (createError || !newWallet) {
+      throw new Error(createError?.message || "No se pudo crear la billetera para el admin.");
+    }
+    walletId = newWallet.id;
+  }
+
+  const difference = Math.round((balanceToSet - previousBalance) * 100) / 100;
+
+  // 2. Registrar movimiento en wallet_transactions
+  try {
+    await supabaseAdmin.from("wallet_transactions").insert({
+      wallet_id: walletId,
+      user_id: targetUserId,
+      kind: difference >= 0 ? "admin_deposit" : "admin_deduct",
+      amount: difference,
+      currency: "HTG",
+      description: `Sincronización de saldo Bazik (${source}): ${balanceToSet.toLocaleString()} HTG (diferencia: ${difference >= 0 ? "+" : ""}${difference.toLocaleString()} HTG)`,
+    });
+  } catch (txErr) {
+    console.warn("[BazikSync] No se pudo insertar en wallet_transactions:", txErr);
+  }
+
+  // 3. Guardar registro en integration_credentials
+  try {
+    await saveStoredCred("BAZIK_LAST_SYNCED_BALANCE", String(balanceToSet), targetUserId);
+    await saveStoredCred("BAZIK_LAST_SYNCED_AT", new Date().toISOString(), targetUserId);
+  } catch (credErr) {
+    console.warn("[BazikSync] No se pudo guardar credencial:", credErr);
+  }
+
+  return {
+    ok: true,
+    syncedBalance: balanceToSet,
+    previousBalance,
+    difference,
+    source,
+    message: `Saldo sincronizado exitosamente con la billetera Admin. Saldo actual: ${balanceToSet.toLocaleString()} HTG.`,
+  };
+}
+
 // --- Estado de configuración (para el panel de admin) ---------------------
 
-export async function bazikStatusInfo(client?: any) {
+export async function bazikStatusInfo(client?: any, userId?: string) {
   const stored = await loadStoredCreds(client);
   const creds = credsFor(stored);
   const auth = await bazikAuthenticate();
+
+  let adminWalletBalance = 0;
+  if (userId) {
+    try {
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      const sb = client ?? supabaseAdmin;
+      const { data: w } = await sb
+        .from("wallets")
+        .select("balance")
+        .eq("user_id", userId)
+        .eq("currency", "HTG")
+        .maybeSingle();
+      if (w?.balance !== undefined) adminWalletBalance = Number(w.balance);
+    } catch {
+      // ignore
+    }
+  }
+
+  const rawBalance = stored["BAZIK_LAST_SYNCED_BALANCE"];
+  const lastBalance = rawBalance && !isNaN(Number(rawBalance)) ? Number(rawBalance) : null;
+  const lastSyncedAt = stored["BAZIK_LAST_SYNCED_AT"] || null;
 
   return {
     baseUrl: creds.baseUrl,
@@ -210,6 +450,9 @@ export async function bazikStatusInfo(client?: any) {
     hasWebhookSecret: Boolean(pick(stored, "BAZIK_WEBHOOK_SECRET")),
     authOk: auth.ok,
     authError: auth.ok ? undefined : auth.error,
+    balance: lastBalance,
+    lastSyncedAt,
+    adminWalletBalance,
   };
 }
 
