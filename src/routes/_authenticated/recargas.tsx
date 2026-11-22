@@ -474,13 +474,13 @@ function Recargas() {
         </div>
       )}
 
-      <Card className="overflow-hidden border border-slate-200 shadow-sm w-full min-w-0">
-        <CardHeader className="px-4 py-3 sm:px-6 sm:py-4">
-          <CardTitle className="flex items-center gap-2 text-sm sm:text-base">
+      <Card className="overflow-hidden border-2 border-emerald-400/80 bg-white shadow-sm rounded-2xl w-full min-w-0">
+        <CardHeader className="border-b-2 border-emerald-100 bg-emerald-50/70 px-4 py-3 sm:px-6 sm:py-4">
+          <CardTitle className="flex items-center gap-2 text-sm sm:text-base font-black text-emerald-950">
             <Smartphone className="size-4 shrink-0 text-emerald-600" /> {t("topup.send_recharge")}
           </CardTitle>
         </CardHeader>
-        <CardContent className="grid gap-3.5 sm:gap-4 sm:grid-cols-2 min-w-0 px-4 pb-5 pt-0 sm:px-6">
+        <CardContent className="grid gap-3.5 sm:gap-4 sm:grid-cols-2 min-w-0 px-4 pb-5 pt-4 sm:px-6">
           <div className="space-y-1.5 min-w-0 w-full">
             <Label className="text-xs font-bold text-slate-800">{t("topup.pay_country")}</Label>
             <Select
@@ -837,11 +837,11 @@ function Recargas() {
         </Card>
       )}
 
-      <Card className="overflow-hidden border border-slate-200 shadow-sm w-full min-w-0">
-        <CardHeader className="px-4 py-3 sm:px-6 sm:py-4">
-          <CardTitle className="text-sm sm:text-base font-bold text-slate-900">{t("topup.history_title")}</CardTitle>
+      <Card className="overflow-hidden border-2 border-emerald-400/80 bg-white shadow-sm rounded-2xl w-full min-w-0">
+        <CardHeader className="border-b-2 border-emerald-100 bg-emerald-50/70 px-4 py-3 sm:px-6 sm:py-4">
+          <CardTitle className="text-sm sm:text-base font-black text-emerald-950">{t("topup.history_title")}</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-2 px-4 pb-5 sm:px-6">
+        <CardContent className="space-y-2 px-4 pb-5 pt-4 sm:px-6">
           {(topups ?? []).length === 0 && (
             <p className="py-4 text-xs sm:text-sm text-muted-foreground">{t("topup.no_history")}</p>
           )}

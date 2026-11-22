@@ -318,16 +318,21 @@ function Enviar() {
         </div>
       )}
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">{t("send.step1")}</CardTitle>
+      <Card className="overflow-hidden rounded-2xl sm:rounded-3xl border-2 border-emerald-400/80 bg-white shadow-sm hover:border-emerald-500 transition-all">
+        <CardHeader className="border-b-2 border-emerald-100 bg-emerald-50/70 py-3 sm:py-4 px-4 sm:px-6">
+          <CardTitle className="text-sm sm:text-base font-black text-emerald-950 flex items-center gap-2.5">
+            <span className="grid size-6 sm:size-7 place-items-center rounded-lg bg-emerald-600 text-white text-xs font-black shrink-0 shadow-2xs">
+              1
+            </span>
+            <span>{t("send.step1").replace(/^[0-9]+\.\s*/, "")}</span>
+          </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-4 p-4 sm:p-6">
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-1.5">
-              <Label>{t("send.from")}</Label>
+              <Label className="text-xs font-bold text-slate-700">{t("send.from")}</Label>
               <Select value={origin} onValueChange={changeOrigin}>
-                <SelectTrigger>
+                <SelectTrigger className="h-11 rounded-xl border-2 border-emerald-300 focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600 bg-white font-medium text-slate-900 shadow-2xs">
                   <SelectValue
                     placeholder={
                       originCountry
@@ -336,7 +341,7 @@ function Enviar() {
                     }
                   />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="border-2 border-emerald-200">
                   {origins.map((c) => (
                     <SelectItem key={c.code} value={c.code}>
                       {c.flag} {c.name} · {c.currency}
@@ -346,9 +351,9 @@ function Enviar() {
               </Select>
             </div>
             <div className="space-y-1.5">
-              <Label>{t("send.to")}</Label>
+              <Label className="text-xs font-bold text-slate-700">{t("send.to")}</Label>
               <Select value={destination} onValueChange={changeDestination}>
-                <SelectTrigger>
+                <SelectTrigger className="h-11 rounded-xl border-2 border-emerald-300 focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600 bg-white font-medium text-slate-900 shadow-2xs">
                   <SelectValue
                     placeholder={
                       destCountry
@@ -357,7 +362,7 @@ function Enviar() {
                     }
                   />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="border-2 border-emerald-200">
                   {destinations.map((c) => (
                     <SelectItem key={c.code} value={c.code}>
                       {c.flag} {c.name} · {c.currency}
@@ -369,7 +374,7 @@ function Enviar() {
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="monto">
+            <Label htmlFor="monto" className="text-xs font-bold text-slate-700">
               {t("send.you_send")} ({sendCur || "—"})
             </Label>
             <Input
@@ -377,32 +382,34 @@ function Enviar() {
               inputMode="decimal"
               value={amount}
               onChange={(e) => setAmount(e.target.value.replace(/[^0-9.]/g, ""))}
-              className="h-12 text-lg font-semibold"
+              className="h-12 sm:h-14 text-xl sm:text-2xl font-black rounded-xl border-2 border-emerald-300 focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600 bg-white shadow-2xs"
             />
           </div>
 
-          <div className="space-y-1.5 rounded-xl bg-secondary p-4 text-sm">
+          <div className="space-y-2 rounded-2xl bg-emerald-50/60 border-2 border-emerald-200/90 p-4 text-xs sm:text-sm">
             <Line
               label={t("send.rate")}
               value={`1 ${sendCur} = ${Number(effectiveCfg.rate).toFixed(4)} ${recvCur}`}
             />
+            <div className="border-t border-emerald-200/70" />
             <Line label={t("send.fee")} value={money(q.fee, sendCur)} />
+            <div className="border-t border-emerald-300" />
             <Line label={t("send.total")} value={money(q.total, sendCur)} strong />
           </div>
           {destination === "HT" && (
-            <div className="rounded-xl border border-slate-200 bg-slate-50 p-2.5 text-xs text-slate-700">
+            <div className="rounded-xl border-2 border-emerald-300/80 bg-emerald-50/90 p-3 text-xs text-emerald-950 font-medium">
               {delivery === "natcash" ? (
                 <p className="font-semibold text-emerald-800">
                   ⚡ Natcom (NatCash): Min 3,998 HTG · Max 75,000 HTG per transaction · whole numbers only
                 </p>
               ) : (
-                <p className="text-slate-600">
+                <p className="text-emerald-900 font-semibold">
                   MonCash: máximo 75,000 HTG por transacción.
                 </p>
               )}
             </div>
           )}
-          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-600 via-emerald-700 to-emerald-800 p-5 text-white shadow-lg shadow-emerald-950/20 border-2 border-emerald-500">
+          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-600 via-emerald-700 to-emerald-800 p-5 text-white shadow-lg shadow-emerald-950/20 border-2 border-emerald-400">
             <p className="text-xs font-black uppercase tracking-wider text-emerald-100">
               {t("send.family_gets")}
             </p>
@@ -413,28 +420,50 @@ function Enviar() {
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">
-            {t("send.step2")} {destCountry?.name ?? t("send.step2_fallback")}
+      <Card className="overflow-hidden rounded-2xl sm:rounded-3xl border-2 border-emerald-400/80 bg-white shadow-sm hover:border-emerald-500 transition-all">
+        <CardHeader className="border-b-2 border-emerald-100 bg-emerald-50/70 py-3 sm:py-4 px-4 sm:px-6">
+          <CardTitle className="text-sm sm:text-base font-black text-emerald-950 flex items-center gap-2.5">
+            <span className="grid size-6 sm:size-7 place-items-center rounded-lg bg-emerald-600 text-white text-xs font-black shrink-0 shadow-2xs">
+              2
+            </span>
+            <span>
+              {t("send.step2").replace(/^[0-9]+\.\s*/, "")} {destCountry?.name ?? t("send.step2_fallback")}
+            </span>
           </CardTitle>
         </CardHeader>
-        <CardContent className="grid gap-4 sm:grid-cols-2">
+        <CardContent className="grid gap-4 sm:grid-cols-2 p-4 sm:p-6">
           <div className="space-y-1.5">
-            <Label htmlFor="recipient_name">{t("send.recipient_name")}</Label>
-            <Input id="recipient_name" name="recipient_name" required maxLength={100} />
+            <Label htmlFor="recipient_name" className="text-xs font-bold text-slate-700">
+              {t("send.recipient_name")}
+            </Label>
+            <Input
+              id="recipient_name"
+              name="recipient_name"
+              required
+              maxLength={100}
+              className="h-11 rounded-xl border-2 border-emerald-300 focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600 bg-white font-medium text-slate-900 shadow-2xs"
+            />
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="recipient_phone">{t("send.recipient_phone")}</Label>
-            <Input id="recipient_phone" name="recipient_phone" type="tel" required maxLength={25} />
+            <Label htmlFor="recipient_phone" className="text-xs font-bold text-slate-700">
+              {t("send.recipient_phone")}
+            </Label>
+            <Input
+              id="recipient_phone"
+              name="recipient_phone"
+              type="tel"
+              required
+              maxLength={25}
+              className="h-11 rounded-xl border-2 border-emerald-300 focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600 bg-white font-medium text-slate-900 shadow-2xs"
+            />
           </div>
           <div className="space-y-1.5">
-            <Label>{t("send.city")}</Label>
+            <Label className="text-xs font-bold text-slate-700">{t("send.city")}</Label>
             <Select value={city} onValueChange={setCity}>
-              <SelectTrigger>
+              <SelectTrigger className="h-11 rounded-xl border-2 border-emerald-300 focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600 bg-white font-medium text-slate-900 shadow-2xs">
                 <SelectValue placeholder={t("send.city_placeholder")} />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="border-2 border-emerald-200">
                 {cities.map((c) => (
                   <SelectItem key={c} value={c}>
                     {c}
@@ -444,12 +473,12 @@ function Enviar() {
             </Select>
           </div>
           <div className="space-y-1.5">
-            <Label>{t("send.delivery")}</Label>
+            <Label className="text-xs font-bold text-slate-700">{t("send.delivery")}</Label>
             <Select value={delivery} onValueChange={setDelivery}>
-              <SelectTrigger>
+              <SelectTrigger className="h-11 rounded-xl border-2 border-emerald-300 focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600 bg-white font-medium text-slate-900 shadow-2xs">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="border-2 border-emerald-200">
                 {deliveries.map((d) => (
                   <SelectItem key={d.value} value={d.value}>
                     {d.label} — {d.hint}
@@ -459,22 +488,28 @@ function Enviar() {
             </Select>
           </div>
           <div className="space-y-1.5 sm:col-span-2">
-            <Label htmlFor="note">{t("send.note")}</Label>
-            <Textarea id="note" name="note" maxLength={300} rows={2} />
+            <Label htmlFor="note" className="text-xs font-bold text-slate-700">{t("send.note")}</Label>
+            <Textarea
+              id="note"
+              name="note"
+              maxLength={300}
+              rows={2}
+              className="rounded-xl border-2 border-emerald-300 focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600 bg-white font-medium text-slate-900 shadow-2xs"
+            />
           </div>
         </CardContent>
       </Card>
 
       {isAdmin ? null : isAgent ? (
-        <Card className="border-2 border-emerald-200 bg-emerald-50/50 shadow-2xs rounded-2xl">
-          <CardHeader>
-            <CardTitle className="text-base flex items-center gap-2 text-emerald-800 font-extrabold">
+        <Card className="overflow-hidden border-2 border-emerald-400/80 bg-emerald-50/50 shadow-sm rounded-2xl sm:rounded-3xl">
+          <CardHeader className="border-b-2 border-emerald-100 bg-emerald-50/80 py-3 sm:py-4 px-4 sm:px-6">
+            <CardTitle className="text-sm sm:text-base flex items-center gap-2 text-emerald-900 font-black">
               <Banknote className="size-5 text-emerald-700" />
               <span>Pago en Efectivo en Ventanilla (Agente)</span>
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="rounded-xl border border-emerald-200 bg-white p-4 shadow-2xs">
+          <CardContent className="p-4 sm:p-6">
+            <div className="rounded-xl border-2 border-emerald-300/80 bg-white p-4 shadow-2xs">
               <p className="font-extrabold text-sm text-slate-900">Cobro en ventanilla física</p>
               <p className="text-xs text-slate-600 font-medium mt-1">
                 El cliente te entrega el efectivo directamente. La transferencia se procesa
@@ -484,22 +519,29 @@ function Enviar() {
           </CardContent>
         </Card>
       ) : (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">{t("send.step3")}</CardTitle>
+        <Card className="overflow-hidden rounded-2xl sm:rounded-3xl border-2 border-emerald-400/80 bg-white shadow-sm hover:border-emerald-500 transition-all">
+          <CardHeader className="border-b-2 border-emerald-100 bg-emerald-50/70 py-3 sm:py-4 px-4 sm:px-6">
+            <CardTitle className="text-sm sm:text-base font-black text-emerald-950 flex items-center gap-2.5">
+              <span className="grid size-6 sm:size-7 place-items-center rounded-lg bg-emerald-600 text-white text-xs font-black shrink-0 shadow-2xs">
+                3
+              </span>
+              <span>{t("send.step3").replace(/^[0-9]+\.\s*/, "")}</span>
+            </CardTitle>
           </CardHeader>
-          <CardContent className="grid gap-3 sm:grid-cols-2">
+          <CardContent className="grid gap-3 sm:grid-cols-2 p-4 sm:p-6">
             {payments.map((m) => (
               <button
                 key={m.value}
                 type="button"
                 onClick={() => setPayment(m.value)}
-                className={`rounded-xl border p-4 text-left transition-colors ${
-                  payment === m.value ? "border-accent bg-accent/10" : "hover:bg-secondary"
+                className={`rounded-xl border-2 p-4 text-left transition-all ${
+                  payment === m.value
+                    ? "border-emerald-600 bg-emerald-50/80 text-emerald-950 shadow-xs"
+                    : "border-emerald-200/90 bg-white hover:border-emerald-400 hover:bg-emerald-50/20"
                 }`}
               >
-                <p className="font-medium">{m.label}</p>
-                <p className="text-xs text-muted-foreground">{m.hint}</p>
+                <p className="font-bold text-slate-900">{m.label}</p>
+                <p className="text-xs text-slate-600 mt-0.5">{m.hint}</p>
               </button>
             ))}
           </CardContent>
@@ -509,7 +551,7 @@ function Enviar() {
       <Button
         type="submit"
         size="lg"
-        className="w-full text-base font-semibold"
+        className="w-full h-12 sm:h-14 text-base font-black rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white shadow-md hover:scale-[1.01] active:scale-[0.99] transition-all"
         disabled={
           saving ||
           !cfg ||
@@ -535,8 +577,12 @@ function Enviar() {
 function Line({ label, value, strong }: { label: string; value: string; strong?: boolean }) {
   return (
     <div className="flex items-center justify-between">
-      <span className="text-muted-foreground">{label}</span>
-      <span className={strong ? "font-semibold" : "font-medium"}>{value}</span>
+      <span className={strong ? "font-bold text-emerald-950" : "text-emerald-900/80 font-medium"}>
+        {label}
+      </span>
+      <span className={strong ? "font-black text-emerald-950 text-base" : "font-bold text-slate-900"}>
+        {value}
+      </span>
     </div>
   );
 }
