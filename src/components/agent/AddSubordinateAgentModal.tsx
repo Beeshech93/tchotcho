@@ -14,6 +14,7 @@ import {
   Send,
   CheckCircle2,
   MessageCircle,
+  Wallet,
 } from "lucide-react";
 import {
   Dialog,
@@ -167,10 +168,10 @@ export function AddSubordinateAgentModal({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-lg font-bold">
             <Sparkles className="size-5 text-indigo-600" />
-            Adicionar Agente a mi Red
+            Adicionar Agente Regular a mi Red
           </DialogTitle>
           <DialogDescription className="text-xs text-muted-foreground">
-            Registra a un nuevo agente para que opere ventanilla. El sistema creará su cuenta y ganarás una comisión por cada transacción que realice.
+            Registra a un nuevo agente regular para que opere ventanilla. El agente iniciará con saldo <strong>0 HTG</strong> en sus billeteras hasta que le asignes fondos desde tu balance de Super Agente.
           </DialogDescription>
         </DialogHeader>
 
@@ -245,6 +246,17 @@ export function AddSubordinateAgentModal({
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-3.5 py-2">
+            {/* Aviso de Saldo Inicial en Cero */}
+            <div className="flex items-start gap-2.5 rounded-2xl border border-indigo-200/90 bg-indigo-50/70 p-3 text-xs text-indigo-950">
+              <Wallet className="size-4 text-indigo-600 shrink-0 mt-0.5" />
+              <div className="space-y-0.5">
+                <span className="font-bold text-indigo-950">Agente Regular • Saldo Inicial Cero (0 HTG)</span>
+                <p className="text-[11px] text-indigo-800 leading-snug">
+                  Los nuevos agentes inician con balance 0 HTG en envíos y recargas. Como Super Agente, una vez registrado podrás transferirle saldo operativo desde el botón «Transferir a Agente».
+                </p>
+              </div>
+            </div>
+
             {/* Comisión de Red */}
             <div className="space-y-2 rounded-2xl bg-indigo-50/70 border border-indigo-200/80 p-3.5">
               <div className="flex items-center justify-between">

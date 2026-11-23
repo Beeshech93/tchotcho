@@ -14,6 +14,7 @@ import {
   CheckCircle2,
   AlertCircle,
   ExternalLink,
+  Wallet,
 } from "lucide-react";
 import {
   Dialog,
@@ -158,8 +159,7 @@ export function RegisterSuperAgentModal({
             Registrar Super Agente
           </DialogTitle>
           <DialogDescription className="text-xs text-muted-foreground">
-            Registra los datos del Super Agente. El sistema creará su cuenta con permisos
-            operativos y le enviará un correo para que establezca su contraseña.
+            Registra los datos del Super Agente. El sistema creará su cuenta con saldo inicial <strong>0 HTG</strong> y le enviará un enlace para que configure su contraseña de acceso.
           </DialogDescription>
         </DialogHeader>
 
@@ -171,7 +171,7 @@ export function RegisterSuperAgentModal({
                 ¡Super Agente Registrado Exitosamente!
               </div>
               <p className="text-xs text-emerald-800 leading-relaxed">
-                Se han configurado las billeteras operativas y los privilegios de Super Agente para{" "}
+                Se han configurado las billeteras operativas con <strong>saldo inicial 0 HTG</strong> y los privilegios de Super Agente para{" "}
                 <strong>{result.email}</strong>.
               </p>
               {result.emailSent ? (
@@ -234,6 +234,17 @@ export function RegisterSuperAgentModal({
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-3.5 py-2">
+            {/* Aviso de Saldo Inicial en Cero */}
+            <div className="flex items-start gap-2.5 rounded-2xl border border-indigo-200/90 bg-indigo-50/70 p-3 text-xs text-indigo-950">
+              <Wallet className="size-4 text-indigo-600 shrink-0 mt-0.5" />
+              <div className="space-y-0.5">
+                <span className="font-bold text-indigo-950">Super Agente • Saldo Inicial Cero (0 HTG)</span>
+                <p className="text-[11px] text-indigo-800 leading-snug">
+                  Los Super Agentes inician con saldo 0 HTG en envíos y recargas. La administración podrá asignarle saldo operativo posteriormente desde la sección «Adicionar Saldo».
+                </p>
+              </div>
+            </div>
+
             {/* Nombre completo */}
             <div className="space-y-1.5">
               <Label htmlFor="super-agent-name" className="text-xs font-bold text-slate-700 flex items-center gap-1">

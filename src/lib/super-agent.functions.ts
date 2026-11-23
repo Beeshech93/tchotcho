@@ -266,6 +266,7 @@ export const addSubordinateAgent = createServerFn({ method: "POST" })
             full_name: cleanName,
             phone: cleanPhone,
             role: "agent",
+            is_super_agent: false,
             parent_super_agent_id: context.userId,
           },
         });
@@ -383,16 +384,42 @@ export const addSubordinateAgent = createServerFn({ method: "POST" })
       throw new Error("No puedes agregarte a ti mismo como tu propio agente subordinado.");
     }
 
-    // 1. Asignar rol 'agent' si no lo tiene
+    // 1. Validar que el usuario objetivo NO sea un Super Agente ni Administrador
     const { data: existingRoles } = await supabaseAdmin
       .from("user_roles")
       .select("role")
       .eq("user_id", finalTargetUserId);
 
-    const hasAgentRole = (existingRoles ?? []).some(
-      (r) => r.role === "agent" || r.role === "super_agent",
-    );
+    const isTargetAdmin = (existingRoles ?? []).some((r) => r.role === "admin");
+    if (isTargetAdmin) {
+      throw new Error("Un Administrador no puede ser asignado como agente regular en tu red.");
+    }
 
+    const { data: targetSaCred } = await supabaseAdmin
+      .from("integration_credentials")
+      .select("value")
+      .eq("name", `SUPER_AGENT_ROLE_${finalTargetUserId}`)
+      .maybeSingle();
+
+    const isTargetSuperAgent =
+      (existingRoles ?? []).some((r) => (r.role as string) === "super_agent") ||
+      targetSaCred?.value === "true" ||
+      targetSaCred?.value === "active";
+
+    if (isTargetSuperAgent) {
+      throw new Error(
+        "Un Super Agente no puede ser asignado como agente regular en tu red. Los Super Agentes solo pueden agregar agentes regulares (no Super Agentes).",
+      );
+    }
+
+    // Asegurar que el usuario tenga estrictamente rol 'agent' (no super_agent ni admin)
+    await supabaseAdmin
+      .from("user_roles")
+      .delete()
+      .eq("user_id", finalTargetUserId)
+      .in("role", ["super_agent" as any, "admin" as any]);
+
+    const hasAgentRole = (existingRoles ?? []).some((r) => r.role === "agent");
     if (!hasAgentRole) {
       await supabaseAdmin.from("user_roles").insert({
         user_id: finalTargetUserId,
@@ -400,7 +427,24 @@ export const addSubordinateAgent = createServerFn({ method: "POST" })
       });
     }
 
-    // 2. Pre-crear billeteras operativas del agente si no existen
+    // Remover credenciales de Super Agente si existieran
+    await supabaseAdmin
+      .from("integration_credentials")
+      .delete()
+      .eq("name", `SUPER_AGENT_ROLE_${finalTargetUserId}`);
+
+    // Asegurar metadatos en auth.users
+    try {
+      await supabaseAdmin.auth.admin.updateUserById(finalTargetUserId, {
+        user_metadata: {
+          role: "agent",
+          is_super_agent: false,
+          parent_super_agent_id: context.userId,
+        },
+      });
+    } catch {}
+
+    // 2. Pre-crear billeteras operativas del agente con saldo inicial CERO (0 HTG)
     const { data: existingWallets } = await supabaseAdmin
       .from("wallets")
       .select("currency")
@@ -412,6 +456,7 @@ export const addSubordinateAgent = createServerFn({ method: "POST" })
         user_id: finalTargetUserId,
         currency: "HTG",
         balance: 0,
+        status: "active",
       });
     }
     if (!existingCurrs.includes("HTG_RECARGAS")) {
@@ -419,6 +464,7 @@ export const addSubordinateAgent = createServerFn({ method: "POST" })
         user_id: finalTargetUserId,
         currency: "HTG_RECARGAS",
         balance: 0,
+        status: "active",
       });
     }
 
@@ -480,8 +526,8 @@ export const addSubordinateAgent = createServerFn({ method: "POST" })
       actionLink,
       emailSent,
       message: actionLink
-        ? "Agente registrado exitosamente y vinculado a tu red. Se ha generado su enlace de acceso."
-        : "Agente agregado exitosamente a tu red.",
+        ? "Agente regular registrado exitosamente en tu red con saldo inicial 0 HTG. Se ha generado su enlace de acceso."
+        : "Agente regular vinculado exitosamente a tu red con saldo inicial 0 HTG.",
     };
   });
 
@@ -915,8 +961,8 @@ export const registerSuperAgent = createServerFn({ method: "POST" })
       emailSent,
       emailError: emailSent ? undefined : emailError,
       message: emailSent
-        ? "Super Agente registrado exitosamente. Se ha enviado el correo para configurar su contraseña."
-        : "Super Agente registrado. El correo no pudo enviarse automáticamente, pero puedes compartir el enlace de activación.",
+        ? "Super Agente registrado exitosamente con saldo inicial 0 HTG. Se ha enviado el correo para configurar su contraseña."
+        : "Super Agente registrado con saldo inicial 0 HTG. El correo no pudo enviarse automáticamente, pero puedes compartir el enlace de activación.",
     };
   });
 
