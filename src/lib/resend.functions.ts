@@ -199,7 +199,27 @@ export const requestPasswordResetEmail = createServerFn({ method: "POST" })
 
     if (!sendRes.ok) {
       console.warn("[requestPasswordResetEmail] Resend send error:", sendRes.error);
-      return { ok: false, error: sendRes.error };
+
+      // Si Resend falló (ej. modo sandbox onboarding@resend.dev que solo permite enviar al correo del dueño de Resend),
+      // enviamos mediante el servicio de autenticación de Supabase como respaldo inmediato para que el usuario no quede bloqueado.
+      try {
+        const { error: sbFallbackErr } = await supabaseAdmin.auth.resetPasswordForEmail(cleanEmail, {
+          redirectTo: redirectUrl,
+        });
+        if (!sbFallbackErr) {
+          console.info("[requestPasswordResetEmail] Enviado exitosamente mediante respaldo de Supabase");
+          return { ok: true, via: "fallback" };
+        }
+      } catch (fbErr: any) {
+        console.warn("[requestPasswordResetEmail] Fallback de Supabase también falló:", fbErr?.message);
+      }
+
+      return {
+        ok: false,
+        error: sendRes.error.includes("verify a domain")
+          ? "El dominio tchotcho.app aún se está verificando en Resend. Si tu dominio ya fue verificado, cambia el remitente en Admin > Correo a 'Tcho-Tcho <bienvenida@tchotcho.app>'."
+          : sendRes.error,
+      };
     }
 
     return { ok: true };
