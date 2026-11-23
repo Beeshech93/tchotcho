@@ -293,7 +293,7 @@ export const addSubordinateAgent = createServerFn({ method: "POST" })
       const publicUrl =
         process.env["PUBLIC_URL"] ||
         process.env["VITE_PUBLIC_URL"] ||
-        "https://lajanrapid.app";
+        "https://tchotcho.app";
       const cleanPublicUrl = publicUrl.replace(/\/$/, "");
       const redirectUrl = `${cleanPublicUrl}/restablecer-password`;
 
@@ -348,6 +348,30 @@ export const addSubordinateAgent = createServerFn({ method: "POST" })
           });
           emailSent = true;
         } catch {}
+      }
+    } else if (input.targetUserId) {
+      // Para usuarios existentes agregados como agentes, generar también enlace de acceso
+      try {
+        const { data: userData } = await supabaseAdmin.auth.admin.getUserById(input.targetUserId);
+        const existingEmail = userData?.user?.email;
+        if (existingEmail) {
+          const publicUrl =
+            process.env["PUBLIC_URL"] ||
+            process.env["VITE_PUBLIC_URL"] ||
+            "https://tchotcho.app";
+          const cleanPublicUrl = publicUrl.replace(/\/$/, "");
+          const redirectUrl = `${cleanPublicUrl}/restablecer-password`;
+          const { data: linkData } = await supabaseAdmin.auth.admin.generateLink({
+            type: "recovery",
+            email: existingEmail,
+            options: { redirectTo: redirectUrl },
+          });
+          if (linkData?.properties?.action_link) {
+            actionLink = linkData.properties.action_link;
+          }
+        }
+      } catch (e) {
+        console.warn("[addSubordinateAgent] generateLink for existing user:", e);
       }
     }
 
@@ -780,7 +804,7 @@ export const registerSuperAgent = createServerFn({ method: "POST" })
     const publicUrl =
       process.env["PUBLIC_URL"] ||
       process.env["VITE_PUBLIC_URL"] ||
-      "https://lajanrapid.app";
+      "https://tchotcho.app";
     const cleanPublicUrl = publicUrl.replace(/\/$/, "");
     const redirectUrl = `${cleanPublicUrl}/restablecer-password`;
 

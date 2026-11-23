@@ -13,6 +13,7 @@ import {
   Check,
   Send,
   CheckCircle2,
+  MessageCircle,
 } from "lucide-react";
 import {
   Dialog,
@@ -217,6 +218,18 @@ export function AddSubordinateAgentModal({
                 <p className="text-[11px] text-muted-foreground mt-1">
                   Puedes compartir este enlace por WhatsApp o SMS para que el nuevo agente comience a operar de inmediato.
                 </p>
+
+                <a
+                  href={`https://wa.me/${phone.replace(/\D/g, "")}?text=${encodeURIComponent(
+                    `¡Hola ${fullName || "Agente"}! Has sido registrado como Agente Oficial en Tcho-Tcho. Para activar tu cuenta y crear tu contraseña de acceso a la ventanilla, haz clic en este enlace seguro:\n\n${successResult.actionLink}`,
+                  )}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center gap-2 w-full py-2.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs transition shadow-sm mt-2"
+                >
+                  <MessageCircle className="size-4" />
+                  Enviar enlace al Agente por WhatsApp
+                </a>
               </div>
             )}
 
