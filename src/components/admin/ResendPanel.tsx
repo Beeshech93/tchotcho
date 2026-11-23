@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
 import { useServerFn } from "@tanstack/react-start";
-import { Mail, RefreshCw, Save, Send } from "lucide-react";
+import { Mail, RefreshCw, Save, Send, Check, AlertCircle } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -109,26 +109,49 @@ export function ResendPanel() {
               Necesario antes de activar el trigger de la base de datos.
             </p>
           </div>
-          <Button
-            type="button"
-            variant="outline"
-            className="w-full gap-2"
-            disabled={testMut.isPending || !info?.hasApiKey}
-            onClick={() => testMut.mutate()}
-          >
-            <Send className="size-4" />
-            {testMut.isPending ? "Enviando..." : "Enviarme un correo de prueba"}
-          </Button>
+          <div className="space-y-1.5 pt-1">
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full gap-2 border-emerald-300 text-emerald-950 font-bold hover:bg-emerald-50"
+              disabled={testMut.isPending || !info?.hasApiKey || !info?.hasFromEmail}
+              onClick={() => testMut.mutate()}
+            >
+              <Send className="size-4 text-emerald-600" />
+              {testMut.isPending ? "Enviando..." : "Enviarme un correo de prueba"}
+            </Button>
+            {(!info?.hasApiKey || !info?.hasFromEmail) && (
+              <p className="text-[11px] text-amber-700 font-medium text-center">
+                Guarda la API Key y el correo remitente en el panel derecho antes de enviar la prueba.
+              </p>
+            )}
+          </div>
         </CardContent>
       </Card>
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Credenciales de Resend</CardTitle>
+          <CardTitle className="text-base flex items-center justify-between">
+            <span>Credenciales de Resend</span>
+            <Badge variant={info?.hasApiKey && info?.hasFromEmail ? "default" : "secondary"} className="text-xs">
+              {info?.hasApiKey && info?.hasFromEmail ? "Conectado" : "Pendiente"}
+            </Badge>
+          </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-1.5">
-            <Label htmlFor="resend-key">API Key</Label>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="resend-key">API Key</Label>
+              {info?.hasApiKey ? (
+                <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-700">
+                  <Check className="size-3" /> Configurada (re_••••)
+                </span>
+              ) : (
+                <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-amber-700">
+                  <AlertCircle className="size-3" /> Sin configurar
+                </span>
+              )}
+            </div>
             <Input
               id="resend-key"
               type="password"
@@ -138,7 +161,18 @@ export function ResendPanel() {
             />
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="resend-from">Correo remitente</Label>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="resend-from">Correo remitente</Label>
+              {info?.hasFromEmail ? (
+                <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-700">
+                  <Check className="size-3" /> Configurado
+                </span>
+              ) : (
+                <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-amber-700">
+                  <AlertCircle className="size-3" /> Sin configurar
+                </span>
+              )}
+            </div>
             <Input
               id="resend-from"
               type="email"
@@ -147,7 +181,7 @@ export function ResendPanel() {
               onChange={(e) => setCred("RESEND_FROM_EMAIL", e.target.value)}
             />
             {info?.fromEmail && (
-              <p className="text-xs text-muted-foreground">Actual: {info.fromEmail}</p>
+              <p className="text-xs text-muted-foreground font-semibold">Remitente actual: {info.fromEmail}</p>
             )}
             <p className="text-xs text-muted-foreground">
               El dominio de este correo debe estar verificado en tu cuenta de Resend.
@@ -170,7 +204,7 @@ export function ResendPanel() {
               inválidas, intentos de auto-aprobar KYC, etc.).
             </p>
           </div>
-          <Button onClick={() => saveMut.mutate()} disabled={saveMut.isPending} className="w-full">
+          <Button onClick={() => saveMut.mutate()} disabled={saveMut.isPending} className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold">
             <Save className="mr-2 size-4" />
             {saveMut.isPending ? "Guardando..." : "Guardar credenciales"}
           </Button>
