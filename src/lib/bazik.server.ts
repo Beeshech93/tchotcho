@@ -633,7 +633,10 @@ function splitName(fullName: string): { firstName: string; lastName: string } {
   const trimmed = fullName.trim();
   const idx = trimmed.indexOf(" ");
   if (idx === -1) return { firstName: trimmed || "Cliente", lastName: "Tcho-Tcho" };
-  return { firstName: trimmed.slice(0, idx), lastName: trimmed.slice(idx + 1) };
+  return {
+    firstName: trimmed.slice(0, idx).trim() || "Cliente",
+    lastName: trimmed.slice(idx + 1).trim() || "Tcho-Tcho",
+  };
 }
 
 export async function bazikWebhookUrl(): Promise<string> {
@@ -693,16 +696,35 @@ export async function bazikPayout(input: BazikPayoutInput): Promise<BazikResult>
   // sufijo /transfers.
   const primaryPath = input.provider === "moncash" ? "/moncash/transfers" : "/natcash/transfers";
 
+  const cleanPhone = normalisePhoneToWallet(input.phone);
+  const ref = (input.reference || "").trim() || `RH-${Date.now().toString(36).toUpperCase()}`;
+  const desc = `Tcho-Tcho · ${ref}`;
+  const amountVal = Number(input.amount);
+
   const body: Record<string, unknown> = {
-    gdes: input.amount,
-    wallet: normalisePhoneToWallet(input.phone),
-    description: `Tcho-Tcho · ${input.reference}`,
-    referenceId: input.reference,
-    customerFirstName: firstName,
-    customerLastName: lastName,
+    // 1. Monto en HTG: soportar ambas variantes requeridas por Bazik (gdes / amount)
+    gdes: amountVal,
+    amount: amountVal,
+    // 2. Destinatario: soportar ambas variantes (wallet / receiver)
+    wallet: cleanPhone,
+    receiver: cleanPhone,
+    // 3. Descripción: soportar ambas variantes (description / desc)
+    description: desc,
+    desc: desc,
+    // 4. Referencia de tracking: soportar ambas variantes (referenceId / reference)
+    referenceId: ref,
+    reference: ref,
+    customerFirstName: firstName || "Cliente",
+    customerLastName: lastName || "Tcho-Tcho",
     webhookUrl: await bazikWebhookUrl(),
   };
   if (input.recipientEmail) body["customerEmail"] = input.recipientEmail;
+
+  console.log(`[bazikPayout] Despachando a Bazik (${primaryPath}):`, {
+    amount: amountVal,
+    wallet: cleanPhone,
+    reference: ref,
+  });
 
   const first = await bazikPost(creds.baseUrl, primaryPath, auth.token, body);
 

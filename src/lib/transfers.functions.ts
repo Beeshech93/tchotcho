@@ -512,9 +512,13 @@ export const agentCreateCashTransfer = createServerFn({ method: "POST" })
       }
     }
 
+    // Generar referencia única garantizada para la transferencia
+    const genRef = "RH-" + Math.random().toString(36).substring(2, 10).toUpperCase();
+
     // Insertar transferencia en efectivo por el agente o directa por el administrador
     const insertPayload: Record<string, any> = {
       user_id: context.userId,
+      reference: genRef,
       agent_id: isAdminData ? null : context.userId,
       recipient_name: data.recipientName.trim(),
       recipient_phone: data.recipientPhone.trim(),
@@ -665,7 +669,7 @@ export const agentCreateCashTransfer = createServerFn({ method: "POST" })
           phone: data.recipientPhone.trim(),
           amount: amountReceive,
           currency: dc.currency,
-          reference: newTransfer.reference,
+          reference: newTransfer.reference || genRef,
           recipientName: data.recipientName.trim(),
         });
 

@@ -215,6 +215,7 @@ function Enviar() {
     setSaving(true);
     const transferPayload: Record<string, any> = {
       user_id: user.id,
+      reference: "RH-" + Math.random().toString(36).substring(2, 10).toUpperCase(),
       recipient_name: parsed.data.recipient_name,
       recipient_phone: parsed.data.recipient_phone,
       recipient_city: parsed.data.recipient_city,
