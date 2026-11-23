@@ -163,28 +163,33 @@ function ResetPasswordPage() {
           </div>
         </div>
 
-        {/* LOGO DESTACADO — Placa blanca brillante con la mascota oficial y el wordmark grande */}
-        <div className="mb-6 flex flex-col items-center text-center">
-          <Link
-            to="/"
-            className="group inline-flex items-center gap-3 rounded-2xl bg-white px-5 py-3 shadow-2xl shadow-emerald-950/50 border-2 border-emerald-400/90 hover:border-emerald-500 hover:scale-105 active:scale-95 transition-all"
-            aria-label="Tcho-Tcho - Ir al inicio"
-          >
-            <img
-              src={iconAsset}
-              alt="Tcho-Tcho Mascot"
-              className="size-10 sm:size-12 object-contain shrink-0 group-hover:rotate-6 transition-transform"
-            />
-            <img
-              src={logoAsset}
-              alt="Tcho-Tcho"
-              className="h-7 sm:h-9 w-auto object-contain shrink-0"
-            />
-          </Link>
+        {/* LOGO DESTACADO — Placa blanca brillante amplia con halo, mascota grande y wordmark nítido */}
+        <div className="mb-8 flex flex-col items-center text-center">
+          <div className="relative group">
+            {/* Halo de luz esmeralda detrás del logo */}
+            <div className="pointer-events-none absolute -inset-1.5 rounded-[32px] bg-gradient-to-r from-emerald-400 via-emerald-300 to-emerald-500 opacity-40 blur-xl group-hover:opacity-60 transition duration-500" />
 
-          <div className="mt-3 flex items-center gap-1.5 text-[11px] font-medium text-emerald-200/90">
-            <Sparkles className="size-3 text-emerald-400" />
-            <span>Plataforma Oficial de Envíos y Ventanilla</span>
+            <Link
+              to="/"
+              className="relative inline-flex items-center gap-3.5 sm:gap-4.5 rounded-[26px] bg-white px-7 py-3.5 sm:px-9 sm:py-4.5 shadow-[0_16px_40px_rgba(0,0,0,0.4)] border-[2.5px] border-emerald-400 ring-4 ring-emerald-400/20 hover:border-emerald-500 hover:scale-105 active:scale-95 transition-all"
+              aria-label="Tcho-Tcho - Ir al inicio"
+            >
+              <img
+                src={iconAsset}
+                alt="Tcho-Tcho Mascot"
+                className="size-13 sm:size-16 object-contain shrink-0 group-hover:rotate-6 transition-transform"
+              />
+              <img
+                src={logoAsset}
+                alt="Tcho-Tcho"
+                className="h-9 sm:h-12 w-auto object-contain shrink-0"
+              />
+            </Link>
+          </div>
+
+          <div className="mt-4 inline-flex items-center gap-2 rounded-full bg-emerald-500/25 border border-emerald-300/40 px-3.5 py-1 text-xs font-bold text-emerald-200 shadow-sm backdrop-blur-md">
+            <Sparkles className="size-3.5 text-emerald-300" />
+            <span>Banca Móvil &amp; Envíos Oficiales</span>
           </div>
         </div>
 
