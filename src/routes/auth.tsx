@@ -259,12 +259,19 @@ function AuthPage() {
       });
       if (res?.ok) {
         setResetSent(true);
-        toast.success("Enlace de restablecimiento enviado vía correo");
-      } else {
-        toast.error(res?.error || "Error al enviar el correo de recuperación");
+        toast.success("Enlace de restablecimiento enviado a tu correo");
+        return;
       }
+
+      // Si el backend dio error, intentar directamente con el cliente Supabase
+      const { error: clientErr } = await supabase.auth.resetPasswordForEmail(parsed.data, {
+        redirectTo: `${window.location.origin}/restablecer-password`,
+      });
+      if (clientErr) throw clientErr;
+      setResetSent(true);
+      toast.success("Enlace de restablecimiento enviado a tu correo");
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : t("auth.error") || "Error");
+      toast.error(err instanceof Error ? err.message : t("auth.error") || "Error al enviar");
     } finally {
       setResetLoading(false);
     }

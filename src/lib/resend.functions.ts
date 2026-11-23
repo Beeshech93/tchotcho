@@ -141,15 +141,12 @@ const resetInputSchema = z.object({
   origin: z.string().optional(),
 });
 
-/** Solicita el restablecimiento de contraseña enviando correo oficial vía Resend (no Supabase directo). */
+/** Solicita el restablecimiento de contraseña directamente vía Supabase Auth (sin Resend). */
 export const requestPasswordResetEmail = createServerFn({ method: "POST" })
   .validator((input: z.infer<typeof resetInputSchema>) => resetInputSchema.parse(input))
   .handler(async ({ data }) => {
     const cleanEmail = data.email.toLowerCase().trim();
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { resendSendEmail } = await import("@/lib/resend.server");
-    const { render } = await import("@react-email/render");
-    const { RecoveryEmail } = await import("@/lib/email-templates/recovery");
 
     const publicUrl =
       data.origin ||
@@ -159,69 +156,20 @@ export const requestPasswordResetEmail = createServerFn({ method: "POST" })
     const cleanPublicUrl = publicUrl.replace(/\/$/, "");
     const redirectUrl = `${cleanPublicUrl}/restablecer-password`;
 
-    // 1. Generar enlace seguro de recuperación
-    let actionLink = redirectUrl;
     try {
-      const { data: linkData, error: linkErr } = await supabaseAdmin.auth.admin.generateLink({
-        type: "recovery",
-        email: cleanEmail,
-        options: { redirectTo: redirectUrl },
+      const { error } = await supabaseAdmin.auth.resetPasswordForEmail(cleanEmail, {
+        redirectTo: redirectUrl,
       });
 
-      if (linkErr) {
-        console.warn("[requestPasswordResetEmail] generateLink error:", linkErr.message);
-        // Por seguridad no revelamos si el correo existe o no
-        return { ok: true };
+      if (error) {
+        console.warn("[requestPasswordResetEmail] Supabase error:", error.message);
+        return { ok: false, error: error.message };
       }
 
-      if (linkData?.properties?.action_link) {
-        actionLink = linkData.properties.action_link;
-      }
-    } catch (err: any) {
-      console.warn("[requestPasswordResetEmail] generateLink exception:", err?.message);
       return { ok: true };
+    } catch (err: any) {
+      console.warn("[requestPasswordResetEmail] exception:", err?.message);
+      return { ok: false, error: err?.message || "Error al enviar el enlace" };
     }
-
-    // 2. Renderizar correo elegante con React Email
-    const html = await render(
-      RecoveryEmail({
-        siteName: "Tcho-Tcho",
-        confirmationUrl: actionLink,
-      }),
-    );
-
-    // 3. Enviar correo vía Resend
-    const sendRes = await resendSendEmail({
-      to: cleanEmail,
-      subject: "Restablece tu contraseña — Tcho-Tcho",
-      html,
-    });
-
-    if (!sendRes.ok) {
-      console.warn("[requestPasswordResetEmail] Resend send error:", sendRes.error);
-
-      // Si Resend falló (ej. modo sandbox onboarding@resend.dev que solo permite enviar al correo del dueño de Resend),
-      // enviamos mediante el servicio de autenticación de Supabase como respaldo inmediato para que el usuario no quede bloqueado.
-      try {
-        const { error: sbFallbackErr } = await supabaseAdmin.auth.resetPasswordForEmail(cleanEmail, {
-          redirectTo: redirectUrl,
-        });
-        if (!sbFallbackErr) {
-          console.info("[requestPasswordResetEmail] Enviado exitosamente mediante respaldo de Supabase");
-          return { ok: true, via: "fallback" };
-        }
-      } catch (fbErr: any) {
-        console.warn("[requestPasswordResetEmail] Fallback de Supabase también falló:", fbErr?.message);
-      }
-
-      return {
-        ok: false,
-        error: sendRes.error.includes("verify a domain")
-          ? "El dominio tchotcho.app aún se está verificando en Resend. Si tu dominio ya fue verificado, cambia el remitente en Admin > Correo a 'Tcho-Tcho <bienvenida@tchotcho.app>'."
-          : sendRes.error,
-      };
-    }
-
-    return { ok: true };
   });
 
