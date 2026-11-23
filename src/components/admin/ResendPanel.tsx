@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
 import { useServerFn } from "@tanstack/react-start";
-import { Mail, RefreshCw, Save, Send, Check, AlertCircle } from "lucide-react";
+import { Mail, RefreshCw, Save, Send, Check, AlertCircle, Sparkles } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,6 +14,7 @@ import {
   resendSendTest,
   resendStatus,
 } from "@/lib/resend.functions";
+import { isValidResendFromEmail } from "@/lib/resend.schemas";
 
 const CRED_KEYS = ["RESEND_API_KEY", "RESEND_FROM_EMAIL", "ADMIN_ALERT_EMAIL"] as const;
 type CredKey = (typeof CRED_KEYS)[number];
@@ -30,6 +31,9 @@ export function ResendPanel() {
     queryFn: () => status(),
   });
 
+  const fromEmailValid = isValidResendFromEmail(info?.fromEmail);
+  const isFullyConnected = Boolean(info?.hasApiKey && info?.hasFromEmail && fromEmailValid);
+
   const [creds, setCreds] = useState<Record<CredKey, string>>({
     RESEND_API_KEY: "",
     RESEND_FROM_EMAIL: "",
@@ -39,13 +43,20 @@ export function ResendPanel() {
 
   const saveMut = useMutation({
     mutationFn: () => {
+      const fromVal = creds.RESEND_FROM_EMAIL.trim();
+      if (fromVal && !isValidResendFromEmail(fromVal)) {
+        throw new Error(
+          "El correo remitente debe ser 'ejemplo@tudominio.com' o 'Nombre <ejemplo@tudominio.com>' (o 'onboarding@resend.dev').",
+        );
+      }
+
       const payload: Partial<Record<CredKey, string>> = {};
       for (const k of CRED_KEYS) if (creds[k].trim()) payload[k] = creds[k].trim();
       if (Object.keys(payload).length === 0) throw new Error("Nada para guardar");
       return saveCreds({ data: payload });
     },
     onSuccess: () => {
-      toast.success("Credenciales guardadas");
+      toast.success("Credenciales guardadas correctamente");
       setCreds({ RESEND_API_KEY: "", RESEND_FROM_EMAIL: "", ADMIN_ALERT_EMAIL: "" });
       void queryClient.invalidateQueries({ queryKey: ["resend_status"] });
     },
@@ -76,8 +87,8 @@ export function ResendPanel() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Mail className="size-4" /> Correo de bienvenida
-            <Badge variant={info?.hasApiKey && info?.hasFromEmail ? "default" : "secondary"}>
-              {info?.hasApiKey && info?.hasFromEmail ? "Configurado" : "Falta configurar"}
+            <Badge variant={isFullyConnected ? "default" : "secondary"}>
+              {isFullyConnected ? "Configurado" : "Falta configurar"}
             </Badge>
           </CardTitle>
         </CardHeader>
@@ -114,7 +125,7 @@ export function ResendPanel() {
               type="button"
               variant="outline"
               className="w-full gap-2 border-emerald-300 text-emerald-950 font-bold hover:bg-emerald-50"
-              disabled={testMut.isPending || !info?.hasApiKey || !info?.hasFromEmail}
+              disabled={testMut.isPending || !info?.hasApiKey || !info?.hasFromEmail || !fromEmailValid}
               onClick={() => testMut.mutate()}
             >
               <Send className="size-4 text-emerald-600" />
@@ -125,6 +136,11 @@ export function ResendPanel() {
                 Guarda la API Key y el correo remitente en el panel derecho antes de enviar la prueba.
               </p>
             )}
+            {info?.hasFromEmail && !fromEmailValid && (
+              <p className="text-[11px] text-rose-600 font-medium text-center">
+                El correo remitente actual ({info.fromEmail}) no tiene un formato válido. Corrígelo a la derecha para poder enviar.
+              </p>
+            )}
           </div>
         </CardContent>
       </Card>
@@ -133,8 +149,8 @@ export function ResendPanel() {
         <CardHeader>
           <CardTitle className="text-base flex items-center justify-between">
             <span>Credenciales de Resend</span>
-            <Badge variant={info?.hasApiKey && info?.hasFromEmail ? "default" : "secondary"} className="text-xs">
-              {info?.hasApiKey && info?.hasFromEmail ? "Conectado" : "Pendiente"}
+            <Badge variant={isFullyConnected ? "default" : "secondary"} className="text-xs">
+              {isFullyConnected ? "Conectado" : "Pendiente"}
             </Badge>
           </CardTitle>
         </CardHeader>
@@ -163,9 +179,13 @@ export function ResendPanel() {
           <div className="space-y-1.5">
             <div className="flex items-center justify-between">
               <Label htmlFor="resend-from">Correo remitente</Label>
-              {info?.hasFromEmail ? (
+              {info?.hasFromEmail && fromEmailValid ? (
                 <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-700">
                   <Check className="size-3" /> Configurado
+                </span>
+              ) : info?.hasFromEmail && !fromEmailValid ? (
+                <span className="inline-flex items-center gap-1 text-[11px] font-bold text-rose-600">
+                  <AlertCircle className="size-3" /> Formato inválido
                 </span>
               ) : (
                 <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-amber-700">
@@ -175,16 +195,54 @@ export function ResendPanel() {
             </div>
             <Input
               id="resend-from"
-              type="email"
+              type="text"
               placeholder="Tcho-Tcho <bienvenida@tchotcho.app>"
               value={creds.RESEND_FROM_EMAIL}
               onChange={(e) => setCred("RESEND_FROM_EMAIL", e.target.value)}
             />
+
+            {/* Sugerencias rápidas para el remitente */}
+            <div className="flex flex-wrap gap-1.5 pt-1">
+              <button
+                type="button"
+                onClick={() => setCred("RESEND_FROM_EMAIL", "onboarding@resend.dev")}
+                className="inline-flex items-center gap-1 text-[10px] bg-slate-100 hover:bg-slate-200 text-slate-700 px-2 py-0.5 rounded border transition"
+              >
+                <Sparkles className="size-2.5 text-emerald-600" /> Probar con: onboarding@resend.dev
+              </button>
+              <button
+                type="button"
+                onClick={() => setCred("RESEND_FROM_EMAIL", "Tcho-Tcho <bienvenida@tchotcho.app>")}
+                className="inline-flex items-center gap-1 text-[10px] bg-slate-100 hover:bg-slate-200 text-slate-700 px-2 py-0.5 rounded border transition"
+              >
+                <Sparkles className="size-2.5 text-emerald-600" /> Tcho-Tcho &lt;bienvenida@tchotcho.app&gt;
+              </button>
+            </div>
+
             {info?.fromEmail && (
-              <p className="text-xs text-muted-foreground font-semibold">Remitente actual: {info.fromEmail}</p>
+              <div className="text-xs pt-1 space-y-0.5">
+                <p className="font-semibold text-muted-foreground">
+                  Remitente actual:{" "}
+                  <code
+                    className={
+                      fromEmailValid
+                        ? "text-emerald-700 font-bold bg-emerald-50 px-1 py-0.5 rounded"
+                        : "text-rose-700 font-bold bg-rose-50 line-through px-1 py-0.5 rounded"
+                    }
+                  >
+                    {info.fromEmail}
+                  </code>
+                </p>
+                {!fromEmailValid && (
+                  <p className="text-rose-600 font-medium text-[11px]">
+                    ⚠️ &quot;{info.fromEmail}&quot; no es un correo válido. Debe contener un email (ej: <code>onboarding@resend.dev</code> o <code>Tcho-Tcho &lt;correo@tudominio.com&gt;</code>).
+                  </p>
+                )}
+              </div>
             )}
             <p className="text-xs text-muted-foreground">
-              El dominio de este correo debe estar verificado en tu cuenta de Resend.
+              Formato requerido: <code>correo@dominio.com</code> o <code>Nombre &lt;correo@dominio.com&gt;</code>.
+              Si aún no tienes dominio verificado en Resend, usa <code>onboarding@resend.dev</code>.
             </p>
           </div>
           <div className="space-y-1.5">
