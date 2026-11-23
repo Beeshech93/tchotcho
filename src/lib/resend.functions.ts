@@ -1,4 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
+import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { parseResendCredentialsInput, type ResendCredentialsInput } from "@/lib/resend.schemas";
 
@@ -134,3 +135,73 @@ export const resendSendAnnouncement = createServerFn({ method: "POST" })
           : `Envío terminado: ${sent} enviados y ${failed} fallidos.`,
     };
   });
+
+const resetInputSchema = z.object({
+  email: z.string().trim().email(),
+  origin: z.string().optional(),
+});
+
+/** Solicita el restablecimiento de contraseña enviando correo oficial vía Resend (no Supabase directo). */
+export const requestPasswordResetEmail = createServerFn({ method: "POST" })
+  .validator((input: z.infer<typeof resetInputSchema>) => resetInputSchema.parse(input))
+  .handler(async ({ data }) => {
+    const cleanEmail = data.email.toLowerCase().trim();
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { resendSendEmail } = await import("@/lib/resend.server");
+    const { render } = await import("@react-email/render");
+    const { RecoveryEmail } = await import("@/lib/email-templates/recovery");
+
+    const publicUrl =
+      data.origin ||
+      process.env["PUBLIC_URL"] ||
+      process.env["VITE_PUBLIC_URL"] ||
+      "https://tchotcho.app";
+    const cleanPublicUrl = publicUrl.replace(/\/$/, "");
+    const redirectUrl = `${cleanPublicUrl}/restablecer-password`;
+
+    // 1. Generar enlace seguro de recuperación
+    let actionLink = redirectUrl;
+    try {
+      const { data: linkData, error: linkErr } = await supabaseAdmin.auth.admin.generateLink({
+        type: "recovery",
+        email: cleanEmail,
+        options: { redirectTo: redirectUrl },
+      });
+
+      if (linkErr) {
+        console.warn("[requestPasswordResetEmail] generateLink error:", linkErr.message);
+        // Por seguridad no revelamos si el correo existe o no
+        return { ok: true };
+      }
+
+      if (linkData?.properties?.action_link) {
+        actionLink = linkData.properties.action_link;
+      }
+    } catch (err: any) {
+      console.warn("[requestPasswordResetEmail] generateLink exception:", err?.message);
+      return { ok: true };
+    }
+
+    // 2. Renderizar correo elegante con React Email
+    const html = await render(
+      RecoveryEmail({
+        siteName: "Tcho-Tcho",
+        confirmationUrl: actionLink,
+      }),
+    );
+
+    // 3. Enviar correo vía Resend
+    const sendRes = await resendSendEmail({
+      to: cleanEmail,
+      subject: "Restablece tu contraseña — Tcho-Tcho",
+      html,
+    });
+
+    if (!sendRes.ok) {
+      console.warn("[requestPasswordResetEmail] Resend send error:", sendRes.error);
+      return { ok: false, error: sendRes.error };
+    }
+
+    return { ok: true };
+  });
+

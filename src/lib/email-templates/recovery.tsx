@@ -1,5 +1,4 @@
 import * as React from "react";
-
 import {
   Body,
   Button,
@@ -22,17 +21,29 @@ export const RecoveryEmail = ({ siteName, confirmationUrl }: RecoveryEmailProps)
     <Preview>Restablece tu contraseña de {siteName}</Preview>
     <Body style={main}>
       <Container style={container}>
+        <div style={headerBadge}>
+          <Text style={badgeText}>Seguridad de la Cuenta</Text>
+        </div>
         <Heading style={h1}>Restablece tu contraseña</Heading>
         <Text style={text}>
-          Recibimos una solicitud para restablecer tu contraseña de {siteName}. Haz clic en el botón
-          de abajo para elegir una nueva contraseña.
+          Recibimos una solicitud para restablecer la contraseña de tu cuenta en <strong>{siteName}</strong>. Haz clic en el botón a continuación para crear tu nueva clave de acceso:
         </Text>
-        <Button style={button} href={confirmationUrl}>
-          Restablecer contraseña
-        </Button>
+        <div style={{ textAlign: "center", margin: "26px 0" }}>
+          <Button style={button} href={confirmationUrl}>
+            Crear Nueva Contraseña
+          </Button>
+        </div>
+        <Text style={subtext}>
+          O si el botón no abre, copia y pega el siguiente enlace seguro en tu navegador:
+        </Text>
+        <Text style={linkText}>
+          <a href={confirmationUrl} style={{ color: "#059669", wordBreak: "break-all" }}>
+            {confirmationUrl}
+          </a>
+        </Text>
+        <hr style={hr} />
         <Text style={footer}>
-          Si tú no solicitaste este cambio, puedes ignorar este correo con tranquilidad. Tu
-          contraseña no será modificada.
+          Si no solicitaste este cambio, no te preocupes: tu cuenta sigue protegida y puedes ignorar este mensaje.
         </Text>
       </Container>
     </Body>
@@ -41,26 +52,79 @@ export const RecoveryEmail = ({ siteName, confirmationUrl }: RecoveryEmailProps)
 
 export default RecoveryEmail;
 
-const main = { backgroundColor: "#ffffff", fontFamily: "Arial, sans-serif" };
-const container = { padding: "20px 25px" };
+const main = {
+  backgroundColor: "#f8fafc",
+  fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
+  padding: "30px 10px",
+};
+const container = {
+  backgroundColor: "#ffffff",
+  border: "1px solid #e2e8f0",
+  borderRadius: "16px",
+  padding: "32px 28px",
+  maxWidth: "520px",
+  margin: "0 auto",
+  boxShadow: "0 4px 6px -1px rgba(0,0,0,0.05)",
+};
+const headerBadge = {
+  textAlign: "center" as const,
+  marginBottom: "16px",
+};
+const badgeText = {
+  display: "inline-block" as const,
+  backgroundColor: "#dcfce7",
+  color: "#166534",
+  fontWeight: "bold" as const,
+  fontSize: "11px",
+  padding: "4px 12px",
+  borderRadius: "9999px",
+  textTransform: "uppercase" as const,
+  letterSpacing: "0.5px",
+  margin: "0",
+};
 const h1 = {
   fontSize: "22px",
-  fontWeight: "bold" as const,
-  color: "#0b3a2e",
-  margin: "0 0 20px",
+  fontWeight: "800" as const,
+  color: "#0f172a",
+  margin: "0 0 16px",
+  textAlign: "center" as const,
 };
 const text = {
   fontSize: "14px",
-  color: "#55575d",
-  lineHeight: "1.5",
-  margin: "0 0 25px",
+  color: "#475569",
+  lineHeight: "1.6",
+  margin: "0 0 20px",
 };
 const button = {
-  backgroundColor: "#0b3a2e",
+  backgroundColor: "#059669",
   color: "#ffffff",
   fontSize: "14px",
-  borderRadius: "8px",
-  padding: "12px 20px",
+  fontWeight: "bold" as const,
+  borderRadius: "10px",
+  padding: "14px 28px",
   textDecoration: "none",
+  display: "inline-block" as const,
 };
-const footer = { fontSize: "12px", color: "#999999", margin: "30px 0 0" };
+const subtext = {
+  fontSize: "12px",
+  color: "#64748b",
+  lineHeight: "1.5",
+  margin: "15px 0 6px",
+};
+const linkText = {
+  fontSize: "11px",
+  color: "#059669",
+  margin: "0 0 20px",
+  wordBreak: "break-all" as const,
+};
+const hr = {
+  borderColor: "#f1f5f9",
+  borderTop: "1px solid #e2e8f0",
+  margin: "24px 0 16px",
+};
+const footer = {
+  fontSize: "12px",
+  color: "#94a3b8",
+  lineHeight: "1.5",
+  margin: "0",
+};

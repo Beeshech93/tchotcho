@@ -1,4 +1,5 @@
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
 import { z } from "zod";
 import { toast } from "sonner";
@@ -39,6 +40,7 @@ import logoAsset from "@/assets/tchotcho-logo.png";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { useI18n } from "@/lib/i18n";
 import { DIAL_COUNTRIES, expectedLengths, formatNational, validatePhone } from "@/lib/phone";
+import { requestPasswordResetEmail } from "@/lib/resend.functions";
 
 const searchSchema = z.object({ modo: z.enum(["ingreso", "registro"]).optional() });
 
@@ -82,6 +84,7 @@ function GoogleIcon() {
 
 function AuthPage() {
   const router = useRouter();
+  const requestReset = useServerFn(requestPasswordResetEmail);
   const { t, lang } = useI18n();
   const { modo } = Route.useSearch();
   const [tab, setTab] = useState<"ingreso" | "registro">(
@@ -248,11 +251,18 @@ function AuthPage() {
     }
     setResetLoading(true);
     try {
-      const { error } = await supabase.auth.resetPasswordForEmail(parsed.data, {
-        redirectTo: `${window.location.origin}/restablecer-password`,
+      const res = await requestReset({
+        data: {
+          email: parsed.data,
+          origin: window.location.origin,
+        },
       });
-      if (error) throw error;
-      setResetSent(true);
+      if (res?.ok) {
+        setResetSent(true);
+        toast.success("Enlace de restablecimiento enviado vía correo");
+      } else {
+        toast.error(res?.error || "Error al enviar el correo de recuperación");
+      }
     } catch (err) {
       toast.error(err instanceof Error ? err.message : t("auth.error") || "Error");
     } finally {
