@@ -70,6 +70,65 @@ async function getAuthorizedTransfer(
     } catch {}
   }
 
+  // 3. Auto-reparación inteligente de datos incompletos en la transferencia
+  if (t) {
+    const isMexicoMethod = ["oxxo", "spei", "mercado_pago", "mercadopago"].includes(t.payment_method);
+    const updates: {
+      origin_country?: string;
+      send_currency?: string;
+      amount_send?: number;
+      fee_send?: number;
+      total_send?: number;
+    } = {};
+
+    if (isMexicoMethod && t.origin_country !== "MX") {
+      t.origin_country = "MX";
+      updates.origin_country = "MX";
+    }
+
+    if (isMexicoMethod && (!t.send_currency || t.send_currency === "USD")) {
+      t.send_currency = "MXN";
+      updates.send_currency = "MXN";
+    }
+
+    // Si total_send es 0 o nulo, recalcularlo a partir de amount_send o amount_receive
+    const currentTotal = Number(t.total_send) || 0;
+    const currentSend = Number(t.amount_send) || 0;
+    const currentReceive = Number(t.amount_receive) || 0;
+    const currentFee = Number(t.fee_send) || 0;
+    const rate = Number(t.rate) > 0 ? Number(t.rate) : 7.2;
+
+    if (currentTotal <= 0) {
+      let calcSend = currentSend;
+      if (calcSend <= 0 && currentReceive > 0) {
+        calcSend = Math.round((currentReceive / rate) * 100) / 100;
+        t.amount_send = calcSend;
+        updates.amount_send = calcSend;
+      }
+
+      let calcFee = currentFee;
+      if (calcFee <= 0 && calcSend > 0) {
+        calcFee = Math.round((calcSend * 0.015 + 15) * 100) / 100;
+        t.fee_send = calcFee;
+        updates.fee_send = calcFee;
+      }
+
+      const calcTotal = Math.round((calcSend + calcFee) * 100) / 100;
+      if (calcTotal > 0) {
+        t.total_send = calcTotal;
+        updates.total_send = calcTotal;
+      }
+    }
+
+    if (Object.keys(updates).length > 0) {
+      try {
+        await supabaseAdmin.from("transfers").update(updates as any).eq("id", t.id);
+      } catch (err) {
+        console.warn("[getAuthorizedTransfer] Error al auto-reparar transferencia:", err);
+      }
+    }
+  }
+
   return t;
 }
 
@@ -84,7 +143,8 @@ export const mercadoPagoInitiatePayment = createServerFn({ method: "POST" })
       throw new Error("Transferencia no encontrada");
     }
 
-    if (transfer.origin_country !== "MX") {
+    const isMexico = transfer.origin_country === "MX" || transfer.send_currency === "MXN" || CARD_METHODS.includes(transfer.payment_method);
+    if (!isMexico) {
       throw new Error(
         "Mercado Pago solo está disponible para transacciones en México. Los demás países procesan vía Stripe.",
       );
@@ -94,6 +154,11 @@ export const mercadoPagoInitiatePayment = createServerFn({ method: "POST" })
       throw new Error("Este método de pago no usa Mercado Pago");
     }
 
+    const effectiveTotal = Number(transfer.total_send) > 0 ? Number(transfer.total_send) : Number(transfer.amount_send);
+    if (effectiveTotal <= 0) {
+      throw new Error("El monto a pagar debe ser mayor a 0.");
+    }
+
     const email = (context.claims?.email as string | undefined) || "cliente@lajanrapid.com";
     const base = process.env["PUBLIC_URL"] || "https://tchotcho.app";
 
@@ -101,8 +166,8 @@ export const mercadoPagoInitiatePayment = createServerFn({ method: "POST" })
     const result = await createMpPreference({
       transferId: transfer.id,
       reference: transfer.reference,
-      amount: Number(transfer.total_send),
-      currency: transfer.send_currency,
+      amount: effectiveTotal,
+      currency: transfer.send_currency || "MXN",
       description: `Envío ${transfer.reference} a ${transfer.recipient_name}`,
       buyerEmail: email,
       cardOnly: transfer.payment_method === "card" || transfer.payment_method === "tarjeta",
@@ -126,12 +191,18 @@ export const mercadoPagoSpeiReference = createServerFn({ method: "POST" })
     const transfer = await getAuthorizedTransfer(data.transferId, context);
 
     if (!transfer) throw new Error("Transferencia no encontrada");
-    if (transfer.origin_country !== "MX") {
+    const isMexicoSpei = transfer.origin_country === "MX" || transfer.send_currency === "MXN" || transfer.payment_method === "spei";
+    if (!isMexicoSpei) {
       throw new Error("SPEI solo está disponible para pagos originados en México.");
     }
     if (transfer.payment_method !== "spei") throw new Error("Este envío no se paga por SPEI");
     if (transfer.status !== "awaiting_payment" && transfer.status !== "created") {
       throw new Error("Este envío ya no está pendiente de pago");
+    }
+
+    const effectiveTotalSpei = Number(transfer.total_send) > 0 ? Number(transfer.total_send) : Number(transfer.amount_send);
+    if (effectiveTotalSpei <= 0) {
+      throw new Error("El monto a pagar debe ser mayor a 0.");
     }
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -147,7 +218,7 @@ export const mercadoPagoSpeiReference = createServerFn({ method: "POST" })
     const { createSpeiReference } = await import("@/lib/mercadopago.server");
     const result = await createSpeiReference({
       reference: transfer.reference,
-      amount: Number(transfer.total_send),
+      amount: effectiveTotalSpei,
       description: `Envío ${transfer.reference} a ${transfer.recipient_name}`,
       payerEmail: email,
       payerFirstName: firstName || "Cliente",
@@ -166,12 +237,18 @@ export const mercadoPagoOxxoVoucher = createServerFn({ method: "POST" })
     const transfer = await getAuthorizedTransfer(data.transferId, context);
 
     if (!transfer) throw new Error("Transferencia no encontrada");
-    if (transfer.origin_country !== "MX") {
+    const isMexicoOxxo = transfer.origin_country === "MX" || transfer.send_currency === "MXN" || transfer.payment_method === "oxxo";
+    if (!isMexicoOxxo) {
       throw new Error("OXXO solo está disponible para pagos originados en México.");
     }
     if (transfer.payment_method !== "oxxo") throw new Error("Este envío no se paga en OXXO");
     if (transfer.status !== "awaiting_payment" && transfer.status !== "created") {
       throw new Error("Este envío ya no está pendiente de pago");
+    }
+
+    const effectiveTotalOxxo = Number(transfer.total_send) > 0 ? Number(transfer.total_send) : Number(transfer.amount_send);
+    if (effectiveTotalOxxo <= 0) {
+      throw new Error("El monto a pagar debe ser mayor a 0.");
     }
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -187,7 +264,7 @@ export const mercadoPagoOxxoVoucher = createServerFn({ method: "POST" })
     const { createOxxoVoucher } = await import("@/lib/mercadopago.server");
     const result = await createOxxoVoucher({
       reference: transfer.reference,
-      amount: Number(transfer.total_send),
+      amount: effectiveTotalOxxo,
       description: `Envío ${transfer.reference} a ${transfer.recipient_name}`,
       payerEmail: email,
       payerFirstName: firstName || "Cliente",

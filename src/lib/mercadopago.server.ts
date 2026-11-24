@@ -505,8 +505,12 @@ export async function createOxxoVoucher(opts: {
     });
     const json = (await res.json()) as Record<string, unknown>;
     if (!res.ok) {
-      console.error("Mercado Pago OXXO: error al crear la ficha", res.status, json["message"]);
-      return { ok: false, error: "No pudimos generar la ficha OXXO. Intenta de nuevo." };
+      const msg =
+        (typeof json["message"] === "string" && json["message"]) ||
+        (Array.isArray(json["cause"]) && typeof json["cause"][0]?.description === "string" && json["cause"][0].description) ||
+        `HTTP ${res.status}`;
+      console.error("Mercado Pago OXXO: error al crear la ficha", res.status, msg, json);
+      return { ok: false, error: `Mercado Pago: ${msg}` };
     }
     return { ok: true, voucher: mapOxxo(json) };
   } catch (e) {
@@ -622,8 +626,12 @@ export async function createSpeiReference(opts: {
     });
     const json = (await res.json()) as Record<string, unknown>;
     if (!res.ok) {
-      console.error("Mercado Pago SPEI: error al crear la CLABE", res.status, json["message"]);
-      return { ok: false, error: "No pudimos generar la CLABE SPEI. Intenta de nuevo." };
+      const msg =
+        (typeof json["message"] === "string" && json["message"]) ||
+        (Array.isArray(json["cause"]) && typeof json["cause"][0]?.description === "string" && json["cause"][0].description) ||
+        `HTTP ${res.status}`;
+      console.error("Mercado Pago SPEI: error al crear la CLABE", res.status, msg, json);
+      return { ok: false, error: `Mercado Pago: ${msg}` };
     }
     const spei = mapSpei(json, opts.reference);
     if (!spei.clabe) {

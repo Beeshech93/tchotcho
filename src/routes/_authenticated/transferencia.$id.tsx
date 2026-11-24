@@ -165,6 +165,29 @@ function Detalle() {
         ? Math.round(Number(t.amount_send) * effectiveRate * 100) / 100
         : 0;
 
+  const effectiveSendCur =
+    t?.send_currency && t.send_currency !== "USD"
+      ? t.send_currency
+      : isOxxo || isSpei || t?.origin_country === "MX"
+        ? "MXN"
+        : t?.send_currency || "USD";
+
+  const effectiveTotalSend =
+    t && Number(t.total_send) > 0
+      ? Number(t.total_send)
+      : t && Number(t.amount_send) > 0
+        ? Number(t.amount_send) + (Number(t.fee_send) || 0)
+        : t && Number(t.amount_receive) > 0
+          ? Math.round((Number(t.amount_receive) / effectiveRate) * 100) / 100
+          : 0;
+
+  const effectiveFeeSend =
+    t && Number(t.fee_send) > 0
+      ? Number(t.fee_send)
+      : effectiveTotalSend > 0
+        ? Math.round(effectiveTotalSend * 0.015 * 100) / 100
+        : 0;
+
   // El pago automático solo puede dispararse una vez, y únicamente cuando el
   // pago ya fue confirmado ("paid"). Sin esto, abrir la página reintentaba el
   // envío en cada render.
@@ -354,12 +377,12 @@ function Detalle() {
         <CardContent className="grid gap-4 p-5 sm:grid-cols-3">
           <Metric
             label={t2("detail.you_pay")}
-            value={money(Number(t.total_send), t.send_currency)}
+            value={money(effectiveTotalSend, effectiveSendCur)}
           />
-          <Metric label={t2("detail.fee")} value={money(Number(t.fee_send), t.send_currency)} />
+          <Metric label={t2("detail.fee")} value={money(effectiveFeeSend, effectiveSendCur)} />
           <Metric
             label={`${t.recipient_name} ${t2("detail.recipient_gets")}`}
-            value={money(effectiveAmountReceive, t.receive_currency)}
+            value={money(effectiveAmountReceive, t.receive_currency || "HTG")}
           />
         </CardContent>
       </Card>
@@ -499,11 +522,11 @@ function Detalle() {
       )}
 
       {isOxxo && status !== "completed" && status !== "cancelled" && (
-        <OxxoVoucherCard transferId={id} amount={money(Number(t.total_send), t.send_currency)} />
+        <OxxoVoucherCard transferId={id} amount={money(effectiveTotalSend, effectiveSendCur)} />
       )}
 
       {isSpei && status !== "completed" && status !== "cancelled" && (
-        <SpeiCard transferId={id} amount={money(Number(t.total_send), t.send_currency)} />
+        <SpeiCard transferId={id} amount={money(effectiveTotalSend, effectiveSendCur)} />
       )}
 
       <Card>

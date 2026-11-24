@@ -213,16 +213,32 @@ function Enviar() {
     }
 
     setSaving(true);
+    const sendAmount = parsed.data.amount;
+    const feeAmount = q.fee;
+    const totalAmount = q.total;
+    const receiveAmount = q.receives;
+
     const transferPayload: Record<string, any> = {
       user_id: user.id,
       reference: "RH-" + Math.random().toString(36).substring(2, 10).toUpperCase(),
+      origin_country: origin,
+      destination_country: destination,
+      send_currency: sendCur,
+      receive_currency: recvCur,
+      amount_send: sendAmount,
+      fee_send: feeAmount,
+      total_send: totalAmount,
+      amount_receive: receiveAmount,
+      rate: Number(effectiveCfg.rate),
       recipient_name: parsed.data.recipient_name,
       recipient_phone: parsed.data.recipient_phone,
       recipient_city: parsed.data.recipient_city,
       delivery_method: delivery,
       payment_method: payment,
-      amount_send: parsed.data.amount,
-      rate: effectiveCfg.rate,
+      amount_mxn: sendCur === "MXN" ? sendAmount : Math.round((sendAmount / Number(effectiveCfg.rate)) * 100) / 100,
+      fee_mxn: sendCur === "MXN" ? feeAmount : 0,
+      total_mxn: sendCur === "MXN" ? totalAmount : 0,
+      amount_htg: recvCur === "HTG" ? receiveAmount : Math.round(sendAmount * Number(effectiveCfg.rate) * 100) / 100,
       note: parsed.data.note || null,
       status: "awaiting_payment",
     };
