@@ -54,6 +54,20 @@ export default defineConfig({
     nitro({
       preset: NITRO_PRESET,
       ...(ON_VERCEL ? {} : { cloudflare: { nodeCompat: true, deployConfig: true } }),
+      routeRules: {
+        "/**": {
+          headers: {
+            "X-Frame-Options": "DENY",
+            "X-Content-Type-Options": "nosniff",
+            "X-XSS-Protection": "1; mode=block",
+            "Referrer-Policy": "strict-origin-when-cross-origin",
+            "Permissions-Policy": "camera=(self), microphone=(), geolocation=(), payment=(self)",
+            "Strict-Transport-Security": "max-age=31536000; includeSubDomains; preload",
+            "Cross-Origin-Opener-Policy": "same-origin-allow-popups",
+            "Cross-Origin-Resource-Policy": "same-origin",
+          },
+        },
+      },
     }),
     viteReact(),
   ],

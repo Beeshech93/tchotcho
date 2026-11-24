@@ -9,6 +9,20 @@ export const Route = createFileRoute("/api/public/stripe/webhook")({
   server: {
     handlers: {
       POST: async ({ request }) => {
+        const { logAndAlertSecurityEvent, checkRateLimit, getClientIp } =
+          await import("@/lib/security.server");
+
+        const ip = getClientIp(request);
+        const rl = checkRateLimit(`stripe_webhook:${ip}`, { maxRequests: 120, windowMs: 60 * 1000 });
+        if (!rl.ok) {
+          await logAndAlertSecurityEvent({
+            eventType: "rate_limit_exceeded",
+            severity: "warning",
+            detail: { webhook: "stripe", ip },
+          });
+          return new Response("Too Many Requests", { status: 429 });
+        }
+
         const raw = await request.text();
 
         const { verifyStripeSignature, fetchStripeEvent, applyStripeEvent } =
@@ -21,10 +35,9 @@ export const Route = createFileRoute("/api/public/stripe/webhook")({
         });
         if (!verified.ok) {
           console.error("Stripe webhook rechazado:", verified.reason);
-          const { logAndAlertSecurityEvent } = await import("@/lib/security.server");
           await logAndAlertSecurityEvent({
             eventType: "webhook_invalid_signature",
-            detail: { webhook: "stripe", reason: verified.reason },
+            detail: { webhook: "stripe", reason: verified.reason, ip },
           });
           return new Response("Invalid signature", { status: 401 });
         }

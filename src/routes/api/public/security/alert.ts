@@ -10,6 +10,15 @@ export const Route = createFileRoute("/api/public/security/alert")({
   server: {
     handlers: {
       POST: async ({ request }) => {
+        const { logAndAlertSecurityEvent, checkRateLimit, getClientIp } =
+          await import("@/lib/security.server");
+
+        const ip = getClientIp(request);
+        const rl = checkRateLimit(`security_alert:${ip}`, { maxRequests: 60, windowMs: 60 * 1000 });
+        if (!rl.ok) {
+          return new Response("Too Many Requests", { status: 429 });
+        }
+
         const { verifyWelcomeWebhookSecret } = await import("@/lib/resend.server");
         const url = new URL(request.url);
         const secret =
@@ -26,7 +35,6 @@ export const Route = createFileRoute("/api/public/security/alert")({
           return Response.json({ received: true, ignored: "payload inválido" });
         }
 
-        const { logAndAlertSecurityEvent } = await import("@/lib/security.server");
         await logAndAlertSecurityEvent({
           eventType: (body.event_type as "kyc_self_approve_attempt") ?? "unauthorized_action",
           severity: "critical",

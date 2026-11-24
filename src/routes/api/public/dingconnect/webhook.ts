@@ -9,6 +9,20 @@ export const Route = createFileRoute("/api/public/dingconnect/webhook")({
   server: {
     handlers: {
       POST: async ({ request }) => {
+        const { logAndAlertSecurityEvent, checkRateLimit, getClientIp } =
+          await import("@/lib/security.server");
+
+        const ip = getClientIp(request);
+        const rl = checkRateLimit(`ding_webhook:${ip}`, { maxRequests: 120, windowMs: 60 * 1000 });
+        if (!rl.ok) {
+          await logAndAlertSecurityEvent({
+            eventType: "rate_limit_exceeded",
+            severity: "warning",
+            detail: { webhook: "dingconnect", ip },
+          });
+          return new Response("Too Many Requests", { status: 429 });
+        }
+
         const url = new URL(request.url);
         const raw = await request.text();
 
@@ -29,10 +43,9 @@ export const Route = createFileRoute("/api/public/dingconnect/webhook")({
         });
         if (!verified.ok) {
           console.error("DingConnect webhook rechazado:", verified.reason);
-          const { logAndAlertSecurityEvent } = await import("@/lib/security.server");
           await logAndAlertSecurityEvent({
             eventType: "webhook_invalid_signature",
-            detail: { webhook: "dingconnect", reason: verified.reason },
+            detail: { webhook: "dingconnect", reason: verified.reason, ip },
           });
           return new Response("Invalid signature", { status: 401 });
         }

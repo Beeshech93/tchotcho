@@ -17,7 +17,20 @@ export const Route = createFileRoute("/api/public/bazik/payout")({
 
         const { bazikExtractReference, bazikWebhookSecret, applyBazikResult } =
           await import("@/lib/bazik.server");
-        const { logAndAlertSecurityEvent } = await import("@/lib/security.server");
+        const { logAndAlertSecurityEvent, timingSafeStringEqual, checkRateLimit, getClientIp } =
+          await import("@/lib/security.server");
+
+        const ip = getClientIp(request);
+        const rl = checkRateLimit(`bazik_webhook:${ip}`, { maxRequests: 60, windowMs: 60 * 1000 });
+        if (!rl.ok) {
+          await logAndAlertSecurityEvent({
+            eventType: "rate_limit_exceeded",
+            severity: "warning",
+            detail: { webhook: "bazik", ip },
+          });
+          return new Response("Too Many Requests", { status: 429 });
+        }
+
         const secret = await bazikWebhookSecret();
         if (!secret) {
           console.error("Bazik webhook: BAZIK_WEBHOOK_SECRET no configurado, rechazando");
@@ -31,12 +44,12 @@ export const Route = createFileRoute("/api/public/bazik/payout")({
         const provided = request.headers.get("x-bazik-signature");
         const sharedSecret =
           request.headers.get("x-webhook-secret") ?? url.searchParams.get("secret");
-        const validSignature = Boolean(provided && provided === secret);
-        const validShared = Boolean(sharedSecret && sharedSecret === secret);
+        const validSignature = Boolean(provided && timingSafeStringEqual(provided, secret));
+        const validShared = Boolean(sharedSecret && timingSafeStringEqual(sharedSecret, secret));
         if (!validSignature && !validShared) {
           await logAndAlertSecurityEvent({
             eventType: "webhook_invalid_signature",
-            detail: { webhook: "bazik", ip: request.headers.get("x-forwarded-for") },
+            detail: { webhook: "bazik", ip },
           });
           return new Response("Invalid signature", { status: 401 });
         }

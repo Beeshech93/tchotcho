@@ -11,6 +11,20 @@ export const Route = createFileRoute("/api/public/auth/welcome")({
   server: {
     handlers: {
       POST: async ({ request }) => {
+        const { logAndAlertSecurityEvent, checkRateLimit, getClientIp } =
+          await import("@/lib/security.server");
+
+        const ip = getClientIp(request);
+        const rl = checkRateLimit(`welcome_webhook:${ip}`, { maxRequests: 60, windowMs: 60 * 1000 });
+        if (!rl.ok) {
+          await logAndAlertSecurityEvent({
+            eventType: "rate_limit_exceeded",
+            severity: "warning",
+            detail: { webhook: "welcome-email", ip },
+          });
+          return new Response("Too Many Requests", { status: 429 });
+        }
+
         const { verifyWelcomeWebhookSecret, resendSendEmail } = await import("@/lib/resend.server");
 
         const url = new URL(request.url);
@@ -18,10 +32,9 @@ export const Route = createFileRoute("/api/public/auth/welcome")({
           request.headers.get("x-webhook-secret") ?? url.searchParams.get("secret");
         const validSecret = await verifyWelcomeWebhookSecret(secret);
         if (!validSecret) {
-          const { logAndAlertSecurityEvent } = await import("@/lib/security.server");
           await logAndAlertSecurityEvent({
             eventType: "webhook_invalid_signature",
-            detail: { webhook: "welcome-email" },
+            detail: { webhook: "welcome-email", ip },
           });
           return new Response("Invalid signature", { status: 401 });
         }

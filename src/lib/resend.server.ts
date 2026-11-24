@@ -106,7 +106,8 @@ export async function verifyWelcomeWebhookSecret(provided: string | null): Promi
   const stored = await loadResendCreds();
   const expected = pick(stored, "WELCOME_EMAIL_WEBHOOK_SECRET");
   if (!expected) return false;
-  return provided === expected;
+  const { timingSafeStringEqual } = await import("@/lib/security.server");
+  return timingSafeStringEqual(provided, expected);
 }
 
 export type ResendSendResult = { ok: true; id?: string } | { ok: false; error: string };
