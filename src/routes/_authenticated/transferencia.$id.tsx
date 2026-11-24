@@ -221,10 +221,10 @@ function Detalle() {
   const deliveryName = deliveryLabel(t.delivery_method);
 
   return (
-    <div className="mx-auto max-w-3xl space-y-5 text-white">
+    <div className="mx-auto max-w-3xl space-y-5 text-slate-900">
       {/* Finflow Confirmation Hero (Módulo 1486849455 / 1486849441) */}
       {(definiteStatus === "completed" || definiteStatus === "paid") && (
-        <div className="relative overflow-hidden rounded-3xl bg-[#0C1A10]/95 border border-[#02531C]/40 p-6 text-center space-y-4 shadow-2xl">
+        <div className="relative overflow-hidden rounded-3xl bg-[#0C1A10]/95 border border-[#02531C]/40 p-6 text-center space-y-4 shadow-2xl text-white">
           <div className="pointer-events-none absolute -top-24 left-1/2 -translate-x-1/2 size-48 rounded-full bg-[#02531C]/40 blur-3xl" />
           <div className="pointer-events-none absolute top-0 right-1/4 size-32 rounded-full bg-emerald-500/15 blur-2xl" />
 
@@ -323,18 +323,19 @@ function Detalle() {
             asChild
             variant="ghost"
             size="icon"
-            className="shrink-0"
+            className="shrink-0 text-slate-800 hover:text-slate-950 hover:bg-slate-200/80 rounded-xl transition-colors"
             aria-label="Volver al inicio"
           >
             <Link to="/dashboard">
-              <ArrowLeft className="size-5" />
+              <ArrowLeft className="size-5 stroke-[2.5]" />
             </Link>
           </Button>
           <div>
-            <h1 className="text-2xl font-bold">
-              {t2("detail.title")} {t.reference}
+            <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-950">
+              {t2("detail.title")}{" "}
+              <span className="text-emerald-700 font-black">{t.reference}</span>
             </h1>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm font-bold text-slate-600">
               {t2("detail.created_on")} {shortDate(t.created_at)}
             </p>
           </div>
@@ -529,13 +530,13 @@ function Detalle() {
         <SpeiCard transferId={id} amount={money(effectiveTotalSend, effectiveSendCur)} />
       )}
 
-      <Card>
+      <Card className="border border-slate-200/80 shadow-xs">
         <CardHeader>
-          <CardTitle className="text-base">{t2("detail.tracking")}</CardTitle>
+          <CardTitle className="text-base font-black text-slate-950">{t2("detail.tracking")}</CardTitle>
         </CardHeader>
         <CardContent>
           {status === "cancelled" ? (
-            <p className="text-sm text-destructive">{t2("detail.cancelled")}</p>
+            <p className="text-sm font-bold text-destructive">{t2("detail.cancelled")}</p>
           ) : (
             <ol className="space-y-4">
               {STATUS_FLOW.map((s, i) => {
@@ -544,19 +545,19 @@ function Detalle() {
                   <li key={s} className="flex items-start gap-3">
                     <span
                       className={`mt-0.5 grid size-6 shrink-0 place-items-center rounded-full ${
-                        done ? "bg-accent text-accent-foreground" : "bg-muted text-muted-foreground"
+                        done ? "bg-accent text-accent-foreground shadow-2xs" : "bg-muted text-muted-foreground"
                       }`}
                     >
-                      {done ? <Check className="size-3.5" /> : <Circle className="size-2.5" />}
+                      {done ? <Check className="size-3.5 stroke-[3]" /> : <Circle className="size-2.5" />}
                     </span>
                     <div>
-                      <p className={done ? "font-medium" : "text-muted-foreground"}>
+                      <p className={done ? "font-bold text-slate-950" : "font-medium text-slate-500"}>
                         {STATUS_LABEL_T[s]}
                       </p>
                       {events
                         ?.filter((e) => e.status === s)
                         .map((e) => (
-                          <p key={e.id} className="text-xs text-muted-foreground">
+                          <p key={e.id} className="text-xs font-medium text-slate-500">
                             {shortDate(e.created_at)} · {e.message}
                           </p>
                         ))}
@@ -569,11 +570,11 @@ function Detalle() {
         </CardContent>
       </Card>
 
-      <Card>
+      <Card className="border border-slate-200/80 shadow-xs">
         <CardHeader>
-          <CardTitle className="text-base">{t2("detail.details")}</CardTitle>
+          <CardTitle className="text-base font-black text-slate-950">{t2("detail.details")}</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-2 text-sm">
+        <CardContent className="space-y-2.5 text-sm">
           <Row label={t2("detail.recipient")} value={t.recipient_name} />
           <Row label={t2("detail.phone")} value={t.recipient_phone} />
           <Row label={t2("detail.city")} value={t.recipient_city} />
@@ -598,17 +599,17 @@ function Detalle() {
 function Metric({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <p className="text-xs opacity-80">{label}</p>
-      <p className="font-display text-xl font-bold">{value}</p>
+      <p className="text-xs font-bold uppercase tracking-wider text-emerald-100">{label}</p>
+      <p className="font-display text-xl sm:text-2xl font-black tracking-tight text-white drop-shadow-xs">{value}</p>
     </div>
   );
 }
 
 function Row({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex items-center justify-between gap-4">
-      <span className="text-muted-foreground">{label}</span>
-      <span className="text-right font-medium">{value}</span>
+    <div className="flex items-center justify-between gap-4 py-0.5">
+      <span className="text-slate-600 font-semibold">{label}</span>
+      <span className="text-right font-black text-slate-950">{value}</span>
     </div>
   );
 }
@@ -627,21 +628,21 @@ function OxxoVoucherCard({ transferId, amount }: { transferId: string; amount: s
   const expired = expires ? expires.getTime() < Date.now() : false;
 
   return (
-    <Card className="border-accent/40">
+    <Card className="border-accent/40 shadow-xs">
       <CardHeader className="flex-row items-center gap-2 space-y-0">
-        <Store className="size-4 text-accent" />
-        <CardTitle className="text-base">{t("detail.oxxo_title")}</CardTitle>
+        <Store className="size-4 text-emerald-700" />
+        <CardTitle className="text-base font-black text-slate-950">{t("detail.oxxo_title")}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         {isPending && (
-          <p className="flex items-center gap-2 text-sm text-muted-foreground">
-            <Loader2 className="size-4 animate-spin" /> {t("detail.oxxo_generating")}
+          <p className="flex items-center gap-2 text-sm font-medium text-slate-500">
+            <Loader2 className="size-4 animate-spin text-emerald-600" /> {t("detail.oxxo_generating")}
           </p>
         )}
 
         {isError && (
           <div className="space-y-3">
-            <p className="text-sm text-destructive">
+            <p className="text-sm font-bold text-destructive">
               {(error as Error).message || t("detail.oxxo_err")}
             </p>
             <Button
@@ -657,16 +658,16 @@ function OxxoVoucherCard({ transferId, amount }: { transferId: string; amount: s
 
         {data && (
           <>
-            <div className="rounded-xl bg-secondary p-4">
-              <p className="text-xs font-semibold uppercase text-muted-foreground">
+            <div className="rounded-xl bg-slate-100 border border-slate-200/80 p-4">
+              <p className="text-xs font-bold uppercase tracking-wider text-slate-600">
                 {t("detail.oxxo_reference")}
               </p>
-              <p className="mt-1 break-all font-display text-2xl font-bold tracking-wider">
+              <p className="mt-1 break-all font-display text-2xl sm:text-3xl font-black tracking-wider text-slate-950">
                 {data.reference}
               </p>
-              <p className="mt-2 text-sm text-muted-foreground">
+              <p className="mt-2 text-sm font-semibold text-slate-700">
                 {t("detail.amount_to_pay")}:{" "}
-                <span className="font-semibold text-foreground">{amount}</span>
+                <span className="font-black text-slate-950">{amount}</span>
               </p>
             </div>
 
@@ -736,21 +737,21 @@ function SpeiCard({ transferId, amount }: { transferId: string; amount: string }
   const expired = expires ? expires.getTime() < Date.now() : false;
 
   return (
-    <Card className="border-accent/40">
+    <Card className="border-accent/40 shadow-xs">
       <CardHeader className="flex-row items-center gap-2 space-y-0">
-        <Landmark className="size-4 text-accent" />
-        <CardTitle className="text-base">{t("detail.spei_title")}</CardTitle>
+        <Landmark className="size-4 text-emerald-700" />
+        <CardTitle className="text-base font-black text-slate-950">{t("detail.spei_title")}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         {isPending && (
-          <p className="flex items-center gap-2 text-sm text-muted-foreground">
-            <Loader2 className="size-4 animate-spin" /> {t("detail.spei_generating")}
+          <p className="flex items-center gap-2 text-sm font-medium text-slate-500">
+            <Loader2 className="size-4 animate-spin text-emerald-600" /> {t("detail.spei_generating")}
           </p>
         )}
 
         {isError && (
           <div className="space-y-3">
-            <p className="text-sm text-destructive">
+            <p className="text-sm font-bold text-destructive">
               {(error as Error).message || t("detail.spei_err")}
             </p>
             <Button
@@ -766,25 +767,25 @@ function SpeiCard({ transferId, amount }: { transferId: string; amount: string }
 
         {data && (
           <>
-            <div className="rounded-xl bg-secondary p-4">
-              <p className="text-xs font-semibold uppercase text-muted-foreground">
+            <div className="rounded-xl bg-slate-100 border border-slate-200/80 p-4">
+              <p className="text-xs font-bold uppercase tracking-wider text-slate-600">
                 {t("detail.clabe_label")}
               </p>
-              <p className="mt-1 break-all font-display text-2xl font-bold tracking-wider">
+              <p className="mt-1 break-all font-display text-2xl sm:text-3xl font-black tracking-wider text-slate-950">
                 {data.clabe}
               </p>
               {data.bank && (
-                <p className="mt-1 text-sm text-muted-foreground">
-                  {t("detail.receiving_bank")}: {data.bank}
+                <p className="mt-1 text-sm font-semibold text-slate-700">
+                  {t("detail.receiving_bank")}: <span className="font-bold text-slate-950">{data.bank}</span>
                 </p>
               )}
-              <p className="mt-2 text-sm text-muted-foreground">
+              <p className="mt-2 text-sm font-semibold text-slate-700">
                 {t("detail.concept")}:{" "}
-                <span className="font-semibold text-foreground">{data.concept}</span>
+                <span className="font-bold text-slate-950">{data.concept}</span>
               </p>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm font-semibold text-slate-700">
                 {t("detail.exact_amount")}:{" "}
-                <span className="font-semibold text-foreground">{amount}</span>
+                <span className="font-black text-slate-950">{amount}</span>
               </p>
             </div>
 
