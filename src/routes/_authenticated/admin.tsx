@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { useRealtimeInvalidate } from "@/hooks/useRealtimeInvalidate";
+import { useI18n } from "@/lib/i18n";
 import { useAdminPermissions } from "@/hooks/useAdminPermissions";
 import {
   getAllAdminsPermissionsMap,
@@ -119,31 +120,32 @@ export const Route = createFileRoute("/_authenticated/admin")({
 });
 
 function Admin() {
+  const { t } = useI18n();
   const { hasTabPermission, isSuperAdmin } = useAdminPermissions();
 
   const tabDefs: { id: AdminTabId; label: string; panel: React.ReactNode }[] = [
-    { id: "resumen", label: "Resumen", panel: <Resumen /> },
-    { id: "servicios", label: "Servicios", panel: <ServicesPanel /> },
-    { id: "contabilidad", label: "Contabilidad", panel: <AccountingPanel /> },
-    { id: "soporte", label: "Soporte", panel: <SupportPanel /> },
-    { id: "redes", label: "Redes Sociales", panel: <SocialNetworksPanel /> },
-    { id: "banner", label: "Banner", panel: <AdBannerPanel /> },
-    { id: "mercadopago", label: "Mercado Pago", panel: <MercadoPagoPanel /> },
-    { id: "stripe", label: "Stripe", panel: <StripePanel /> },
-    { id: "resend", label: "Correo", panel: <ResendPanel /> },
-    { id: "bulk-email", label: "Correo masivo", panel: <BulkEmailPanel /> },
-    { id: "security", label: "Seguridad", panel: <SecurityPanel /> },
-    { id: "operators", label: "Operadores", panel: <OperatorReportPanel /> },
-    { id: "topup-rates", label: "Tasas Ding", panel: <TopupRatesPanel /> },
-    { id: "dingconnect", label: "Recargas (Ding)", panel: <DingConnectPanel /> },
-    { id: "cripto", label: "Cripto", panel: <CryptoPanel /> },
-    { id: "bazik", label: "Bazik API", panel: <BazikPanel /> },
-    { id: "kyc", label: "KYC", panel: <KycPanel /> },
-    { id: "tx", label: "Transacciones", panel: <TxPanel /> },
-    { id: "recargas", label: "Recargas", panel: <TopupsPanel /> },
-    { id: "usuarios", label: "Usuarios", panel: <UsersPanel /> },
-    { id: "tarifas", label: "Tarifas", panel: <RatesPanel /> },
-    { id: "migracion", label: "Migración IA", panel: <MigrationAnalysisPanel /> },
+    { id: "resumen", label: t("admin.tab.resumen"), panel: <Resumen /> },
+    { id: "servicios", label: t("admin.tab.servicios"), panel: <ServicesPanel /> },
+    { id: "contabilidad", label: t("admin.tab.contabilidad"), panel: <AccountingPanel /> },
+    { id: "soporte", label: t("admin.tab.soporte"), panel: <SupportPanel /> },
+    { id: "redes", label: t("admin.tab.redes"), panel: <SocialNetworksPanel /> },
+    { id: "banner", label: t("admin.tab.banner"), panel: <AdBannerPanel /> },
+    { id: "mercadopago", label: t("admin.tab.mercadopago"), panel: <MercadoPagoPanel /> },
+    { id: "stripe", label: t("admin.tab.stripe"), panel: <StripePanel /> },
+    { id: "resend", label: t("admin.tab.resend"), panel: <ResendPanel /> },
+    { id: "bulk-email", label: t("admin.tab.bulk-email"), panel: <BulkEmailPanel /> },
+    { id: "security", label: t("admin.tab.security"), panel: <SecurityPanel /> },
+    { id: "operators", label: t("admin.tab.operators"), panel: <OperatorReportPanel /> },
+    { id: "topup-rates", label: t("admin.tab.topup-rates"), panel: <TopupRatesPanel /> },
+    { id: "dingconnect", label: t("admin.tab.dingconnect"), panel: <DingConnectPanel /> },
+    { id: "cripto", label: t("admin.tab.cripto"), panel: <CryptoPanel /> },
+    { id: "bazik", label: t("admin.tab.bazik"), panel: <BazikPanel /> },
+    { id: "kyc", label: t("admin.tab.kyc"), panel: <KycPanel /> },
+    { id: "tx", label: t("admin.tab.tx"), panel: <TxPanel /> },
+    { id: "recargas", label: t("admin.tab.recargas"), panel: <TopupsPanel /> },
+    { id: "usuarios", label: t("admin.tab.usuarios"), panel: <UsersPanel /> },
+    { id: "tarifas", label: t("admin.tab.tarifas"), panel: <RatesPanel /> },
+    { id: "migracion", label: t("admin.tab.migracion"), panel: <MigrationAnalysisPanel /> },
   ];
 
   const allowedTabs = tabDefs.filter((t) => {
@@ -169,7 +171,7 @@ function Admin() {
             </Link>
           </Button>
           <div className="flex flex-wrap items-center gap-2">
-            <h1 className="text-2xl font-extrabold text-slate-900">Admin Dashboard</h1>
+            <h1 className="text-2xl font-extrabold text-slate-900">{t("admin.dashboard_title")}</h1>
             {isSuperAdmin && (
               <Badge className="bg-[#EF4444] text-white border-transparent gap-1 text-xs font-bold uppercase rounded-full px-2.5 py-0.5 shadow-xs">
                 <Shield className="size-3" /> ADMIN
@@ -215,6 +217,7 @@ function useTransfers() {
 }
 
 function Resumen() {
+  const { t } = useI18n();
   const { data: transfers } = useTransfers();
   const { data: profiles } = useQuery({
     queryKey: ["admin-profiles"],
@@ -257,15 +260,15 @@ function Resumen() {
   return (
     <div className="space-y-4">
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
-        <Stat label="Saldo Operativo (Bazik)" value={`${totalHtgBalance.toLocaleString()} HTG`} isGreen />
-        <Stat label="Volumen total" value={volume} isGreen />
-        <Stat label="Ingresos comisión" value={fees} isGreen />
-        <Stat label="Envíos entregados" value={`${completed} / ${rows.length}`} />
-        <Stat label="KYC por revisar" value={String(pendingKyc)} />
+        <Stat label={t("admin.summary.operating_balance")} value={`${totalHtgBalance.toLocaleString()} HTG`} isGreen />
+        <Stat label={t("admin.summary.total_volume")} value={volume} isGreen />
+        <Stat label={t("admin.summary.fee_revenue")} value={fees} isGreen />
+        <Stat label={t("admin.summary.delivered")} value={`${completed} / ${rows.length}`} />
+        <Stat label={t("admin.summary.pending_kyc")} value={String(pendingKyc)} />
       </div>
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Envíos por estado</CardTitle>
+          <CardTitle className="text-base">{t("admin.summary.transfers_by_status")}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-2">
           {(Object.keys(STATUS_LABEL) as TransferStatus[]).map((s) => {
