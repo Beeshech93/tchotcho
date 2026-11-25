@@ -303,7 +303,7 @@ function AuthPage() {
               <span className="grid size-8 place-items-center rounded-full bg-white/[0.06] border border-white/10">
                 <ArrowLeft className="size-4" />
               </span>
-              <span>{tab === "registro" ? "Sign Up" : "Login"}</span>
+              <span>{tab === "registro" ? t("auth.signup") : t("auth.signin")}</span>
             </button>
 
             <div className="flex items-center gap-2">
@@ -312,7 +312,7 @@ function AuthPage() {
                 type="button"
                 className="grid size-8 place-items-center rounded-full bg-white/[0.06] border border-white/10 text-slate-300 hover:text-white"
                 onClick={() => setTab(tab === "ingreso" ? "registro" : "ingreso")}
-                title="Cambiar modo"
+                title={tab === "ingreso" ? t("auth.signup") : t("auth.signin")}
               >
                 <MoreVertical className="size-4" />
               </button>
@@ -330,22 +330,22 @@ function AuthPage() {
             </Link>
           </div>
 
-          {/* Títulos y bienvenida idénticos a Behance */}
+          {/* Títulos y bienvenida adaptados a los 4 idiomas */}
           <div className="mt-6">
             <h1 className="text-2xl font-bold tracking-tight text-white">
-              {tab === "ingreso" ? "Welcome Back" : "Welcome Back"}
+              {tab === "ingreso" ? t("auth.welcome_back") : t("auth.create_account_title")}
             </h1>
             <p className="mt-1.5 text-xs text-slate-400 leading-relaxed">
               {tab === "ingreso"
-                ? "Sing in to access your wallet and manage your money securely."
-                : "Create an account to start sending money and managing your cards."}
+                ? t("auth.welcome_back_subtitle")
+                : t("auth.create_account_subtitle")}
             </p>
           </div>
 
           {/* Subtítulo de sección (Login / Sign Up Details) */}
           <div className="mt-6">
             <p className="text-xs font-semibold text-slate-300 mb-3">
-              {tab === "ingreso" ? "Login" : "Sing Up Details"}
+              {tab === "ingreso" ? t("auth.login_details") : t("auth.signup_details")}
             </p>
 
             {/* Formulario */}
@@ -358,13 +358,13 @@ function AuthPage() {
                     name="email"
                     type="email"
                     required
-                    placeholder="Enter your email address"
+                    placeholder={t("auth.placeholder_email")}
                     className="h-12 w-full rounded-2xl bg-[#121212]/90 border border-white/10 pl-11 pr-4 text-xs text-white placeholder:text-slate-500 focus-visible:border-emerald-500 focus-visible:ring-1 focus-visible:ring-emerald-500"
                   />
                 </div>
 
                 {/* Input Password con icono y toggle ver/ocultar */}
-                <PasswordInput name="password" placeholder="Enter your password" />
+                <PasswordInput name="password" placeholder={t("auth.placeholder_password")} />
 
                 {/* Remember me & Forgot Password */}
                 <div className="flex items-center justify-between pt-1">
@@ -375,7 +375,7 @@ function AuthPage() {
                       onChange={(e) => setRememberMe(e.target.checked)}
                       className="size-3.5 rounded border-white/20 bg-[#121212] text-emerald-600 focus:ring-0 focus:ring-offset-0"
                     />
-                    <span>Remember me</span>
+                    <span>{t("auth.remember_me")}</span>
                   </label>
 
                   <button
@@ -386,7 +386,7 @@ function AuthPage() {
                     }}
                     className="text-xs text-slate-400 hover:text-white transition-colors"
                   >
-                    Forget Password?
+                    {t("auth.forgot_password")}
                   </button>
                 </div>
 
@@ -399,11 +399,11 @@ function AuthPage() {
                   {loading ? (
                     <>
                       <Loader2 className="size-4 animate-spin text-white" />
-                      <span>Entering...</span>
+                      <span>{t("auth.entering")}</span>
                     </>
                   ) : (
                     <>
-                      <span>Login</span>
+                      <span>{t("auth.enter")}</span>
                       <ArrowRight className="size-4 text-white" />
                     </>
                   )}
@@ -418,7 +418,7 @@ function AuthPage() {
                     name="full_name"
                     type="text"
                     required
-                    placeholder="Enter Your Name"
+                    placeholder={t("auth.placeholder_name")}
                     className="h-12 w-full rounded-2xl bg-[#121212]/90 border border-white/10 pl-11 pr-4 text-xs text-white placeholder:text-slate-500 focus-visible:border-emerald-500 focus-visible:ring-1 focus-visible:ring-emerald-500"
                   />
                 </div>
@@ -468,13 +468,13 @@ function AuthPage() {
                     name="email"
                     type="email"
                     required
-                    placeholder="Enter your email address"
+                    placeholder={t("auth.placeholder_email")}
                     className="h-12 w-full rounded-2xl bg-[#121212]/90 border border-white/10 pl-11 pr-4 text-xs text-white placeholder:text-slate-500 focus-visible:border-emerald-500 focus-visible:ring-1 focus-visible:ring-emerald-500"
                   />
                 </div>
 
                 {/* Contraseña */}
-                <PasswordInput name="password" placeholder="Enter your password" />
+                <PasswordInput name="password" placeholder={t("auth.placeholder_password")} />
 
                 {/* Botón Sign Up en pastilla */}
                 <button
@@ -485,11 +485,11 @@ function AuthPage() {
                   {loading ? (
                     <>
                       <Loader2 className="size-4 animate-spin text-white" />
-                      <span>Creating...</span>
+                      <span>{t("auth.creating")}</span>
                     </>
                   ) : (
                     <>
-                      <span>Sing Up</span>
+                      <span>{t("auth.signup")}</span>
                       <ArrowRight className="size-4 text-white" />
                     </>
                   )}
@@ -512,24 +512,10 @@ function AuthPage() {
                   )}
                 </div>
                 <span className="mt-2 text-[11px] text-slate-400 group-hover:text-slate-200">
-                  Login with biometrics
+                  {t("auth.biometric_login")}
                 </span>
               </button>
             </div>
-
-            {/* Google OAuth desactivado temporalmente hasta configurar credenciales en Supabase */}
-            {/*
-            <div className="mt-4">
-              <button
-                type="button"
-                onClick={handleGoogleAuth}
-                className="flex h-11 w-full items-center justify-center gap-2.5 rounded-full bg-[#121212]/80 border border-white/10 text-xs font-medium text-white transition-all hover:bg-[#1C1C1C] active:scale-[0.98]"
-              >
-                <GoogleIcon />
-                <span>Continue with Google</span>
-              </button>
-            </div>
-            */}
           </div>
         </div>
 
@@ -537,31 +523,31 @@ function AuthPage() {
         <div className="mt-8 text-center text-xs text-slate-400">
           {tab === "ingreso" ? (
             <p>
-              Do you have an account ?{" "}
+              {t("auth.no_account")}{" "}
               <button
                 type="button"
                 onClick={() => setTab("registro")}
                 className="font-semibold text-white underline underline-offset-4 hover:text-[#C4B5FD] transition-colors"
               >
-                Sing Up
+                {t("auth.signup")}
               </button>
             </p>
           ) : (
             <p>
-              Already have an account?{" "}
+              {t("auth.have_account")}{" "}
               <button
                 type="button"
                 onClick={() => setTab("ingreso")}
                 className="font-semibold text-white underline underline-offset-4 hover:text-[#C4B5FD] transition-colors"
               >
-                Login
+                {t("auth.signin")}
               </button>
             </p>
           )}
 
           {/* Redes sociales */}
           <div className="pt-4 border-t border-white/10 space-y-2">
-            <p className="text-[11px] text-slate-400 font-medium">Nuestras redes oficiales</p>
+            <p className="text-[11px] text-slate-400 font-medium">{t("auth.official_networks")}</p>
             <SocialLinks iconSize="size-4" className="justify-center gap-2" />
           </div>
         </div>
@@ -577,22 +563,22 @@ function AuthPage() {
       >
         <DialogContent className="bg-[#130E26] border-white/10 text-white rounded-3xl max-w-sm">
           <DialogHeader>
-            <DialogTitle className="text-white text-lg">Recuperar Contraseña</DialogTitle>
+            <DialogTitle className="text-white text-lg">{t("auth.reset_title")}</DialogTitle>
             <DialogDescription className="text-slate-400 text-xs">
-              Ingresa tu correo para recibir un enlace seguro de restablecimiento.
+              {t("auth.reset_subtitle")}
             </DialogDescription>
           </DialogHeader>
           {resetSent ? (
             <div className="space-y-4 pt-2">
               <div className="flex items-center gap-2 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 p-3 text-xs text-emerald-300">
                 <Check className="size-4 shrink-0 text-emerald-400" />
-                <span>Enlace enviado. Revisa tu bandeja de entrada o spam.</span>
+                <span>{t("auth.reset_link_sent")}</span>
               </div>
               <button
                 className="flex h-11 w-full items-center justify-center rounded-full bg-white text-xs font-bold text-black hover:bg-slate-200"
                 onClick={() => setShowForgot(false)}
               >
-                Volver al inicio de sesión
+                {t("auth.back_to_signin")}
               </button>
             </div>
           ) : (
@@ -603,7 +589,7 @@ function AuthPage() {
                   name="email"
                   type="email"
                   required
-                  placeholder="Tu correo electrónico"
+                  placeholder={t("auth.placeholder_email")}
                   className="h-12 w-full rounded-2xl bg-[#161228] border-white/10 pl-11 pr-4 text-xs text-white"
                 />
               </div>
@@ -615,7 +601,7 @@ function AuthPage() {
                 {resetLoading ? (
                   <Loader2 className="size-4 animate-spin text-black" />
                 ) : (
-                  "Enviar enlace"
+                  t("auth.send_reset_link")
                 )}
               </button>
             </form>
