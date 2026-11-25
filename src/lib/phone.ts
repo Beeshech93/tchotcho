@@ -3,7 +3,7 @@ export type DialCountry = { code: string; name: string; dial: string; flag: stri
 /** Códigos telefónicos internacionales (cualquier país puede registrarse). */
 export const DIAL_COUNTRIES: DialCountry[] = [
   { code: "HT", name: "Haïti", dial: "+509", flag: "🇭🇹" },
-  { code: "DO", name: "República Dominicana", dial: "+1809", flag: "🇩🇴" },
+  { code: "DO", name: "República Dominicana", dial: "+1", flag: "🇩🇴" },
   { code: "MX", name: "México", dial: "+52", flag: "🇲🇽" },
   { code: "US", name: "United States", dial: "+1", flag: "🇺🇸" },
   { code: "CA", name: "Canada", dial: "+1", flag: "🇨🇦" },
@@ -18,12 +18,12 @@ export const DIAL_COUNTRIES: DialCountry[] = [
   { code: "SV", name: "El Salvador", dial: "+503", flag: "🇸🇻" },
   { code: "GT", name: "Guatemala", dial: "+502", flag: "🇬🇹" },
   { code: "HN", name: "Honduras", dial: "+504", flag: "🇭🇳" },
-  { code: "JM", name: "Jamaica", dial: "+1876", flag: "🇯🇲" },
+  { code: "JM", name: "Jamaica", dial: "+1", flag: "🇯🇲" },
   { code: "NI", name: "Nicaragua", dial: "+505", flag: "🇳🇮" },
   { code: "PA", name: "Panamá", dial: "+507", flag: "🇵🇦" },
   { code: "PY", name: "Paraguay", dial: "+595", flag: "🇵🇾" },
   { code: "PE", name: "Perú", dial: "+51", flag: "🇵🇪" },
-  { code: "PR", name: "Puerto Rico", dial: "+1787", flag: "🇵🇷" },
+  { code: "PR", name: "Puerto Rico", dial: "+1", flag: "🇵🇷" },
   { code: "UY", name: "Uruguay", dial: "+598", flag: "🇺🇾" },
   { code: "VE", name: "Venezuela", dial: "+58", flag: "🇻🇪" },
   { code: "ES", name: "España", dial: "+34", flag: "🇪🇸" },
@@ -63,9 +63,9 @@ export const DIAL_COUNTRIES: DialCountry[] = [
 /** Longitud (dígitos del número nacional) esperada por país. */
 const NATIONAL_LENGTHS: Record<string, number[]> = {
   HT: [8],
-  DO: [7],
-  PR: [7],
-  JM: [7],
+  DO: [10, 7],
+  PR: [10, 7],
+  JM: [10, 7],
   US: [10],
   CA: [10],
   MX: [10],
@@ -140,9 +140,9 @@ export function formatNational(countryCode: string, local: string, dial?: string
   if (!d) return "";
   const groups: Record<string, number[]> = {
     HT: [4, 4],
-    DO: [3, 4],
-    PR: [3, 4],
-    JM: [3, 4],
+    DO: d.length <= 7 ? [3, 4] : [3, 3, 4],
+    PR: d.length <= 7 ? [3, 4] : [3, 3, 4],
+    JM: d.length <= 7 ? [3, 4] : [3, 3, 4],
     US: [3, 3, 4],
     CA: [3, 3, 4],
     MX: [2, 4, 4],
