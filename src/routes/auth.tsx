@@ -106,9 +106,32 @@ function AuthPage() {
   const digitsHint = lens.length ? lens.join(" o ") : "5–14";
 
   useEffect(() => {
+    // 1. Detectar intercambio de código PKCE (ej. OAuth o enlace de confirmación)
+    if (typeof window !== "undefined") {
+      const url = new URL(window.location.href);
+      const code = url.searchParams.get("code");
+      if (code) {
+        supabase.auth.exchangeCodeForSession(code).then(({ data, error }) => {
+          if (!error && data.session) {
+            router.navigate({ to: "/dashboard", replace: true });
+          }
+        });
+      }
+    }
+
+    // 2. Comprobar sesión existente
     supabase.auth.getSession().then(({ data }) => {
       if (data.session) router.navigate({ to: "/dashboard", replace: true });
     });
+
+    // 3. Suscripción a cambios de sesión
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session) router.navigate({ to: "/dashboard", replace: true });
+    });
+
+    return () => subscription.unsubscribe();
   }, [router]);
 
   const handle = async (e: React.FormEvent<HTMLFormElement>, mode: "ingreso" | "registro") => {
@@ -152,7 +175,7 @@ function AuthPage() {
         const fullName = String(form.get("full_name") ?? "")
           .trim()
           .slice(0, 100);
-        const { error } = await supabase.auth.signUp({
+        const { data: signUpData, error } = await supabase.auth.signUp({
           email: parsed.data.email,
           password: parsed.data.password,
           options: {
@@ -161,7 +184,28 @@ function AuthPage() {
           },
         });
         if (error) throw error;
+
         const { data: s } = await supabase.auth.getSession();
+        const activeUser = s.session?.user || signUpData?.user;
+
+        // Si se obtuvo usuario o sesión, asegurar guardado en profiles
+        if (activeUser) {
+          try {
+            await supabase.from("profiles").upsert(
+              {
+                id: activeUser.id,
+                full_name: fullName,
+                phone,
+                country: dial,
+                language: lang,
+              },
+              { onConflict: "id" },
+            );
+          } catch {
+            // Ignorar si se maneja por trigger
+          }
+        }
+
         if (s.session) {
           toast.success(t("auth.created") || "¡Cuenta creada exitosamente!");
           router.navigate({ to: "/dashboard", replace: true });
@@ -197,6 +241,12 @@ function AuthPage() {
   const handleBiometricAuth = async () => {
     setBiometricLoading(true);
     try {
+      const { data } = await supabase.auth.getSession();
+      if (data.session) {
+        router.navigate({ to: "/dashboard", replace: true });
+        return;
+      }
+
       // Intento con WebAuthn si el navegador lo soporta
       if (
         window.PublicKeyCredential &&
@@ -205,11 +255,7 @@ function AuthPage() {
         const available =
           await window.PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
         if (available) {
-          toast.info("Autenticando biométricamente con FaceID / TouchID...");
-          setTimeout(() => {
-            setBiometricLoading(false);
-            toast.success("Autenticación biométrica iniciada");
-          }, 1200);
+          toast.info("Inicia sesión con tu correo y contraseña para activar el acceso con huella o FaceID en este dispositivo.");
           return;
         }
       }
@@ -217,7 +263,7 @@ function AuthPage() {
     } catch (err) {
       toast.error("No se pudo iniciar el lector biométrico.");
     } finally {
-      setTimeout(() => setBiometricLoading(false), 1200);
+      setBiometricLoading(false);
     }
   };
 
@@ -259,19 +305,29 @@ function AuthPage() {
       });
       if (res?.ok) {
         setResetSent(true);
-        toast.success("Enlace de restablecimiento enviado a tu correo");
+        toast.success(t("auth.reset_link_sent") || "Enlace de restablecimiento enviado a tu correo");
         return;
       }
 
-      // Si el backend dio error, intentar directamente con el cliente Supabase
+      if (res?.error) {
+        toast.error(res.error);
+        return;
+      }
+
+      // Solo si el servidor no devolvió respuesta, intentar con el cliente
       const { error: clientErr } = await supabase.auth.resetPasswordForEmail(parsed.data, {
         redirectTo: `${window.location.origin}/restablecer-password`,
       });
       if (clientErr) throw clientErr;
       setResetSent(true);
-      toast.success("Enlace de restablecimiento enviado a tu correo");
+      toast.success(t("auth.reset_link_sent") || "Enlace de restablecimiento enviado a tu correo");
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : t("auth.error") || "Error al enviar");
+      const msg = err instanceof Error ? err.message : t("auth.error") || "Error al enviar";
+      if (msg.toLowerCase().includes("rate limit")) {
+        toast.error("Has alcanzado el límite de solicitudes de recuperación. Por favor espera unos minutos antes de intentar de nuevo.");
+      } else {
+        toast.error(msg);
+      }
     } finally {
       setResetLoading(false);
     }
@@ -303,7 +359,7 @@ function AuthPage() {
               <span className="grid size-8 place-items-center rounded-full bg-white/[0.06] border border-white/10">
                 <ArrowLeft className="size-4" />
               </span>
-              <span>{tab === "registro" ? t("auth.signup") : t("auth.signin")}</span>
+              <span>{tab === "registro" ? t("auth.signin") : t("nav.home")}</span>
             </button>
 
             <div className="flex items-center gap-2">

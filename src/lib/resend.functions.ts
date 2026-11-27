@@ -141,7 +141,7 @@ const resetInputSchema = z.object({
   origin: z.string().optional(),
 });
 
-/** Solicita el restablecimiento de contraseña directamente vía Supabase Auth (sin Resend). */
+/** Solicita el restablecimiento de contraseña vía Resend (o fallback Supabase Auth). */
 export const requestPasswordResetEmail = createServerFn({ method: "POST" })
   .validator((input: z.infer<typeof resetInputSchema>) => resetInputSchema.parse(input))
   .handler(async ({ data }) => {
@@ -157,19 +157,76 @@ export const requestPasswordResetEmail = createServerFn({ method: "POST" })
     const redirectUrl = `${cleanPublicUrl}/restablecer-password`;
 
     try {
+      // 1. Intentar generar enlace seguro con supabaseAdmin (no consume cuota de SMTP de Supabase)
+      try {
+        const { data: linkData, error: linkErr } = await supabaseAdmin.auth.admin.generateLink({
+          type: "recovery",
+          email: cleanEmail,
+          options: { redirectTo: redirectUrl },
+        });
+
+        if (!linkErr && linkData?.properties?.action_link) {
+          const { resendStatusInfo, resendSendEmail } = await import("@/lib/resend.server");
+          const status = await resendStatusInfo();
+          if (status.hasApiKey) {
+            const { render } = await import("@react-email/render");
+            const { RecoveryEmail } = await import("@/lib/email-templates/recovery");
+            const html = await render(
+              RecoveryEmail({
+                siteName: "Tcho-Tcho",
+                confirmationUrl: linkData.properties.action_link,
+              }),
+            );
+            const sendRes = await resendSendEmail({
+              to: cleanEmail,
+              subject: "Restablece tu contraseña — Tcho-Tcho",
+              html,
+            });
+            if (sendRes.ok) {
+              return { ok: true };
+            }
+            console.warn(
+              "[requestPasswordResetEmail] Resend falló, probando fallback Supabase:",
+              sendRes.error,
+            );
+          }
+        }
+      } catch (genErr) {
+        console.warn("[requestPasswordResetEmail] generateLink bypass falló:", genErr);
+      }
+
+      // 2. Fallback a resetPasswordForEmail de Supabase
       const { error } = await supabaseAdmin.auth.resetPasswordForEmail(cleanEmail, {
         redirectTo: redirectUrl,
       });
 
       if (error) {
         console.warn("[requestPasswordResetEmail] Supabase error:", error.message);
+        if (
+          error.message.toLowerCase().includes("rate limit") ||
+          error.message.toLowerCase().includes("over_email_send_rate_limit")
+        ) {
+          return {
+            ok: false,
+            error:
+              "Has alcanzado el límite de solicitudes de recuperación. Por favor espera unos minutos antes de intentar de nuevo.",
+          };
+        }
         return { ok: false, error: error.message };
       }
 
       return { ok: true };
     } catch (err: any) {
       console.warn("[requestPasswordResetEmail] exception:", err?.message);
-      return { ok: false, error: err?.message || "Error al enviar el enlace" };
+      const msg = err?.message || "";
+      if (msg.toLowerCase().includes("rate limit")) {
+        return {
+          ok: false,
+          error:
+            "Has alcanzado el límite de solicitudes de recuperación. Por favor espera unos minutos antes de intentar de nuevo.",
+        };
+      }
+      return { ok: false, error: msg || "Error al enviar el enlace" };
     }
   });
 

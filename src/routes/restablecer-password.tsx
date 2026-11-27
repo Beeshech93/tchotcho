@@ -28,15 +28,27 @@ function ResetPasswordPage() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
-    // 1. Detectar intercambio de código PKCE si está en la URL
+    // 1. Detectar intercambio de código PKCE o tokens en hash / query
     if (typeof window !== "undefined") {
       const url = new URL(window.location.href);
-      const code = url.searchParams.get("code");
-      const errorDesc = url.searchParams.get("error_description") || url.searchParams.get("error");
-      if (errorDesc) {
-        setErrorMessage(errorDesc);
+      const hashParams = new URLSearchParams(window.location.hash.replace(/^#/, ""));
+      const code = url.searchParams.get("code") || hashParams.get("code");
+      const rawError =
+        url.searchParams.get("error_description") ||
+        url.searchParams.get("error") ||
+        hashParams.get("error_description") ||
+        hashParams.get("error");
+
+      if (rawError) {
+        const decoded = decodeURIComponent(rawError.replace(/\+/g, " "));
+        if (decoded.toLowerCase().includes("expired") || decoded.toLowerCase().includes("invalid")) {
+          setErrorMessage("El enlace ha expirado o ya fue utilizado. Por favor solicita uno nuevo.");
+        } else {
+          setErrorMessage(decoded);
+        }
         return;
       }
+
       if (code) {
         supabase.auth.exchangeCodeForSession(code).then(({ data, error: exchangeError }) => {
           if (exchangeError) {
@@ -45,6 +57,18 @@ function ResetPasswordPage() {
             setReady(true);
           }
         });
+      }
+
+      const accessToken = hashParams.get("access_token");
+      const refreshToken = hashParams.get("refresh_token");
+      if (accessToken && refreshToken) {
+        supabase.auth
+          .setSession({ access_token: accessToken, refresh_token: refreshToken })
+          .then(({ data, error }) => {
+            if (!error && data.session) {
+              setReady(true);
+            }
+          });
       }
     }
 
