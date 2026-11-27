@@ -54,7 +54,18 @@ export function useWallets() {
         .eq("user_id", uid)
         .order("created_at");
       if (error) throw error;
-      return (data ?? []) as unknown as Wallet[];
+      const realWallets = (data ?? []) as unknown as Wallet[];
+
+      // Complementar con billeteras de su país o virtuales mediante ensureMyAgentWallets
+      try {
+        const { ensureMyAgentWallets } = await import("@/lib/agent-wallet.functions");
+        const all = await ensureMyAgentWallets();
+        if (Array.isArray(all) && all.length > 0) {
+          return all as unknown as Wallet[];
+        }
+      } catch {}
+
+      return realWallets;
     },
   });
 }

@@ -103,9 +103,16 @@ export const requireSupabaseAuth = createMiddleware({ type: "function" }).server
       try {
         const parts = token.split(".");
         if (parts.length === 3 && parts[1]) {
-          const payloadStr = Buffer.from(parts[1], "base64url").toString("utf-8");
+          let payloadStr = "";
+          try {
+            payloadStr = Buffer.from(parts[1], "base64url").toString("utf-8");
+          } catch {
+            let b64 = parts[1].replace(/-/g, "+").replace(/_/g, "/");
+            while (b64.length % 4) b64 += "=";
+            payloadStr = Buffer.from(b64, "base64").toString("utf-8");
+          }
           const payload = JSON.parse(payloadStr);
-          const userId = payload?.sub;
+          const userId = payload?.sub || payload?.user_id;
           if (userId && typeof userId === "string") {
             const { supabaseAdmin } = await import("./client.server");
             const { data: adminUser } = await supabaseAdmin.auth.admin.getUserById(userId);

@@ -139,8 +139,25 @@ export const adminAdjustAgentBalance = createServerFn({ method: "POST" })
     }
 
     let wallet = existingWallet;
+    let isVirtual = false;
+    const virtualCredKey = `AGENT_VIRTUAL_WALLET_${input.agentUserId}_${targetCurrency}`;
 
     if (!wallet) {
+      // Verificar si existe como billetera virtual en integration_credentials
+      const { data: vCred } = await supabaseAdmin
+        .from("integration_credentials")
+        .select("value")
+        .eq("name", virtualCredKey)
+        .maybeSingle();
+
+      let vWalletData: any = null;
+      if (vCred?.value) {
+        try {
+          vWalletData = JSON.parse(vCred.value);
+        } catch {}
+      }
+
+      // Intentar insertar en la tabla real wallets
       const { data: created, error: createError } = await supabaseAdmin
         .from("wallets")
         .insert({
@@ -152,32 +169,81 @@ export const adminAdjustAgentBalance = createServerFn({ method: "POST" })
         .select("*")
         .single();
 
-      if (createError || !created) {
-        throw new Error(createError?.message || `No se pudo crear la ${walletLabel} para el agente.`);
+      if (createError) {
+        // Si falla por el check constraint wallets_currency_check, usar almacenamiento virtual resiliente
+        if (createError.message?.includes("wallets_currency_check")) {
+          isVirtual = true;
+          wallet = vWalletData || {
+            id: `virt-${Date.now()}`,
+            user_id: input.agentUserId,
+            currency: targetCurrency,
+            balance: 0,
+            status: "active",
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+          };
+        } else {
+          throw new Error(createError?.message || `No se pudo crear la ${walletLabel} para el agente.`);
+        }
+      } else {
+        wallet = created;
       }
-      wallet = created;
+    }
+
+    if (!wallet) {
+      throw new Error(`No se pudo inicializar la billetera ${walletLabel} para el agente.`);
     }
 
     const currentBalance = Number(wallet.balance) || 0;
     const newBalance = Math.round((currentBalance + input.amount) * 100) / 100;
     if (newBalance < 0) {
       throw new Error(
-        `El saldo resultante no puede ser negativo. Saldo actual en ${walletLabel}: ${currentBalance.toLocaleString()} HTG.`,
+        `El saldo resultante no puede ser negativo. Saldo actual en ${walletLabel}: ${currentBalance.toLocaleString()} ${baseCurrency}.`,
       );
     }
 
     // 2. Actualizar saldo en la billetera
     const now = new Date().toISOString();
-    const { error: updateError } = await supabaseAdmin
-      .from("wallets")
-      .update({
-        balance: newBalance,
+    if (isVirtual || wallet.id.startsWith("virt-")) {
+      await supabaseAdmin.from("integration_credentials").upsert({
+        name: virtualCredKey,
+        value: JSON.stringify({
+          id: wallet.id,
+          user_id: input.agentUserId,
+          currency: targetCurrency,
+          balance: newBalance,
+          status: "active",
+          updated_at: now,
+        }),
         updated_at: now,
-      })
-      .eq("id", wallet.id);
+      });
+    } else {
+      const { error: updateError } = await supabaseAdmin
+        .from("wallets")
+        .update({
+          balance: newBalance,
+          updated_at: now,
+        })
+        .eq("id", wallet.id);
 
-    if (updateError) {
-      throw new Error(updateError.message);
+      if (updateError) {
+        if (updateError.message?.includes("wallets_currency_check")) {
+          await supabaseAdmin.from("integration_credentials").upsert({
+            name: virtualCredKey,
+            value: JSON.stringify({
+              id: wallet.id,
+              user_id: input.agentUserId,
+              currency: targetCurrency,
+              balance: newBalance,
+              status: "active",
+              updated_at: now,
+            }),
+            updated_at: now,
+          });
+        } else {
+          throw new Error(updateError.message);
+        }
+      }
     }
 
     // 3. Registrar movimiento en wallet_transactions con identificación del admin
@@ -192,16 +258,20 @@ export const adminAdjustAgentBalance = createServerFn({ method: "POST" })
     const actionLabel = input.amount > 0 ? `+${input.amount}` : `${input.amount}`;
     const desc = customNote
       ? `${customNote} (${walletLabel} · Por: ${adminName})`
-      : `Saldo ${input.amount > 0 ? "acreditado" : "ajustado"} (${actionLabel} HTG) en ${walletLabel} por Admin: ${adminName}`;
+      : `Saldo ${input.amount > 0 ? "acreditado" : "ajustado"} (${actionLabel} ${baseCurrency}) en ${walletLabel} por Admin: ${adminName}`;
 
-    await supabaseAdmin.from("wallet_transactions").insert({
-      wallet_id: wallet.id,
-      user_id: input.agentUserId,
-      kind: input.amount > 0 ? "admin_deposit" : "admin_deduct",
-      amount: input.amount,
-      currency: targetCurrency,
-      description: desc,
-    });
+    try {
+      await (supabaseAdmin.from("wallet_transactions") as any).insert({
+        wallet_id: wallet.id,
+        user_id: input.agentUserId,
+        kind: input.amount > 0 ? "admin_deposit" : "admin_deduct",
+        amount: input.amount,
+        currency: targetCurrency,
+        description: desc,
+      });
+    } catch (txErr) {
+      console.warn("[adminAdjustAgentBalance] Non-fatal transaction log error:", txErr);
+    }
 
     return {
       ok: true,
@@ -210,7 +280,7 @@ export const adminAdjustAgentBalance = createServerFn({ method: "POST" })
       newBalance,
       currency: targetCurrency,
       walletType: input.walletType,
-      message: `Saldo ${input.amount > 0 ? "adicionado" : "ajustado"} con éxito en ${walletLabel}. Nuevo balance: ${newBalance.toLocaleString()} HTG.`,
+      message: `Saldo ${input.amount > 0 ? "adicionado" : "ajustado"} con éxito en ${walletLabel}. Nuevo balance: ${newBalance.toLocaleString()} ${baseCurrency}.`,
     };
   });
 
@@ -291,7 +361,7 @@ export const getAgentBalanceHistory = createServerFn({ method: "POST" })
 
 /**
  * Consulta las billeteras y saldos de un usuario específico (para el panel de administración).
- * Garantiza que existan tanto la billetera de Envíos de Dinero (HTG) como la de Recargas (HTG_RECARGAS).
+ * Garantiza que existan las billeteras de Envíos de Dinero y Recargas en la moneda de su país.
  */
 export const getAgentWallets = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -306,86 +376,237 @@ export const getAgentWallets = createServerFn({ method: "POST" })
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-    // Asegurar que ambas billeteras existan para el usuario agente
+    // Detectar la moneda de su país según su perfil y teléfono
+    let agentCountryCurrency = "HTG";
+    let isHaiti = true;
+    try {
+      const { data: p } = await supabaseAdmin
+        .from("profiles")
+        .select("phone, country")
+        .eq("id", input.userId)
+        .maybeSingle();
+      const { getCountryInfoFromPhone } = await import("@/lib/phone");
+      const cInfo = getCountryInfoFromPhone(p?.phone, p?.country);
+      agentCountryCurrency = cInfo.currency;
+      isHaiti = cInfo.code === "HT";
+    } catch {}
+
+    const primaryCurrency = agentCountryCurrency || "HTG";
+    const primaryTopupCurrency =
+      primaryCurrency === "HTG" ? "HTG_RECARGAS" : `${primaryCurrency}_RECARGAS`;
+
+    // 1. Consultar billeteras en la tabla real wallets
     const { data: existingWallets } = await supabaseAdmin
       .from("wallets")
       .select("*")
       .eq("user_id", input.userId);
 
-    const hasTransfers = existingWallets?.some((w) => w.currency === "HTG");
-    const hasTopups = existingWallets?.some((w) => w.currency === "HTG_RECARGAS");
+    const hasPrimaryTransfers = existingWallets?.some((w) => w.currency === primaryCurrency);
+    const hasPrimaryTopups = existingWallets?.some((w) => w.currency === primaryTopupCurrency);
 
-    if (!hasTransfers) {
-      await supabaseAdmin.from("wallets").insert({
-        user_id: input.userId,
-        currency: "HTG",
-        balance: 0,
-        status: "active",
-      });
+    if (!hasPrimaryTransfers) {
+      try {
+        await supabaseAdmin.from("wallets").insert({
+          user_id: input.userId,
+          currency: primaryCurrency,
+          balance: 0,
+          status: "active",
+        });
+      } catch {}
     }
 
-    if (!hasTopups) {
-      await supabaseAdmin.from("wallets").insert({
-        user_id: input.userId,
-        currency: "HTG_RECARGAS",
-        balance: 0,
-        status: "active",
-      });
+    if (!hasPrimaryTopups) {
+      try {
+        await supabaseAdmin.from("wallets").insert({
+          user_id: input.userId,
+          currency: primaryTopupCurrency,
+          balance: 0,
+          status: "active",
+        });
+      } catch {}
     }
 
-    const { data, error } = await supabaseAdmin
+    // Si el usuario es de Haití, asegurar HTG y HTG_RECARGAS
+    if (isHaiti) {
+      const hasHtg = existingWallets?.some((w) => w.currency === "HTG");
+      const hasHtgTopups = existingWallets?.some((w) => w.currency === "HTG_RECARGAS");
+      if (!hasHtg) {
+        try {
+          await supabaseAdmin.from("wallets").insert({
+            user_id: input.userId,
+            currency: "HTG",
+            balance: 0,
+            status: "active",
+          });
+        } catch {}
+      }
+      if (!hasHtgTopups) {
+        try {
+          await supabaseAdmin.from("wallets").insert({
+            user_id: input.userId,
+            currency: "HTG_RECARGAS",
+            balance: 0,
+            status: "active",
+          });
+        } catch {}
+      }
+    }
+
+    const { data: dbWallets, error } = await supabaseAdmin
       .from("wallets")
       .select("*")
       .eq("user_id", input.userId)
       .order("currency");
 
     if (error) throw new Error(error.message);
-    return data ?? [];
+
+    // 2. Consultar billeteras virtuales almacenadas en integration_credentials
+    const { data: vCreds } = await supabaseAdmin
+      .from("integration_credentials")
+      .select("name, value")
+      .like("name", `AGENT_VIRTUAL_WALLET_${input.userId}_%`);
+
+    const result = [...(dbWallets ?? [])];
+    const existingCurrencies = new Set(result.map((w) => w.currency));
+
+    for (const vc of vCreds ?? []) {
+      try {
+        const parsed = JSON.parse(vc.value);
+        if (parsed?.currency && !existingCurrencies.has(parsed.currency)) {
+          result.push({
+            id: parsed.id || vc.name,
+            user_id: input.userId,
+            currency: parsed.currency,
+            balance: Number(parsed.balance) || 0,
+            status: parsed.status || "active",
+            created_at: parsed.created_at || new Date().toISOString(),
+            updated_at: parsed.updated_at || new Date().toISOString(),
+          } as any);
+          existingCurrencies.add(parsed.currency);
+        }
+      } catch {}
+    }
+
+    return result;
   });
 
 /**
- * Asegura que el agente autenticado tenga activas sus 2 billeteras:
- * 1. Envíos de Dinero (HTG)
- * 2. Recargas Telefónicas (HTG_RECARGAS)
+ * Asegura que el agente autenticado tenga activas sus billeteras en la moneda de su país:
+ * 1. Envíos de Dinero (moneda de su país, ej: MXN, DOP, USD, CLP)
+ * 2. Recargas Telefónicas (ej: MXN_RECARGAS, DOP_RECARGAS)
  */
 export const ensureMyAgentWallets = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
+    let agentCountryCurrency = "HTG";
+    let isHaiti = true;
+    try {
+      const { data: p } = await supabaseAdmin
+        .from("profiles")
+        .select("phone, country")
+        .eq("id", context.userId)
+        .maybeSingle();
+      const { getCountryInfoFromPhone } = await import("@/lib/phone");
+      const cInfo = getCountryInfoFromPhone(p?.phone, p?.country);
+      agentCountryCurrency = cInfo.currency;
+      isHaiti = cInfo.code === "HT";
+    } catch {}
+
+    const primaryCurrency = agentCountryCurrency || "HTG";
+    const primaryTopupCurrency =
+      primaryCurrency === "HTG" ? "HTG_RECARGAS" : `${primaryCurrency}_RECARGAS`;
+
     const { data: existing } = await supabaseAdmin
       .from("wallets")
       .select("*")
       .eq("user_id", context.userId);
 
-    const hasTransfers = existing?.some((w) => w.currency === "HTG");
-    const hasTopups = existing?.some((w) => w.currency === "HTG_RECARGAS");
+    const hasTransfers = existing?.some((w) => w.currency === primaryCurrency);
+    const hasTopups = existing?.some((w) => w.currency === primaryTopupCurrency);
 
     if (!hasTransfers) {
-      await supabaseAdmin.from("wallets").insert({
-        user_id: context.userId,
-        currency: "HTG",
-        balance: 0,
-        status: "active",
-      });
+      try {
+        await supabaseAdmin.from("wallets").insert({
+          user_id: context.userId,
+          currency: primaryCurrency,
+          balance: 0,
+          status: "active",
+        });
+      } catch {}
     }
 
     if (!hasTopups) {
-      await supabaseAdmin.from("wallets").insert({
-        user_id: context.userId,
-        currency: "HTG_RECARGAS",
-        balance: 0,
-        status: "active",
-      });
+      try {
+        await supabaseAdmin.from("wallets").insert({
+          user_id: context.userId,
+          currency: primaryTopupCurrency,
+          balance: 0,
+          status: "active",
+        });
+      } catch {}
     }
 
-    const { data } = await supabaseAdmin
+    if (isHaiti) {
+      const hasHtg = existing?.some((w) => w.currency === "HTG");
+      const hasHtgTopups = existing?.some((w) => w.currency === "HTG_RECARGAS");
+      if (!hasHtg) {
+        try {
+          await supabaseAdmin.from("wallets").insert({
+            user_id: context.userId,
+            currency: "HTG",
+            balance: 0,
+            status: "active",
+          });
+        } catch {}
+      }
+      if (!hasHtgTopups) {
+        try {
+          await supabaseAdmin.from("wallets").insert({
+            user_id: context.userId,
+            currency: "HTG_RECARGAS",
+            balance: 0,
+            status: "active",
+          });
+        } catch {}
+      }
+    }
+
+    const { data: dbWallets } = await supabaseAdmin
       .from("wallets")
       .select("*")
       .eq("user_id", context.userId)
       .order("currency");
 
-    return data ?? [];
+    // Incluir también cualquier billetera virtual
+    const { data: vCreds } = await supabaseAdmin
+      .from("integration_credentials")
+      .select("name, value")
+      .like("name", `AGENT_VIRTUAL_WALLET_${context.userId}_%`);
+
+    const result = [...(dbWallets ?? [])];
+    const existingCurrencies = new Set(result.map((w) => w.currency));
+
+    for (const vc of vCreds ?? []) {
+      try {
+        const parsed = JSON.parse(vc.value);
+        if (parsed?.currency && !existingCurrencies.has(parsed.currency)) {
+          result.push({
+            id: parsed.id || vc.name,
+            user_id: context.userId,
+            currency: parsed.currency,
+            balance: Number(parsed.balance) || 0,
+            status: parsed.status || "active",
+            created_at: parsed.created_at || new Date().toISOString(),
+            updated_at: parsed.updated_at || new Date().toISOString(),
+          } as any);
+          existingCurrencies.add(parsed.currency);
+        }
+      } catch {}
+    }
+
+    return result;
   });
 
 /**

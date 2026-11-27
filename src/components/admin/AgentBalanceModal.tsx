@@ -71,8 +71,9 @@ export function AgentBalanceModal({ isOpen, onClose, user, onSuccess }: AgentBal
   const topupKey = `${activeCurrency}_RECARGAS`;
   const topupsWallet =
     userWallets.find((w) => w.currency === topupKey) ||
-    (activeCurrency === "HTG" ? userWallets.find((w) => w.currency === "HTG_RECARGAS") : null) ||
-    userWallets.find((w) => w.currency === "HTG_RECARGAS");
+    (activeCurrency === "HTG" || countryInfo.code === "HT"
+      ? userWallets.find((w) => w.currency === "HTG_RECARGAS")
+      : null);
 
   const transfersBalance =
     transfersWallet != null
@@ -228,7 +229,7 @@ export function AgentBalanceModal({ isOpen, onClose, user, onSuccess }: AgentBal
                 </div>
                 <p className="text-[10px] text-slate-600 font-medium mt-1">Saldo en {countryInfo.name}</p>
                 <p className="text-base font-black text-emerald-800 mt-1.5">
-                  {isLoadingWallets ? "..." : `${transfersBalance.toLocaleString()} ${transfersWallet?.currency || agentCurrency}`}
+                  {isLoadingWallets ? "..." : `${transfersBalance.toLocaleString()} ${agentCurrency}`}
                 </p>
               </button>
 

@@ -175,8 +175,8 @@ function Agente() {
   const topupsWallet = useMemo(
     () =>
       myWallets.find((w) => w.currency === `${agentCurrency}_RECARGAS`) ||
-      myWallets.find((w) => w.currency === "HTG_RECARGAS"),
-    [myWallets, agentCurrency],
+      (countryInfo.code === "HT" ? myWallets.find((w) => w.currency === "HTG_RECARGAS") : null),
+    [myWallets, agentCurrency, countryInfo.code],
   );
   const topupsBalance = Number(topupsWallet?.balance) || 0;
 
@@ -186,10 +186,10 @@ function Agente() {
         (w) =>
           w.currency !== activeTransfersCurrency &&
           w.currency !== `${agentCurrency}_RECARGAS` &&
-          w.currency !== "HTG_RECARGAS" &&
+          (countryInfo.code === "HT" ? w.currency !== "HTG_RECARGAS" : true) &&
           Number(w.balance) > 0,
       ),
-    [myWallets, activeTransfersCurrency, agentCurrency],
+    [myWallets, activeTransfersCurrency, agentCurrency, countryInfo.code],
   );
 
   const transfersBalanceLabel = isAdmin
