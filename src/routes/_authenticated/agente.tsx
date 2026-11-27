@@ -161,10 +161,10 @@ function Agente() {
 
   const transfersWallet = useMemo(() => {
     const countryW = myWallets.find((w) => w.currency === agentCurrency);
-    if (countryW && Number(countryW.balance) > 0) return countryW;
+    if (countryW) return countryW;
     const htgW = myWallets.find((w) => w.currency === "HTG");
-    if (htgW && Number(htgW.balance) > 0) return htgW;
-    return countryW || htgW || myWallets[0];
+    if (htgW) return htgW;
+    return myWallets[0];
   }, [myWallets, agentCurrency]);
 
   const topupsWallet = useMemo(
@@ -176,6 +176,17 @@ function Agente() {
   const rawTransfersBalance = Number(transfersWallet?.balance) || 0;
   const transfersBalance = rawTransfersBalance;
   const topupsBalance = Number(topupsWallet?.balance) || 0;
+
+  const otherWallets = useMemo(
+    () =>
+      myWallets.filter(
+        (w) =>
+          w.currency !== activeTransfersCurrency &&
+          w.currency !== "HTG_RECARGAS" &&
+          Number(w.balance) > 0,
+      ),
+    [myWallets, activeTransfersCurrency],
+  );
 
   const transfersBalanceLabel = isAdmin
     ? "Ilimitado (Admin)"
@@ -767,6 +778,16 @@ function Agente() {
               : `${countryInfo.flag} Saldo asignado en ${countryInfo.name} (${activeTransfersCurrency})`
           }
         />
+        {otherWallets.map((ow) => (
+          <StatCard
+            key={ow.id || ow.currency}
+            icon={Banknote}
+            label={`${t("agent.wallet_transfers")} (${ow.currency})`}
+            value={`${Number(ow.balance).toLocaleString()} ${ow.currency}`}
+            tone="text-emerald-800 font-black"
+            hint={`Saldo en billetera secundaria (${ow.currency})`}
+          />
+        ))}
         <StatCard
           icon={Smartphone}
           label={t("agent.wallet_topups")}

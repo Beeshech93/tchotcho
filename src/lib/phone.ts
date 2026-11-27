@@ -211,13 +211,7 @@ export function getCountryInfoFromPhone(
   const cleanPhone = (phone ?? "").replace(/\D/g, "");
   const upperCountry = (fallbackCountry ?? "").trim().toUpperCase();
 
-  // 1. Si el código de país está especificado directamente
-  if (upperCountry) {
-    const byCode = DIAL_COUNTRIES.find((c) => c.code === upperCountry);
-    if (byCode) return byCode;
-  }
-
-  // 2. Deducir por prefijo telefónico
+  // 1. Deducir primero por el prefijo internacional del número de teléfono (regla prioritaria)
   if (cleanPhone.startsWith("509")) {
     return DIAL_COUNTRIES.find((c) => c.code === "HT")!;
   }
@@ -283,6 +277,12 @@ export function getCountryInfoFromPhone(
     if (upperCountry === "DO") return DIAL_COUNTRIES.find((c) => c.code === "DO")!;
     if (upperCountry === "CA") return DIAL_COUNTRIES.find((c) => c.code === "CA")!;
     return DIAL_COUNTRIES.find((c) => c.code === "US")!;
+  }
+
+  // 2. Si el teléfono no tiene prefijo reconocible, usar el código de país de fallback
+  if (upperCountry) {
+    const byCode = DIAL_COUNTRIES.find((c) => c.code === upperCountry);
+    if (byCode) return byCode;
   }
 
   return (DIAL_COUNTRIES.find((c) => c.code === "HT") || DIAL_COUNTRIES[0])!;

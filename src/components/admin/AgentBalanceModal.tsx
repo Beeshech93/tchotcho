@@ -45,6 +45,7 @@ export function AgentBalanceModal({ isOpen, onClose, user, onSuccess }: AgentBal
   const [userWallets, setUserWallets] = useState<Array<{ currency: string; balance: number }>>([]);
   const [isLoadingWallets, setIsLoadingWallets] = useState(false);
   const [openHistory, setOpenHistory] = useState(false);
+  const [selectedCurrency, setSelectedCurrency] = useState<string>("");
 
   useEffect(() => {
     if (user?.id && isOpen) {
@@ -62,7 +63,11 @@ export function AgentBalanceModal({ isOpen, onClose, user, onSuccess }: AgentBal
   const agentCurrency =
     (user as any).balanceCurrency || (user as any).currency || countryInfo.currency;
 
+  const activeCurrency =
+    walletType === "topups" ? "HTG" : selectedCurrency || agentCurrency;
+
   const transfersWallet =
+    userWallets.find((w) => w.currency === activeCurrency) ||
     userWallets.find((w) => w.currency === agentCurrency) ||
     userWallets.find((w) => w.currency === "HTG");
   const topupsWallet = userWallets.find((w) => w.currency === "HTG_RECARGAS");
@@ -82,8 +87,6 @@ export function AgentBalanceModal({ isOpen, onClose, user, onSuccess }: AgentBal
     Boolean(user.parentSuperAgentName);
   const isClient = !isAgentOrSuper && (user.roles?.includes("client") || !user.roles?.length);
 
-  const activeCurrency =
-    walletType === "topups" ? "HTG" : transfersWallet?.currency || agentCurrency;
   const currentBalance = walletType === "topups" ? topupsBalance : transfersBalance;
   const numAmount = Number(amount) || 0;
   const expectedNewBalance = Math.max(0, currentBalance + numAmount);
@@ -245,13 +248,45 @@ export function AgentBalanceModal({ isOpen, onClose, user, onSuccess }: AgentBal
                 </p>
               </button>
             </div>
+
+            {/* Selector de Moneda de Operación para Billetera de Envíos */}
+            {walletType === "transfers" && (
+              <div className="pt-1 space-y-1">
+                <span className="text-[11px] font-bold text-slate-600 block">
+                  Moneda a acreditar:
+                </span>
+                <div className="flex flex-wrap items-center gap-1.5">
+                  {[
+                    { cur: agentCurrency, label: `${countryInfo.flag} ${agentCurrency} (${countryInfo.name})` },
+                    ...(agentCurrency !== "DOP" ? [{ cur: "DOP", label: "🇩🇴 DOP" }] : []),
+                    ...(agentCurrency !== "MXN" ? [{ cur: "MXN", label: "🇲🇽 MXN" }] : []),
+                    ...(agentCurrency !== "USD" ? [{ cur: "USD", label: "🇺🇸 USD" }] : []),
+                    ...(agentCurrency !== "CLP" ? [{ cur: "CLP", label: "🇨🇱 CLP" }] : []),
+                    ...(agentCurrency !== "HTG" ? [{ cur: "HTG", label: "🇭🇹 HTG" }] : []),
+                  ].map((item) => (
+                    <button
+                      key={item.cur}
+                      type="button"
+                      onClick={() => setSelectedCurrency(item.cur)}
+                      className={`px-2 py-0.5 rounded-lg text-xs font-bold transition border cursor-pointer ${
+                        activeCurrency === item.cur
+                          ? "bg-emerald-600 text-white border-emerald-600 shadow-xs"
+                          : "bg-slate-100 text-slate-700 hover:bg-slate-200 border-slate-200"
+                      }`}
+                    >
+                      {item.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Campo de Monto a Acreditar */}
           <div className="space-y-1.5">
             <div className="flex items-center justify-between">
               <Label className="text-xs text-slate-800 font-extrabold">
-                Monto a Acreditar ({walletType === "topups" ? "Billetera Recargas (HTG)" : `Billetera Envíos (${agentCurrency})`})
+                Monto a Acreditar ({walletType === "topups" ? "Billetera Recargas (HTG)" : `Billetera Envíos (${activeCurrency})`})
               </Label>
               <span className="text-[11px] text-slate-600 font-medium">
                 Saldo actual: <strong className="text-slate-900 font-black">{currentBalance.toLocaleString()} {activeCurrency}</strong>
