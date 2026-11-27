@@ -61,6 +61,7 @@ export function SuperAgentTransferModal({
 
   if (!agent) return null;
 
+  const opsCur = walletType === "topups" ? "HTG" : agent.currency || "HTG";
   const currentSuperBalance = walletType === "topups" ? superTopupsBalance : superTransfersBalance;
   const agentCurrentBalance = walletType === "topups" ? agent.balanceTopupsHTG : agent.balanceHTG;
   const numAmount = Number(amount) || 0;
@@ -79,13 +80,13 @@ export function SuperAgentTransferModal({
     }
 
     if (!numAmount || numAmount <= 0) {
-      toast.error("Por favor ingresa un monto válido mayor a 0 HTG.");
+      toast.error(`Por favor ingresa un monto válido mayor a 0 ${opsCur}.`);
       return;
     }
 
     if (!isAdmin && numAmount > currentSuperBalance) {
       toast.error(
-        `Saldo insuficiente en tu billetera. Solo dispones de ${currentSuperBalance.toLocaleString()} HTG. Como Super Agente, no puedes recargar a tus agentes sin saldo suficiente.`,
+        `Saldo insuficiente en tu billetera. Solo dispones de ${currentSuperBalance.toLocaleString()} ${opsCur}. Como Super Agente, no puedes recargar a tus agentes sin saldo suficiente.`,
       );
       return;
     }
@@ -146,7 +147,7 @@ export function SuperAgentTransferModal({
           </div>
           <p className="text-indigo-800/80 font-mono text-[11px]">{agent.phone || "Sin teléfono"}</p>
           <div className="flex items-center gap-2 pt-1 font-semibold text-slate-700">
-            <span>Saldo Envíos: <strong className="text-emerald-800">{agent.balanceHTG.toLocaleString()} HTG</strong></span>
+            <span>Saldo Envíos: <strong className="text-emerald-800">{agent.balanceHTG.toLocaleString()} {agent.currency || "HTG"}</strong></span>
             <span>·</span>
             <span>Saldo Recargas: <strong className="text-cyan-800">{agent.balanceTopupsHTG.toLocaleString()} HTG</strong></span>
           </div>
@@ -170,11 +171,11 @@ export function SuperAgentTransferModal({
               >
                 <div className="flex items-center gap-2">
                   <Banknote className="size-4 text-emerald-700" />
-                  <span className="font-bold text-xs">Envíos de Dinero</span>
+                  <span className="font-bold text-xs">Envíos ({agent.currency || "HTG"})</span>
                 </div>
-                <p className="text-[10px] text-slate-500 mt-1">MonCash / NatCash</p>
+                <p className="text-[10px] text-slate-500 mt-1">Remesas</p>
                 <p className="text-xs font-black text-emerald-800 mt-1">
-                  Tu saldo: {isAdmin ? "Ilimitado" : `${superTransfersBalance.toLocaleString()} HTG`}
+                  Tu saldo: {isAdmin ? "Ilimitado" : `${superTransfersBalance.toLocaleString()} ${agent.currency || "HTG"}`}
                 </p>
               </button>
 
@@ -189,7 +190,7 @@ export function SuperAgentTransferModal({
               >
                 <div className="flex items-center gap-2">
                   <Smartphone className="size-4 text-cyan-700" />
-                  <span className="font-bold text-xs">Recargas Telefónicas</span>
+                  <span className="font-bold text-xs">Recargas (HTG)</span>
                 </div>
                 <p className="text-[10px] text-slate-500 mt-1">Digicel / Natcom</p>
                 <p className="text-xs font-black text-cyan-800 mt-1">
@@ -215,7 +216,7 @@ export function SuperAgentTransferModal({
           {/* Input de Monto */}
           <div className="space-y-1.5">
             <Label htmlFor={amountId} className="text-xs font-bold text-slate-700">
-              Monto a transferir (HTG)
+              Monto a transferir ({opsCur})
             </Label>
             <div className="relative">
               <Input
@@ -230,7 +231,7 @@ export function SuperAgentTransferModal({
                 disabled={isSubmitting || (!isAdmin && currentSuperBalance <= 0)}
               />
               <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">
-                HTG
+                {opsCur}
               </span>
             </div>
 
@@ -248,7 +249,7 @@ export function SuperAgentTransferModal({
                       : "border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100 disabled:opacity-40 disabled:pointer-events-none"
                   }`}
                 >
-                  +{amt.toLocaleString()}
+                  +{amt.toLocaleString()} {opsCur}
                 </button>
               ))}
             </div>
@@ -259,25 +260,25 @@ export function SuperAgentTransferModal({
             <div className="flex justify-between items-center text-slate-600">
               <span>Tu saldo actual:</span>
               <span className="font-bold text-slate-800">
-                {isAdmin ? "Ilimitado" : `${currentSuperBalance.toLocaleString()} HTG`}
+                {isAdmin ? "Ilimitado" : `${currentSuperBalance.toLocaleString()} ${opsCur}`}
               </span>
             </div>
             <div className="flex justify-between items-center text-red-600 font-semibold">
               <span>Monto a debitar de tu saldo:</span>
-              <span>-{numAmount.toLocaleString()} HTG</span>
+              <span>-{numAmount.toLocaleString()} {opsCur}</span>
             </div>
             {!isAdmin && (
               <div className="flex justify-between items-center text-slate-700 pt-1 border-t border-slate-200">
                 <span>Tu saldo resultante:</span>
                 <span className={`font-black ${hasInsufficientBalance ? "text-red-600" : "text-emerald-800"}`}>
-                  {expectedSuperRemainder.toLocaleString()} HTG
+                  {expectedSuperRemainder.toLocaleString()} {opsCur}
                 </span>
               </div>
             )}
             <div className="flex justify-between items-center text-indigo-900 pt-1 border-t border-slate-200">
               <span>Nuevo saldo del agente ({agent.fullName.split(" ")[0]}):</span>
               <span className="font-black text-indigo-800">
-                {expectedAgentNewBal.toLocaleString()} HTG
+                {expectedAgentNewBal.toLocaleString()} {opsCur}
               </span>
             </div>
           </div>

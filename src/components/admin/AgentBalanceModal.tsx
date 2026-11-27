@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { adminAdjustAgentBalance, getAgentWallets } from "@/lib/agent-wallet.functions";
+import { getCountryInfoFromPhone } from "@/lib/phone";
 
 interface AgentBalanceModalProps {
   isOpen: boolean;
@@ -57,8 +58,15 @@ export function AgentBalanceModal({ isOpen, onClose, user, onSuccess }: AgentBal
 
   if (!user) return null;
 
-  const transfersWallet = userWallets.find((w) => w.currency === "HTG");
+  const countryInfo = getCountryInfoFromPhone(user.phone, (user as any).country);
+  const agentCurrency =
+    (user as any).balanceCurrency || (user as any).currency || countryInfo.currency;
+
+  const transfersWallet =
+    userWallets.find((w) => w.currency === agentCurrency) ||
+    userWallets.find((w) => w.currency === "HTG");
   const topupsWallet = userWallets.find((w) => w.currency === "HTG_RECARGAS");
+
   const transfersBalance =
     transfersWallet != null
       ? Number(transfersWallet.balance)
@@ -74,18 +82,14 @@ export function AgentBalanceModal({ isOpen, onClose, user, onSuccess }: AgentBal
     Boolean(user.parentSuperAgentName);
   const isClient = !isAgentOrSuper && (user.roles?.includes("client") || !user.roles?.length);
 
+  const activeCurrency =
+    walletType === "topups" ? "HTG" : transfersWallet?.currency || agentCurrency;
   const currentBalance = walletType === "topups" ? topupsBalance : transfersBalance;
   const numAmount = Number(amount) || 0;
   const expectedNewBalance = Math.max(0, currentBalance + numAmount);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (isClient) {
-      toast.error(
-        "Las cuentas clientes no necesitan saldo operativo. Primero asigna el rol de Agente a este usuario.",
-      );
-      return;
-    }
     if (!numAmount || numAmount <= 0) {
       toast.error("Por favor ingresa un monto válido mayor a 0.");
       return;
@@ -97,7 +101,7 @@ export function AgentBalanceModal({ isOpen, onClose, user, onSuccess }: AgentBal
         data: {
           agentUserId: user.id,
           amount: numAmount,
-          currency: "HTG",
+          currency: activeCurrency,
           walletType,
           description: description.trim() || undefined,
         },
@@ -142,12 +146,12 @@ export function AgentBalanceModal({ isOpen, onClose, user, onSuccess }: AgentBal
         <form onSubmit={handleSubmit} className="space-y-4 pt-2">
           {/* Alerta si es cuenta cliente */}
           {isClient && (
-            <div className="rounded-2xl border-2 border-amber-300 bg-amber-50 p-3 text-amber-950 flex items-start gap-2.5 shadow-2xs">
-              <ShieldAlert className="size-4 text-amber-700 shrink-0 mt-0.5" />
+            <div className="rounded-2xl border-2 border-emerald-300 bg-emerald-50 p-3 text-emerald-950 flex items-start gap-2.5 shadow-2xs">
+              <ShieldAlert className="size-4 text-emerald-700 shrink-0 mt-0.5" />
               <div className="text-xs">
-                <p className="font-bold text-amber-900">Cuenta de tipo Cliente</p>
-                <p className="text-amber-800 text-[11px] mt-0.5">
-                  Las cuentas clientes no necesitan saldo operativo. Para asignarle saldo a este usuario, primero cámbiale el rol a Agente o Super Agente usando el botón «Asignar Rol».
+                <p className="font-bold text-emerald-900">Cuenta de tipo Cliente</p>
+                <p className="text-emerald-800 text-[11px] mt-0.5">
+                  Al acreditar saldo operativo, este usuario se convertirá automáticamente en Agente autorizado para operar envíos de inmediato.
                 </p>
               </div>
             </div>
@@ -209,13 +213,13 @@ export function AgentBalanceModal({ isOpen, onClose, user, onSuccess }: AgentBal
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-1.5 text-emerald-800 font-black text-xs">
                     <Banknote className="size-4 text-emerald-700" />
-                    <span>Envíos de Dinero</span>
+                    <span>Envíos ({countryInfo.flag} {agentCurrency})</span>
                   </div>
                   {walletType === "transfers" && <span className="size-2 rounded-full bg-emerald-600 ring-2 ring-emerald-300" />}
                 </div>
-                <p className="text-[10px] text-slate-600 font-medium mt-1">Remesas MonCash / NatCash</p>
+                <p className="text-[10px] text-slate-600 font-medium mt-1">Saldo en {countryInfo.name}</p>
                 <p className="text-base font-black text-emerald-800 mt-1.5">
-                  {isLoadingWallets ? "..." : `${transfersBalance.toLocaleString()} HTG`}
+                  {isLoadingWallets ? "..." : `${transfersBalance.toLocaleString()} ${transfersWallet?.currency || agentCurrency}`}
                 </p>
               </button>
 
@@ -247,10 +251,10 @@ export function AgentBalanceModal({ isOpen, onClose, user, onSuccess }: AgentBal
           <div className="space-y-1.5">
             <div className="flex items-center justify-between">
               <Label className="text-xs text-slate-800 font-extrabold">
-                Monto a Acreditar ({walletType === "topups" ? "Billetera Recargas" : "Billetera Envíos"})
+                Monto a Acreditar ({walletType === "topups" ? "Billetera Recargas (HTG)" : `Billetera Envíos (${agentCurrency})`})
               </Label>
               <span className="text-[11px] text-slate-600 font-medium">
-                Saldo actual: <strong className="text-slate-900 font-black">{currentBalance.toLocaleString()} HTG</strong>
+                Saldo actual: <strong className="text-slate-900 font-black">{currentBalance.toLocaleString()} {activeCurrency}</strong>
               </span>
             </div>
             <div className="relative">
@@ -261,11 +265,11 @@ export function AgentBalanceModal({ isOpen, onClose, user, onSuccess }: AgentBal
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
                 placeholder="Ej. 10000"
-                className="bg-white border-2 border-slate-300 focus:border-emerald-600 text-slate-900 font-black text-base rounded-xl pl-3 pr-14"
+                className="bg-white border-2 border-slate-300 focus:border-emerald-600 text-slate-900 font-black text-base rounded-xl pl-3 pr-16"
                 required
               />
               <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-black text-emerald-700">
-                HTG
+                {activeCurrency}
               </span>
             </div>
           </div>
@@ -281,7 +285,7 @@ export function AgentBalanceModal({ isOpen, onClose, user, onSuccess }: AgentBal
                   onClick={() => setAmount(String(val))}
                   className="rounded-xl bg-slate-100 hover:bg-emerald-50 border-2 border-slate-200 hover:border-emerald-500 px-2.5 py-1 text-xs font-bold text-slate-800 hover:text-emerald-800 transition cursor-pointer"
                 >
-                  +{val.toLocaleString()} HTG
+                  +{val.toLocaleString()} {activeCurrency}
                 </button>
               ))}
             </div>
@@ -309,7 +313,7 @@ export function AgentBalanceModal({ isOpen, onClose, user, onSuccess }: AgentBal
               </span>
             </div>
             <span className="text-base font-black text-emerald-800">
-              {expectedNewBalance.toLocaleString()} HTG
+              {expectedNewBalance.toLocaleString()} {activeCurrency}
             </span>
           </div>
 
@@ -325,7 +329,7 @@ export function AgentBalanceModal({ isOpen, onClose, user, onSuccess }: AgentBal
             </Button>
             <Button
               type="submit"
-              disabled={isSubmitting || numAmount <= 0 || isClient}
+              disabled={isSubmitting || numAmount <= 0}
               className="bg-emerald-600 hover:bg-emerald-700 text-white font-black gap-2 rounded-xl shadow-md disabled:opacity-50"
             >
               <Coins className="size-4" />

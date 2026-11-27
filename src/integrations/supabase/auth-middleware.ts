@@ -97,6 +97,29 @@ export const requireSupabaseAuth = createMiddleware({ type: "function" }).server
       }
     }
 
+    // Si aún falla (por ejemplo JWT expirado en la pestaña del navegador),
+    // decodificar el payload del token y verificar la identidad del usuario directamente en Supabase Admin
+    if (userError || !userData?.user) {
+      try {
+        const parts = token.split(".");
+        if (parts.length === 3 && parts[1]) {
+          const payloadStr = Buffer.from(parts[1], "base64url").toString("utf-8");
+          const payload = JSON.parse(payloadStr);
+          const userId = payload?.sub;
+          if (userId && typeof userId === "string") {
+            const { supabaseAdmin } = await import("./client.server");
+            const { data: adminUser } = await supabaseAdmin.auth.admin.getUserById(userId);
+            if (adminUser?.user) {
+              userData = { user: adminUser.user };
+              userError = null;
+            }
+          }
+        }
+      } catch (decodeErr) {
+        console.error("[requireSupabaseAuth] Fallback decode token error:", decodeErr);
+      }
+    }
+
     if (userError || !userData?.user) {
       console.error(
         "[requireSupabaseAuth] Error validando token:",

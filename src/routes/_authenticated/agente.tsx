@@ -45,6 +45,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useProfile } from "@/hooks/useProfile";
 import { useI18n } from "@/lib/i18n";
 import { useWallets } from "@/hooks/useWallet";
+import { getCountryInfoFromPhone } from "@/lib/phone";
 import { bazikStatus } from "@/lib/bazik.functions";
 import {
   adminCancelTransfer,
@@ -143,6 +144,13 @@ function Agente() {
   const confirmCashByRef = useServerFn(agentConfirmCashPayment);
   const createTopupCheckout = useServerFn(dingCreateTopupCheckout);
 
+  const userPhone = profile?.phone || user?.phone;
+  const countryInfo = useMemo(
+    () => getCountryInfoFromPhone(userPhone, profile?.country),
+    [userPhone, profile?.country],
+  );
+  const agentCurrency = countryInfo.currency;
+
   const { data: countries } = useCountries();
   const { data: wallets } = useWallets();
 
@@ -151,22 +159,27 @@ function Agente() {
     [wallets, user?.id],
   );
 
-  const transfersWallet = useMemo(
-    () => myWallets.find((w) => w.currency === "HTG"),
-    [myWallets],
-  );
+  const transfersWallet = useMemo(() => {
+    const countryW = myWallets.find((w) => w.currency === agentCurrency);
+    if (countryW && Number(countryW.balance) > 0) return countryW;
+    const htgW = myWallets.find((w) => w.currency === "HTG");
+    if (htgW && Number(htgW.balance) > 0) return htgW;
+    return countryW || htgW || myWallets[0];
+  }, [myWallets, agentCurrency]);
+
   const topupsWallet = useMemo(
     () => myWallets.find((w) => w.currency === "HTG_RECARGAS"),
     [myWallets],
   );
 
+  const activeTransfersCurrency = transfersWallet?.currency || agentCurrency;
   const rawTransfersBalance = Number(transfersWallet?.balance) || 0;
   const transfersBalance = rawTransfersBalance;
   const topupsBalance = Number(topupsWallet?.balance) || 0;
 
   const transfersBalanceLabel = isAdmin
     ? "Ilimitado (Admin)"
-    : `${transfersBalance.toLocaleString()} HTG`;
+    : `${transfersBalance.toLocaleString()} ${activeTransfersCurrency}`;
   const topupsBalanceLabel = isAdmin
     ? "Ilimitado (Admin)"
     : `${topupsBalance.toLocaleString()} HTG`;
@@ -745,10 +758,14 @@ function Agente() {
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-6">
         <StatCard
           icon={Banknote}
-          label={t("agent.wallet_transfers")}
+          label={`${t("agent.wallet_transfers")} (${activeTransfersCurrency})`}
           value={transfersBalanceLabel}
           tone="text-emerald-800 font-black"
-          hint={isAdmin ? "Los administradores no requieren saldo" : "Saldo asignado para remesas MonCash/NatCash"}
+          hint={
+            isAdmin
+              ? "Los administradores no requieren saldo"
+              : `${countryInfo.flag} Saldo asignado en ${countryInfo.name} (${activeTransfersCurrency})`
+          }
         />
         <StatCard
           icon={Smartphone}
@@ -1167,7 +1184,7 @@ function Agente() {
                             </p>
                             <div className="flex flex-wrap items-center gap-2 mt-1.5 text-xs">
                               <span className="font-semibold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
-                                Saldo Envíos: {ag.balanceHTG.toLocaleString()} HTG
+                                Saldo Envíos: {ag.balanceHTG.toLocaleString()} {ag.currency || "HTG"}
                               </span>
                               <span className="font-semibold text-cyan-800 bg-cyan-50 px-2 py-0.5 rounded-md border border-cyan-200">
                                 Saldo Recargas: {ag.balanceTopupsHTG.toLocaleString()} HTG

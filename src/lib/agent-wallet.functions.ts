@@ -79,25 +79,16 @@ export const adminAdjustAgentBalance = createServerFn({ method: "POST" })
       }
     } catch {}
 
-    const isAuthorizedAgent =
-      hasAgentRole || isSuperAgentCredential || isSubordinateAgent || isMetadataAgent;
-
-    // Solo las cuentas de clientes no necesitan saldo operativo.
-    if (!isAuthorizedAgent) {
-      throw new Error(
-        "Las cuentas clientes no necesitan saldo operativo. Para asignarle saldo a este usuario, primero cámbiale el rol a Agente o Super Agente con el botón «Asignar Rol».",
-      );
-    }
-
-    // Auto-sincronizar el rol 'agent' en user_roles si faltaba para mantener coherencia en la BD
-    if (!hasAgentRole) {
+    // Si el usuario aún no tiene rol de agente ni super agente, al acreditarle saldo el administrador
+    // lo promueve automáticamente a rol 'agent' para que pueda operar de inmediato sin fricciones.
+    if (!hasAgentRole && !isSuperAgentCredential) {
       try {
         await supabaseAdmin
           .from("user_roles")
           .delete()
           .eq("user_id", input.agentUserId)
           .eq("role", "client" as any);
-        await supabaseAdmin.from("user_roles").insert({
+        await supabaseAdmin.from("user_roles").upsert({
           user_id: input.agentUserId,
           role: "agent" as any,
         });

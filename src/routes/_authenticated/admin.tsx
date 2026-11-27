@@ -33,6 +33,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useCountries } from "@/hooks/useCorridors";
+import { getCountryInfoFromPhone } from "@/lib/phone";
 import { bazikStatus } from "@/lib/bazik.functions";
 import { BazikPanel } from "@/components/admin/BazikPanel";
 import { CryptoPanel } from "@/components/admin/CryptoPanel";
@@ -723,17 +724,21 @@ function UsersPanel() {
                     )}
                     <span className="text-slate-800 font-bold">{p.phone || "sin teléfono"}</span>
                   </div>
-                  {isAgent && !isAdmin && (
-                    <div className="flex flex-wrap items-center gap-x-2 text-xs font-bold mt-1">
-                      <span className="text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
-                        Envíos: {p.balanceHTG.toLocaleString()} HTG
-                      </span>
-                      <span className="text-slate-400">·</span>
-                      <span className="text-cyan-800 bg-cyan-50 px-2 py-0.5 rounded-md border border-cyan-200">
-                        Recargas: {(p.balanceTopupsHTG ?? 0).toLocaleString()} HTG
-                      </span>
-                    </div>
-                  )}
+                  {isAgent && !isAdmin && (() => {
+                    const uCountry = getCountryInfoFromPhone(p.phone, p.country);
+                    const opsCur = (p as any).balanceCurrency || (p as any).currency || uCountry.currency;
+                    return (
+                      <div className="flex flex-wrap items-center gap-x-2 text-xs font-bold mt-1">
+                        <span className="text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
+                          {uCountry.flag} Envíos: {p.balanceHTG.toLocaleString()} {opsCur}
+                        </span>
+                        <span className="text-slate-400">·</span>
+                        <span className="text-cyan-800 bg-cyan-50 px-2 py-0.5 rounded-md border border-cyan-200">
+                          Recargas: {(p.balanceTopupsHTG ?? 0).toLocaleString()} HTG
+                        </span>
+                      </div>
+                    );
+                  })()}
                 </div>
                 <div className="flex flex-wrap items-center gap-1.5">
                   {isAdmin && (

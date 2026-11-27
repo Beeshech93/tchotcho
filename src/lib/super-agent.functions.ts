@@ -7,6 +7,8 @@ export interface SubordinateAgentRecord {
   fullName: string;
   email: string | null;
   phone: string | null;
+  country?: string | null;
+  currency?: string | null;
   commissionPercent: number;
   addedAt: string;
   balanceHTG: number;
@@ -159,10 +161,23 @@ export const getMySubordinateAgents = createServerFn({ method: "GET" })
     let totalCommissionsHTG = 0;
     let totalOperations = 0;
 
+    const { getCurrencyFromPhone } = await import("@/lib/phone");
+
     const agents: SubordinateAgentRecord[] = rawList.map((item) => {
       const p = profMap.get(item.id);
       const agentWallets = walletList.filter((w) => w.user_id === item.id);
-      const htgBal = Number(agentWallets.find((w) => w.currency === "HTG")?.balance ?? 0);
+      const targetCur = getCurrencyFromPhone(p?.phone, p?.country);
+      const targetW = agentWallets.find((w) => w.currency === targetCur);
+      const htgW = agentWallets.find((w) => w.currency === "HTG");
+      const activeW =
+        targetW && Number(targetW.balance) > 0
+          ? targetW
+          : htgW && Number(htgW.balance) > 0
+            ? htgW
+            : targetW || htgW;
+
+      const opsBal = activeW ? Number(activeW.balance) : 0;
+      const opsCur = activeW?.currency || targetCur;
       const topupBal = Number(agentWallets.find((w) => w.currency === "HTG_RECARGAS")?.balance ?? 0);
 
       const agentTxs = transferList.filter((t) => t.agent_id === item.id && t.status !== "cancelled");
@@ -185,9 +200,11 @@ export const getMySubordinateAgents = createServerFn({ method: "GET" })
         fullName: p?.full_name || "Agente",
         email: null,
         phone: p?.phone || null,
+        country: p?.country || "HT",
+        currency: opsCur,
         commissionPercent: commPct,
         addedAt: item.addedAt || new Date().toISOString(),
-        balanceHTG: htgBal,
+        balanceHTG: opsBal,
         balanceTopupsHTG: topupBal,
         totalTransfersCount: agentTxs.length,
         totalVolumeSend: Math.round(volSend * 100) / 100,

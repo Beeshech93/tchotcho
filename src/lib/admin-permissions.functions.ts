@@ -537,6 +537,8 @@ export interface AdminUserListItem {
   created_at?: string;
   roles: string[];
   balanceHTG: number;
+  balanceCurrency?: string;
+  currency?: string;
   balanceTopupsHTG?: number;
   parentSuperAgentId?: string | null;
   parentSuperAgentName?: string | null;
@@ -674,7 +676,23 @@ export const getAdminUsersList = createServerFn({ method: "GET" })
       const p = pRows.find((row) => row.id === u.id);
       const userRoles = rRows.filter((r) => r.user_id === u.id).map((r) => r.role);
       const userWallets = wRows.filter((w) => w.user_id === u.id);
-      let htgBal = userWallets.find((w) => w.currency === "HTG")?.balance ?? 0;
+
+      const userPhone = p?.phone || (u.user_metadata as any)?.phone || u.phone;
+      const userCountry = p?.country || (u.user_metadata as any)?.country || "HT";
+      const { getCurrencyFromPhone } = await import("@/lib/phone");
+      const targetCurrency = getCurrencyFromPhone(userPhone, userCountry);
+
+      const nationalWallet = userWallets.find((w) => w.currency === targetCurrency);
+      const htgWallet = userWallets.find((w) => w.currency === "HTG");
+      const activeOpsWallet =
+        nationalWallet && Number(nationalWallet.balance) > 0
+          ? nationalWallet
+          : htgWallet && Number(htgWallet.balance) > 0
+            ? htgWallet
+            : nationalWallet || htgWallet;
+
+      const opsBalance = activeOpsWallet ? Number(activeOpsWallet.balance) : 0;
+      const opsCurrency = activeOpsWallet?.currency || targetCurrency;
       const topupBal = userWallets.find((w) => w.currency === "HTG_RECARGAS")?.balance ?? 0;
 
       // Asegurar que administradores principales siempre tengan rol 'admin'
@@ -720,12 +738,14 @@ export const getAdminUsersList = createServerFn({ method: "GET" })
           (u.email ? u.email.split("@")[0] : "") ||
           "Usuario",
         phone: p?.phone || (u.user_metadata as any)?.phone || u.phone || null,
-        country: p?.country || "HT",
+        country: p?.country || (u.user_metadata as any)?.country || "HT",
         language: p?.language || "es",
         kyc_status: p?.kyc_status || (isMaster ? "approved" : "none"),
         created_at: p?.created_at || u.created_at,
         roles: finalRoles.length > 0 ? finalRoles : ["client"],
-        balanceHTG: Number(htgBal),
+        balanceHTG: Number(opsBalance),
+        balanceCurrency: opsCurrency,
+        currency: opsCurrency,
         balanceTopupsHTG: Number(topupBal),
         parentSuperAgentId: parentInfo?.superAgentId || null,
         parentSuperAgentName: parentInfo?.superAgentName || null,
@@ -740,7 +760,19 @@ export const getAdminUsersList = createServerFn({ method: "GET" })
           userRoles.push("super_agent");
         }
         const userWallets = wRows.filter((w) => w.user_id === p.id);
-        const htgBal = userWallets.find((w) => w.currency === "HTG")?.balance ?? 0;
+        const { getCurrencyFromPhone } = await import("@/lib/phone");
+        const targetCurrency = getCurrencyFromPhone(p.phone, p.country);
+        const nationalWallet = userWallets.find((w) => w.currency === targetCurrency);
+        const htgWallet = userWallets.find((w) => w.currency === "HTG");
+        const activeOpsWallet =
+          nationalWallet && Number(nationalWallet.balance) > 0
+            ? nationalWallet
+            : htgWallet && Number(htgWallet.balance) > 0
+              ? htgWallet
+              : nationalWallet || htgWallet;
+
+        const opsBalance = activeOpsWallet ? Number(activeOpsWallet.balance) : 0;
+        const opsCurrency = activeOpsWallet?.currency || targetCurrency;
         const topupBal = userWallets.find((w) => w.currency === "HTG_RECARGAS")?.balance ?? 0;
 
         const parentInfo = parentMap.get(p.id);
@@ -755,7 +787,9 @@ export const getAdminUsersList = createServerFn({ method: "GET" })
           kyc_status: p.kyc_status || "none",
           created_at: p.created_at,
           roles: userRoles.length > 0 ? userRoles : ["client"],
-          balanceHTG: Number(htgBal),
+          balanceHTG: Number(opsBalance),
+          balanceCurrency: opsCurrency,
+          currency: opsCurrency,
           balanceTopupsHTG: Number(topupBal),
           parentSuperAgentId: parentInfo?.superAgentId || null,
           parentSuperAgentName: parentInfo?.superAgentName || null,
