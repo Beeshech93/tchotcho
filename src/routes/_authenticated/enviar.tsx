@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useProfile } from "@/hooks/useProfile";
 import { useWallets } from "@/hooks/useWallet";
 import { useCountries, useRate, fallbackRate } from "@/hooks/useCorridors";
+import { getCountryInfoFromPhone } from "@/lib/phone";
 import { useServicesConfig } from "@/hooks/useServicesConfig";
 import { agentCreateCashTransfer } from "@/lib/transfers.functions";
 import { Button } from "@/components/ui/button";
@@ -75,7 +76,14 @@ function Enviar() {
     [t],
   );
 
+  const userPhone = profile?.phone || user?.phone;
+  const userCountryInfo = useMemo(
+    () => getCountryInfoFromPhone(userPhone, profile?.country),
+    [userPhone, profile?.country],
+  );
+
   const [origin, setOrigin] = useState("MX");
+  const [hasSetDefaultOrigin, setHasSetDefaultOrigin] = useState(false);
   const [destination, setDestination] = useState("HT");
   const [amount, setAmount] = useState("2000");
   const [payment, setPayment] = useState("card");
@@ -95,6 +103,16 @@ function Enviar() {
 
   const origins = (countries ?? []).filter((c) => c.is_origin);
   const destinations = (countries ?? []).filter((c) => c.is_destination && c.code !== "DO");
+
+  useEffect(() => {
+    if (!hasSetDefaultOrigin && origins.length > 0) {
+      if (userCountryInfo.code && origins.some((c) => c.code === userCountryInfo.code)) {
+        setOrigin(userCountryInfo.code);
+        setPayment(paymentMethods(userCountryInfo.code)[0]?.value ?? "card");
+        setHasSetDefaultOrigin(true);
+      }
+    }
+  }, [hasSetDefaultOrigin, userCountryInfo.code, origins]);
   const originCountry = origins.find((c) => c.code === origin);
   const destCountry = destinations.find((c) => c.code === destination);
 

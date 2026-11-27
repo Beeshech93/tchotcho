@@ -1,63 +1,69 @@
-export type DialCountry = { code: string; name: string; dial: string; flag: string };
+export type DialCountry = {
+  code: string;
+  name: string;
+  dial: string;
+  flag: string;
+  currency: string;
+};
 
-/** Códigos telefónicos internacionales (cualquier país puede registrarse). */
+/** Códigos telefónicos internacionales y sus monedas oficiales. */
 export const DIAL_COUNTRIES: DialCountry[] = [
-  { code: "HT", name: "Haïti", dial: "+509", flag: "🇭🇹" },
-  { code: "DO", name: "República Dominicana", dial: "+1", flag: "🇩🇴" },
-  { code: "MX", name: "México", dial: "+52", flag: "🇲🇽" },
-  { code: "US", name: "United States", dial: "+1", flag: "🇺🇸" },
-  { code: "CA", name: "Canada", dial: "+1", flag: "🇨🇦" },
-  { code: "AR", name: "Argentina", dial: "+54", flag: "🇦🇷" },
-  { code: "BO", name: "Bolivia", dial: "+591", flag: "🇧🇴" },
-  { code: "BR", name: "Brasil", dial: "+55", flag: "🇧🇷" },
-  { code: "CL", name: "Chile", dial: "+56", flag: "🇨🇱" },
-  { code: "CO", name: "Colombia", dial: "+57", flag: "🇨🇴" },
-  { code: "CR", name: "Costa Rica", dial: "+506", flag: "🇨🇷" },
-  { code: "CU", name: "Cuba", dial: "+53", flag: "🇨🇺" },
-  { code: "EC", name: "Ecuador", dial: "+593", flag: "🇪🇨" },
-  { code: "SV", name: "El Salvador", dial: "+503", flag: "🇸🇻" },
-  { code: "GT", name: "Guatemala", dial: "+502", flag: "🇬🇹" },
-  { code: "HN", name: "Honduras", dial: "+504", flag: "🇭🇳" },
-  { code: "JM", name: "Jamaica", dial: "+1", flag: "🇯🇲" },
-  { code: "NI", name: "Nicaragua", dial: "+505", flag: "🇳🇮" },
-  { code: "PA", name: "Panamá", dial: "+507", flag: "🇵🇦" },
-  { code: "PY", name: "Paraguay", dial: "+595", flag: "🇵🇾" },
-  { code: "PE", name: "Perú", dial: "+51", flag: "🇵🇪" },
-  { code: "PR", name: "Puerto Rico", dial: "+1", flag: "🇵🇷" },
-  { code: "UY", name: "Uruguay", dial: "+598", flag: "🇺🇾" },
-  { code: "VE", name: "Venezuela", dial: "+58", flag: "🇻🇪" },
-  { code: "ES", name: "España", dial: "+34", flag: "🇪🇸" },
-  { code: "FR", name: "France", dial: "+33", flag: "🇫🇷" },
-  { code: "DE", name: "Deutschland", dial: "+49", flag: "🇩🇪" },
-  { code: "IT", name: "Italia", dial: "+39", flag: "🇮🇹" },
-  { code: "PT", name: "Portugal", dial: "+351", flag: "🇵🇹" },
-  { code: "NL", name: "Nederland", dial: "+31", flag: "🇳🇱" },
-  { code: "BE", name: "Belgique", dial: "+32", flag: "🇧🇪" },
-  { code: "CH", name: "Schweiz", dial: "+41", flag: "🇨🇭" },
-  { code: "AT", name: "Österreich", dial: "+43", flag: "🇦🇹" },
-  { code: "GB", name: "United Kingdom", dial: "+44", flag: "🇬🇧" },
-  { code: "IE", name: "Ireland", dial: "+353", flag: "🇮🇪" },
-  { code: "SE", name: "Sverige", dial: "+46", flag: "🇸🇪" },
-  { code: "NO", name: "Norge", dial: "+47", flag: "🇳🇴" },
-  { code: "DK", name: "Danmark", dial: "+45", flag: "🇩🇰" },
-  { code: "FI", name: "Suomi", dial: "+358", flag: "🇫🇮" },
-  { code: "PL", name: "Polska", dial: "+48", flag: "🇵🇱" },
-  { code: "CZ", name: "Česko", dial: "+420", flag: "🇨🇿" },
-  { code: "RO", name: "România", dial: "+40", flag: "🇷🇴" },
-  { code: "GR", name: "Ελλάδα", dial: "+30", flag: "🇬🇷" },
-  { code: "TR", name: "Türkiye", dial: "+90", flag: "🇹🇷" },
-  { code: "MA", name: "Maroc", dial: "+212", flag: "🇲🇦" },
-  { code: "SN", name: "Sénégal", dial: "+221", flag: "🇸🇳" },
-  { code: "CI", name: "Côte d'Ivoire", dial: "+225", flag: "🇨🇮" },
-  { code: "CD", name: "RD Congo", dial: "+243", flag: "🇨🇩" },
-  { code: "NG", name: "Nigeria", dial: "+234", flag: "🇳🇬" },
-  { code: "ZA", name: "South Africa", dial: "+27", flag: "🇿🇦" },
-  { code: "AE", name: "الإمارات", dial: "+971", flag: "🇦🇪" },
-  { code: "IN", name: "India", dial: "+91", flag: "🇮🇳" },
-  { code: "PH", name: "Philippines", dial: "+63", flag: "🇵🇭" },
-  { code: "CN", name: "中国", dial: "+86", flag: "🇨🇳" },
-  { code: "JP", name: "日本", dial: "+81", flag: "🇯🇵" },
-  { code: "AU", name: "Australia", dial: "+61", flag: "🇦🇺" },
+  { code: "HT", name: "Haïti", dial: "+509", flag: "🇭🇹", currency: "HTG" },
+  { code: "DO", name: "República Dominicana", dial: "+1", flag: "🇩🇴", currency: "DOP" },
+  { code: "MX", name: "México", dial: "+52", flag: "🇲🇽", currency: "MXN" },
+  { code: "US", name: "United States", dial: "+1", flag: "🇺🇸", currency: "USD" },
+  { code: "CA", name: "Canada", dial: "+1", flag: "🇨🇦", currency: "CAD" },
+  { code: "AR", name: "Argentina", dial: "+54", flag: "🇦🇷", currency: "ARS" },
+  { code: "BO", name: "Bolivia", dial: "+591", flag: "🇧🇴", currency: "BOB" },
+  { code: "BR", name: "Brasil", dial: "+55", flag: "🇧🇷", currency: "BRL" },
+  { code: "CL", name: "Chile", dial: "+56", flag: "🇨🇱", currency: "CLP" },
+  { code: "CO", name: "Colombia", dial: "+57", flag: "🇨🇴", currency: "COP" },
+  { code: "CR", name: "Costa Rica", dial: "+506", flag: "🇨🇷", currency: "CRC" },
+  { code: "CU", name: "Cuba", dial: "+53", flag: "🇨🇺", currency: "CUP" },
+  { code: "EC", name: "Ecuador", dial: "+593", flag: "🇪🇨", currency: "USD" },
+  { code: "SV", name: "El Salvador", dial: "+503", flag: "🇸🇻", currency: "USD" },
+  { code: "GT", name: "Guatemala", dial: "+502", flag: "🇬🇹", currency: "GTQ" },
+  { code: "HN", name: "Honduras", dial: "+504", flag: "🇭🇳", currency: "HNL" },
+  { code: "JM", name: "Jamaica", dial: "+1", flag: "🇯🇲", currency: "JMD" },
+  { code: "NI", name: "Nicaragua", dial: "+505", flag: "🇳🇮", currency: "NIO" },
+  { code: "PA", name: "Panamá", dial: "+507", flag: "🇵🇦", currency: "USD" },
+  { code: "PY", name: "Paraguay", dial: "+595", flag: "🇵🇾", currency: "PYG" },
+  { code: "PE", name: "Perú", dial: "+51", flag: "🇵🇪", currency: "PEN" },
+  { code: "PR", name: "Puerto Rico", dial: "+1", flag: "🇵🇷", currency: "USD" },
+  { code: "UY", name: "Uruguay", dial: "+598", flag: "🇺🇾", currency: "UYU" },
+  { code: "VE", name: "Venezuela", dial: "+58", flag: "🇻🇪", currency: "USD" },
+  { code: "ES", name: "España", dial: "+34", flag: "🇪🇸", currency: "EUR" },
+  { code: "FR", name: "France", dial: "+33", flag: "🇫🇷", currency: "EUR" },
+  { code: "DE", name: "Deutschland", dial: "+49", flag: "🇩🇪", currency: "EUR" },
+  { code: "IT", name: "Italia", dial: "+39", flag: "🇮🇹", currency: "EUR" },
+  { code: "PT", name: "Portugal", dial: "+351", flag: "🇵🇹", currency: "EUR" },
+  { code: "NL", name: "Nederland", dial: "+31", flag: "🇳🇱", currency: "EUR" },
+  { code: "BE", name: "Belgique", dial: "+32", flag: "🇧🇪", currency: "EUR" },
+  { code: "CH", name: "Schweiz", dial: "+41", flag: "🇨🇭", currency: "CHF" },
+  { code: "AT", name: "Österreich", dial: "+43", flag: "🇦🇹", currency: "EUR" },
+  { code: "GB", name: "United Kingdom", dial: "+44", flag: "🇬🇧", currency: "GBP" },
+  { code: "IE", name: "Ireland", dial: "+353", flag: "🇮🇪", currency: "EUR" },
+  { code: "SE", name: "Sverige", dial: "+46", flag: "🇸🇪", currency: "SEK" },
+  { code: "NO", name: "Norge", dial: "+47", flag: "🇳🇴", currency: "NOK" },
+  { code: "DK", name: "Danmark", dial: "+45", flag: "🇩🇰", currency: "DKK" },
+  { code: "FI", name: "Suomi", dial: "+358", flag: "🇫🇮", currency: "EUR" },
+  { code: "PL", name: "Polska", dial: "+48", flag: "🇵🇱", currency: "PLN" },
+  { code: "CZ", name: "Česko", dial: "+420", flag: "🇨🇿", currency: "CZK" },
+  { code: "RO", name: "România", dial: "+40", flag: "🇷🇴", currency: "RON" },
+  { code: "GR", name: "Ελλάδα", dial: "+30", flag: "🇬🇷", currency: "EUR" },
+  { code: "TR", name: "Türkiye", dial: "+90", flag: "🇹🇷", currency: "TRY" },
+  { code: "MA", name: "Maroc", dial: "+212", flag: "🇲🇦", currency: "MAD" },
+  { code: "SN", name: "Sénégal", dial: "+221", flag: "🇸🇳", currency: "XOF" },
+  { code: "CI", name: "Côte d'Ivoire", dial: "+225", flag: "🇨🇮", currency: "XOF" },
+  { code: "CD", name: "RD Congo", dial: "+243", flag: "🇨🇩", currency: "CDF" },
+  { code: "NG", name: "Nigeria", dial: "+234", flag: "🇳🇬", currency: "NGN" },
+  { code: "ZA", name: "South Africa", dial: "+27", flag: "🇿🇦", currency: "ZAR" },
+  { code: "AE", name: "الإمارات", dial: "+971", flag: "🇦🇪", currency: "AED" },
+  { code: "IN", name: "India", dial: "+91", flag: "🇮🇳", currency: "INR" },
+  { code: "PH", name: "Philippines", dial: "+63", flag: "🇵🇭", currency: "PHP" },
+  { code: "CN", name: "中国", dial: "+86", flag: "🇨🇳", currency: "CNY" },
+  { code: "JP", name: "日本", dial: "+81", flag: "🇯🇵", currency: "JPY" },
+  { code: "AU", name: "Australia", dial: "+61", flag: "🇦🇺", currency: "AUD" },
 ];
 
 /** Longitud (dígitos del número nacional) esperada por país. */
@@ -192,4 +198,103 @@ export function toE164(dial: string, local: string): string | null {
   if (digits.length < 5 || digits.length > 14) return null;
   const full = `+${prefix}${digits}`;
   return /^\+[1-9]\d{6,15}$/.test(full) ? full : null;
+}
+
+/**
+ * Obtiene la información oficial del país (código, nombre, bandera y moneda)
+ * a partir del número de teléfono o código de país.
+ */
+export function getCountryInfoFromPhone(
+  phone?: string | null,
+  fallbackCountry?: string | null,
+): DialCountry {
+  const cleanPhone = (phone ?? "").replace(/\D/g, "");
+  const upperCountry = (fallbackCountry ?? "").trim().toUpperCase();
+
+  // 1. Si el código de país está especificado directamente
+  if (upperCountry) {
+    const byCode = DIAL_COUNTRIES.find((c) => c.code === upperCountry);
+    if (byCode) return byCode;
+  }
+
+  // 2. Deducir por prefijo telefónico
+  if (cleanPhone.startsWith("509")) {
+    return DIAL_COUNTRIES.find((c) => c.code === "HT")!;
+  }
+  if (
+    cleanPhone.startsWith("1809") ||
+    cleanPhone.startsWith("1829") ||
+    cleanPhone.startsWith("1849") ||
+    cleanPhone.startsWith("809") ||
+    cleanPhone.startsWith("829") ||
+    cleanPhone.startsWith("849")
+  ) {
+    return DIAL_COUNTRIES.find((c) => c.code === "DO")!;
+  }
+  if (cleanPhone.startsWith("52")) {
+    return DIAL_COUNTRIES.find((c) => c.code === "MX")!;
+  }
+  if (cleanPhone.startsWith("56")) {
+    return DIAL_COUNTRIES.find((c) => c.code === "CL")!;
+  }
+  if (cleanPhone.startsWith("55")) {
+    return DIAL_COUNTRIES.find((c) => c.code === "BR")!;
+  }
+  if (cleanPhone.startsWith("57")) {
+    return DIAL_COUNTRIES.find((c) => c.code === "CO")!;
+  }
+  if (cleanPhone.startsWith("54")) {
+    return DIAL_COUNTRIES.find((c) => c.code === "AR")!;
+  }
+  if (cleanPhone.startsWith("51")) {
+    return DIAL_COUNTRIES.find((c) => c.code === "PE")!;
+  }
+  if (cleanPhone.startsWith("506")) {
+    return DIAL_COUNTRIES.find((c) => c.code === "CR")!;
+  }
+  if (cleanPhone.startsWith("502")) {
+    return DIAL_COUNTRIES.find((c) => c.code === "GT")!;
+  }
+  if (cleanPhone.startsWith("504")) {
+    return DIAL_COUNTRIES.find((c) => c.code === "HN")!;
+  }
+  if (cleanPhone.startsWith("505")) {
+    return DIAL_COUNTRIES.find((c) => c.code === "NI")!;
+  }
+  if (cleanPhone.startsWith("503")) {
+    return DIAL_COUNTRIES.find((c) => c.code === "SV")!;
+  }
+  if (cleanPhone.startsWith("507")) {
+    return DIAL_COUNTRIES.find((c) => c.code === "PA")!;
+  }
+  if (cleanPhone.startsWith("593")) {
+    return DIAL_COUNTRIES.find((c) => c.code === "EC")!;
+  }
+  if (cleanPhone.startsWith("34")) {
+    return DIAL_COUNTRIES.find((c) => c.code === "ES")!;
+  }
+  if (cleanPhone.startsWith("33")) {
+    return DIAL_COUNTRIES.find((c) => c.code === "FR")!;
+  }
+  if (cleanPhone.startsWith("44")) {
+    return DIAL_COUNTRIES.find((c) => c.code === "GB")!;
+  }
+  if (cleanPhone.startsWith("1")) {
+    if (upperCountry === "DO") return DIAL_COUNTRIES.find((c) => c.code === "DO")!;
+    if (upperCountry === "CA") return DIAL_COUNTRIES.find((c) => c.code === "CA")!;
+    return DIAL_COUNTRIES.find((c) => c.code === "US")!;
+  }
+
+  return (DIAL_COUNTRIES.find((c) => c.code === "HT") || DIAL_COUNTRIES[0])!;
+}
+
+/**
+ * Obtiene el código de moneda oficial (ej. DOP, MXN, USD, HTG, CLP) según el número de teléfono del usuario.
+ */
+export function getCurrencyFromPhone(
+  phone?: string | null,
+  fallbackCountry?: string | null,
+): string {
+  const info = getCountryInfoFromPhone(phone, fallbackCountry);
+  return info.currency || "HTG";
 }

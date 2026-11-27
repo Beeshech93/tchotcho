@@ -20,7 +20,23 @@ export type WalletTx = {
   created_at: string;
 };
 
-export const WALLET_CURRENCIES = ["HTG", "HTG_RECARGAS"] as const;
+export const WALLET_CURRENCIES = [
+  "HTG",
+  "HTG_RECARGAS",
+  "DOP",
+  "MXN",
+  "USD",
+  "CAD",
+  "CLP",
+  "BRL",
+  "COP",
+  "ARS",
+  "PEN",
+  "CRC",
+  "EUR",
+  "GBP",
+  "CHF",
+] as const;
 
 export function useWallets() {
   return useQuery({

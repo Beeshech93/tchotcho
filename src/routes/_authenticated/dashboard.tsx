@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import {
   ArrowRight,
   Eye,
@@ -16,6 +16,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useProfile } from "@/hooks/useProfile";
 import { useCountries, useRate } from "@/hooks/useCorridors";
 import { useWallets } from "@/hooks/useWallet";
+import { getCountryInfoFromPhone } from "@/lib/phone";
+import { ensureUserCountryWallet } from "@/lib/agent-wallet.functions";
 import { Button } from "@/components/ui/button";
 import { SocialLinks } from "@/components/SocialLinks";
 import { shortDate } from "@/lib/remesa";
@@ -72,19 +74,42 @@ export function Dashboard() {
     },
   });
 
-  const { data: wallets } = useWallets();
-
-  // Billetera 100% en HTG (Gourdes Haitianas) real
-  const walletHtg = (wallets ?? []).reduce(
-    (sum, w) => sum + (w.currency === "HTG" ? Number(w.balance) : 0),
-    0,
+  const userPhone = profile?.phone || user?.phone;
+  const countryInfo = useMemo(
+    () => getCountryInfoFromPhone(userPhone, profile?.country),
+    [userPhone, profile?.country],
   );
+  const preferredCurrency = countryInfo.currency;
 
-  const totalHtg = walletHtg;
+  const ensureCountryWalletFn = useServerFn(ensureUserCountryWallet);
+  const { data: wallets, refetch: refetchWallets } = useWallets();
+
+  // Asegurar que el usuario tenga creada la billetera correspondiente a su país y teléfono
+  useEffect(() => {
+    if (user?.id && wallets && !wallets.some((w) => w.currency === preferredCurrency)) {
+      ensureCountryWalletFn()
+        .then(() => refetchWallets())
+        .catch(() => {});
+    }
+  }, [user?.id, wallets, preferredCurrency, ensureCountryWalletFn, refetchWallets]);
+
+  // Billetera principal en la moneda del país del teléfono del usuario
+  const primaryWallet = useMemo(() => {
+    if (!wallets || wallets.length === 0) return null;
+    return (
+      wallets.find((w) => w.currency === preferredCurrency) ||
+      wallets.find((w) => w.currency === "HTG") ||
+      wallets.find((w) => !w.currency.includes("RECARGAS")) ||
+      wallets[0]
+    );
+  }, [wallets, preferredCurrency]);
+
+  const activeCurrency = primaryWallet?.currency || preferredCurrency;
+  const activeBalance = Number(primaryWallet?.balance || 0);
 
   const formattedBalance = isAdmin
     ? "Ilimitado (Admin)"
-    : `HTG ${totalHtg.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    : `${activeCurrency} ${activeBalance.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
   const displayName = profile?.full_name?.split(" ")[0] || "Usuario";
 
@@ -179,14 +204,18 @@ export function Dashboard() {
           </div>
 
           <div className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 border border-emerald-200 px-3.5 py-1.5 text-xs font-bold text-[#15803D] shadow-xs">
-            <span>{isAdmin ? "👑 Administrador (Sin límite de saldo)" : `🇭🇹 ${t("dash.htg_wallet")}`}</span>
+            <span>
+              {isAdmin
+                ? "👑 Administrador (Sin límite de saldo)"
+                : `${countryInfo.flag} Billetera en ${activeCurrency} (${countryInfo.name})`}
+            </span>
           </div>
         </div>
 
-        {/* Saldo Central Grande 100% en HTG */}
+        {/* Saldo Central Grande en la moneda del país del usuario */}
         <div className="space-y-1 relative z-10">
           <p className="text-xs font-bold uppercase tracking-wider text-slate-500">
-            {isAdmin ? "Saldo Operativo Administrador" : t("dash.available_balance_htg")}
+            {isAdmin ? "Saldo Operativo Administrador" : `Saldo Disponible (${activeCurrency})`}
           </p>
           <div className="flex items-center gap-3">
             <span className="text-4xl sm:text-5xl font-black tracking-tight text-[#15803D]">

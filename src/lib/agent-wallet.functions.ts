@@ -382,3 +382,58 @@ export const ensureMyAgentWallets = createServerFn({ method: "POST" })
 
     return data ?? [];
   });
+
+/**
+ * Asegura que el usuario tenga creada la billetera correspondiente a la moneda de su número de teléfono / país.
+ */
+export const ensureUserCountryWallet = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { getCurrencyFromPhone } = await import("@/lib/phone");
+
+    const { data: profile } = await supabaseAdmin
+      .from("profiles")
+      .select("phone, country")
+      .eq("id", context.userId)
+      .maybeSingle();
+
+    let userPhone = profile?.phone;
+    let userCountry = profile?.country;
+
+    if (!userPhone) {
+      try {
+        const { data: uData } = await supabaseAdmin.auth.admin.getUserById(context.userId);
+        userPhone = uData?.user?.phone || (uData?.user?.user_metadata as any)?.phone;
+        userCountry = userCountry || (uData?.user?.user_metadata as any)?.country;
+      } catch {}
+    }
+
+    const targetCurrency = getCurrencyFromPhone(userPhone, userCountry);
+
+    const { data: existing } = await supabaseAdmin
+      .from("wallets")
+      .select("currency")
+      .eq("user_id", context.userId);
+
+    const hasTargetWallet = existing?.some((w) => w.currency === targetCurrency);
+    if (!hasTargetWallet) {
+      await supabaseAdmin.from("wallets").insert({
+        user_id: context.userId,
+        currency: targetCurrency,
+        balance: 0,
+        status: "active",
+      });
+    }
+
+    const { data: allWallets } = await supabaseAdmin
+      .from("wallets")
+      .select("*")
+      .eq("user_id", context.userId)
+      .order("created_at");
+
+    return {
+      primaryCurrency: targetCurrency,
+      wallets: allWallets ?? [],
+    };
+  });

@@ -188,7 +188,7 @@ function AuthPage() {
         const { data: s } = await supabase.auth.getSession();
         const activeUser = s.session?.user || signUpData?.user;
 
-        // Si se obtuvo usuario o sesión, asegurar guardado en profiles
+        // Si se obtuvo usuario o sesión, asegurar guardado en profiles y billetera en la moneda de su país
         if (activeUser) {
           try {
             await supabase.from("profiles").upsert(
@@ -201,8 +201,15 @@ function AuthPage() {
               },
               { onConflict: "id" },
             );
+            const targetCur = country?.currency || "HTG";
+            await supabase.from("wallets").insert({
+              user_id: activeUser.id,
+              currency: targetCur,
+              balance: 0,
+              status: "active",
+            });
           } catch {
-            // Ignorar si se maneja por trigger
+            // Ignorar si ya existe o se maneja por trigger
           }
         }
 
