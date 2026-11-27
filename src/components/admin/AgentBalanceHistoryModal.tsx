@@ -258,12 +258,12 @@ export function AgentBalanceHistoryModal({
                         <Badge
                           variant="outline"
                           className={
-                            item.currency === "HTG_RECARGAS"
+                            item.currency.includes("RECARGAS")
                               ? "bg-cyan-50 text-cyan-800 border-2 border-cyan-200 text-[10px] font-bold"
                               : "bg-emerald-50 text-emerald-800 border-2 border-emerald-200 text-[10px] font-bold"
                           }
                         >
-                          {item.currency === "HTG_RECARGAS" ? "📱 Recargas" : "💸 Envíos"}
+                          {item.currency.includes("RECARGAS") ? "📱 Recargas" : "💸 Envíos"}
                         </Badge>
                       </div>
 
@@ -286,7 +286,7 @@ export function AgentBalanceHistoryModal({
                     >
                       {isPositive ? `+${item.amount.toLocaleString()}` : item.amount.toLocaleString()}{" "}
                       <span className="text-xs font-bold">
-                        {item.currency === "HTG_RECARGAS" ? "HTG" : item.currency}
+                        {item.currency.replace("_RECARGAS", "")}
                       </span>
                     </p>
                   </div>

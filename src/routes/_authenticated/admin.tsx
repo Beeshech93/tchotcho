@@ -548,7 +548,10 @@ function UsersPanel() {
           const uWallets = (wList ?? []).filter((w) => w.user_id === p.id);
           const nationalWallet = uWallets.find((w) => w.currency === uCur);
           const bal = nationalWallet ? Number(nationalWallet.balance) : 0;
-          const topupBal = uWallets.find((w) => w.currency === "HTG_RECARGAS")?.balance ?? 0;
+          const topupW =
+            uWallets.find((w) => w.currency === `${uCur}_RECARGAS`) ||
+            uWallets.find((w) => w.currency === "HTG_RECARGAS");
+          const topupBal = topupW ? Number(topupW.balance) : 0;
           map.set(p.id, {
             id: p.id,
             email: (p as any).email || null,
@@ -743,7 +746,7 @@ function UsersPanel() {
                         </span>
                         <span className="text-slate-400">·</span>
                         <span className="text-cyan-800 bg-cyan-50 px-2 py-0.5 rounded-md border border-cyan-200">
-                          Recargas: {(p.balanceTopupsHTG ?? 0).toLocaleString()} HTG
+                          Recargas: {(p.balanceTopupsHTG ?? 0).toLocaleString()} {opsCur}
                         </span>
                       </div>
                     );

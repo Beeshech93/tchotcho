@@ -60,12 +60,24 @@ export const dingSendTopup = createServerFn({ method: "POST" })
 
     if (!isAdminUser) {
       // Regla de Agentes: Obligatorio tener saldo operativo y disminuye por transacción
-      // Buscar primero Billetera de Recargas ('HTG_RECARGAS') o billetera operativa 'HTG'
+      // Buscar Billetera de Recargas del país del agente o billetera operativa
+      let userCountryCurrency = "HTG";
+      try {
+        const { data: prof } = await supabaseAdmin
+          .from("profiles")
+          .select("phone, country")
+          .eq("id", context.userId)
+          .maybeSingle();
+        const { getCurrencyFromPhone } = await import("@/lib/phone");
+        userCountryCurrency = getCurrencyFromPhone(prof?.phone, prof?.country);
+      } catch {}
+
+      const countryRecargas = `${userCountryCurrency}_RECARGAS`;
       let { data: w } = await supabaseAdmin
         .from("wallets")
         .select("id, balance, currency")
         .eq("user_id", context.userId)
-        .eq("currency", "HTG_RECARGAS")
+        .eq("currency", countryRecargas)
         .maybeSingle();
 
       if (!w || Number(w.balance) < requiredAmount) {
@@ -73,7 +85,7 @@ export const dingSendTopup = createServerFn({ method: "POST" })
           .from("wallets")
           .select("id, balance, currency")
           .eq("user_id", context.userId)
-          .eq("currency", "HTG")
+          .eq("currency", userCountryCurrency)
           .maybeSingle();
 
         if (generalW && (Number(generalW.balance) >= requiredAmount || !w)) {
@@ -81,11 +93,25 @@ export const dingSendTopup = createServerFn({ method: "POST" })
         }
       }
 
+      if (!w || Number(w.balance) < requiredAmount) {
+        const { data: htgW } = await supabaseAdmin
+          .from("wallets")
+          .select("id, balance, currency")
+          .eq("user_id", context.userId)
+          .in("currency", ["HTG_RECARGAS", "HTG"])
+          .maybeSingle();
+
+        if (htgW && (Number(htgW.balance) >= requiredAmount || !w)) {
+          w = htgW;
+        }
+      }
+
       targetWallet = w;
       const currentBal = Number(targetWallet?.balance) || 0;
+      const curLabel = targetWallet?.currency.replace("_RECARGAS", "") || userCountryCurrency;
       if (!targetWallet || currentBal < requiredAmount || currentBal <= 0) {
         throw new Error(
-          `Saldo insuficiente en tu billetera (${currentBal.toLocaleString()} HTG). Esta recarga requiere ${requiredAmount.toLocaleString()} HTG. Como agente, no puedes realizar transacciones sin saldo suficiente. Contacta a tu Super Agente o a un administrador para recargar tu cuenta.`,
+          `Saldo insuficiente en tu billetera (${currentBal.toLocaleString()} ${curLabel}). Esta recarga requiere ${requiredAmount.toLocaleString()} ${curLabel}. Como agente, no puedes realizar transacciones sin saldo suficiente. Contacta a tu Super Agente o a un administrador para recargar tu cuenta.`,
         );
       }
 
@@ -344,21 +370,32 @@ export const dingCreateTopupCheckout = createServerFn({ method: "POST" })
         throw new Error("Solo agentes autorizados pueden enviar recargas desde su Billetera de Recargas.");
       }
 
-      // Buscar Billetera de Recargas (HTG_RECARGAS)
+      // Buscar Billetera de Recargas del país del agente o general
+      let userCountryCurrency = "HTG";
+      try {
+        const { data: prof } = await supabaseAdmin
+          .from("profiles")
+          .select("phone, country")
+          .eq("id", context.userId)
+          .maybeSingle();
+        const { getCurrencyFromPhone } = await import("@/lib/phone");
+        userCountryCurrency = getCurrencyFromPhone(prof?.phone, prof?.country);
+      } catch {}
+
+      const countryRecargas = `${userCountryCurrency}_RECARGAS`;
       let { data: topupWallet } = await supabaseAdmin
         .from("wallets")
         .select("*")
         .eq("user_id", context.userId)
-        .eq("currency", "HTG_RECARGAS")
+        .eq("currency", countryRecargas)
         .maybeSingle();
 
       if (!topupWallet) {
-        // Fallback si aún no tiene HTG_RECARGAS
         const { data: generalWallet } = await supabaseAdmin
           .from("wallets")
           .select("*")
           .eq("user_id", context.userId)
-          .eq("currency", "HTG")
+          .in("currency", ["HTG_RECARGAS", userCountryCurrency, "HTG"])
           .maybeSingle();
         topupWallet = generalWallet;
       }

@@ -173,8 +173,10 @@ function Agente() {
   const rawTransfersBalance = Number(transfersWallet?.balance) || 0;
   const transfersBalance = rawTransfersBalance;
   const topupsWallet = useMemo(
-    () => myWallets.find((w) => w.currency === "HTG_RECARGAS"),
-    [myWallets],
+    () =>
+      myWallets.find((w) => w.currency === `${agentCurrency}_RECARGAS`) ||
+      myWallets.find((w) => w.currency === "HTG_RECARGAS"),
+    [myWallets, agentCurrency],
   );
   const topupsBalance = Number(topupsWallet?.balance) || 0;
 
@@ -183,10 +185,11 @@ function Agente() {
       myWallets.filter(
         (w) =>
           w.currency !== activeTransfersCurrency &&
+          w.currency !== `${agentCurrency}_RECARGAS` &&
           w.currency !== "HTG_RECARGAS" &&
           Number(w.balance) > 0,
       ),
-    [myWallets, activeTransfersCurrency],
+    [myWallets, activeTransfersCurrency, agentCurrency],
   );
 
   const transfersBalanceLabel = isAdmin
@@ -194,7 +197,7 @@ function Agente() {
     : `${transfersBalance.toLocaleString()} ${activeTransfersCurrency}`;
   const topupsBalanceLabel = isAdmin
     ? "Ilimitado (Admin)"
-    : `${topupsBalance.toLocaleString()} HTG`;
+    : `${topupsBalance.toLocaleString()} ${agentCurrency}`;
 
   // Estados de control para modales
   const [openNewCashModal, setOpenNewCashModal] = useState(false);
@@ -791,10 +794,14 @@ function Agente() {
         ))}
         <StatCard
           icon={Smartphone}
-          label={t("agent.wallet_topups")}
+          label={`${t("agent.wallet_topups")} (${agentCurrency})`}
           value={topupsBalanceLabel}
           tone="text-cyan-800 font-black"
-          hint={isAdmin ? "Los administradores no requieren saldo" : "Saldo asignado para recargas telefónicas"}
+          hint={
+            isAdmin
+              ? "Los administradores no requieren saldo"
+              : `${countryInfo.flag} Saldo asignado para recargas (${agentCurrency})`
+          }
         />
         <StatCard
           icon={Banknote}

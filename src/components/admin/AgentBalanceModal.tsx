@@ -62,13 +62,17 @@ export function AgentBalanceModal({ isOpen, onClose, user, onSuccess }: AgentBal
   const countryInfo = getCountryInfoFromPhone(user.phone, (user as any).country);
   const agentCurrency = countryInfo.currency;
 
-  const activeCurrency =
-    walletType === "topups" ? "HTG" : selectedCurrency || agentCurrency;
+  const activeCurrency = selectedCurrency || agentCurrency;
 
   const transfersWallet =
     userWallets.find((w) => w.currency === activeCurrency) ||
     userWallets.find((w) => w.currency === agentCurrency);
-  const topupsWallet = userWallets.find((w) => w.currency === "HTG_RECARGAS");
+
+  const topupKey = `${activeCurrency}_RECARGAS`;
+  const topupsWallet =
+    userWallets.find((w) => w.currency === topupKey) ||
+    (activeCurrency === "HTG" ? userWallets.find((w) => w.currency === "HTG_RECARGAS") : null) ||
+    userWallets.find((w) => w.currency === "HTG_RECARGAS");
 
   const transfersBalance =
     transfersWallet != null
@@ -79,7 +83,9 @@ export function AgentBalanceModal({ isOpen, onClose, user, onSuccess }: AgentBal
   const topupsBalance =
     topupsWallet != null
       ? Number(topupsWallet.balance)
-      : Number((user as any).balanceTopupsHTG) || 0;
+      : activeCurrency === agentCurrency
+        ? Number((user as any).balanceTopupsHTG) || 0
+        : 0;
 
   const isAgentOrSuper =
     user.roles?.includes("agent") ||
@@ -238,55 +244,53 @@ export function AgentBalanceModal({ isOpen, onClose, user, onSuccess }: AgentBal
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-1.5 text-cyan-800 font-black text-xs">
                     <Smartphone className="size-4 text-cyan-700" />
-                    <span>Recargas Haití</span>
+                    <span>Recargas ({countryInfo.flag} {agentCurrency})</span>
                   </div>
                   {walletType === "topups" && <span className="size-2 rounded-full bg-cyan-600 ring-2 ring-cyan-300" />}
                 </div>
-                <p className="text-[10px] text-slate-600 font-medium mt-1">DingConnect / Telefonía</p>
+                <p className="text-[10px] text-slate-600 font-medium mt-1">Telefonía en {countryInfo.name}</p>
                 <p className="text-base font-black text-cyan-800 mt-1.5">
-                  {isLoadingWallets ? "..." : `${topupsBalance.toLocaleString()} HTG`}
+                  {isLoadingWallets ? "..." : `${topupsBalance.toLocaleString()} ${agentCurrency}`}
                 </p>
               </button>
             </div>
 
-            {/* Selector de Moneda de Operación para Billetera de Envíos */}
-            {walletType === "transfers" && (
-              <div className="pt-1 space-y-1">
-                <span className="text-[11px] font-bold text-slate-600 block">
-                  Moneda a acreditar:
-                </span>
-                <div className="flex flex-wrap items-center gap-1.5">
-                  {[
-                    { cur: agentCurrency, label: `${countryInfo.flag} ${agentCurrency} (${countryInfo.name})` },
-                    ...(agentCurrency !== "DOP" ? [{ cur: "DOP", label: "🇩🇴 DOP" }] : []),
-                    ...(agentCurrency !== "MXN" ? [{ cur: "MXN", label: "🇲🇽 MXN" }] : []),
-                    ...(agentCurrency !== "USD" ? [{ cur: "USD", label: "🇺🇸 USD" }] : []),
-                    ...(agentCurrency !== "CLP" ? [{ cur: "CLP", label: "🇨🇱 CLP" }] : []),
-                    ...(agentCurrency !== "HTG" ? [{ cur: "HTG", label: "🇭🇹 HTG" }] : []),
-                  ].map((item) => (
-                    <button
-                      key={item.cur}
-                      type="button"
-                      onClick={() => setSelectedCurrency(item.cur)}
-                      className={`px-2 py-0.5 rounded-lg text-xs font-bold transition border cursor-pointer ${
-                        activeCurrency === item.cur
-                          ? "bg-emerald-600 text-white border-emerald-600 shadow-xs"
-                          : "bg-slate-100 text-slate-700 hover:bg-slate-200 border-slate-200"
-                      }`}
-                    >
-                      {item.label}
-                    </button>
-                  ))}
-                </div>
+            {/* Selector de Moneda de Operación */}
+            <div className="pt-1 space-y-1">
+              <span className="text-[11px] font-bold text-slate-600 block">
+                Moneda a acreditar ({walletType === "topups" ? "Recargas" : "Envíos"}):
+              </span>
+              <div className="flex flex-wrap items-center gap-1.5">
+                {[
+                  { cur: agentCurrency, label: `${countryInfo.flag} ${agentCurrency} (${countryInfo.name})` },
+                  ...(agentCurrency !== "DOP" ? [{ cur: "DOP", label: "🇩🇴 DOP" }] : []),
+                  ...(agentCurrency !== "MXN" ? [{ cur: "MXN", label: "🇲🇽 MXN" }] : []),
+                  ...(agentCurrency !== "USD" ? [{ cur: "USD", label: "🇺🇸 USD" }] : []),
+                  ...(agentCurrency !== "CLP" ? [{ cur: "CLP", label: "🇨🇱 CLP" }] : []),
+                  ...(agentCurrency !== "HTG" ? [{ cur: "HTG", label: "🇭🇹 HTG" }] : []),
+                ].map((item) => (
+                  <button
+                    key={item.cur}
+                    type="button"
+                    onClick={() => setSelectedCurrency(item.cur)}
+                    className={`px-2 py-0.5 rounded-lg text-xs font-bold transition border cursor-pointer ${
+                      activeCurrency === item.cur
+                        ? "bg-emerald-600 text-white border-emerald-600 shadow-xs"
+                        : "bg-slate-100 text-slate-700 hover:bg-slate-200 border-slate-200"
+                    }`}
+                  >
+                    {item.label}
+                  </button>
+                ))}
               </div>
-            )}
+            </div>
           </div>
 
           {/* Campo de Monto a Acreditar */}
           <div className="space-y-1.5">
             <div className="flex items-center justify-between">
               <Label className="text-xs text-slate-800 font-extrabold">
-                Monto a Acreditar ({walletType === "topups" ? "Billetera Recargas (HTG)" : `Billetera Envíos (${activeCurrency})`})
+                Monto a Acreditar ({walletType === "topups" ? `Billetera Recargas (${activeCurrency})` : `Billetera Envíos (${activeCurrency})`})
               </Label>
               <span className="text-[11px] text-slate-600 font-medium">
                 Saldo actual: <strong className="text-slate-900 font-black">{currentBalance.toLocaleString()} {activeCurrency}</strong>

@@ -61,7 +61,7 @@ export function SuperAgentTransferModal({
 
   if (!agent) return null;
 
-  const opsCur = walletType === "topups" ? "HTG" : agent.currency || "HTG";
+  const opsCur = agent.currency || "HTG";
   const currentSuperBalance = walletType === "topups" ? superTopupsBalance : superTransfersBalance;
   const agentCurrentBalance = walletType === "topups" ? agent.balanceTopupsHTG : agent.balanceHTG;
   const numAmount = Number(amount) || 0;
@@ -149,7 +149,7 @@ export function SuperAgentTransferModal({
           <div className="flex items-center gap-2 pt-1 font-semibold text-slate-700">
             <span>Saldo Envíos: <strong className="text-emerald-800">{agent.balanceHTG.toLocaleString()} {agent.currency || "HTG"}</strong></span>
             <span>·</span>
-            <span>Saldo Recargas: <strong className="text-cyan-800">{agent.balanceTopupsHTG.toLocaleString()} HTG</strong></span>
+            <span>Saldo Recargas: <strong className="text-cyan-800">{agent.balanceTopupsHTG.toLocaleString()} {agent.currency || "HTG"}</strong></span>
           </div>
         </div>
 
@@ -190,11 +190,11 @@ export function SuperAgentTransferModal({
               >
                 <div className="flex items-center gap-2">
                   <Smartphone className="size-4 text-cyan-700" />
-                  <span className="font-bold text-xs">Recargas (HTG)</span>
+                  <span className="font-bold text-xs">Recargas ({opsCur})</span>
                 </div>
-                <p className="text-[10px] text-slate-500 mt-1">Digicel / Natcom</p>
+                <p className="text-[10px] text-slate-500 mt-1">Telefonía</p>
                 <p className="text-xs font-black text-cyan-800 mt-1">
-                  Tu saldo: {isAdmin ? "Ilimitado" : `${superTopupsBalance.toLocaleString()} HTG`}
+                  Tu saldo: {isAdmin ? "Ilimitado" : `${superTopupsBalance.toLocaleString()} ${opsCur}`}
                 </p>
               </button>
             </div>

@@ -106,26 +106,25 @@ export const adminAdjustAgentBalance = createServerFn({ method: "POST" })
     }
 
     let userCountryCurrency = "HTG";
-    if (input.walletType !== "topups") {
-      try {
-        const { data: prof } = await supabaseAdmin
-          .from("profiles")
-          .select("phone, country")
-          .eq("id", input.agentUserId)
-          .maybeSingle();
-        const { getCurrencyFromPhone } = await import("@/lib/phone");
-        userCountryCurrency = getCurrencyFromPhone(prof?.phone, prof?.country);
-      } catch {}
-    }
+    try {
+      const { data: prof } = await supabaseAdmin
+        .from("profiles")
+        .select("phone, country")
+        .eq("id", input.agentUserId)
+        .maybeSingle();
+      const { getCurrencyFromPhone } = await import("@/lib/phone");
+      userCountryCurrency = getCurrencyFromPhone(prof?.phone, prof?.country);
+    } catch {}
 
+    const baseCurrency = (input.currency || userCountryCurrency || "HTG").toUpperCase();
     const targetCurrency =
       input.walletType === "topups"
-        ? "HTG_RECARGAS"
-        : (input.currency || userCountryCurrency || "HTG").toUpperCase();
+        ? (baseCurrency === "HTG" ? "HTG_RECARGAS" : `${baseCurrency}_RECARGAS`)
+        : baseCurrency;
     const walletLabel =
       input.walletType === "topups"
-        ? "Billetera de Recargas Telefónicas"
-        : "Billetera de Envíos de Dinero";
+        ? `Billetera de Recargas Telefónicas (${baseCurrency})`
+        : `Billetera de Envíos de Dinero (${baseCurrency})`;
 
     // 1. Obtener o crear billetera específica para el agente
     const { data: existingWallet, error: fetchErr } = await supabaseAdmin

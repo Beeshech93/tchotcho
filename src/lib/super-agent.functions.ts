@@ -170,7 +170,10 @@ export const getMySubordinateAgents = createServerFn({ method: "GET" })
       const targetW = agentWallets.find((w) => w.currency === targetCur);
       const opsBal = targetW ? Number(targetW.balance) : 0;
       const opsCur = targetCur;
-      const topupBal = Number(agentWallets.find((w) => w.currency === "HTG_RECARGAS")?.balance ?? 0);
+      const topupW =
+        agentWallets.find((w) => w.currency === `${targetCur}_RECARGAS`) ||
+        agentWallets.find((w) => w.currency === "HTG_RECARGAS");
+      const topupBal = Number(topupW?.balance ?? 0);
 
       const agentTxs = transferList.filter((t) => t.agent_id === item.id && t.status !== "cancelled");
       const commPct = Number(item.commissionPercent ?? 0.5);

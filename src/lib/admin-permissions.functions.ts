@@ -685,7 +685,11 @@ export const getAdminUsersList = createServerFn({ method: "GET" })
       const nationalWallet = userWallets.find((w) => w.currency === targetCurrency);
       const opsBalance = nationalWallet ? Number(nationalWallet.balance) : 0;
       const opsCurrency = targetCurrency;
-      const topupBal = userWallets.find((w) => w.currency === "HTG_RECARGAS")?.balance ?? 0;
+      const topupKey = `${targetCurrency}_RECARGAS`;
+      const topupW =
+        userWallets.find((w) => w.currency === topupKey) ||
+        userWallets.find((w) => w.currency === "HTG_RECARGAS");
+      const topupBal = topupW ? Number(topupW.balance) : 0;
 
       // Asegurar que administradores principales siempre tengan rol 'admin'
       const finalRoles = [...userRoles];
@@ -757,7 +761,11 @@ export const getAdminUsersList = createServerFn({ method: "GET" })
         const nationalWallet = userWallets.find((w) => w.currency === targetCurrency);
         const opsBalance = nationalWallet ? Number(nationalWallet.balance) : 0;
         const opsCurrency = targetCurrency;
-        const topupBal = userWallets.find((w) => w.currency === "HTG_RECARGAS")?.balance ?? 0;
+        const topupKey = `${targetCurrency}_RECARGAS`;
+      const topupW =
+        userWallets.find((w) => w.currency === topupKey) ||
+        userWallets.find((w) => w.currency === "HTG_RECARGAS");
+      const topupBal = topupW ? Number(topupW.balance) : 0;
 
         const parentInfo = parentMap.get(p.id);
 
