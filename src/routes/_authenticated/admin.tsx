@@ -788,30 +788,15 @@ function UsersPanel() {
                 </div>
                 <div className="flex flex-wrap items-center gap-2">
                   {isAgent && !isAdmin && (
-                    <>
-                      {isSuperAgent || !p.parentSuperAgentName ? (
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="gap-1.5 border-2 border-emerald-600 bg-emerald-50 text-emerald-800 hover:bg-emerald-100 font-black text-xs rounded-xl shadow-2xs"
-                          onClick={() => setBalanceUser(p)}
-                        >
-                          <Coins className="size-3.5" />
-                          Adicionar Saldo
-                        </Button>
-                      ) : (
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="gap-1.5 border border-purple-200 bg-purple-50/70 text-purple-800 hover:bg-purple-100 text-xs rounded-xl font-bold"
-                          onClick={() => setBalanceUser(p)}
-                          title={`Agente en red de ${p.parentSuperAgentName}. Recargado por su Super Agente.`}
-                        >
-                          <Coins className="size-3.5 text-purple-600" />
-                          En Red ({p.parentSuperAgentName.split(" ")[0]})
-                        </Button>
-                      )}
-                    </>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="gap-1.5 border-2 border-emerald-600 bg-emerald-50 text-emerald-800 hover:bg-emerald-100 font-black text-xs rounded-xl shadow-2xs"
+                      onClick={() => setBalanceUser(p)}
+                    >
+                      <Coins className="size-3.5" />
+                      Adicionar Saldo
+                    </Button>
                   )}
 
                   {/* Administradores y Super Admin: pueden asignar roles y configurar opciones permitidas */}

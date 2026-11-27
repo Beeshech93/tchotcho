@@ -35,86 +35,38 @@ export const adminAdjustAgentBalance = createServerFn({ method: "POST" })
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-    // Las cuentas de clientes y administradores no necesitan saldo operativo.
+    // Las cuentas de clientes y administradores puros no necesitan saldo operativo.
     const { data: roleRows } = await supabaseAdmin
       .from("user_roles")
       .select("role")
       .eq("user_id", input.agentUserId)
       .in("role", ["agent", "super_agent", "admin"]);
 
-    if (!roleRows || roleRows.length === 0) {
+    const hasAgentRole = (roleRows ?? []).some(
+      (r) => r.role === "agent" || r.role === "super_agent",
+    );
+
+    const isSuperAgentCredential = Boolean(
+      (
+        await supabaseAdmin
+          .from("integration_credentials")
+          .select("value")
+          .eq("name", `SUPER_AGENT_ROLE_${input.agentUserId}`)
+          .maybeSingle()
+      ).data?.value,
+    );
+
+    if (!hasAgentRole && !isSuperAgentCredential) {
       throw new Error(
-        "Las cuentas clientes no necesitan saldo. Solo las cuentas de agentes pueden recibir asignación de saldo operativo.",
+        "Las cuentas clientes no necesitan saldo operativo. La asignación de saldo está reservada para agentes y Super Agentes.",
       );
     }
 
-    const targetIsAdmin = roleRows.some((r) => r.role === "admin");
-    if (targetIsAdmin) {
+    const targetIsAdmin = (roleRows ?? []).some((r) => r.role === "admin");
+    if (targetIsAdmin && !hasAgentRole && !isSuperAgentCredential) {
       throw new Error(
-        "Los administradores no requieren saldo para operar. La opción de adicionar saldo solo está disponible para Super Agentes y agentes independientes.",
+        "Los administradores no requieren saldo para operar. La opción de adicionar saldo está disponible para agentes y Super Agentes.",
       );
-    }
-
-    // Regla de Negocio Tchotcho:
-    // Solo los admin pueden recargar saldo a los Super Agentes y a agentes que NO están en la red de nadie.
-    // Los agentes subordinados (en la red de un Super Agente) deben ser recargados directamente por su Super Agente.
-    const isSuperAgent =
-      roleRows.some((r) => r.role === "super_agent") ||
-      Boolean(
-        (
-          await supabaseAdmin
-            .from("integration_credentials")
-            .select("value")
-            .eq("name", `SUPER_AGENT_ROLE_${input.agentUserId}`)
-            .maybeSingle()
-        ).data?.value,
-      );
-
-    if (!isSuperAgent) {
-      const parentKey = `AGENT_PARENT_SUPER_AGENT_${input.agentUserId}`;
-      const { data: parentCred } = await supabaseAdmin
-        .from("integration_credentials")
-        .select("value")
-        .eq("name", parentKey)
-        .maybeSingle();
-
-      if (parentCred?.value) {
-        try {
-          const pData = JSON.parse(parentCred.value);
-          if (pData?.superAgentId) {
-            throw new Error(
-              `Este agente pertenece a la red del Super Agente (${pData.superAgentName || "Super Agente"}). Solo los Super Agentes de su propia red pueden adicionar saldo a sus agentes subordinados. Los administradores solo pueden adicionar saldo a Super Agentes y a agentes independientes.`,
-            );
-          }
-        } catch (e: any) {
-          if (e.message && e.message.includes("Este agente pertenece a la red")) {
-            throw e;
-          }
-        }
-      }
-
-      // Comprobar también listas de redes de Super Agentes
-      const { data: networkRows } = await supabaseAdmin
-        .from("integration_credentials")
-        .select("name, value")
-        .ilike("name", "SUPER_AGENT_NETWORK_%");
-
-      for (const row of networkRows ?? []) {
-        if (row.value && row.value.includes(input.agentUserId)) {
-          try {
-            const list = JSON.parse(row.value);
-            if (Array.isArray(list) && list.some((a) => a.id === input.agentUserId)) {
-              throw new Error(
-                "Este agente pertenece a la red de un Super Agente. Solo su Super Agente de red puede adicionarle saldo. Los administradores solo pueden adicionar saldo a Super Agentes y a agentes independientes.",
-              );
-            }
-          } catch (e: any) {
-            if (e.message && e.message.includes("Este agente pertenece a la red")) {
-              throw e;
-            }
-          }
-        }
-      }
     }
 
     const targetCurrency =

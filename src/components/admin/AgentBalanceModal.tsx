@@ -122,17 +122,16 @@ export function AgentBalanceModal({ isOpen, onClose, user, onSuccess }: AgentBal
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4 pt-2">
-          {/* Advertencia de Regla de Negocio: Agente en Red de Super Agente */}
+          {/* Información de Red si pertenece a un Super Agente */}
           {user.parentSuperAgentName && !user.roles?.includes("super_agent") && (
-            <div className="rounded-2xl border-2 border-purple-300 bg-purple-50 p-3.5 text-purple-950 flex items-start gap-2.5 shadow-2xs">
-              <ShieldAlert className="size-5 text-purple-700 shrink-0 mt-0.5" />
+            <div className="rounded-2xl border-2 border-purple-200 bg-purple-50/70 p-3 text-purple-950 flex items-start gap-2.5 shadow-2xs">
+              <ShieldAlert className="size-4 text-purple-700 shrink-0 mt-0.5" />
               <div className="text-xs">
-                <p className="font-extrabold text-sm">Agente en Red de Super Agente</p>
-                <p className="text-purple-900 mt-1">
-                  Este agente pertenece a la red de <strong>{user.parentSuperAgentName}</strong>.
+                <p className="font-bold">
+                  Agente en red de: <span className="font-extrabold text-purple-900">{user.parentSuperAgentName}</span>
                 </p>
-                <p className="text-purple-800 text-[11px] mt-1">
-                  Solo los administradores pueden recargar saldo a los <strong>Super Agentes</strong> y a <strong>agentes independientes</strong> (que no están en la red de nadie). El saldo de este agente debe ser transferido directamente por su Super Agente asignado.
+                <p className="text-purple-800 text-[11px] mt-0.5">
+                  Como administrador, puedes adicionar saldo directamente a este agente, o su Super Agente puede transferirle saldo desde su panel.
                 </p>
               </div>
             </div>
@@ -295,19 +294,13 @@ export function AgentBalanceModal({ isOpen, onClose, user, onSuccess }: AgentBal
             </Button>
             <Button
               type="submit"
-              disabled={
-                isSubmitting ||
-                numAmount <= 0 ||
-                Boolean(user.parentSuperAgentName && !user.roles?.includes("super_agent"))
-              }
+              disabled={isSubmitting || numAmount <= 0}
               className="bg-emerald-600 hover:bg-emerald-700 text-white font-black gap-2 rounded-xl shadow-md disabled:opacity-50"
             >
               <Coins className="size-4" />
               {isSubmitting
                 ? "Acreditando..."
-                : user.parentSuperAgentName && !user.roles?.includes("super_agent")
-                  ? "Gestionado por Super Agente"
-                  : `Acreditar +${numAmount ? numAmount.toLocaleString() : ""} HTG`}
+                : `Acreditar +${numAmount ? numAmount.toLocaleString() : ""} HTG`}
             </Button>
           </DialogFooter>
         </form>
