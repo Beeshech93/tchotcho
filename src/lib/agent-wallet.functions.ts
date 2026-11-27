@@ -83,12 +83,35 @@ export const adminAdjustAgentBalance = createServerFn({ method: "POST" })
           const pData = JSON.parse(parentCred.value);
           if (pData?.superAgentId) {
             throw new Error(
-              `Este agente pertenece a la red del Super Agente (${pData.superAgentName || "Super Agente"}). Los administradores solo pueden recargar saldo a los Super Agentes y a agentes independientes (que no están en la red de nadie). Los agentes en red deben ser recargados directamente por su Super Agente.`,
+              `Este agente pertenece a la red del Super Agente (${pData.superAgentName || "Super Agente"}). Solo los Super Agentes de su propia red pueden adicionar saldo a sus agentes subordinados. Los administradores solo pueden adicionar saldo a Super Agentes y a agentes independientes.`,
             );
           }
         } catch (e: any) {
           if (e.message && e.message.includes("Este agente pertenece a la red")) {
             throw e;
+          }
+        }
+      }
+
+      // Comprobar también listas de redes de Super Agentes
+      const { data: networkRows } = await supabaseAdmin
+        .from("integration_credentials")
+        .select("name, value")
+        .ilike("name", "SUPER_AGENT_NETWORK_%");
+
+      for (const row of networkRows ?? []) {
+        if (row.value && row.value.includes(input.agentUserId)) {
+          try {
+            const list = JSON.parse(row.value);
+            if (Array.isArray(list) && list.some((a) => a.id === input.agentUserId)) {
+              throw new Error(
+                "Este agente pertenece a la red de un Super Agente. Solo su Super Agente de red puede adicionarle saldo. Los administradores solo pueden adicionar saldo a Super Agentes y a agentes independientes.",
+              );
+            }
+          } catch (e: any) {
+            if (e.message && e.message.includes("Este agente pertenece a la red")) {
+              throw e;
+            }
           }
         }
       }

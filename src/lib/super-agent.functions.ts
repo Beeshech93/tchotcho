@@ -993,6 +993,31 @@ export const superAgentTransferBalanceToSubordinate = createServerFn({ method: "
     const isAdmin = await verifyIsAdmin(context);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
+    // REGLA: Los Super Agentes solo pueden recargar a agentes ordinarios subordinados de su red.
+    // Solo los administradores pueden asignar saldo a los Super Agentes y a agentes independientes.
+    const { data: targetRoleRows } = await supabaseAdmin
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", input.targetUserId);
+
+    const targetIsSuperAgent =
+      (targetRoleRows ?? []).some((r) => r.role === "super_agent") ||
+      Boolean(
+        (
+          await supabaseAdmin
+            .from("integration_credentials")
+            .select("value")
+            .eq("name", `SUPER_AGENT_ROLE_${input.targetUserId}`)
+            .maybeSingle()
+        ).data?.value,
+      );
+
+    if (targetIsSuperAgent) {
+      throw new Error(
+        "Solo los administradores pueden adicionar saldo a los Super Agentes. Un Super Agente no puede transferir saldo a otro Super Agente.",
+      );
+    }
+
     // 1. Verificar pertenencia del agente a la red del Super Agente (a menos que sea admin global)
     if (!isAdmin) {
       // Regla de verificación: Super Agentes deben verificar su identidad antes de operar

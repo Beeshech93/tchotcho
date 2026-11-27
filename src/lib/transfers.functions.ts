@@ -937,6 +937,31 @@ export const agentConfirmCashPayment = createServerFn({ method: "POST" })
             transferId: t.id,
           };
         } else {
+          // Reembolsar saldo al agente si Bazik rechazó la operación
+          if (!isAdminData && agentWallet) {
+            const required = Number(t.amount_receive);
+            const { data: freshW } = await supabaseAdmin
+              .from("wallets")
+              .select("balance")
+              .eq("id", agentWallet.id)
+              .single();
+            const cur = Number(freshW?.balance) || 0;
+            const refundBal = Math.round((cur + required) * 100) / 100;
+            await supabaseAdmin
+              .from("wallets")
+              .update({ balance: refundBal, updated_at: new Date().toISOString() })
+              .eq("id", agentWallet.id);
+
+            await supabaseAdmin.from("wallet_transactions").insert({
+              wallet_id: agentWallet.id,
+              user_id: context.userId,
+              kind: "agent_transfer_refund",
+              amount: required,
+              currency: agentWallet.currency,
+              description: `Reembolso por entrega rechazada por Bazik (${t.reference})`,
+            });
+          }
+
           await supabaseAdmin
             .from("transfers")
             .update({
@@ -963,8 +988,32 @@ export const agentConfirmCashPayment = createServerFn({ method: "POST" })
             transferId: t.id,
           };
         }
-      } catch (err) {
+      } catch (err: any) {
         console.error("Bazik error:", err);
+        // En caso de excepción de red o conexión con Bazik, reembolsar al agente
+        if (!isAdminData && agentWallet) {
+          const required = Number(t.amount_receive);
+          const { data: freshW } = await supabaseAdmin
+            .from("wallets")
+            .select("balance")
+            .eq("id", agentWallet.id)
+            .single();
+          const cur = Number(freshW?.balance) || 0;
+          const refundBal = Math.round((cur + required) * 100) / 100;
+          await supabaseAdmin
+            .from("wallets")
+            .update({ balance: refundBal, updated_at: new Date().toISOString() })
+            .eq("id", agentWallet.id);
+
+          await supabaseAdmin.from("wallet_transactions").insert({
+            wallet_id: agentWallet.id,
+            user_id: context.userId,
+            kind: "agent_transfer_refund",
+            amount: required,
+            currency: agentWallet.currency,
+            description: `Reembolso por fallo de conexión al procesar entrega (${t.reference})`,
+          });
+        }
       }
     }
 

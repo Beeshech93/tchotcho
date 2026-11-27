@@ -60,19 +60,32 @@ export const dingSendTopup = createServerFn({ method: "POST" })
 
     if (!isAdminUser) {
       // Regla de Agentes: Obligatorio tener saldo operativo y disminuye por transacción
-      const { data: w } = await supabaseAdmin
+      // Buscar primero Billetera de Recargas ('HTG_RECARGAS') o billetera operativa 'HTG'
+      let { data: w } = await supabaseAdmin
         .from("wallets")
         .select("id, balance, currency")
         .eq("user_id", context.userId)
-        .order("created_at", { ascending: true })
-        .limit(1)
+        .eq("currency", "HTG_RECARGAS")
         .maybeSingle();
+
+      if (!w || Number(w.balance) < requiredAmount) {
+        const { data: generalW } = await supabaseAdmin
+          .from("wallets")
+          .select("id, balance, currency")
+          .eq("user_id", context.userId)
+          .eq("currency", "HTG")
+          .maybeSingle();
+
+        if (generalW && (Number(generalW.balance) >= requiredAmount || !w)) {
+          w = generalW;
+        }
+      }
 
       targetWallet = w;
       const currentBal = Number(targetWallet?.balance) || 0;
       if (!targetWallet || currentBal < requiredAmount || currentBal <= 0) {
         throw new Error(
-          `Saldo insuficiente en tu billetera (${currentBal.toLocaleString()} HTG). Como agente, no puedes realizar transacciones sin saldo suficiente. Contacta a un administrador para recargar tu cuenta.`,
+          `Saldo insuficiente en tu billetera (${currentBal.toLocaleString()} HTG). Esta recarga requiere ${requiredAmount.toLocaleString()} HTG. Como agente, no puedes realizar transacciones sin saldo suficiente. Contacta a tu Super Agente o a un administrador para recargar tu cuenta.`,
         );
       }
 
