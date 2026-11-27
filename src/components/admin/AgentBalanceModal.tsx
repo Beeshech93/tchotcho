@@ -62,12 +62,24 @@ export function AgentBalanceModal({ isOpen, onClose, user, onSuccess }: AgentBal
   const transfersBalance = transfersWallet ? Number(transfersWallet.balance) : 0;
   const topupsBalance = topupsWallet ? Number(topupsWallet.balance) : 0;
 
+  const isAgentOrSuper =
+    user.roles?.includes("agent") ||
+    user.roles?.includes("super_agent") ||
+    Boolean(user.parentSuperAgentName);
+  const isClient = !isAgentOrSuper && (user.roles?.includes("client") || !user.roles?.length);
+
   const currentBalance = walletType === "topups" ? topupsBalance : transfersBalance;
   const numAmount = Number(amount) || 0;
   const expectedNewBalance = Math.max(0, currentBalance + numAmount);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isClient) {
+      toast.error(
+        "Las cuentas clientes no necesitan saldo operativo. Primero asigna el rol de Agente a este usuario.",
+      );
+      return;
+    }
     if (!numAmount || numAmount <= 0) {
       toast.error("Por favor ingresa un monto válido mayor a 0.");
       return;
@@ -122,6 +134,19 @@ export function AgentBalanceModal({ isOpen, onClose, user, onSuccess }: AgentBal
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4 pt-2">
+          {/* Alerta si es cuenta cliente */}
+          {isClient && (
+            <div className="rounded-2xl border-2 border-amber-300 bg-amber-50 p-3 text-amber-950 flex items-start gap-2.5 shadow-2xs">
+              <ShieldAlert className="size-4 text-amber-700 shrink-0 mt-0.5" />
+              <div className="text-xs">
+                <p className="font-bold text-amber-900">Cuenta de tipo Cliente</p>
+                <p className="text-amber-800 text-[11px] mt-0.5">
+                  Las cuentas clientes no necesitan saldo operativo. Para asignarle saldo a este usuario, primero cámbiale el rol a Agente o Super Agente usando el botón «Asignar Rol».
+                </p>
+              </div>
+            </div>
+          )}
+
           {/* Información de Red si pertenece a un Super Agente */}
           {user.parentSuperAgentName && !user.roles?.includes("super_agent") && (
             <div className="rounded-2xl border-2 border-purple-200 bg-purple-50/70 p-3 text-purple-950 flex items-start gap-2.5 shadow-2xs">
@@ -294,7 +319,7 @@ export function AgentBalanceModal({ isOpen, onClose, user, onSuccess }: AgentBal
             </Button>
             <Button
               type="submit"
-              disabled={isSubmitting || numAmount <= 0}
+              disabled={isSubmitting || numAmount <= 0 || isClient}
               className="bg-emerald-600 hover:bg-emerald-700 text-white font-black gap-2 rounded-xl shadow-md disabled:opacity-50"
             >
               <Coins className="size-4" />

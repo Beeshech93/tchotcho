@@ -35,31 +35,76 @@ export const adminAdjustAgentBalance = createServerFn({ method: "POST" })
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-    // Las cuentas de clientes y administradores puros no necesitan saldo operativo.
+    // 1. Verificar si el usuario tiene rol de agente o super agente en user_roles
     const { data: roleRows } = await supabaseAdmin
       .from("user_roles")
       .select("role")
-      .eq("user_id", input.agentUserId)
-      .in("role", ["agent", "super_agent", "admin"]);
+      .eq("user_id", input.agentUserId);
 
-    const hasAgentRole = (roleRows ?? []).some(
+    let hasAgentRole = (roleRows ?? []).some(
       (r) => r.role === "agent" || r.role === "super_agent",
     );
 
-    const isSuperAgentCredential = Boolean(
-      (
-        await supabaseAdmin
-          .from("integration_credentials")
-          .select("value")
-          .eq("name", `SUPER_AGENT_ROLE_${input.agentUserId}`)
-          .maybeSingle()
-      ).data?.value,
-    );
+    // 2. Verificar marca de Super Agente en integration_credentials
+    const { data: saCred } = await supabaseAdmin
+      .from("integration_credentials")
+      .select("value")
+      .eq("name", `SUPER_AGENT_ROLE_${input.agentUserId}`)
+      .maybeSingle();
 
-    if (!hasAgentRole && !isSuperAgentCredential) {
+    const isSuperAgentCredential =
+      saCred?.value === "true" || saCred?.value === "active";
+
+    // 3. Verificar si es agente subordinado en la red de un Super Agente
+    const { data: parentCred } = await supabaseAdmin
+      .from("integration_credentials")
+      .select("value")
+      .eq("name", `AGENT_PARENT_SUPER_AGENT_${input.agentUserId}`)
+      .maybeSingle();
+
+    const isSubordinateAgent = Boolean(parentCred?.value);
+
+    // 4. Verificar metadatos de auth.users como respaldo
+    let isMetadataAgent = false;
+    try {
+      const { data: uData } = await supabaseAdmin.auth.admin.getUserById(input.agentUserId);
+      const meta = uData?.user?.user_metadata as any;
+      if (
+        meta?.role === "agent" ||
+        meta?.role === "super_agent" ||
+        meta?.is_super_agent === true ||
+        Boolean(meta?.parent_super_agent_id)
+      ) {
+        isMetadataAgent = true;
+      }
+    } catch {}
+
+    const isAuthorizedAgent =
+      hasAgentRole || isSuperAgentCredential || isSubordinateAgent || isMetadataAgent;
+
+    // Solo las cuentas de clientes no necesitan saldo operativo.
+    if (!isAuthorizedAgent) {
       throw new Error(
-        "Las cuentas clientes no necesitan saldo operativo. La asignación de saldo está reservada para agentes y Super Agentes.",
+        "Las cuentas clientes no necesitan saldo operativo. Para asignarle saldo a este usuario, primero cámbiale el rol a Agente o Super Agente con el botón «Asignar Rol».",
       );
+    }
+
+    // Auto-sincronizar el rol 'agent' en user_roles si faltaba para mantener coherencia en la BD
+    if (!hasAgentRole) {
+      try {
+        await supabaseAdmin
+          .from("user_roles")
+          .delete()
+          .eq("user_id", input.agentUserId)
+          .eq("role", "client" as any);
+        await supabaseAdmin.from("user_roles").insert({
+          user_id: input.agentUserId,
+          role: "agent" as any,
+        });
+        hasAgentRole = true;
+      } catch (errSync) {
+        console.warn("[adminAdjustAgentBalance] auto-sync agent role failed:", errSync);
+      }
     }
 
     const targetIsAdmin = (roleRows ?? []).some((r) => r.role === "admin");

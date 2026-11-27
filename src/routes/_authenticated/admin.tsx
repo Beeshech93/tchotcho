@@ -683,7 +683,8 @@ function UsersPanel() {
           .map((p) => {
             const isAdmin = p.roles.includes("admin");
             const isSuperAgent = p.roles.includes("super_agent");
-            const isAgent = p.roles.includes("agent") || isSuperAgent;
+            const isAgent = (p.roles.includes("agent") || isSuperAgent || Boolean(p.parentSuperAgentId)) && !isAdmin;
+            const isClient = !isAdmin && !isAgent;
             const adminPerms = adminsMap?.[p.id];
             const isMaster =
               p.email?.toLowerCase() === "charlesagency4@gmail.com" ||
@@ -861,7 +862,7 @@ function UsersPanel() {
               ? "admin"
               : editingUser.roles?.includes("super_agent")
                 ? "super_agent"
-                : editingUser.roles?.includes("agent")
+                : editingUser.roles?.includes("agent") || Boolean(editingUser.parentSuperAgentId)
                   ? "agent"
                   : "client"
           }
