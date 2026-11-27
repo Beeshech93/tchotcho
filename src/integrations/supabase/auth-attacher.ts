@@ -6,10 +6,10 @@ import { supabase } from "./client";
 // the browser never attaches the bearer token to serverFn RPCs.
 export const attachSupabaseAuth = createMiddleware({ type: "function" }).client(
   async ({ next }) => {
-    const { data } = await supabase.auth.getSession();
+    let { data } = await supabase.auth.getSession();
     let token = data.session?.access_token;
 
-    if (data.session?.expires_at && data.session.expires_at * 1000 < Date.now() + 15_000) {
+    if (data.session?.expires_at && data.session.expires_at * 1000 < Date.now() + 60_000) {
       try {
         const { data: refreshed } = await supabase.auth.refreshSession();
         if (refreshed.session?.access_token) {
@@ -20,8 +20,29 @@ export const attachSupabaseAuth = createMiddleware({ type: "function" }).client(
       }
     }
 
-    return next({
-      headers: token ? { Authorization: `Bearer ${token}` } : {},
-    });
+    try {
+      return await next({
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
+    } catch (err: any) {
+      if (
+        err &&
+        typeof err.message === "string" &&
+        (err.message.includes("Unauthorized: Invalid token") ||
+          err.message.includes("JWT expired"))
+      ) {
+        try {
+          const { data: refreshed, error: refErr } = await supabase.auth.refreshSession();
+          if (!refErr && refreshed?.session?.access_token) {
+            return await next({
+              headers: { Authorization: `Bearer ${refreshed.session.access_token}` },
+            });
+          }
+        } catch {
+          // Si el refresh falla, continuar arrojando error original
+        }
+      }
+      throw err;
+    }
   },
 );

@@ -82,7 +82,20 @@ export const requireSupabaseAuth = createMiddleware({ type: "function" }).server
       },
     });
 
-    const { data: userData, error: userError } = await supabase.auth.getUser(token);
+    let { data: userData, error: userError } = await supabase.auth.getUser(token);
+
+    if (userError || !userData?.user) {
+      try {
+        const { supabaseAdmin } = await import("./client.server");
+        const adminRes = await supabaseAdmin.auth.getUser(token);
+        if (adminRes.data?.user) {
+          userData = adminRes.data;
+          userError = null;
+        }
+      } catch (err) {
+        console.error("[requireSupabaseAuth] Fallback admin auth error:", err);
+      }
+    }
 
     if (userError || !userData?.user) {
       console.error(
