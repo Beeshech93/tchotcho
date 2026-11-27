@@ -42,7 +42,17 @@ export function useWallets() {
   return useQuery({
     queryKey: ["wallets"],
     queryFn: async () => {
-      const { data, error } = await supabase.from("wallets").select("*").order("created_at");
+      let uid = (await supabase.auth.getUser()).data.user?.id;
+      if (!uid) {
+        uid = (await supabase.auth.getSession()).data.session?.user?.id;
+      }
+      if (!uid) return [];
+
+      const { data, error } = await supabase
+        .from("wallets")
+        .select("*")
+        .eq("user_id", uid)
+        .order("created_at");
       if (error) throw error;
       return (data ?? []) as unknown as Wallet[];
     },
@@ -53,9 +63,16 @@ export function useWalletTransactions() {
   return useQuery({
     queryKey: ["wallet_transactions"],
     queryFn: async () => {
+      let uid = (await supabase.auth.getUser()).data.user?.id;
+      if (!uid) {
+        uid = (await supabase.auth.getSession()).data.session?.user?.id;
+      }
+      if (!uid) return [];
+
       const { data, error } = await supabase
         .from("wallet_transactions")
         .select("*")
+        .eq("user_id", uid)
         .order("created_at", { ascending: false })
         .limit(100);
       if (error) throw error;

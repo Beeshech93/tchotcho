@@ -59,8 +59,14 @@ export function AgentBalanceModal({ isOpen, onClose, user, onSuccess }: AgentBal
 
   const transfersWallet = userWallets.find((w) => w.currency === "HTG");
   const topupsWallet = userWallets.find((w) => w.currency === "HTG_RECARGAS");
-  const transfersBalance = transfersWallet ? Number(transfersWallet.balance) : 0;
-  const topupsBalance = topupsWallet ? Number(topupsWallet.balance) : 0;
+  const transfersBalance =
+    transfersWallet != null
+      ? Number(transfersWallet.balance)
+      : Number((user as any).balanceHTG) || 0;
+  const topupsBalance =
+    topupsWallet != null
+      ? Number(topupsWallet.balance)
+      : Number((user as any).balanceTopupsHTG) || 0;
 
   const isAgentOrSuper =
     user.roles?.includes("agent") ||

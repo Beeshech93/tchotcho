@@ -146,13 +146,18 @@ function Agente() {
   const { data: countries } = useCountries();
   const { data: wallets } = useWallets();
 
+  const myWallets = useMemo(
+    () => (user?.id ? (wallets ?? []).filter((w) => w.user_id === user.id) : wallets ?? []),
+    [wallets, user?.id],
+  );
+
   const transfersWallet = useMemo(
-    () => (wallets ?? []).find((w) => w.currency === "HTG"),
-    [wallets],
+    () => myWallets.find((w) => w.currency === "HTG"),
+    [myWallets],
   );
   const topupsWallet = useMemo(
-    () => (wallets ?? []).find((w) => w.currency === "HTG_RECARGAS"),
-    [wallets],
+    () => myWallets.find((w) => w.currency === "HTG_RECARGAS"),
+    [myWallets],
   );
 
   const rawTransfersBalance = Number(transfersWallet?.balance) || 0;

@@ -518,7 +518,8 @@ function UsersPanel() {
               kyc_status: u.kyc_status || "none",
               created_at: u.created_at,
               roles: Array.isArray(u.roles) && u.roles.length > 0 ? u.roles : ["client"],
-              balanceHTG: Number(u.balance_htg || 0),
+              balanceHTG: Number(u.wallet_balance_htg ?? u.balance_htg ?? u.balanceHTG ?? 0),
+              balanceTopupsHTG: Number(u.wallet_balance_topups ?? u.balanceTopupsHTG ?? 0),
             })),
           };
         }
@@ -539,6 +540,7 @@ function UsersPanel() {
           const uRoles = (rList ?? []).filter((r) => r.user_id === p.id).map((r) => r.role);
           const uWallets = (wList ?? []).filter((w) => w.user_id === p.id);
           const bal = uWallets.find((w) => w.currency === "HTG")?.balance ?? 0;
+          const topupBal = uWallets.find((w) => w.currency === "HTG_RECARGAS")?.balance ?? 0;
           map.set(p.id, {
             id: p.id,
             email: (p as any).email || null,
@@ -550,6 +552,7 @@ function UsersPanel() {
             created_at: p.created_at,
             roles: uRoles,
             balanceHTG: Number(bal),
+            balanceTopupsHTG: Number(topupBal),
           });
         }
         return { users: Array.from(map.values()) };

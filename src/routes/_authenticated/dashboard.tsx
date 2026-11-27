@@ -93,16 +93,21 @@ export function Dashboard() {
     }
   }, [user?.id, wallets, preferredCurrency, ensureCountryWalletFn, refetchWallets]);
 
-  // Billetera principal en la moneda del país del teléfono del usuario
+  // Billetera principal en la moneda del país del teléfono del usuario o con saldo activo
   const primaryWallet = useMemo(() => {
     if (!wallets || wallets.length === 0) return null;
+    const myWallets = user?.id ? wallets.filter((w) => w.user_id === user.id) : wallets;
+    const countryWallet = myWallets.find((w) => w.currency === preferredCurrency);
+    if (countryWallet && Number(countryWallet.balance) > 0) return countryWallet;
+    const htgWallet = myWallets.find((w) => w.currency === "HTG");
+    if (htgWallet && Number(htgWallet.balance) > 0) return htgWallet;
     return (
-      wallets.find((w) => w.currency === preferredCurrency) ||
-      wallets.find((w) => w.currency === "HTG") ||
-      wallets.find((w) => !w.currency.includes("RECARGAS")) ||
-      wallets[0]
+      countryWallet ||
+      htgWallet ||
+      myWallets.find((w) => !w.currency.includes("RECARGAS")) ||
+      myWallets[0]
     );
-  }, [wallets, preferredCurrency]);
+  }, [wallets, user?.id, preferredCurrency]);
 
   const activeCurrency = primaryWallet?.currency || preferredCurrency;
   const activeBalance = Number(primaryWallet?.balance || 0);
