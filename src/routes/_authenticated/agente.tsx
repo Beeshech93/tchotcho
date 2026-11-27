@@ -45,7 +45,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useProfile } from "@/hooks/useProfile";
 import { useI18n } from "@/lib/i18n";
 import { useWallets } from "@/hooks/useWallet";
-import { getCountryInfoFromPhone } from "@/lib/phone";
+import { getCountryInfoFromPhone, getCurrencyFromPhone } from "@/lib/phone";
 import { bazikStatus } from "@/lib/bazik.functions";
 import {
   adminCancelTransfer,
@@ -162,19 +162,20 @@ function Agente() {
   const transfersWallet = useMemo(() => {
     const countryW = myWallets.find((w) => w.currency === agentCurrency);
     if (countryW) return countryW;
-    const htgW = myWallets.find((w) => w.currency === "HTG");
-    if (htgW) return htgW;
-    return myWallets[0];
-  }, [myWallets, agentCurrency]);
+    if (countryInfo.code === "HT") {
+      const htgW = myWallets.find((w) => w.currency === "HTG");
+      if (htgW) return htgW;
+    }
+    return null;
+  }, [myWallets, agentCurrency, countryInfo.code]);
 
+  const activeTransfersCurrency = agentCurrency;
+  const rawTransfersBalance = Number(transfersWallet?.balance) || 0;
+  const transfersBalance = rawTransfersBalance;
   const topupsWallet = useMemo(
     () => myWallets.find((w) => w.currency === "HTG_RECARGAS"),
     [myWallets],
   );
-
-  const activeTransfersCurrency = transfersWallet?.currency || agentCurrency;
-  const rawTransfersBalance = Number(transfersWallet?.balance) || 0;
-  const transfersBalance = rawTransfersBalance;
   const topupsBalance = Number(topupsWallet?.balance) || 0;
 
   const otherWallets = useMemo(
@@ -1204,9 +1205,14 @@ function Agente() {
                               {ag.phone || "Sin teléfono"}
                             </p>
                             <div className="flex flex-wrap items-center gap-2 mt-1.5 text-xs">
-                              <span className="font-semibold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
-                                Saldo Envíos: {ag.balanceHTG.toLocaleString()} {ag.currency || "HTG"}
-                              </span>
+                              {(() => {
+                                const agCur = ag.currency || getCurrencyFromPhone(ag.phone, ag.country);
+                                return (
+                                  <span className="font-semibold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
+                                    Saldo Envíos: {ag.balanceHTG.toLocaleString()} {agCur}
+                                  </span>
+                                );
+                              })()}
                               <span className="font-semibold text-cyan-800 bg-cyan-50 px-2 py-0.5 rounded-md border border-cyan-200">
                                 Saldo Recargas: {ag.balanceTopupsHTG.toLocaleString()} HTG
                               </span>

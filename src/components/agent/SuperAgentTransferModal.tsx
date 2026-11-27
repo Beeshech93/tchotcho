@@ -331,7 +331,7 @@ export function SuperAgentTransferModal({
               ) : (
                 <>
                   <CheckCircle2 className="size-4" />
-                  <span>Transferir {numAmount > 0 ? `${numAmount.toLocaleString()} HTG` : "Saldo"}</span>
+                  <span>Transferir {numAmount > 0 ? `${numAmount.toLocaleString()} ${opsCur}` : "Saldo"}</span>
                 </>
               )}
             </Button>

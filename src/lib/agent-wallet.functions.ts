@@ -105,8 +105,23 @@ export const adminAdjustAgentBalance = createServerFn({ method: "POST" })
       );
     }
 
+    let userCountryCurrency = "HTG";
+    if (input.walletType !== "topups") {
+      try {
+        const { data: prof } = await supabaseAdmin
+          .from("profiles")
+          .select("phone, country")
+          .eq("id", input.agentUserId)
+          .maybeSingle();
+        const { getCurrencyFromPhone } = await import("@/lib/phone");
+        userCountryCurrency = getCurrencyFromPhone(prof?.phone, prof?.country);
+      } catch {}
+    }
+
     const targetCurrency =
-      input.walletType === "topups" ? "HTG_RECARGAS" : (input.currency || "HTG").toUpperCase();
+      input.walletType === "topups"
+        ? "HTG_RECARGAS"
+        : (input.currency || userCountryCurrency || "HTG").toUpperCase();
     const walletLabel =
       input.walletType === "topups"
         ? "Billetera de Recargas Telefónicas"

@@ -168,16 +168,8 @@ export const getMySubordinateAgents = createServerFn({ method: "GET" })
       const agentWallets = walletList.filter((w) => w.user_id === item.id);
       const targetCur = getCurrencyFromPhone(p?.phone, p?.country);
       const targetW = agentWallets.find((w) => w.currency === targetCur);
-      const htgW = agentWallets.find((w) => w.currency === "HTG");
-      const activeW =
-        targetW && Number(targetW.balance) > 0
-          ? targetW
-          : htgW && Number(htgW.balance) > 0
-            ? htgW
-            : targetW || htgW;
-
-      const opsBal = activeW ? Number(activeW.balance) : 0;
-      const opsCur = activeW?.currency || targetCur;
+      const opsBal = targetW ? Number(targetW.balance) : 0;
+      const opsCur = targetCur;
       const topupBal = Number(agentWallets.find((w) => w.currency === "HTG_RECARGAS")?.balance ?? 0);
 
       const agentTxs = transferList.filter((t) => t.agent_id === item.id && t.status !== "cancelled");
@@ -1095,20 +1087,21 @@ export const superAgentTransferBalanceToSubordinate = createServerFn({ method: "
       }
     }
 
-    // 2. Determinar tipo de billetera y moneda objetivo
-    const targetCurrency = input.walletType === "topups" ? "HTG_RECARGAS" : "HTG";
-    const walletLabel =
-      input.walletType === "topups"
-        ? "Billetera de Recargas Telefónicas"
-        : "Billetera de Envíos de Dinero";
-
-    // 3. Obtener nombres para auditoría y comprobante
+    // 2. Determinar tipo de billetera y moneda objetivo según el país del agente
     const { data: subProfile } = await supabaseAdmin
       .from("profiles")
-      .select("full_name, phone")
+      .select("full_name, phone, country")
       .eq("id", input.targetUserId)
       .maybeSingle();
     const subAgentName = subProfile?.full_name || subProfile?.phone || "Agente";
+
+    const { getCurrencyFromPhone } = await import("@/lib/phone");
+    const subTargetCurrency = getCurrencyFromPhone(subProfile?.phone, subProfile?.country);
+    const targetCurrency = input.walletType === "topups" ? "HTG_RECARGAS" : subTargetCurrency;
+    const walletLabel =
+      input.walletType === "topups"
+        ? "Billetera de Recargas Telefónicas"
+        : `Billetera de Envíos de Dinero (${targetCurrency})`;
 
     const { data: superProfile } = await supabaseAdmin
       .from("profiles")

@@ -33,7 +33,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useCountries } from "@/hooks/useCorridors";
-import { getCountryInfoFromPhone } from "@/lib/phone";
+import { getCountryInfoFromPhone, getCurrencyFromPhone } from "@/lib/phone";
 import { bazikStatus } from "@/lib/bazik.functions";
 import { BazikPanel } from "@/components/admin/BazikPanel";
 import { CryptoPanel } from "@/components/admin/CryptoPanel";
@@ -509,19 +509,24 @@ function UsersPanel() {
         const { data: rpcRows, error: rpcErr } = await (supabase as any).rpc("admin_get_all_users");
         if (!rpcErr && Array.isArray(rpcRows) && rpcRows.length > 0) {
           return {
-            users: rpcRows.map((u: any) => ({
-              id: u.id,
-              email: u.email || null,
-              full_name: u.full_name || (u.email ? u.email.split("@")[0] : "Usuario"),
-              phone: u.phone || null,
-              country: u.country || "HT",
-              language: u.language || "es",
-              kyc_status: u.kyc_status || "none",
-              created_at: u.created_at,
-              roles: Array.isArray(u.roles) && u.roles.length > 0 ? u.roles : ["client"],
-              balanceHTG: Number(u.wallet_balance_htg ?? u.balance_htg ?? u.balanceHTG ?? 0),
-              balanceTopupsHTG: Number(u.wallet_balance_topups ?? u.balanceTopupsHTG ?? 0),
-            })),
+            users: rpcRows.map((u: any) => {
+              const uCur = getCurrencyFromPhone(u.phone, u.country);
+              return {
+                id: u.id,
+                email: u.email || null,
+                full_name: u.full_name || (u.email ? u.email.split("@")[0] : "Usuario"),
+                phone: u.phone || null,
+                country: u.country || "HT",
+                language: u.language || "es",
+                kyc_status: u.kyc_status || "none",
+                created_at: u.created_at,
+                roles: Array.isArray(u.roles) && u.roles.length > 0 ? u.roles : ["client"],
+                currency: uCur,
+                balanceCurrency: uCur,
+                balanceHTG: Number(u.wallet_balance_htg ?? u.balance_htg ?? u.balanceHTG ?? 0),
+                balanceTopupsHTG: Number(u.wallet_balance_topups ?? u.balanceTopupsHTG ?? 0),
+              };
+            }),
           };
         }
       } catch (e) {
@@ -538,9 +543,11 @@ function UsersPanel() {
 
         const map = new Map<string, any>();
         for (const p of pList ?? []) {
+          const uCur = getCurrencyFromPhone(p.phone, p.country);
           const uRoles = (rList ?? []).filter((r) => r.user_id === p.id).map((r) => r.role);
           const uWallets = (wList ?? []).filter((w) => w.user_id === p.id);
-          const bal = uWallets.find((w) => w.currency === "HTG")?.balance ?? 0;
+          const nationalWallet = uWallets.find((w) => w.currency === uCur);
+          const bal = nationalWallet ? Number(nationalWallet.balance) : 0;
           const topupBal = uWallets.find((w) => w.currency === "HTG_RECARGAS")?.balance ?? 0;
           map.set(p.id, {
             id: p.id,
@@ -552,6 +559,8 @@ function UsersPanel() {
             kyc_status: p.kyc_status || "none",
             created_at: p.created_at,
             roles: uRoles,
+            currency: uCur,
+            balanceCurrency: uCur,
             balanceHTG: Number(bal),
             balanceTopupsHTG: Number(topupBal),
           });
@@ -726,7 +735,7 @@ function UsersPanel() {
                   </div>
                   {isAgent && !isAdmin && (() => {
                     const uCountry = getCountryInfoFromPhone(p.phone, p.country);
-                    const opsCur = (p as any).balanceCurrency || (p as any).currency || uCountry.currency;
+                    const opsCur = uCountry.currency;
                     return (
                       <div className="flex flex-wrap items-center gap-x-2 text-xs font-bold mt-1">
                         <span className="text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">

@@ -60,22 +60,22 @@ export function AgentBalanceModal({ isOpen, onClose, user, onSuccess }: AgentBal
   if (!user) return null;
 
   const countryInfo = getCountryInfoFromPhone(user.phone, (user as any).country);
-  const agentCurrency =
-    (user as any).balanceCurrency || (user as any).currency || countryInfo.currency;
+  const agentCurrency = countryInfo.currency;
 
   const activeCurrency =
     walletType === "topups" ? "HTG" : selectedCurrency || agentCurrency;
 
   const transfersWallet =
     userWallets.find((w) => w.currency === activeCurrency) ||
-    userWallets.find((w) => w.currency === agentCurrency) ||
-    userWallets.find((w) => w.currency === "HTG");
+    userWallets.find((w) => w.currency === agentCurrency);
   const topupsWallet = userWallets.find((w) => w.currency === "HTG_RECARGAS");
 
   const transfersBalance =
     transfersWallet != null
       ? Number(transfersWallet.balance)
-      : Number((user as any).balanceHTG) || 0;
+      : activeCurrency === agentCurrency
+        ? Number((user as any).balanceHTG) || 0
+        : 0;
   const topupsBalance =
     topupsWallet != null
       ? Number(topupsWallet.balance)
@@ -370,7 +370,7 @@ export function AgentBalanceModal({ isOpen, onClose, user, onSuccess }: AgentBal
               <Coins className="size-4" />
               {isSubmitting
                 ? "Acreditando..."
-                : `Acreditar +${numAmount ? numAmount.toLocaleString() : ""} HTG`}
+                : `Acreditar +${numAmount ? numAmount.toLocaleString() : ""} ${activeCurrency}`}
             </Button>
           </DialogFooter>
         </form>

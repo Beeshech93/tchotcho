@@ -683,16 +683,8 @@ export const getAdminUsersList = createServerFn({ method: "GET" })
       const targetCurrency = getCurrencyFromPhone(userPhone, userCountry);
 
       const nationalWallet = userWallets.find((w) => w.currency === targetCurrency);
-      const htgWallet = userWallets.find((w) => w.currency === "HTG");
-      const activeOpsWallet =
-        nationalWallet && Number(nationalWallet.balance) > 0
-          ? nationalWallet
-          : htgWallet && Number(htgWallet.balance) > 0
-            ? htgWallet
-            : nationalWallet || htgWallet;
-
-      const opsBalance = activeOpsWallet ? Number(activeOpsWallet.balance) : 0;
-      const opsCurrency = activeOpsWallet?.currency || targetCurrency;
+      const opsBalance = nationalWallet ? Number(nationalWallet.balance) : 0;
+      const opsCurrency = targetCurrency;
       const topupBal = userWallets.find((w) => w.currency === "HTG_RECARGAS")?.balance ?? 0;
 
       // Asegurar que administradores principales siempre tengan rol 'admin'
@@ -763,16 +755,8 @@ export const getAdminUsersList = createServerFn({ method: "GET" })
         const { getCurrencyFromPhone } = await import("@/lib/phone");
         const targetCurrency = getCurrencyFromPhone(p.phone, p.country);
         const nationalWallet = userWallets.find((w) => w.currency === targetCurrency);
-        const htgWallet = userWallets.find((w) => w.currency === "HTG");
-        const activeOpsWallet =
-          nationalWallet && Number(nationalWallet.balance) > 0
-            ? nationalWallet
-            : htgWallet && Number(htgWallet.balance) > 0
-              ? htgWallet
-              : nationalWallet || htgWallet;
-
-        const opsBalance = activeOpsWallet ? Number(activeOpsWallet.balance) : 0;
-        const opsCurrency = activeOpsWallet?.currency || targetCurrency;
+        const opsBalance = nationalWallet ? Number(nationalWallet.balance) : 0;
+        const opsCurrency = targetCurrency;
         const topupBal = userWallets.find((w) => w.currency === "HTG_RECARGAS")?.balance ?? 0;
 
         const parentInfo = parentMap.get(p.id);
