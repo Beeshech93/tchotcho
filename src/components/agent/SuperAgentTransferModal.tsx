@@ -71,6 +71,13 @@ export function SuperAgentTransferModal({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!isAdmin) {
+      toast.error(
+        "Solo los administradores pueden adicionar saldo a los agentes. Los Super Agentes no tienen autorización para recargar saldo a otros agentes.",
+      );
+      return;
+    }
+
     if (!numAmount || numAmount <= 0) {
       toast.error("Por favor ingresa un monto válido mayor a 0 HTG.");
       return;
@@ -292,6 +299,15 @@ export function SuperAgentTransferModal({
             />
           </div>
 
+          {!isAdmin && (
+            <div className="rounded-xl border border-amber-300 bg-amber-50 p-3 text-xs text-amber-900 flex items-start gap-2">
+              <AlertTriangle className="size-4 text-amber-600 shrink-0 mt-0.5" />
+              <span>
+                <strong>Acceso restringido:</strong> Solo los administradores pueden adicionar saldo a los agentes. Los Super Agentes no pueden transferir saldo.
+              </span>
+            </div>
+          )}
+
           <DialogFooter className="gap-2 pt-2">
             <Button
               type="button"
@@ -304,11 +320,13 @@ export function SuperAgentTransferModal({
             </Button>
             <Button
               type="submit"
-              disabled={isSubmitting || hasInsufficientBalance || numAmount <= 0}
-              className="w-full sm:w-auto bg-emerald-700 hover:bg-emerald-800 text-white font-extrabold text-xs shadow-sm gap-2"
+              disabled={isSubmitting || !isAdmin || hasInsufficientBalance || numAmount <= 0}
+              className="w-full sm:w-auto bg-emerald-700 hover:bg-emerald-800 text-white font-extrabold text-xs shadow-sm gap-2 disabled:opacity-50"
             >
               {isSubmitting ? (
                 <span>Procesando...</span>
+              ) : !isAdmin ? (
+                <span>Solo Administradores</span>
               ) : (
                 <>
                   <CheckCircle2 className="size-4" />

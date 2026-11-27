@@ -1183,18 +1183,20 @@ function Agente() {
                               {ag.totalTransfersCount} envíos ({ag.totalVolumeSend.toLocaleString()} HTG)
                             </p>
                           </div>
-                          <Button
-                            size="sm"
-                            onClick={() => {
-                              setSelectedAgentForTransfer(ag);
-                              setOpenTransferModal(true);
-                            }}
-                            className="bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs gap-1.5 rounded-xl h-9 px-3 shrink-0 shadow-2xs"
-                            title="Recargar saldo operativo a este agente"
-                          >
-                            <Wallet className="size-3.5" />
-                            <span>Recargar Saldo</span>
-                          </Button>
+                          {isAdmin && (
+                            <Button
+                              size="sm"
+                              onClick={() => {
+                                setSelectedAgentForTransfer(ag);
+                                setOpenTransferModal(true);
+                              }}
+                              className="bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs gap-1.5 rounded-xl h-9 px-3 shrink-0 shadow-2xs"
+                              title="Adicionar saldo operativo (Admin)"
+                            >
+                              <Wallet className="size-3.5" />
+                              <span>Adicionar Saldo</span>
+                            </Button>
+                          )}
                           <Button
                             variant="ghost"
                             size="sm"

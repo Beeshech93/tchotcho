@@ -984,13 +984,18 @@ export const superAgentTransferBalanceToSubordinate = createServerFn({ method: "
   .middleware([requireSupabaseAuth])
   .validator((input: TransferToSubordinateInput) => transferToSubordinateSchema.parse(input))
   .handler(async ({ data: input, context }) => {
-    const isAllowed = await verifyIsSuperAgentOrAdmin(context);
-    if (!isAllowed) {
-      throw new Error("No tienes permisos de Super Agente para transferir saldo.");
-    }
-
     const { verifyIsAdmin } = await import("@/lib/admin.server");
     const isAdmin = await verifyIsAdmin(context);
+
+    // REGLA ESTRICTA TCHOTCHO:
+    // Los Super Agentes NO pueden adicionar saldo a los agentes.
+    // SOLO los administradores pueden adicionar saldo a los agentes y Super Agentes.
+    if (!isAdmin) {
+      throw new Error(
+        "Solo los administradores pueden adicionar saldo a los agentes. Los Super Agentes no tienen autorización para recargar saldo a otros agentes.",
+      );
+    }
+
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     // REGLA: Los Super Agentes solo pueden recargar a agentes ordinarios subordinados de su red.
